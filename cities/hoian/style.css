@@ -50,3 +50,10 @@ body.loading{background:#000 url(assets/walk/start.jpg) center/cover no-repeat} 
 body.minimal #hint{top:calc(env(safe-area-inset-top,0px) + 56px)}
 body.minimal #tapstart:not([hidden]) ~ #hint{top:calc(env(safe-area-inset-top,0px) + 96px)}
 body.minimal #spin{width:24px;height:24px;margin:-14px;border-width:3px}
+
+#explore-toggle{position:fixed;left:12px;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:7;border:1px solid #fff5;background:#000b;color:white;border-radius:18px;padding:9px 15px;font:14px system-ui}
+#explore[hidden],#navigation-note[hidden]{display:none}
+#explore{position:fixed;inset:12px;z-index:40;margin:auto;box-sizing:border-box;width:min(calc(100% - 24px),520px);max-height:calc(100dvh - 64px);overflow:auto;padding:20px;border:1px solid #ffffff40;border-radius:18px;background:#142321f5;box-shadow:0 20px 80px #0009;touch-action:pan-y;user-select:text}
+#explore header{display:flex;align-items:center;justify-content:space-between;gap:12px}#explore h1{font-size:22px;margin:0}#explore h2{font-size:16px;margin-top:24px}#explore p{line-height:1.55;color:#d1ded9}#explore button,#explore a{border:1px solid #ffffff40;background:#ffffff15;color:white;border-radius:9px;padding:10px 14px;font:14px system-ui;text-decoration:none}#explore nav a{display:block;margin:8px 0}#explore input{display:block;width:100%;margin:18px 0;touch-action:auto}#route-time{display:inline-block;margin-right:14px}#navigation-note{position:fixed;bottom:calc(158px + env(safe-area-inset-bottom,0px));left:16px;right:16px;margin:auto;width:fit-content;max-width:320px;padding:10px 14px;border-radius:10px;background:#000b;color:white;z-index:6;font:13px/1.5 system-ui;pointer-events:none}
+
+#explore-shade{position:fixed;inset:0;z-index:39;background:#0008}#explore-shade[hidden]{display:none}

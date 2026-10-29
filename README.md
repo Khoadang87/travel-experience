@@ -28,3 +28,20 @@ Run browser regressions with `python3 -m unittest discover -s tests -v` after
 installing Python `playwright` and Chromium. The tests use `/usr/bin/chromium`
 by default; set `CHROMIUM_PATH` to override it. These checks cover Chromium;
 Safari/iPhone playback still needs device validation.
+
+## Exploring and connecting routes
+
+Use **Explore** to pause the walk, choose any point on the available route, and
+resume there. Start/end notices explain how to walk back or choose another point.
+This is navigation along recorded footage; it is not a geographic street map or
+free movement off the filmed path.
+
+`cities/hoian/routes.json` lists the playable routes. Each entry has an `id`,
+`name`, `duration`, and relative `manifest` pointing to a walk manifest with
+forward/reverse HLS, poster, audio, and optional heading data beside it. Add
+connections as `{ "route": "target-id", "at": 120, "entry": 0, "label": "Entrance" }`.
+`at` marks the entrance time on the source route; `entry` marks the landing time
+in the target. Connections appear in Explore and preserve the quality setting.
+Add return connections explicitly. Only add a playable route after its media and
+use permissions have been verified. There is currently one street route and no
+connected buildings or temples. No geographic coordinates have been recorded.

@@ -2,11 +2,13 @@
 // Video time = position along the route. Forward = forward copy at a variable rate; backward = a pre-reversed copy.
 // Standing still keeps the world alive by creeping forward at a very slow rate (never a short loop). Look is free 360°.
 import * as THREE from 'three';
+import { loadCatalog } from './route-catalog.js?v=w8';
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const isMobile = matchMedia('(pointer:coarse)').matches || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-const BASE = 'assets/walk/';
+let BASE = 'assets/walk/';
+let navigationPaused = false;
 const showError = (m) => { $('spin').hidden = true; $('tapstart').hidden = true; $('loader').hidden = true; const e = $('error'); e.hidden = false; e.textContent = m; console.error('[viewer-error]', m); window.__viewerError = m; };
 window.__state = { loaded: false };
 /* the camera carrier occupies ~±18° around dead-behind, below the horizon: stop the turn far enough off-axis that he is outside the screen half-width */
@@ -240,7 +242,7 @@ let drag = null; const cv = renderer.domElement;
 cv.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, id: e.pointerId }; try { cv.setPointerCapture(e.pointerId); } catch (_) {} });
 cv.addEventListener('pointermove', e => { if (!drag || e.pointerId !== drag.id) return; const k = camera.fov / innerHeight * Math.PI / 180; view.yaw += (e.clientX - drag.x) * k; view.pitch = THREE.MathUtils.clamp(view.pitch + (e.clientY - drag.y) * k, -PMIN(), 1.3); drag.x = e.clientX; drag.y = e.clientY; });
 for (const n of ['pointerup', 'pointercancel']) cv.addEventListener(n, e => { if (drag && e.pointerId === drag.id) drag = null; }); // multi-touch: thumb on joystick + another finger dragging here to look
-const keys = {}; addEventListener('keydown', e => keys[e.code] = true); addEventListener('keyup', e => keys[e.code] = false);
+const keys = {}; addEventListener('keydown', e => { if (!navigationPaused && !['INPUT','TEXTAREA'].includes(e.target.tagName)) keys[e.code] = true; }); addEventListener('keyup', e => keys[e.code] = false);
 const joyEl = $('joy'), knob = $('knob'); let joy = { x: 0, y: 0, id: null }; const evc = { down: 0, move: 0, up: 0, cancel: 0, ts: 0 };
 for (const [k, n] of [['down', 'pointerdown'], ['move', 'pointermove'], ['up', 'pointerup'], ['cancel', 'pointercancel'], ['ts', 'touchstart']]) joyEl.addEventListener(n, () => evc[k]++, { passive: true });
 joyEl.addEventListener('touchstart', e => e.preventDefault(), { passive: false }); joyEl.addEventListener('touchmove', e => e.preventDefault(), { passive: false }); // iOS: never let the page pan/scroll steal the stick
@@ -264,7 +266,12 @@ let lastTurn = 0; function turnAround() { const n = performance.now(); if (n - l
 (async () => {
   let prog;
   try {
-    fetch(BASE + 'heading.json').then(r => r.ok ? r.json() : null).then(h => { HEAD = h; }).catch(() => {}); const r = await fetch(BASE + 'walk.json', { signal: AbortSignal.timeout(15000) }); if (!r.ok) throw new Error('walk.json ' + r.status); const j = await r.json(); LO = params.has('full') ? 0 : (j.lo || 0) /* the source has an editorial fade at 277-280 s: the default route starts after it so the walk has no cut */; D = j.duration; HI = params.has('full') ? D : (j.hi || D) /* the source starts a fade-out in its last 0.7 s */;
+    const catalog = await loadCatalog();
+    const route = catalog.routes.find(r => r.id === (params.get('route') || catalog.defaultRoute));
+    if (!route) throw new Error('This walk is not available. Open the default route to continue.');
+    const manifest = new URL(route.manifest, location.href);
+    BASE = new URL('.', manifest).href;
+    fetch(BASE + 'heading.json').then(r => r.ok ? r.json() : null).then(h => { HEAD = h; }).catch(() => {}); const r = await fetch(manifest, { signal: AbortSignal.timeout(15000) }); if (!r.ok) throw new Error('walk.json ' + r.status); const j = await r.json(); LO = params.has('full') ? 0 : (j.lo || 0) /* the source has an editorial fade at 277-280 s: the default route starts after it so the walk has no cut */; D = j.duration; HI = params.has('full') ? D : (j.hi || D) /* the source starts a fade-out in its last 0.7 s */;
     const probe = document.createElement('video'), ua = navigator.userAgent, isSafari = /Safari/.test(ua) && !/Chrome|CriOS|Chromium|Android|FxiOS/.test(ua);
     const hevcOK = isSafari && probe.canPlayType('video/mp4; codecs="hvc1.1.6.L153.B0"') !== '';
     const c = navigator.connection || {}, weak = c.saveData || (c.downlink && c.downlink < 2.5) || (navigator.deviceMemory && navigator.deviceMemory <= 2);
@@ -304,10 +311,10 @@ let lastTurn = 0; function turnAround() { const n = performance.now(); if (n - l
     let t = btnTarget === 'walk' ? WALK : null; const kf = keys.KeyW || keys.ArrowUp, jog = keys.ShiftLeft || keys.ShiftRight;
     /* w3: stick down walks backward along the street (view stays ahead); it no longer flips you around */
     if (t == null) { if (kf) t = jog ? JOG : WALK; else if (keys.KeyS || keys.ArrowDown) t = -WALK; else if (Math.abs(joy.y) > 0.2 && Math.abs(joy.y) > Math.abs(joy.x) * 0.7) { const m = (Math.abs(joy.y) - 0.2) / 0.8; t = Math.sign(-joy.y) * (m < 0.88 ? WALK * Math.max(0.35, Math.pow(m / 0.88, 1.2)) : JOG); } }
-    t = t == null ? IDLE : t * view.face; if (Math.abs(t) <= IDLE + 1e-6) t = IDLE; view.standing = IDLE === 0 && Math.abs(t) < 0.01 && Math.abs(rate) < 0.15; // standing: natural-looking forward footage at a slow drift
+    t = navigationPaused ? 0 : t == null ? IDLE : t * view.face; if (Math.abs(t) <= IDLE + 1e-6) t = IDLE; view.standing = IDLE === 0 && Math.abs(t) < 0.01 && Math.abs(rate) < 0.15; // standing: natural-looking forward footage at a slow drift
     target = t; rate += (target - rate) * Math.min(1, dt * 2.5);
     view.latT = (keys.KeyA ? -1 : keys.KeyD ? 1 : 0) + (Math.abs(joy.x) > 0.55 ? (joy.x - Math.sign(joy.x) * 0.55) / 0.45 : 0); view.lat = 0; /* w3: no sway */ { const jx = Math.abs(joy.x) > 0.6 ? (joy.x - Math.sign(joy.x) * 0.6) / 0.4 : 0; const kt = (keys.KeyA ? -1 : keys.KeyD ? 1 : 0) + jx; if (kt) view.yaw -= kt * 0.9 * dt; /* w4: steer only when the stick is pushed clearly sideways */ }
-    if (window.__state.loaded && !swapping) {
+    if (window.__state.loaded && !swapping && !navigationPaused) {
       const idle = Math.abs(target) < 0.5;
       // direction: walking back uses the reversed track; idle keeps the current track (and ping-pongs at the ends)
       if (frames > 90) { /* only after the forward walk is running, so startup bandwidth goes to the first picture */ const dirA = active === fwdT ? 1 : -1, rev = Math.sign(target) === -dirA && Math.abs(target) > 0.05; if (Math.abs(target) > 0.3) prime(performance.now(), rev && !view._rv); view._rv = rev; }
@@ -333,6 +340,9 @@ let lastTurn = 0; function turnAround() { const n = performance.now(); if (n - l
 function showTap() { const t = $('tapstart'); t.textContent = '🔊 Tap to start'; t.hidden = false; }
 /* Public hooks for custom UI (buttons etc.). Example: HoianWalk.setWalk(true) while a button is held.
    setWalk(on|null): walk forward like the stick; turnAround(); faceAhead(); state() -> { pos, lo, hi, facing, standing, sound } */
-window.HoianWalk = { setGyro: on => setGyro(on), gyro: () => gyroWant, setWalk: on => { btnTarget = on ? 'walk' : null; }, turnAround: () => turnAround(), faceAhead: () => { view.yaw = 0; view.pitch = 0; }, state: () => ({ pos: pos(), lo: LO, hi: HI, facing: view.face > 0 ? 'forward' : 'back', standing: !!view.standing, sound: soundOn, rate, joy: joy.y, swapping, base: active ? (active === fwdT ? 'fwd' : 'rev') + ' rs' + active.el.readyState + (active.el.paused ? 'P' : '>') : '-' }) };
+window.HoianWalk = {
+  pauseNavigation: on => { navigationPaused = !!on; if (on) { for (const key in keys) delete keys[key]; joy = {x:0,y:0,id:null}; knob.style.transform = ''; btnTarget = null; target = rate = 0; active?.pauseAll(); stopAudioNow(); } },
+  goTo: async value => { if (!Number.isFinite(value) || !active || swapping) throw new Error('Please wait for the current video to finish loading.'); const point = Math.max(LO, Math.min(HI - .1, value)); stopAudioNow(); await snapTo(point); view.hd = headAt(point); view.face = 1; view.turn = 0; target = rate = 0; },
+  setGyro: on => setGyro(on), gyro: () => gyroWant, setWalk: on => { btnTarget = on ? 'walk' : null; }, turnAround: () => turnAround(), faceAhead: () => { view.yaw = 0; view.pitch = 0; }, state: () => ({ pos: pos(), lo: LO, hi: HI, facing: view.face > 0 ? 'forward' : 'back', standing: !!view.standing, sound: soundOn, rate, joy: joy.y, swapping, base: active ? (active === fwdT ? 'fwd' : 'rev') + ' rs' + active.el.readyState + (active.el.paused ? 'P' : '>') : '-' }) };
 window.__hlsInfo = () => fwdT?.hls ? { cur: fwdT.hls.currentLevel, next: fwdT.hls.nextLoadLevel, start: fwdT.hls.startLevel, bw: Math.round(fwdT.hls.bandwidthEstimate / 1e5) / 10, lv: fwdT.hls.levels.map(l => l.width) } : null;
 window.__test = { sw: () => switchStats, hd: () => view.hd, shown: () => mat.map ? (mat.map.isVideoTexture ? 'video' : 'poster') : 'none', ttff: () => window.__ttff, head: () => headAt(pos()), vidLive: () => vidLive(), road: () => road && { gain: road.m.uniforms.gain.value.toArray(), off: road.m.uniforms.off.value }, look: () => ({ yaw: view.yaw, pitch: view.pitch, gyro: !!view.gyro }), nadir: () => nadir && nadir.m.uniforms.col.value.getHexString(), aud: () => ({ t: +audio.currentTime.toFixed(1), want: +aWant().toFixed(1), g: +aud.g.toFixed(2), paused: audio.paused, webaudio: !!aud.node, ctx: aud.ctx?.state }), turn: () => turnAround(), view: () => ({ face: view.face, turn: +view.turn.toFixed(2) }), setYaw: y => view.yaw = y, setPitch: p => view.pitch = p, key: (c, d) => keys[c] = d, els: () => [fwdT, revT].flatMap(t => t.els.map((v, j) => ({ t: t === fwdT ? "f" : "r", j, act: j === t.k, src: v.src.split("/").pop(), p: v.paused, rs: v.readyState, ct: +v.currentTime.toFixed(2), pr: v.playbackRate, buf: v.buffered.length ? +v.buffered.end(v.buffered.length - 1).toFixed(1) : 0 }))), state: () => ({ pos: pos(), D, rate, target, dir: active === fwdT ? 'fwd' : 'rev', chunk: active?.ci, frames, chunkSwaps, paused: active?.el.paused, w: active?.el.videoWidth, q: quality, swapping, err: window.__viewerError || null }) };

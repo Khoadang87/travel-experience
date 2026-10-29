@@ -1,0 +1,14 @@
+{
+  "defaultRoute": "old-town",
+  "routes": [
+    {
+      "id": "old-town",
+      "name": "Hội An old-town walk",
+      "kind": "street",
+      "manifest": "assets/walk/walk.json",
+      "duration": 660,
+      "description": "An 11-minute recorded route through the old town. Look around freely and walk forward or back along the recorded path.",
+      "connections": []
+    }
+  ]
+}

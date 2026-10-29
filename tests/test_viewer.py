@@ -5,6 +5,7 @@ import functools
 import http.server
 import os
 import re
+import json
 from pathlib import Path
 import threading
 import unittest
@@ -118,6 +119,57 @@ class ViewerTests(unittest.TestCase):
 
     def test_native_data_saver_selects_low_playlist(self):
         self.native_playlist('low', LOW)
+
+    def test_explore_pauses_walk_seeks_and_restores_controls(self):
+        self.load('?t=10')
+        self.page.keyboard.down('w')
+        self.page.wait_for_function('__test.state().pos > 10.5', timeout=10000)
+        self.page.locator('#explore-toggle').click()
+        self.page.keyboard.up('w')
+        self.assertTrue(self.page.locator('#explore').is_visible())
+        self.assertTrue(self.page.evaluate('__test.state().paused'))
+        self.page.locator('#route-position').fill('120')
+        self.page.locator('#route-go').click()
+        self.page.wait_for_function('document.getElementById("explore").hidden', timeout=25000)
+        self.assertAlmostEqual(self.page.evaluate('__test.state().pos'), 120, delta=.2)
+        self.page.keyboard.down('w')
+        self.page.wait_for_function('__test.state().pos > 120.5', timeout=10000)
+        self.page.keyboard.up('w')
+
+    def test_explore_keyboard_and_unavailable_interiors(self):
+        self.load()
+        self.page.locator('#explore-toggle').click()
+        self.assertTrue(self.page.locator('#no-connections').is_visible())
+        self.assertEqual(self.page.locator('#route-connections a').count(), 0)
+        self.page.locator('#route-position').focus()
+        before = self.page.evaluate('__test.state().pos')
+        self.page.keyboard.press('ArrowRight')
+        self.assertAlmostEqual(self.page.evaluate('__test.state().pos'), before, delta=.1)
+        self.page.keyboard.press('Escape')
+        self.assertTrue(self.page.locator('#explore').is_hidden())
+        self.assertTrue(self.page.locator('#explore-toggle').evaluate('(el) => document.activeElement === el'))
+
+    def test_connected_route_preserves_quality_and_entry_position(self):
+        fixture = {'defaultRoute':'old-town', 'routes':[
+            {'id':'old-town', 'name':'Test street', 'kind':'street', 'manifest':'assets/walk/walk.json', 'duration':660, 'connections':[{'route':'test-room','at':30,'entry':20,'label':'Test entrance'}]},
+            {'id':'test-room', 'name':'Test interior fixture', 'kind':'interior', 'manifest':'assets/walk/walk.json', 'duration':660, 'connections':[]}
+        ]}
+        self.page.route('**/routes.json', lambda route: route.fulfill(json=fixture))
+        self.load('?quality=high')
+        self.page.locator('#explore-toggle').click()
+        link = self.page.locator('#route-connections a')
+        self.assertIn('quality=high', link.get_attribute('href'))
+        self.assertIn('route=test-room', link.get_attribute('href'))
+        with self.page.expect_navigation(wait_until='domcontentloaded'):
+            link.click()
+        self.page.wait_for_function('window.__state?.loaded && Math.abs(__test.state().pos - 20) < .3', timeout=25000)
+        self.page.locator('#explore-toggle').click()
+        self.assertEqual(self.page.locator('#route-name').inner_text(), 'Test interior fixture')
+
+    def test_unknown_route_reports_error(self):
+        self.page.goto(f'http://127.0.0.1:{self.server.server_port}/cities/hoian/?route=missing', wait_until='domcontentloaded')
+        self.page.wait_for_function('!!window.__viewerError', timeout=10000)
+        self.assertIn('not available', self.page.locator('#error').inner_text())
 
     def test_manifest_failure_is_reported(self):
         self.page.route('**/hls/f.m3u8', lambda route: route.fulfill(status=404, body='missing'))
