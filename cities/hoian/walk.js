@@ -15,7 +15,7 @@ const IDLE = +(params.get('idle') || 0) /* 0 = standing still pauses the footage
 
 const renderer = new THREE.WebGLRenderer({ antialias: false }); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight); $('app').appendChild(renderer.domElement);
 const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 200);
-const fitCam = () => { camera.aspect = innerWidth / innerHeight; const a = camera.aspect, oldv = new URLSearchParams(location.search).get('lowmask') === '0'; camera.fov = oldv ? 75 : Math.min(a < 1 ? 70 : 75, 2 * Math.atan(Math.tan(82 * Math.PI / 360) / a) * 180 / Math.PI); camera.updateProjectionMatrix(); }; fitCam();
+const fitCam = () => { camera.aspect = innerWidth / innerHeight; const a = camera.aspect, oldv = new URLSearchParams(location.search).get('lowmask') === '0'; camera.fov = oldv ? 75 : Math.min(a < 1 ? 86 : 75, /* w6: wider portrait view (~47 deg across instead of ~36) = less upscaling of the footage */ 2 * Math.atan(Math.tan(82 * Math.PI / 360) / a) * 180 / Math.PI); camera.updateProjectionMatrix(); }; fitCam();
 addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); fitCam(); });
 const geo = new THREE.SphereGeometry(50, 128, 64); geo.scale(-1, 1, 1);
 /* w3: ground-plane proxy removed: it bent the lower hemisphere onto a fake floor and, with sideways sway, made the street wobble like water. The ground is now the plain footage. */
@@ -27,8 +27,9 @@ const crowd = null; /* ?crowd=1 test removed (assets/real, assets/crowd deleted 
 const audio = document.createElement('audio'); audio.loop = true; audio.preload = 'none'; document.body.appendChild(audio);
 /* Ambience = the real street sound of the same source, cut to exactly the route (h1). One gain controller does all fades; WebAudio gain is used where available because iOS ignores audio.volume. */
 const AVOL = 0.85, AOFF = 0; const aud = { g: 0, goal: 0, res: false, node: null };
-const vidLive = () => !!(window.__state.loaded && active && !active.el.paused && active.el.readyState >= 3 && performance.now() - lastAdv < 400 && frames > 3);
+const vidLive = () => !!(!swapping && window.__state.loaded && active && !active.el.paused && active.el.readyState >= 3 && performance.now() - lastAdv < 400 && frames > 3);
 const aWant = () => Math.min(Math.max(0, AOFF + pos()), Math.max(0, D - 0.5));
+function stopAudioNow() { aud.goal = 0; aud.g = 0; if (aud.node) aud.node.gain.value = 0; else audio.volume = 0; if (!audio.paused) audio.pause(); }
 function aInit() { if (aud.node) return; try { const C = window.AudioContext || window.webkitAudioContext; const ctx = new C(); const src = ctx.createMediaElementSource(audio); aud.node = ctx.createGain(); aud.node.gain.value = 0; src.connect(aud.node).connect(ctx.destination); aud.ctx = ctx; ctx.resume?.(); } catch (e) { aud.node = null; } }
 function aTick(dt) { if (!soundOn) return;
   /* standing still (idle=0): fade the street sound out and pause it, so nothing loops; it resumes in sync when you walk */
@@ -41,11 +42,11 @@ const mkTex = v => { const t = new THREE.VideoTexture(v); t.colorSpace = THREE.S
 let LO = 0, HI = 1e9, D = 0, rate = IDLE, target = IDLE, swapping = false, soundOn = false, frames = 0, lastAdv = performance.now(), quality = '4k', chunkSwaps = 0;
 // A chunked track: the route split into L-second files, played back to back with the next chunk preloaded in a 2nd element.
 const connection = navigator.connection || {};
-let qualityMode = connection.saveData ? 'low' : (['high', 'low'].includes(params.get('quality')) ? params.get('quality') : 'auto');
+let qualityMode = ['auto', 'high', 'low'].includes(params.get('quality')) ? params.get('quality') : connection.saveData ? 'low' : 'auto';
 function updateQuality() {
   const v = active?.el, label = qualityMode === 'high' ? 'High' : qualityMode === 'low' ? 'Data saver' : 'Auto';
-  $('quality').textContent = `${active?.hls ? label : 'Auto'} · ${v?.videoWidth ? v.videoWidth + 'px' : 'loading'}`;
-  $('quality').disabled = !active?.hls || !window.__state.loaded;
+  $('quality').textContent = `${label} · ${v?.videoWidth ? v.videoWidth + 'px' : 'loading'}`;
+  $('quality').disabled = !window.__state.loaded;
 }
 function applyQuality(tr) {
   const h = tr?.hls;
@@ -72,7 +73,7 @@ class Track {
   start(position = 0) {
     if (this.started) return;
     this.started = true; const v = this.el; v.preload = 'auto';
-    const nativeOK = isIOS || (/Safari/.test(navigator.userAgent) && !/Chrome|CriOS|Chromium|Android/.test(navigator.userAgent));
+    const nativeOK = params.get('hlsjs') !== '1' && (isIOS || (/Safari/.test(navigator.userAgent) && !/Chrome|CriOS|Chromium|Android/.test(navigator.userAgent)));
     if (!(nativeOK && v.canPlayType('application/vnd.apple.mpegurl')) && window.Hls && Hls.isSupported()) {
       const h = this.hls = new Hls({ startLevel: 0, startPosition: position,
         abrEwmaDefaultEstimate: 3e6, maxBufferLength: 12, maxMaxBufferLength: 24, backBufferLength: 8,
@@ -89,7 +90,26 @@ class Track {
       });
       h.on(Hls.Events.ERROR, (_, data) => { if (data.fatal) this.fail('The video stream could not load (' + data.type + ').'); });
       h.loadSource(this.url); h.attachMedia(v);
-    } else if (v.canPlayType('application/vnd.apple.mpegurl')) { v.src = this.url; v.load(); }
+    } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
+      // Native Safari cannot use hls.js level controls. Pin its media playlist in manual modes.
+      const loadNative = async () => {
+        let url = this.url;
+        if (qualityMode !== 'auto') {
+          const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
+          if (!response.ok) throw new Error('The video playlist could not load.');
+          const lines = (await response.text()).split(/\r?\n/), levels = [];
+          for (let i = 0; i < lines.length; i++) if (lines[i].startsWith('#EXT-X-STREAM-INF:')) {
+            const bitrate = +(lines[i].match(/(?:^|,)BANDWIDTH=(\d+)/)?.[1] || lines[i].match(/BANDWIDTH=(\d+)/)?.[1] || 0);
+            const uri = lines.slice(i + 1).find(line => line.trim() && !line.startsWith('#'));
+            if (uri) levels.push({ bitrate, url: new URL(uri.trim(), new URL(url, location.href)).href });
+          }
+          levels.sort((a, b) => a.bitrate - b.bitrate);
+          if (levels.length) url = levels[qualityMode === 'high' ? levels.length - 1 : 0].url;
+        }
+        v.src = url; v.load();
+      };
+      loadNative().catch(e => this.fail(e.message));
+    }
     else this.fail('This browser cannot play the walk. Try a browser with HLS support.');
   }
   get el() { return this.els[0]; } get nx() { return this.el; }
@@ -154,7 +174,11 @@ async function snapTo(p) { if (swapping || !active) return; swapping = true; try
 /* w5: direction switch without a hitch: the other stream is kept primed (paused at the mirrored frame) whenever you slow down or reverse,
    so switching is just play(); the old picture stays on screen until the new stream has a decoded frame, then we hand over. */
 let primeT = 0; var switchStats = { n: 0, lastMs: 0, seeks: 0 };
-function prime(now) { const o = active === fwdT ? revT : fwdT; if (swapping || now - primeT < 700 || !o.el.paused) return; const m = o === fwdT ? pos() : D - pos(); primeT = now; if (Math.abs(o.tpos - m) > 0.25 || o.el.readyState < 3) o.seek(m).catch(() => {}); }
+/* w6: primed continuously, also while walking (every ~0.9 s, at most one seek in flight); a reversal of the stick primes at once */
+let primeP = null;
+const inBuf = (v, t) => { const b = v.buffered; for (let i = 0; i < b.length; i++) if (t >= b.start(i) - 0.05 && t <= b.end(i) - 0.5) return true; return false; };
+function setBuf(tr, on) { if (tr?.hls) { tr.hls.config.maxBufferLength = on ? 16 : 22; tr.hls.config.maxMaxBufferLength = on ? 30 : 24; } }
+function prime(now, urgent) { const o = active === fwdT ? revT : fwdT; if (swapping || primeP || !o.el.paused || (!urgent && now - primeT < 900)) return; if (urgent && o.el.readyState >= 2 && inBuf(o.el, o === fwdT ? pos() : D - pos())) return; /* already parked close enough: the switch will use it */ if (Math.abs(rate) > 0.3 && Math.sign(target) !== Math.sign(rate)) return; /* slowing to reverse: keep the parked buffer where it is */ const walking = Math.abs(rate) > 0.3 && !urgent, sg = Math.sign(rate), pp = Math.max(0, Math.min(D, pos() + (walking ? sg * 2.5 : 0))), m = o === fwdT ? pp : D - pp, d = ((o === fwdT ? o.tpos : D - o.tpos) - pos()) * sg; /* w6: while walking, park the other stream ~6 s ahead of you; its (small, 10 s) buffer then runs from there back past where you are, so reversing is a seek inside already-downloaded data */ if ((walking ? (d < -0.5 || d > 3.5) : Math.abs(o.tpos - m) > 0.3) || o.el.readyState < 3) { primeT = now; const ps = performance.now(); (switchStats.pl = switchStats.pl || []).push([Math.round(ps / 100) / 10, +pos().toFixed(1), +m.toFixed(1), !!urgent]); primeP = o.seek(m).catch(() => {}).finally(() => { primeP = null; switchStats.pl.at(-1).push(Math.round(performance.now() - ps)); }); } }
 const nextFrame = (v, ms) => new Promise(resolve => {
   let callback, timer;
   const done = value => { clearTimeout(timer); if (callback != null) v.cancelVideoFrameCallback?.(callback); v.removeEventListener('timeupdate', frame); resolve(value); };
@@ -163,11 +187,9 @@ const nextFrame = (v, ms) => new Promise(resolve => {
   if (v.requestVideoFrameCallback) callback = v.requestVideoFrameCallback(frame); else v.addEventListener('timeupdate', frame, { once: true });
 });
 async function switchTo(tr) { if (swapping || tr === active) return; swapping = true; const t0 = performance.now(), p = pos(), m = tr === fwdT ? p : D - p, old = active;
-  try { if (Math.abs(tr.tpos - m) > 0.6 || tr.el.readyState < 2) { switchStats.seeks++; await tr.seek(m); }
-    tr.el.playbackRate = Math.max(isIOS ? 0.5 : 0.0625, Math.abs(rate)); old.pauseAll(); /* old frame stays as the texture (frozen) */ setSpin(true); const decoded = nextFrame(tr.el, 10000);
-    const [playing, framed] = await Promise.all([playSafe(tr.el), decoded]);
-    if (!playing || !framed) throw new Error('The return video is taking too long to start. Please reload to retry.');
-    mat.map = tr.tex[tr.k]; mat.needsUpdate = true; active = tr; lastAdv = performance.now(); switchStats.n++; switchStats.lastMs = Math.round(performance.now() - t0); setSpin(false); updateQuality(); } catch (e) { old.pauseAll(); showError(e.message); } finally { swapping = false; } }
+  try { stopAudioNow(); if (primeP && !inBuf(tr.el, tr === fwdT ? pos() : D - pos())) { switchStats.waitP = 1; old.pauseAll(); /* never show the old direction moving the wrong way while we wait */ await Promise.race([primeP, new Promise(r => setTimeout(r, 2500))]); } else switchStats.waitP = 0; switchStats.tA = Math.round(performance.now() - t0); const m2 = tr === fwdT ? pos() : D - pos(); const pr = tr === fwdT ? tr.tpos : D - tr.tpos, ahead = tr === fwdT ? pr - p : p - pr; /* w6: a primed frame up to 3 s further along the NEW direction is used as is (a small skip the way you're going beats a frozen seek) */ switchStats.skip = +ahead.toFixed(2); if (tr.el.readyState >= 1 && inBuf(tr.el, m2)) { switchStats.bufSeeks = (switchStats.bufSeeks || 0) + 1; old.pauseAll(); await tr.seek(m2); } else if (tr.el.readyState < 2 || ahead < -3 || ahead > 3) { switchStats.seeks++; await tr.seek(m2); }
+    tr.el.playbackRate = Math.max(isIOS ? 0.5 : 0.0625, Math.abs(rate)); old.pauseAll(); /* old frame stays as the texture (frozen) */ setSpin(true); switchStats.rs = tr.el.readyState; const decoded = nextFrame(tr.el, 10000); const [playing, framed] = await Promise.all([playSafe(tr.el), decoded]); switchStats.nf = framed; if (!playing || !framed) throw new Error('The return video is taking too long to start. Please reload to retry.');
+    mat.map = tr.tex[tr.k]; mat.needsUpdate = true; active = tr; setBuf(tr, true); setBuf(old, false); lastAdv = performance.now(); switchStats.n++; switchStats.lastMs = Math.round(performance.now() - t0); setSpin(false); updateQuality(); } catch (e) { old.pauseAll(); showError(e.message); } finally { swapping = false; } }
 
 // input
 const view = { face: 1, turn: 0, yaw: 0, pitch: 0, sy: 0, sp: 0, gyro: null, gyroYaw0: 0, lat: 0, latT: 0 };
@@ -255,7 +277,7 @@ let lastTurn = 0; function turnAround() { const n = performance.now(); if (n - l
     $('reset').textContent = 'Face ahead'; $('reset').onclick = () => { view.yaw = 0; view.pitch = 0; };
     updateQuality();
     document.addEventListener('visibilitychange', () => { if (document.hidden) { audio.pause(); active?.el.pause(); } else { if (soundOn) { aud.g = 0; aud.goal = AVOL; audio.currentTime = aWant(); audio.play().catch(() => {}); } if (active && !active.atEnd() && !view.standing) playSafe(active.el); } });
-    $('quality').onclick = () => { qualityMode = qualityMode === 'auto' ? 'high' : qualityMode === 'high' ? 'low' : 'auto'; for (const tr of [fwdT, revT]) applyQuality(tr); updateQuality(); };
+    $('quality').onclick = () => { qualityMode = qualityMode === 'auto' ? 'high' : qualityMode === 'high' ? 'low' : 'auto'; if (!active.hls) { params.set('quality', qualityMode); params.set('t', pos().toFixed(3)); location.search = params.toString(); return; } for (const tr of [fwdT, revT]) applyQuality(tr); updateQuality(); };
     $('scene').hidden = true;
     document.body.classList.add('minimal'); $('hint').textContent = isMobile ? 'Stick up: walk · stick down: walk back · 2nd finger: look' : 'W / ↑: walk · S / ↓: walk back · drag: look';
     new THREE.TextureLoader().load(BASE + j.poster, t => { t.colorSpace = THREE.SRGBColorSpace; if (!frames) { mat.map = t; mat.needsUpdate = true; if (!window.__state.loaded) renderer.setAnimationLoop(() => renderer.render(scene, camera)); } });
@@ -288,7 +310,7 @@ let lastTurn = 0; function turnAround() { const n = performance.now(); if (n - l
     if (window.__state.loaded && !swapping) {
       const idle = Math.abs(target) < 0.5;
       // direction: walking back uses the reversed track; idle keeps the current track (and ping-pongs at the ends)
-      if (frames > 90) { /* only after the forward walk is running, so startup bandwidth goes to the first picture */ const dirA = active === fwdT ? 1 : -1; if (Math.abs(target) > 0.3 && Math.sign(target) === -dirA) prime(performance.now()); }
+      if (frames > 90) { /* only after the forward walk is running, so startup bandwidth goes to the first picture */ const dirA = active === fwdT ? 1 : -1, rev = Math.sign(target) === -dirA && Math.abs(target) > 0.05; if (Math.abs(target) > 0.3) prime(performance.now(), rev && !view._rv); view._rv = rev; }
       let want = rate < -0.05 ? revT : rate > 0.3 ? fwdT : active; if (idle) want = IDLE > 0 ? ((pos() >= HI - 0.5) ? active : fwdT) : active;
       if (want !== active && !(want === revT && pos() <= LO + 0.2) && !(want === fwdT && pos() >= HI - 0.2)) switchTo(want);
       else if (active === fwdT && pos() >= HI - 0.05) { if (!active.el.paused) active.el.pause(); edgeStatus(); }
@@ -312,4 +334,5 @@ function showTap() { const t = $('tapstart'); t.textContent = '🔊 Tap to start
 /* Public hooks for custom UI (buttons etc.). Example: HoianWalk.setWalk(true) while a button is held.
    setWalk(on|null): walk forward like the stick; turnAround(); faceAhead(); state() -> { pos, lo, hi, facing, standing, sound } */
 window.HoianWalk = { setGyro: on => setGyro(on), gyro: () => gyroWant, setWalk: on => { btnTarget = on ? 'walk' : null; }, turnAround: () => turnAround(), faceAhead: () => { view.yaw = 0; view.pitch = 0; }, state: () => ({ pos: pos(), lo: LO, hi: HI, facing: view.face > 0 ? 'forward' : 'back', standing: !!view.standing, sound: soundOn, rate, joy: joy.y, swapping, base: active ? (active === fwdT ? 'fwd' : 'rev') + ' rs' + active.el.readyState + (active.el.paused ? 'P' : '>') : '-' }) };
+window.__hlsInfo = () => fwdT?.hls ? { cur: fwdT.hls.currentLevel, next: fwdT.hls.nextLoadLevel, start: fwdT.hls.startLevel, bw: Math.round(fwdT.hls.bandwidthEstimate / 1e5) / 10, lv: fwdT.hls.levels.map(l => l.width) } : null;
 window.__test = { sw: () => switchStats, hd: () => view.hd, shown: () => mat.map ? (mat.map.isVideoTexture ? 'video' : 'poster') : 'none', ttff: () => window.__ttff, head: () => headAt(pos()), vidLive: () => vidLive(), road: () => road && { gain: road.m.uniforms.gain.value.toArray(), off: road.m.uniforms.off.value }, look: () => ({ yaw: view.yaw, pitch: view.pitch, gyro: !!view.gyro }), nadir: () => nadir && nadir.m.uniforms.col.value.getHexString(), aud: () => ({ t: +audio.currentTime.toFixed(1), want: +aWant().toFixed(1), g: +aud.g.toFixed(2), paused: audio.paused, webaudio: !!aud.node, ctx: aud.ctx?.state }), turn: () => turnAround(), view: () => ({ face: view.face, turn: +view.turn.toFixed(2) }), setYaw: y => view.yaw = y, setPitch: p => view.pitch = p, key: (c, d) => keys[c] = d, els: () => [fwdT, revT].flatMap(t => t.els.map((v, j) => ({ t: t === fwdT ? "f" : "r", j, act: j === t.k, src: v.src.split("/").pop(), p: v.paused, rs: v.readyState, ct: +v.currentTime.toFixed(2), pr: v.playbackRate, buf: v.buffered.length ? +v.buffered.end(v.buffered.length - 1).toFixed(1) : 0 }))), state: () => ({ pos: pos(), D, rate, target, dir: active === fwdT ? 'fwd' : 'rev', chunk: active?.ci, frames, chunkSwaps, paused: active?.el.paused, w: active?.el.videoWidth, q: quality, swapping, err: window.__viewerError || null }) };

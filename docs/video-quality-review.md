@@ -53,3 +53,18 @@ Native Safari/iPhone, real mobile networks, and deployed performance are unteste
 The 2560×1280 image covers the full sphere, so a viewport contains less detail
 than a flat video of that resolution. No footage was upscaled or re-encoded.
 Changes have not been pushed, deployed, or published.
+
+## Integration with newer GitHub version
+
+Before delivery, fetched upstream commit 9d2d975, which replaces the forward
+renditions with 1280×640 and 3840×1920. Preserved its wider portrait view, audio
+cutoff during switches, and parked reverse-stream behavior while walking. Initial
+idle startup still avoids reverse downloads. Browser tests derive the expected
+widths from the HLS master and pass against the new media. Earlier 960/2560
+measurements above describe the pre-integration baseline, not the final streams.
+The integrated player uses cache version w7.
+
+Explicit High/Data saver selection now also routes native Safari to the selected
+media playlist, preserving position through a reload. Two Chromium-emulated
+routing tests verify the high/low playlist requests; these do not establish real
+Safari decoding or iPhone playback. All seven current browser checks pass.

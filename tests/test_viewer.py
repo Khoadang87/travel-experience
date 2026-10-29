@@ -4,12 +4,15 @@ Requires Python playwright and an installed Chromium (CHROMIUM_PATH overrides pa
 import functools
 import http.server
 import os
+import re
 from pathlib import Path
 import threading
 import unittest
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
+WIDTHS = [int(w) for w in re.findall(r'RESOLUTION=(\d+)x', (ROOT / 'cities/hoian/assets/walk/hls/f.m3u8').read_text())]
+LOW, HIGH = min(WIDTHS), max(WIDTHS)
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *args):
@@ -55,30 +58,30 @@ class ViewerTests(unittest.TestCase):
 
     def test_paused_first_frame_sharpens_without_reverse_or_audio_download(self):
         self.load()
-        self.page.wait_for_function('__test.state().w === 2560 && __test.state().paused', timeout=15000)
+        self.page.wait_for_function(f'__test.state().w === {HIGH} && __test.state().paused', timeout=15000)
         self.page.wait_for_timeout(6500)  # catches the former unconditional six-second reverse timer
         self.assertLess(self.page.evaluate('__test.state().pos'), .2)
         self.assertTrue(self.page.locator('#quality').is_visible())
-        self.assertIn('2560px', self.page.locator('#quality').inner_text())
+        self.assertIn(f'{HIGH}px', self.page.locator('#quality').inner_text())
         self.assertFalse(any('/r1600/' in r or 'ambience.m4a' in r for r in self.requests))
 
     def test_save_data_caps_stream_and_manual_quality_can_override(self):
         self.page.add_init_script("Object.defineProperty(navigator, 'connection', {value: {saveData:true, downlink:1}})")
         self.load()
-        self.assertEqual(self.page.evaluate('__test.state().w'), 960)
+        self.assertEqual(self.page.evaluate('__test.state().w'), LOW)
         self.assertIn('Data saver', self.page.locator('#quality').inner_text())
         self.page.wait_for_timeout(1000)
-        self.assertFalse(any('/hls/f/s' in r for r in self.requests))
+        self.assertFalse(any(f'/hls/f{HIGH}/s' in r for r in self.requests))
         self.page.locator('#quality').click()  # Auto
         self.page.locator('#quality').click()  # High
-        self.page.wait_for_function('__test.state().w === 2560', timeout=15000)
+        self.page.wait_for_function(f'__test.state().w === {HIGH}', timeout=15000)
         self.assertIn('High', self.page.locator('#quality').inner_text())
         self.page.locator('#quality').click()  # Data saver
-        self.page.wait_for_function('__test.state().w === 960', timeout=15000)
+        self.page.wait_for_function(f'__test.state().w === {LOW}', timeout=15000)
 
     def test_forward_backward_and_visible_buffer_feedback(self):
         self.load('?t=12')
-        self.assertFalse(any('/f960/s000.m4s' in r for r in self.requests))
+        self.assertFalse(any(f'/f{LOW}/s000.m4s' in r for r in self.requests))
         self.page.keyboard.down('w')
         self.page.wait_for_function('__test.state().pos > 13', timeout=15000)
         visible = self.page.evaluate('''() => {
@@ -99,6 +102,22 @@ class ViewerTests(unittest.TestCase):
         self.page.wait_for_function('__test.state().paused', timeout=10000)
         self.assertTrue(any('/r1600/' in r for r in self.requests))
         self.assertFalse(any('/r1600/s000.m4s' in r for r in self.requests))
+
+    def native_playlist(self, mode, width):
+        # Exercise playlist routing; Chromium emulation does not validate Safari decoding.
+        self.page.add_init_script("""Object.defineProperty(navigator, 'userAgent', {value:'Version/18.0 Safari/605.1.15'});
+            const original = HTMLMediaElement.prototype.canPlayType;
+            HTMLMediaElement.prototype.canPlayType = function(type) {
+                return type === 'application/vnd.apple.mpegurl' ? 'maybe' : original.call(this, type);
+            };""")
+        with self.page.expect_request(f'**/hls/f{width}/index.m3u8'):
+            self.page.goto(f'http://127.0.0.1:{self.server.server_port}/cities/hoian/?quality={mode}', wait_until='domcontentloaded')
+
+    def test_native_high_selects_high_playlist(self):
+        self.native_playlist('high', HIGH)
+
+    def test_native_data_saver_selects_low_playlist(self):
+        self.native_playlist('low', LOW)
 
     def test_manifest_failure_is_reported(self):
         self.page.route('**/hls/f.m3u8', lambda route: route.fulfill(status=404, body='missing'))
