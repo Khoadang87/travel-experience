@@ -35,7 +35,7 @@ body.loading #joy,body.loading #buttons,body.loading #live{opacity:0;pointer-eve
 @media (pointer:coarse), (max-width: 700px) { #hint { bottom: auto; top: calc(env(safe-area-inset-top, 0px) + 172px); left: 50%; right: auto; transform: translateX(-50%); width: min(80vw, 420px); background: #000a; border-radius: 8px; padding: 6px 10px; opacity: 1; font-size: 13px } }
 #hint.fade{animation-duration:12s}
 /* Minimal walk UI (default scene): only the joystick + look; everything else hidden. The elements stay in the DOM so presence/game scenes and future custom buttons can reuse them. */
-body.minimal #buttons, body.minimal #live, body.minimal #streetbar, body.minimal #badge, body.minimal #spin { display: none !important; }
+body.minimal #buttons, body.minimal #live, body.minimal #streetbar, body.minimal #badge { display: none !important; }
 body.minimal #tapstart { inset: auto; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 12px); transform: translateX(-50%); width: auto; height: auto; padding: 8px 14px; font-size: 14px; font-weight: 500; border-radius: 18px; background: #000a; }
 body.minimal #hint { top: calc(env(safe-area-inset-top, 0px) + 12px); bottom: auto; left: 50%; right: auto; transform: translateX(-50%); width: auto; max-width: 86vw; background: #0008; border-radius: 14px; padding: 6px 12px; font-size: 13px; }
 body.minimal #tapstart:not([hidden]) ~ #hint { top: calc(env(safe-area-inset-top, 0px) + 56px); }
@@ -43,3 +43,10 @@ body.minimal #tapstart:not([hidden]) ~ #hint { top: calc(env(safe-area-inset-top
 /* w2: the lowest band of the source footage (ground just ahead) shimmers like water while walking (stitch warp + compression in the source itself); soften it with a stable blur that fades in toward the bottom edge */
 #lowmask{position:fixed;left:0;right:0;bottom:0;height:16%;z-index:2;pointer-events:none;-webkit-backdrop-filter:blur(7px) saturate(.9);backdrop-filter:blur(7px) saturate(.9);-webkit-mask-image:linear-gradient(to bottom,transparent,#000 70%);mask-image:linear-gradient(to bottom,transparent,#000 70%);background:linear-gradient(to bottom,#0000,#0003)}
 body.loading{background:#000 url(assets/walk/start.jpg) center/cover no-repeat} /* w4: instant start picture while the player loads */
+
+/* Keep quality and buffering feedback available in the minimal viewer. */
+#quality{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:6;padding:7px 11px;border:1px solid #fff5;border-radius:16px;background:#000b;color:white;font:12px system-ui;cursor:pointer}
+#quality:disabled{cursor:default;opacity:.7}
+body.minimal #hint{top:calc(env(safe-area-inset-top,0px) + 56px)}
+body.minimal #tapstart:not([hidden]) ~ #hint{top:calc(env(safe-area-inset-top,0px) + 96px)}
+body.minimal #spin{width:24px;height:24px;margin:-14px;border-width:3px}
