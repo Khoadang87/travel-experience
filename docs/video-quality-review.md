@@ -52,7 +52,9 @@ working quality selection, and explicit failure feedback. JavaScript syntax and
 Native Safari/iPhone, real mobile networks, and deployed performance are untested.
 The 2560×1280 image covers the full sphere, so a viewport contains less detail
 than a flat video of that resolution. No footage was upscaled or re-encoded.
-Changes have not been pushed, deployed, or published.
+The integrated fix was subsequently pushed to main. GitHub Pages deployment
+and real-device Safari playback have not been verified. No cloud environment
+configuration was published as part of the fix.
 
 ## Integration with newer GitHub version
 
