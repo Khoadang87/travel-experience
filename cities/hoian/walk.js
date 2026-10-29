@@ -44,7 +44,8 @@ const mkTex = v => { const t = new THREE.VideoTexture(v); t.colorSpace = THREE.S
 let LO = 0, HI = 1e9, D = 0, rate = IDLE, target = IDLE, swapping = false, soundOn = false, frames = 0, lastAdv = performance.now(), quality = '4k', chunkSwaps = 0;
 // A chunked track: the route split into L-second files, played back to back with the next chunk preloaded in a 2nd element.
 const connection = navigator.connection || {};
-let qualityMode = ['auto', 'high', 'low'].includes(params.get('quality')) ? params.get('quality') : connection.saveData ? 'low' : 'auto';
+let qualityMode = ['auto', 'high', 'low'].includes(params.get('quality')) ? params.get('quality') : connection.saveData ? 'low' : isIOS ? 'high' : 'auto'; /* w12: iOS Safari's native HLS started at 1280 and rarely climbed while the walk is paused/scrubbed, so iPhone/iPad pin the 3840 H.264 level by default; the button still cycles to Auto / Data saver */
+setInterval(() => { if (window.__state?.loaded) updateQuality(); }, 1000); /* w12: keep the px badge live (native HLS changes level without telling us) */
 function updateQuality() {
   const v = active?.el, label = qualityMode === 'high' ? 'High' : qualityMode === 'low' ? 'Data saver' : 'Auto';
   $('quality').textContent = `${label} · ${v?.videoWidth ? v.videoWidth + 'px' : 'loading'}`;
