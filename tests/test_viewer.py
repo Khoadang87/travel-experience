@@ -166,6 +166,32 @@ class ViewerTests(unittest.TestCase):
         self.page.locator('#explore-toggle').click()
         self.assertEqual(self.page.locator('#route-name').inner_text(), 'Test interior fixture')
 
+    def test_turn_prompt_only_appears_at_connected_junction(self):
+        fixture = {'defaultRoute':'old-town', 'routes':[
+            {'id':'old-town','name':'Test street','manifest':'assets/walk/walk.json','duration':660,'connections':[{'route':'side-street','at':30,'radius':4,'entry':12,'label':'Turn into side street'}]},
+            {'id':'side-street','name':'Side street fixture','manifest':'assets/walk/walk.json','duration':660,'connections':[]}
+        ]}
+        self.page.route('**/routes.json', lambda route: route.fulfill(json=fixture))
+        self.load('?t=30&quality=low')
+        self.page.locator('#quality').click()  # Auto
+        self.page.locator('#quality').click()  # High, chosen after initial URL
+        self.page.wait_for_function('!document.getElementById("junctions").hidden')
+        link = self.page.locator('#junctions a')
+        self.assertEqual(link.inner_text(), 'Turn into side street')
+        self.page.wait_for_function('document.querySelector("#junctions a").href.includes("quality=high")')
+        self.assertIn('quality=high', link.get_attribute('href'))
+        self.page.locator('#explore-toggle').click()
+        self.assertTrue(self.page.locator('#junctions').is_hidden())
+        self.page.locator('#route-position').fill('60')
+        self.page.locator('#route-go').click()
+        self.page.wait_for_function('document.getElementById("explore").hidden && document.getElementById("junctions").hidden', timeout=25000)
+        self.page.evaluate('HoianWalk.goTo(30)')
+        self.page.wait_for_function('!document.getElementById("junctions").hidden')
+        with self.page.expect_navigation(wait_until='domcontentloaded'):
+            self.page.locator('#junctions a').click()
+        self.page.wait_for_function('window.__state?.loaded && Math.abs(__test.state().pos - 12) < .3', timeout=25000)
+        self.assertIn('route=side-street', self.page.url)
+
     def test_unknown_route_reports_error(self):
         self.page.goto(f'http://127.0.0.1:{self.server.server_port}/cities/hoian/?route=missing', wait_until='domcontentloaded')
         self.page.wait_for_function('!!window.__viewerError', timeout=10000)

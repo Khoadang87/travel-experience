@@ -45,3 +45,10 @@ in the target. Connections appear in Explore and preserve the quality setting.
 Add return connections explicitly. Only add a playable route after its media and
 use permissions have been verified. There is currently one street route and no
 connected buildings or temples. No geographic coordinates have been recorded.
+
+Connections also appear as **Turn here** / entrance prompts while the walker is
+within six seconds of their `at` timestamp. Set an optional `radius` in seconds
+(up to 30) to adjust this window. Prompts disappear away from the junction and
+while Explore is open. Selecting one lands at the target's `entry` timestamp
+and preserves the currently selected quality, including changes made after load.
+There are no live turn prompts until real connected footage is added to the catalog.

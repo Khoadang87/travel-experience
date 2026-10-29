@@ -1,10 +1,12 @@
-import { loadCatalog } from './route-catalog.js?v=w8';
+import { loadCatalog } from './route-catalog.js?v=w9';
 const $ = id => document.getElementById(id);
 const panel = $('explore'), toggle = $('explore-toggle'), slider = $('route-position');
 let catalog, current, previousFocus, opening = false;
 const time = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
 function routeLink(route, entry = 0) {
   const url = new URL(location.href);
+  const mode = window.__state?.loaded && window.HoianWalk?.state().quality;
+  if (mode) url.searchParams.set('quality', mode);
   url.searchParams.set('route', route.id); url.searchParams.set('t', entry.toFixed(3));
   return url.href;
 }
@@ -42,6 +44,7 @@ async function open() {
     }
     $('no-connections').hidden = current.connections.length > 0;
     $('explore-message').textContent = '';
+    $('junctions').hidden = true;
     panel.hidden = false; $('explore-shade').hidden = false; toggle.setAttribute('aria-expanded', 'true'); $('explore-close').focus();
   } catch (error) { $('navigation-note').textContent = error.message; $('navigation-note').hidden = false; }
   finally { opening = false; }
@@ -65,9 +68,28 @@ panel.addEventListener('keydown', event => {
     else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
   }
 });
+loadCatalog().then(data => {
+  catalog = data;
+  current = data.routes.find(route => route.id === (new URLSearchParams(location.search).get('route') || data.defaultRoute));
+}).catch(() => {}); // The player reports catalog failures; do not duplicate them here.
+let junctionKey = '';
 setInterval(() => {
   if (!window.__state?.loaded || !panel.hidden) return;
   const state = window.HoianWalk.state(), atEnd = state.pos >= state.hi - .5, atStart = state.pos <= state.lo + .1;
+  const nearby = (current?.connections || []).filter(connection => Math.abs(state.pos - connection.at) <= (connection.radius ?? 6));
+  const key = nearby.map(connection => `${connection.route}:${connection.at}:${state.quality}`).join('|');
+  const junctions = $('junctions');
+  if (key !== junctionKey) {
+    junctionKey = key; junctions.replaceChildren();
+    for (const connection of nearby) {
+      const target = catalog.routes.find(route => route.id === connection.route);
+      const link = document.createElement('a'); link.href = routeLink(target, connection.entry);
+      link.textContent = connection.label || (target.kind === 'interior' ? 'Enter ' : 'Turn here: ') + target.name;
+      link.addEventListener('click', () => { link.href = routeLink(target, connection.entry); });
+      junctions.appendChild(link);
+    }
+  }
+  junctions.hidden = nearby.length === 0;
   $('navigation-note').hidden = !(atEnd || atStart);
   $('navigation-note').textContent = atEnd ? 'End of this recorded street. Walk back or choose another point in Explore.' : 'Start of this recorded street. Walk forward or choose a point in Explore.';
 }, 500);
