@@ -18,8 +18,7 @@ const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(75, innerW
 const fitCam = () => { camera.aspect = innerWidth / innerHeight; const a = camera.aspect, oldv = new URLSearchParams(location.search).get('lowmask') === '0'; camera.fov = oldv ? 75 : Math.min(a < 1 ? 70 : 75, 2 * Math.atan(Math.tan(82 * Math.PI / 360) / a) * 180 / Math.PI); camera.updateProjectionMatrix(); }; fitCam();
 addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); fitCam(); });
 const geo = new THREE.SphereGeometry(50, 128, 64); geo.scale(-1, 1, 1);
-// ground-plane proxy: the lower hemisphere is pushed onto a floor 1.6 m below the camera, so sideways sway gives real-looking parallax near your feet
-{ const P = geo.attributes.position, v = new THREE.Vector3(); for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i).normalize(); const r = v.y < -0.032 ? Math.min(50, 1.6 / -v.y) : 50; P.setXYZ(i, v.x * r, v.y * r, v.z * r); } P.needsUpdate = true; }
+/* w3: ground-plane proxy removed: it bent the lower hemisphere onto a fake floor and, with sideways sway, made the street wobble like water. The ground is now the plain footage. */
 const mat = new THREE.MeshBasicMaterial({ color: 0xffffff }); const sphere = new THREE.Mesh(geo, mat); sphere.rotation.y = +(params.get("ry") ?? -Math.PI / 2); scene.add(sphere);
 function mkVideo() { const v = document.createElement('video'); v.crossOrigin = 'anonymous'; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', ''); v.setAttribute('muted', ''); v.muted = true; v.defaultMuted = true; v.preload = 'auto'; v.loop = false;
   v.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none;z-index:-1'; document.body.appendChild(v); return v; }
@@ -40,24 +39,21 @@ const mkTex = v => { const t = new THREE.VideoTexture(v); t.colorSpace = THREE.S
 let LO = 0, HI = 1e9, D = 0, rate = IDLE, target = IDLE, swapping = false, soundOn = false, frames = 0, lastAdv = performance.now(), quality = '4k', chunkSwaps = 0;
 // A chunked track: the route split into L-second files, played back to back with the next chunk preloaded in a 2nd element.
 class Track {
-  constructor(urls, L, D) { this.urls = urls; this.L = L; this.D = D; this.els = [mkVideo(), mkVideo()]; this.tex = this.els.map(mkTex); this.ci = -1; this.k = 0; this.loaded = [-1, -1];
-    this.els.forEach((v, j) => this.watch(v, j)); }
-  get el() { return this.els[this.k]; } get nx() { return this.els[1 - this.k]; }
-  get tpos() { return this.ci * this.L + (this.el.currentTime || 0); }
-  load(j, i) { if (this.loaded[j] === i || i < 0 || i >= this.urls.length) return; const v = this.els[j]; this.loaded[j] = i; v.src = this.urls[i]; v.load(); }
-  watch(v, j) { const f = () => { if (this === active && j === this.k) { frames++; lastAdv = performance.now(); this.nudged = false; setSpin(false); if (v.readyState >= 2 && mat.map !== this.tex[j] && !swapping) { mat.map = this.tex[j]; mat.needsUpdate = true; } } v.requestVideoFrameCallback ? v.requestVideoFrameCallback(f) : 0; };
+  /* w3: one continuous HLS stream per direction (native HLS on iOS Safari, hls.js elsewhere): no chunk handoffs, no loading gaps */
+  constructor(url, D) { this.url = url; this.D = D; const v = mkVideo(); this.els = [v]; this.tex = [mkTex(v)]; this.k = 0; this.ci = 0; this.loaded = [0];
+    const nativeOK = isIOS || (/Safari/.test(navigator.userAgent) && !/Chrome|CriOS|Chromium|Android/.test(navigator.userAgent));
+    if (!(nativeOK && v.canPlayType('application/vnd.apple.mpegurl')) && window.Hls && Hls.isSupported()) { this.hls = new Hls({ maxBufferLength: 40, maxMaxBufferLength: 90, backBufferLength: 20, startFragPrefetch: true, enableWorker: true }); this.hls.loadSource(url); this.hls.attachMedia(v); }
+    else { v.src = url; v.load(); }
+    this.watch(v, 0); }
+  get el() { return this.els[0]; } get nx() { return this.els[0]; }
+  get tpos() { return this.el.currentTime || 0; }
+  watch(v, j) { const f = () => { if (this === active) { frames++; lastAdv = performance.now(); this.nudged = false; setSpin(false); if (v.readyState >= 2 && mat.map !== this.tex[0] && !swapping) { mat.map = this.tex[0]; mat.needsUpdate = true; } } v.requestVideoFrameCallback ? v.requestVideoFrameCallback(f) : 0; };
     if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(f); else v.addEventListener('timeupdate', f); }
-  async seek(t) { t = Math.max(0, Math.min(this.D - 0.05, t)); const i = Math.min(this.urls.length - 1, Math.floor(t / this.L));
-    if (this.loaded[this.k] !== i) { if (this.loaded[1 - this.k] === i) this.k = 1 - this.k; else this.load(this.k, i); }
-    this.ci = i; const v = this.el; if (v.readyState < 1) await new Promise(r => { v.addEventListener('loadedmetadata', r, { once: true }); setTimeout(r, 8000); });
-    v.currentTime = t - i * this.L; await new Promise(r => { v.addEventListener('seeked', r, { once: true }); setTimeout(r, 2500); }); this.load(1 - this.k, i + 1); }
-  // called every frame: hand over to the preloaded next chunk right at the boundary
-  tick(r) { const v = this.el; if (!v.duration) return; const n0 = this.nx;
-    if (this.primed !== this.ci && this.ci + 1 < this.urls.length && this.loaded[1 - this.k] === this.ci + 1 && v.currentTime > v.duration - 2.5 * Math.max(1, r) && n0.readyState >= 1) { this.primed = this.ci; n0.play().then(() => { if (this.nx === n0) { n0.pause(); n0.currentTime = 0; } }).catch(() => {}); }
-    if (this.ci + 1 < this.urls.length && v.currentTime >= v.duration - 0.06 * Math.max(1, r)) { const n = this.nx;
-      if (this.loaded[1 - this.k] !== this.ci + 1) this.load(1 - this.k, this.ci + 1); if (n.readyState >= 2) { n.currentTime = 0; n.playbackRate = Math.max(isIOS ? 0.5 : 0.0625, r); n.play().catch(() => {}); if (n.readyState >= 2) { mat.map = this.tex[1 - this.k]; mat.needsUpdate = true; } v.pause(); this.k = 1 - this.k; this.ci++; chunkSwaps++; setTimeout(() => this.load(1 - this.k, this.ci + 1), 300); } } }
-  atEnd() { return this.ci === this.urls.length - 1 && this.el.duration && this.el.currentTime >= this.el.duration - 0.15; }
-  pauseAll() { this.els.forEach(v => v.pause()); }
+  async seek(t) { t = Math.max(0, Math.min(this.D - 0.05, t)); const v = this.el; if (v.readyState < 1) await new Promise(r => { v.addEventListener('loadedmetadata', r, { once: true }); setTimeout(r, 8000); });
+    if (Math.abs(v.currentTime - t) < 0.04) return; v.currentTime = t; await new Promise(r => { v.addEventListener('seeked', r, { once: true }); setTimeout(r, 2500); }); }
+  tick(r) {}
+  atEnd() { return this.el.duration && this.el.currentTime >= this.el.duration - 0.15; }
+  pauseAll() { this.el.pause(); }
 }
 let fwdT, revT, active;
 const pos = () => active === fwdT ? fwdT.tpos : D - revT.tpos; // seconds along the route
@@ -121,8 +117,8 @@ const keys = {}; addEventListener('keydown', e => keys[e.code] = true); addEvent
 const joyEl = $('joy'), knob = $('knob'); let joy = { x: 0, y: 0, id: null }; const evc = { down: 0, move: 0, up: 0, cancel: 0, ts: 0 };
 for (const [k, n] of [['down', 'pointerdown'], ['move', 'pointermove'], ['up', 'pointerup'], ['cancel', 'pointercancel'], ['ts', 'touchstart']]) joyEl.addEventListener(n, () => evc[k]++, { passive: true });
 joyEl.addEventListener('touchstart', e => e.preventDefault(), { passive: false }); joyEl.addEventListener('touchmove', e => e.preventDefault(), { passive: false }); // iOS: never let the page pan/scroll steal the stick
-joyEl.addEventListener('pointerdown', e => { joy.id = e.pointerId; try { joyEl.setPointerCapture(e.pointerId); } catch (_) {} knob.style.transition = 'none'; e.stopPropagation(); });
-joyEl.addEventListener('pointermove', e => { if (e.pointerId !== joy.id) return; const r = joyEl.getBoundingClientRect(); const dx = e.clientX - r.left - r.width / 2, dy = e.clientY - r.top - r.height / 2, L = Math.hypot(dx, dy) || 1, m = Math.min(1, L / 50) / L; joy.x = dx * m; joy.y = dy * m; knob.style.transform = `translate(${joy.x * 35}px,${joy.y * 35}px)`; });
+joyEl.addEventListener('pointerdown', e => { joy.id = e.pointerId; joy.ox = e.clientX; joy.oy = e.clientY; try { joyEl.setPointerCapture(e.pointerId); } catch (_) {} knob.style.transition = 'none'; e.stopPropagation(); });
+joyEl.addEventListener('pointermove', e => { if (e.pointerId !== joy.id) return; const dx = e.clientX - joy.ox, dy = e.clientY - joy.oy, L = Math.hypot(dx, dy) || 1, m = Math.min(1, L / 50) / L; joy.x = dx * m; joy.y = dy * m; knob.style.transform = `translate(${joy.x * 35}px,${joy.y * 35}px)`; });
 const joyEnd = e => { if (e.pointerId === joy.id) { joy = { x: 0, y: 0, id: null }; knob.style.transition = ''; knob.style.transform = ''; } }; joyEl.addEventListener('pointerup', joyEnd); joyEl.addEventListener('pointercancel', joyEnd);
 let gyroWant = params.get('gyro') === '1', gyroAttached = false; // tilt-to-look is opt-in (?gyro=1 or HoianWalk.setGyro(true)); default look = drag with any finger outside the joystick
 function setGyro(on) { gyroWant = !!on; if (on) { if (!gyroAttached) enableGyro(); } else if (view.gyro) { const e = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ'); view.gyro = null; view.yaw = view.sy = e.y - view.turn; view.pitch = view.sp = THREE.MathUtils.clamp(e.x, -PMIN(), 1.3); } }
@@ -134,9 +130,9 @@ function enableGyro() { gyroAttached = true; const on = () => addEventListener('
 function hold(btn, val) { const set = v => e => { e.preventDefault(); e.stopPropagation(); btnTarget = v; }; btn.addEventListener('pointerdown', set(val)); for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) btn.addEventListener(ev, set(null)); }
 let btnTarget = null;
 // turning around: you always walk the way you face. Facing back = the reversed footage, seen from behind the camera, so the street flows toward you naturally.
-function edgeStatus() { const ae = pos() >= HI - 0.5, as = pos() <= LO + 0.5, st = $('nodestatus'); if ((ae && view.face > 0) || (as && view.face < 0)) { st.textContent = (ae ? 'Inside the hall — end of the walk' : 'Start of the street') + ' · pull the stick down to turn around'; $('turnL').classList.add('pulse'); } else { $('turnL').classList.remove('pulse'); if (ae || as) st.textContent = 'Turned around · push up / W to walk'; else if (/Turn(ed)? around/.test(st.textContent)) st.textContent = ''; } }
+function edgeStatus() { const ae = pos() >= HI - 0.5, as = pos() <= LO + 0.5, st = $('nodestatus'); if ((ae && view.face > 0) || (as && view.face < 0)) { st.textContent = (ae ? 'End of the walk' : 'Start of the street') + (ae ? ' · pull the stick down to walk back' : ' · push the stick up to walk');  } else {  if (/Turn(ed)? around/.test(st.textContent)) st.textContent = ''; } }
 let lastTurn = 0; function turnAround() { const n = performance.now(); if (n - lastTurn < 900) return; lastTurn = n; try { navigator.vibrate?.(12); } catch (e) {} view.face = -view.face; $('hint').hidden = true; }
-addEventListener('keydown', e => { if ((e.code === 'KeyS' || e.code === 'ArrowDown') && !e.repeat) turnAround(); });
+
 
 (async () => {
   try {
@@ -146,7 +142,7 @@ addEventListener('keydown', e => { if ((e.code === 'KeyS' || e.code === 'ArrowDo
     const c = navigator.connection || {}, weak = c.saveData || (c.downlink && c.downlink < 2.5) || (navigator.deviceMemory && navigator.deviceMemory <= 2);
     quality = params.get('q') || (weak ? (j.tracks['2k5'] ? '2k5' : 'f2k') : '4k'); if (!j.tracks[quality]) quality = '4k'; window.__walkJ = j; const F = j.tracks[quality];
     const urls = (t) => t.files ? t.files.map(f => BASE + f) : Array.from({ length: t.n }, (_, i) => BASE + t.pattern.replace('%02d', String(i).padStart(2, '0'))); window.__urls = urls;
-    fwdT = new Track(urls(F), j.chunk, D); revT = new Track(urls(j.tracks.rev), j.chunk, D); active = fwdT;
+    fwdT = new Track(BASE + F.hls, D); revT = new Track(BASE + j.tracks.rev.hls, D); active = fwdT;
     $('badge').innerHTML = `<b>Hội An</b> · real 360° street walk · <a href="https://github.com/Khoadang87/travel-experience/blob/main/cities/hoian/CREDITS.md" target="_blank">Credits</a>`; setTimeout(() => $('badge').classList.add('fade'), 100);
     $('streetbar').hidden = false; $('slabel').textContent = j.name;
     $('turnR').textContent = 'Walk ▶'; $('turnL').textContent = '↺ Turn around'; $('turnL').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); turnAround(); }); hold($('turnR'), 'walk');
@@ -155,7 +151,7 @@ addEventListener('keydown', e => { if ((e.code === 'KeyS' || e.code === 'ArrowDo
     document.addEventListener('visibilitychange', () => { if (document.hidden) { audio.pause(); active?.el.pause(); } else { if (soundOn) { aud.g = 0; aud.goal = AVOL; audio.currentTime = aWant(); audio.play().catch(() => {}); } if (active && !active.atEnd() && !view.standing) playSafe(active.el); } });
     $('quality').textContent = quality === '2k5' ? '2.5K' : '4K'; $('quality').onclick = () => { params.set('q', quality === '2k5' ? ('4k') : '2k5'); params.set('t', pos().toFixed(1)); location.search = params.toString(); };
     $('scene').hidden = true;
-    document.body.classList.add('minimal'); $('hint').textContent = isMobile ? 'Stick up: walk · stick down: turn around · drag to look' : 'W / ↑: walk · S / ↓: turn around · drag: look';
+    document.body.classList.add('minimal'); $('hint').textContent = isMobile ? 'Stick up: walk · stick down: walk back · 2nd finger: look' : 'W / ↑: walk · S / ↓: walk back · drag: look';
     new THREE.TextureLoader().load(BASE + j.poster, t => { t.colorSpace = THREE.SRGBColorSpace; if (!frames) { mat.map = t; mat.needsUpdate = true; if (!window.__state.loaded) renderer.setAnimationLoop(() => renderer.render(scene, camera)); } });
     audio.src = BASE + j.audio;
     const prog = setInterval(() => { try { const v = fwdT.el, b = v.buffered.length ? v.buffered.end(0) - v.currentTime : 0; $('fill').style.width = Math.min(100, 15 + b / 2 * 85) + '%'; } catch (e) {} }, 200);
@@ -184,11 +180,11 @@ addEventListener('keydown', e => { if ((e.code === 'KeyS' || e.code === 'ArrowDo
       if (pushing && active === fwdT && !swapping && now - stall.pushT > 1500 && now - lastAdv > 1500) { stall.n++; degrade('no frames ' + ((now - lastAdv) / 1000).toFixed(1) + 's'); stall.pushT = now; } }
     if (dbgEl && (dbgT += dt) > 0.25) { dbgT = 0; const v = active?.el; dbgEl.textContent = `walk ${quality} ${active === fwdT ? 'FWD' : 'REV'} chunk ${active?.ci} pos ${pos().toFixed(2)} [${LO}-${HI}]\nvideo ${v ? 'rs' + v.readyState + (v.paused ? ' PAUSED' : ' playing') + ' ct ' + v.currentTime.toFixed(2) + ' pr ' + v.playbackRate.toFixed(2) + ' ' + v.videoWidth + 'px' : '-'}\nstanding ${!!view.standing} target ${target.toFixed(2)} rate ${rate.toFixed(2)} swap ${swapping}\njoy ${joy.x.toFixed(2)},${joy.y.toFixed(2)} id ${joy.id} ev ${evc.down}/${evc.move}/${evc.up}/${evc.cancel} touch ${evc.ts}\nlast frame ${((now - lastAdv) / 1000).toFixed(1)}s ago ${stall.note}`; }
     let t = btnTarget === 'walk' ? WALK : null; const kf = keys.KeyW || keys.ArrowUp, jog = keys.ShiftLeft || keys.ShiftRight;
-    if (joy.y > 0.75 && !view.joyTurned) { view.joyTurned = true; turnAround(); } else if (joy.y < 0.4) view.joyTurned = false;
-    if (t == null) { if (kf) t = jog ? JOG : WALK; else if (joy.y < -0.15) { const m = (-joy.y - 0.15) / 0.85; t = m < 0.88 ? IDLE + (WALK - IDLE) * Math.pow(m / 0.88, 1.4) /* gentle start, full walk well before the rim */ : JOG; } }
+    /* w3: stick down walks backward along the street (view stays ahead); it no longer flips you around */
+    if (t == null) { if (kf) t = jog ? JOG : WALK; else if (keys.KeyS || keys.ArrowDown) t = -WALK; else if (Math.abs(joy.y) > 0.2) { const m = (Math.abs(joy.y) - 0.2) / 0.8; t = Math.sign(-joy.y) * (m < 0.88 ? WALK * Math.max(0.35, Math.pow(m / 0.88, 1.2)) : JOG); } }
     t = t == null ? IDLE : t * view.face; if (Math.abs(t) <= IDLE + 1e-6) t = IDLE; view.standing = IDLE === 0 && Math.abs(t) < 0.01 && Math.abs(rate) < 0.15; // standing: natural-looking forward footage at a slow drift
     target = t; rate += (target - rate) * Math.min(1, dt * 2.5);
-    view.latT = (keys.KeyA ? -1 : keys.KeyD ? 1 : 0) + (Math.abs(joy.x) > 0.55 ? (joy.x - Math.sign(joy.x) * 0.55) / 0.45 : 0); view.lat += (view.latT * 0.25 - view.lat) * Math.min(1, dt * 3);
+    view.latT = (keys.KeyA ? -1 : keys.KeyD ? 1 : 0) + (Math.abs(joy.x) > 0.55 ? (joy.x - Math.sign(joy.x) * 0.55) / 0.45 : 0); view.lat = 0; /* w3: no sway */
     if (window.__state.loaded && !swapping) {
       const idle = Math.abs(target) < 0.5;
       // direction: walking back uses the reversed track; idle keeps the current track (and ping-pongs at the ends)
