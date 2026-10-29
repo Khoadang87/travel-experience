@@ -1,16 +1,23 @@
-<!doctype html><html lang="en"><head>
-<meta http-equiv="Cache-Control" content="no-cache">
-<script>(function(){var V='w1';fetch('ver.txt?'+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(v){v=v.trim();if(/^[a-z]\w{0,8}$/.test(v)&&v!==V){var u=new URL(location.href);if(u.searchParams.get('_v')!==v){u.searchParams.set('_v',v);location.replace(u)}}}).catch(function(){})})();</script>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Hội An walk</title><link rel="icon" href="data:,">
-<style>
-html,body{margin:0;height:100%;overflow:hidden;background:#000;touch-action:none;-webkit-user-select:none;user-select:none;overscroll-behavior:none}
-#stage{position:fixed;inset:0;overflow:hidden}
-#v{position:absolute;left:50%;top:50%;will-change:transform;pointer-events:none}
-#joy{position:fixed;left:calc(24px + env(safe-area-inset-left));bottom:calc(28px + env(safe-area-inset-bottom));width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.35);z-index:5}
-#knob{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.55)}
-#msg{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font:16px system-ui;z-index:9;background:#000}
-</style></head><body>
-<div id="stage"><video id="v" src="walk.mp4" muted playsinline webkit-playsinline preload="auto"></video></div>
-<div id="joy"><div id="knob"></div></div><div id="msg">Loading Hội An…</div>
-<script src="walk.js?v=w1"></script></body></html>
+<!doctype html>
+<html lang="en"><head>
+<meta http-equiv="Cache-Control" content="no-cache"><script>/* stale-page guard: GitHub Pages caches index.html ~10 min; if a newer build is live, reload once with a cache-busting param */(function(){var V='w2';fetch('ver.txt?'+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(v){v=v.trim();if(/^[a-z]\w{0,8}$/.test(v)&&v!==V){var u=new URL(location.href);if(u.searchParams.get('_v')!==v){u.searchParams.set('_v',v);location.replace(u)}}}).catch(function(){})})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Hội An 360° walk</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css?v=w2">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+</head><body class="loading">
+<div id="app"></div>
+<div id="badge"></div>
+<div id="loader"><div id="loadmsg">Starting…</div><div id="bar"><div id="fill"></div></div><div id="loaddetail"></div></div>
+<div id="error" hidden></div>
+<div id="live"></div><div id="spin" hidden></div>
+<button id="tapstart" hidden>▶ Tap to start the walk</button>
+<div id="streetbar" hidden><div id="strack"><div id="sfill"></div></div><div id="slabel"></div><div id="nodestatus"></div></div>
+<div id="joy"><div id="knob"></div></div>
+<div id="buttons"><button id="turnL" aria-label="Turn around">⟲ Turn</button><button id="turnR" aria-label="Turn right">Turn ⟳</button><button id="reset">Reset</button><button id="quality"></button><button id="scene"></button></div>
+<div id="hint">Drag to look · WASD / arrows to move (desktop) · joystick to move (phone)</div>
+<script type="module" src="walk.js?v=w2"></script>
+<div id="lowmask"></div><script>if(new URLSearchParams(location.search).get("lowmask")==="0")document.getElementById("lowmask").remove()</script>
+</body></html>
