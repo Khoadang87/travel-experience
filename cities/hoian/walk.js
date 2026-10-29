@@ -27,35 +27,38 @@ const crowd = null; /* ?crowd=1 test removed (assets/real, assets/crowd deleted 
 const audio = document.createElement('audio'); audio.loop = true; audio.preload = 'auto'; document.body.appendChild(audio);
 /* Ambience = the real street sound of the same source, cut to exactly the route (h1). One gain controller does all fades; WebAudio gain is used where available because iOS ignores audio.volume. */
 const AVOL = 0.85, AOFF = 0; const aud = { g: 0, goal: 0, res: false, node: null };
+const vidLive = () => !!(window.__state.loaded && active && !active.el.paused && active.el.readyState >= 3 && performance.now() - lastAdv < 400 && frames > 3);
 const aWant = () => Math.min(Math.max(0, AOFF + pos()), Math.max(0, D - 0.5));
 function aInit() { if (aud.node) return; try { const C = window.AudioContext || window.webkitAudioContext; const ctx = new C(); const src = ctx.createMediaElementSource(audio); aud.node = ctx.createGain(); aud.node.gain.value = 0; src.connect(aud.node).connect(ctx.destination); aud.ctx = ctx; ctx.resume?.(); } catch (e) { aud.node = null; } }
 function aTick(dt) { if (!soundOn) return;
   /* standing still (idle=0): fade the street sound out and pause it, so nothing loops; it resumes in sync when you walk */
+  if (!view.standing && !vidLive()) { aud.goal = 0; aud.g = 0; if (aud.node) aud.node.gain.value = 0; if (!audio.paused) audio.pause(); return; } /* w4: no picture moving = no sound, immediately */
   if (view.standing) { aud.goal = 0; if (aud.g < 0.02 && !audio.paused) audio.pause(); }
   else if (audio.paused) { if (document.hidden) return; audio.currentTime = aWant(); audio.play().catch(() => {}); aud.goal = AVOL; aud.res = false; }
   else { const drift = audio.currentTime - aWant(); if (!aud.res && Math.abs(drift) > (Math.abs(rate) > 0.6 ? 6 : 30)) { aud.res = true; aud.goal = 0; } if (aud.res && aud.g < 0.02) { audio.currentTime = aWant(); aud.res = false; aud.goal = AVOL; } if (!aud.res) aud.goal = AVOL; }
-  aud.g += (aud.goal - aud.g) * Math.min(1, dt * (aud.goal < aud.g ? 4 : 1.6)); if (aud.node) { aud.node.gain.value = aud.g; if (aud.ctx.state === 'suspended') aud.ctx.resume(); } else audio.volume = Math.min(1, aud.g); }
+  aud.g += (aud.goal - aud.g) * Math.min(1, dt * (aud.goal < aud.g ? (vidLive() ? 4 : 14) : 1.6)); /* w4: cut sound fast when the picture stalls */ if (aud.node) { aud.node.gain.value = aud.g; if (aud.ctx.state === 'suspended') aud.ctx.resume(); } else audio.volume = Math.min(1, aud.g); }
 const mkTex = v => { const t = new THREE.VideoTexture(v); t.colorSpace = THREE.SRGBColorSpace; t.minFilter = THREE.LinearFilter; t.magFilter = THREE.LinearFilter; t.generateMipmaps = false; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t; };
 let LO = 0, HI = 1e9, D = 0, rate = IDLE, target = IDLE, swapping = false, soundOn = false, frames = 0, lastAdv = performance.now(), quality = '4k', chunkSwaps = 0;
 // A chunked track: the route split into L-second files, played back to back with the next chunk preloaded in a 2nd element.
 class Track {
   /* w3: one continuous HLS stream per direction (native HLS on iOS Safari, hls.js elsewhere): no chunk handoffs, no loading gaps */
-  constructor(url, D) { this.url = url; this.D = D; const v = mkVideo(); this.els = [v]; this.tex = [mkTex(v)]; this.k = 0; this.ci = 0; this.loaded = [0];
+  constructor(url, D, lazy) { this.url = url; this.D = D; const v = mkVideo(); this.els = [v]; this.tex = [mkTex(v)]; this.k = 0; this.ci = 0; this.loaded = [0]; this.started = false; this.watch(v, 0); if (lazy) { v.preload = 'none'; return; } this.start(); }
+  start() { if (this.started) return; this.started = true; const v = this.el, url = this.url; v.preload = 'auto';
     const nativeOK = isIOS || (/Safari/.test(navigator.userAgent) && !/Chrome|CriOS|Chromium|Android/.test(navigator.userAgent));
-    if (!(nativeOK && v.canPlayType('application/vnd.apple.mpegurl')) && window.Hls && Hls.isSupported()) { this.hls = new Hls({ maxBufferLength: 40, maxMaxBufferLength: 90, backBufferLength: 20, startFragPrefetch: true, enableWorker: true }); this.hls.loadSource(url); this.hls.attachMedia(v); }
-    else { v.src = url; v.load(); }
-    this.watch(v, 0); }
+    if (!(nativeOK && v.canPlayType('application/vnd.apple.mpegurl')) && window.Hls && Hls.isSupported()) { this.hls = new Hls({ startLevel: 0 /* w4: start on the light 960 rendition, ABR steps up to 2560 */, abrEwmaDefaultEstimate: 3e6, maxBufferLength: 30, maxMaxBufferLength: 60, backBufferLength: 20, startFragPrefetch: true, enableWorker: true }); this.hls.loadSource(url); this.hls.attachMedia(v); }
+    else { v.src = url; v.load(); } }
   get el() { return this.els[0]; } get nx() { return this.els[0]; }
   get tpos() { return this.el.currentTime || 0; }
-  watch(v, j) { const f = () => { if (this === active) { frames++; lastAdv = performance.now(); this.nudged = false; setSpin(false); if (v.readyState >= 2 && mat.map !== this.tex[0] && !swapping) { mat.map = this.tex[0]; mat.needsUpdate = true; } } v.requestVideoFrameCallback ? v.requestVideoFrameCallback(f) : 0; };
+  watch(v, j) { const f = () => { if (this === active) { frames++; lastAdv = performance.now(); if (!window.__ttff) window.__ttff = Math.round(performance.now()); this.nudged = false; setSpin(false); if (v.readyState >= 2 && mat.map !== this.tex[0] && !swapping) { mat.map = this.tex[0]; mat.needsUpdate = true; } } v.requestVideoFrameCallback ? v.requestVideoFrameCallback(f) : 0; };
     if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(f); else v.addEventListener('timeupdate', f); }
-  async seek(t) { t = Math.max(0, Math.min(this.D - 0.05, t)); const v = this.el; if (v.readyState < 1) await new Promise(r => { v.addEventListener('loadedmetadata', r, { once: true }); setTimeout(r, 8000); });
+  async seek(t) { this.start(); t = Math.max(0, Math.min(this.D - 0.05, t)); const v = this.el; if (v.readyState < 1) await new Promise(r => { v.addEventListener('loadedmetadata', r, { once: true }); setTimeout(r, 8000); });
     if (Math.abs(v.currentTime - t) < 0.04) return; v.currentTime = t; await new Promise(r => { v.addEventListener('seeked', r, { once: true }); setTimeout(r, 2500); }); }
   tick(r) {}
   atEnd() { return this.el.duration && this.el.currentTime >= this.el.duration - 0.15; }
   pauseAll() { this.el.pause(); }
 }
-let fwdT, revT, active;
+let fwdT, revT, active; let HEAD = null; /* w4: direction of travel in the footage (radians vs. frame centre), so 'ahead' follows the walker around corners */
+const headAt = p => { if (!HEAD || params.get('follow') === '0') return 0; const i = Math.max(0, Math.min(HEAD.h.length - 1, p / HEAD.dt)), a = Math.floor(i), b = Math.min(HEAD.h.length - 1, a + 1), f = i - a; return -(HEAD.h[a] * (1 - f) + HEAD.h[b] * f); /* footage heading is +right; view yaw is +left */ };
 const pos = () => active === fwdT ? fwdT.tpos : D - revT.tpos; // seconds along the route
 function setSpin(on) { $('spin').hidden = !on; }
 async function playSafe(v) { try { return await Promise.race([v.play().then(() => true), new Promise(r => setTimeout(() => r(!v.paused), 1500))]); } catch (e) { return false; } }
@@ -136,13 +139,13 @@ let lastTurn = 0; function turnAround() { const n = performance.now(); if (n - l
 
 (async () => {
   try {
-    const r = await fetch(BASE + 'walk.json'); if (!r.ok) throw new Error('walk.json ' + r.status); const j = await r.json(); LO = params.has('full') ? 0 : (j.lo || 0) /* the source has an editorial fade at 277-280 s: the default route starts after it so the walk has no cut */; D = j.duration; HI = params.has('full') ? D : (j.hi || D) /* the source starts a fade-out in its last 0.7 s */;
+    fetch(BASE + 'heading.json').then(r => r.ok ? r.json() : null).then(h => { HEAD = h; }).catch(() => {}); const r = await fetch(BASE + 'walk.json'); if (!r.ok) throw new Error('walk.json ' + r.status); const j = await r.json(); LO = params.has('full') ? 0 : (j.lo || 0) /* the source has an editorial fade at 277-280 s: the default route starts after it so the walk has no cut */; D = j.duration; HI = params.has('full') ? D : (j.hi || D) /* the source starts a fade-out in its last 0.7 s */;
     const probe = document.createElement('video'), ua = navigator.userAgent, isSafari = /Safari/.test(ua) && !/Chrome|CriOS|Chromium|Android|FxiOS/.test(ua);
     const hevcOK = isSafari && probe.canPlayType('video/mp4; codecs="hvc1.1.6.L153.B0"') !== '';
     const c = navigator.connection || {}, weak = c.saveData || (c.downlink && c.downlink < 2.5) || (navigator.deviceMemory && navigator.deviceMemory <= 2);
     quality = params.get('q') || (weak ? (j.tracks['2k5'] ? '2k5' : 'f2k') : '4k'); if (!j.tracks[quality]) quality = '4k'; window.__walkJ = j; const F = j.tracks[quality];
     const urls = (t) => t.files ? t.files.map(f => BASE + f) : Array.from({ length: t.n }, (_, i) => BASE + t.pattern.replace('%02d', String(i).padStart(2, '0'))); window.__urls = urls;
-    fwdT = new Track(BASE + F.hls, D); revT = new Track(BASE + j.tracks.rev.hls, D); active = fwdT;
+    fwdT = new Track(BASE + F.hls, D); revT = new Track(BASE + j.tracks.rev.hls, D, true); /* w4: reverse stream loads only after the forward walk is running */ active = fwdT;
     $('badge').innerHTML = `<b>Hội An</b> · real 360° street walk · <a href="https://github.com/Khoadang87/travel-experience/blob/main/cities/hoian/CREDITS.md" target="_blank">Credits</a>`; setTimeout(() => $('badge').classList.add('fade'), 100);
     $('streetbar').hidden = false; $('slabel').textContent = j.name;
     $('turnR').textContent = 'Walk ▶'; $('turnL').textContent = '↺ Turn around'; $('turnL').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); turnAround(); }); hold($('turnR'), 'walk');
@@ -162,10 +165,10 @@ let lastTurn = 0; function turnAround() { const n = performance.now(); if (n - l
     if (!(await playSafe(fwdT.el))) showTap();
     let gyroOn = false;
     const onGesture = () => { $('tapstart').hidden = true; if (active.el.paused && !active.atEnd() && !view.standing) playSafe(active.el);
-      if (!soundOn) { soundOn = true; aInit(); aud.g = 0; aud.goal = AVOL; audio.currentTime = aWant(); audio.play().catch(() => { soundOn = false; }); }
-      if (!gyroOn && isMobile && gyroWant && !gyroAttached) { gyroOn = true; enableGyro(); } revT.seek(D - pos()).catch(() => {}); };
+      if (!soundOn) { soundOn = true; aInit(); aud.g = 0; aud.goal = 0; if (aud.node) aud.node.gain.value = 0; else audio.volume = 0; audio.play().then(() => { if (!vidLive()) audio.pause(); }).catch(() => { soundOn = false; }); /* w4: unlock only; sound starts with the first moving frame */ }
+      if (!gyroOn && isMobile && gyroWant && !gyroAttached) { gyroOn = true; enableGyro(); } setTimeout(() => revT.seek(D - pos()).catch(() => {}), 5000); };
     $('tapstart').onclick = onGesture; for (const ev of ['pointerup', 'touchend', 'keydown']) addEventListener(ev, () => { if (!soundOn || (active.el.paused && !active.atEnd())) onGesture(); }, true);
-    if (!isMobile) setTimeout(() => revT.seek(D - pos()).catch(() => {}), 3000);
+    if (!isMobile) setTimeout(() => revT.seek(D - pos()).catch(() => {}), 6000);
   } catch (e) { showError('The walk could not start: ' + e.message + '\nPlease reload.'); return; }
   let last = performance.now();
   // forward-stall fallback: if you push to walk and the 4K forward footage doesn't advance within 1.5 s, reload at 2048 px
@@ -181,10 +184,10 @@ let lastTurn = 0; function turnAround() { const n = performance.now(); if (n - l
     if (dbgEl && (dbgT += dt) > 0.25) { dbgT = 0; const v = active?.el; dbgEl.textContent = `walk ${quality} ${active === fwdT ? 'FWD' : 'REV'} chunk ${active?.ci} pos ${pos().toFixed(2)} [${LO}-${HI}]\nvideo ${v ? 'rs' + v.readyState + (v.paused ? ' PAUSED' : ' playing') + ' ct ' + v.currentTime.toFixed(2) + ' pr ' + v.playbackRate.toFixed(2) + ' ' + v.videoWidth + 'px' : '-'}\nstanding ${!!view.standing} target ${target.toFixed(2)} rate ${rate.toFixed(2)} swap ${swapping}\njoy ${joy.x.toFixed(2)},${joy.y.toFixed(2)} id ${joy.id} ev ${evc.down}/${evc.move}/${evc.up}/${evc.cancel} touch ${evc.ts}\nlast frame ${((now - lastAdv) / 1000).toFixed(1)}s ago ${stall.note}`; }
     let t = btnTarget === 'walk' ? WALK : null; const kf = keys.KeyW || keys.ArrowUp, jog = keys.ShiftLeft || keys.ShiftRight;
     /* w3: stick down walks backward along the street (view stays ahead); it no longer flips you around */
-    if (t == null) { if (kf) t = jog ? JOG : WALK; else if (keys.KeyS || keys.ArrowDown) t = -WALK; else if (Math.abs(joy.y) > 0.2) { const m = (Math.abs(joy.y) - 0.2) / 0.8; t = Math.sign(-joy.y) * (m < 0.88 ? WALK * Math.max(0.35, Math.pow(m / 0.88, 1.2)) : JOG); } }
+    if (t == null) { if (kf) t = jog ? JOG : WALK; else if (keys.KeyS || keys.ArrowDown) t = -WALK; else if (Math.abs(joy.y) > 0.2 && Math.abs(joy.y) > Math.abs(joy.x) * 0.7) { const m = (Math.abs(joy.y) - 0.2) / 0.8; t = Math.sign(-joy.y) * (m < 0.88 ? WALK * Math.max(0.35, Math.pow(m / 0.88, 1.2)) : JOG); } }
     t = t == null ? IDLE : t * view.face; if (Math.abs(t) <= IDLE + 1e-6) t = IDLE; view.standing = IDLE === 0 && Math.abs(t) < 0.01 && Math.abs(rate) < 0.15; // standing: natural-looking forward footage at a slow drift
     target = t; rate += (target - rate) * Math.min(1, dt * 2.5);
-    view.latT = (keys.KeyA ? -1 : keys.KeyD ? 1 : 0) + (Math.abs(joy.x) > 0.55 ? (joy.x - Math.sign(joy.x) * 0.55) / 0.45 : 0); view.lat = 0; /* w3: no sway */
+    view.latT = (keys.KeyA ? -1 : keys.KeyD ? 1 : 0) + (Math.abs(joy.x) > 0.55 ? (joy.x - Math.sign(joy.x) * 0.55) / 0.45 : 0); view.lat = 0; /* w3: no sway */ { const jx = Math.abs(joy.x) > 0.6 ? (joy.x - Math.sign(joy.x) * 0.6) / 0.4 : 0; const kt = (keys.KeyA ? -1 : keys.KeyD ? 1 : 0) + jx; if (kt) view.yaw -= kt * 0.9 * dt; /* w4: steer only when the stick is pushed clearly sideways */ }
     if (window.__state.loaded && !swapping) {
       const idle = Math.abs(target) < 0.5;
       // direction: walking back uses the reversed track; idle keeps the current track (and ping-pongs at the ends)
@@ -196,7 +199,7 @@ let lastTurn = 0; function turnAround() { const n = performance.now(); if (n - l
       else { const v = active.el; if (v.paused && !active.atEnd() && !swapping && !v._pp) { v._pp = 1; playSafe(v).finally(() => { v._pp = 0; }); } const pr = Math.max(isIOS ? 0.5 : 0.0625, Math.min(3, Math.abs(Math.abs(rate - target) < 0.1 ? target : rate))); if (Math.abs(v.playbackRate - pr) > 0.1 || (pr === Math.abs(target) && v.playbackRate !== pr)) v.playbackRate = pr; /* few rate changes: each one can cost a pipeline flush on some engines */ active.tick(pr);
         edgeStatus(); }
     }
-    view.sy += (view.yaw - view.sy) * 0.18; view.sp += (view.pitch - view.sp) * 0.18; { const tt = view.face > 0 ? 0 : Math.PI - TURN_OFF(); view.turn += (tt - view.turn) * Math.min(1, dt * 2.2); } camera.quaternion.setFromEuler(new THREE.Euler(view.sp + GUP() + 0.15 * view.turn / Math.PI /* facing back: lift gaze a little so the camera carrier sits below frame */, view.sy + view.turn, 0, 'YXZ'));
+    view.sy += (view.yaw - view.sy) * 0.18; const HD = headAt(pos()); view.sp += (view.pitch - view.sp) * 0.18; { const tt = view.face > 0 ? 0 : Math.PI - TURN_OFF(); view.turn += (tt - view.turn) * Math.min(1, dt * 2.2); } camera.quaternion.setFromEuler(new THREE.Euler(view.sp + GUP() + 0.15 * view.turn / Math.PI /* facing back: lift gaze a little so the camera carrier sits below frame */, view.sy + view.turn + HD, 0, 'YXZ'));
     if (view.gyro) camera.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), view.gyroYaw0)).multiply(view.gyro);
     { const eu = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ'); if (eu.x < -PMIN()) { eu.x = -PMIN(); camera.quaternion.setFromEuler(eu); } } // clamp final pitch (gyro included) so the stitched nadir never fills the screen
     nadirUpd(now); roadUpd(now);
@@ -211,4 +214,4 @@ function showTap() { const t = $('tapstart'); t.textContent = '🔊 Tap to start
 /* Public hooks for custom UI (buttons etc.). Example: HoianWalk.setWalk(true) while a button is held.
    setWalk(on|null): walk forward like the stick; turnAround(); faceAhead(); state() -> { pos, lo, hi, facing, standing, sound } */
 window.HoianWalk = { setGyro: on => setGyro(on), gyro: () => gyroWant, setWalk: on => { btnTarget = on ? 'walk' : null; }, turnAround: () => turnAround(), faceAhead: () => { view.yaw = 0; view.pitch = 0; }, state: () => ({ pos: pos(), lo: LO, hi: HI, facing: view.face > 0 ? 'forward' : 'back', standing: !!view.standing, sound: soundOn, rate, joy: joy.y, swapping, base: active ? (active === fwdT ? 'fwd' : 'rev') + ' rs' + active.el.readyState + (active.el.paused ? 'P' : '>') : '-' }) };
-window.__test = { road: () => road && { gain: road.m.uniforms.gain.value.toArray(), off: road.m.uniforms.off.value }, look: () => ({ yaw: view.yaw, pitch: view.pitch, gyro: !!view.gyro }), nadir: () => nadir && nadir.m.uniforms.col.value.getHexString(), aud: () => ({ t: +audio.currentTime.toFixed(1), want: +aWant().toFixed(1), g: +aud.g.toFixed(2), paused: audio.paused, webaudio: !!aud.node, ctx: aud.ctx?.state }), turn: () => turnAround(), view: () => ({ face: view.face, turn: +view.turn.toFixed(2) }), setYaw: y => view.yaw = y, setPitch: p => view.pitch = p, key: (c, d) => keys[c] = d, els: () => [fwdT, revT].flatMap(t => t.els.map((v, j) => ({ t: t === fwdT ? "f" : "r", j, act: j === t.k, src: v.src.split("/").pop(), p: v.paused, rs: v.readyState, ct: +v.currentTime.toFixed(2), pr: v.playbackRate, buf: v.buffered.length ? +v.buffered.end(v.buffered.length - 1).toFixed(1) : 0 }))), state: () => ({ pos: pos(), D, rate, target, dir: active === fwdT ? 'fwd' : 'rev', chunk: active?.ci, frames, chunkSwaps, paused: active?.el.paused, w: active?.el.videoWidth, q: quality, swapping, err: window.__viewerError || null }) };
+window.__test = { shown: () => mat.map ? (mat.map.isVideoTexture ? 'video' : 'poster') : 'none', ttff: () => window.__ttff, head: () => headAt(pos()), vidLive: () => vidLive(), road: () => road && { gain: road.m.uniforms.gain.value.toArray(), off: road.m.uniforms.off.value }, look: () => ({ yaw: view.yaw, pitch: view.pitch, gyro: !!view.gyro }), nadir: () => nadir && nadir.m.uniforms.col.value.getHexString(), aud: () => ({ t: +audio.currentTime.toFixed(1), want: +aWant().toFixed(1), g: +aud.g.toFixed(2), paused: audio.paused, webaudio: !!aud.node, ctx: aud.ctx?.state }), turn: () => turnAround(), view: () => ({ face: view.face, turn: +view.turn.toFixed(2) }), setYaw: y => view.yaw = y, setPitch: p => view.pitch = p, key: (c, d) => keys[c] = d, els: () => [fwdT, revT].flatMap(t => t.els.map((v, j) => ({ t: t === fwdT ? "f" : "r", j, act: j === t.k, src: v.src.split("/").pop(), p: v.paused, rs: v.readyState, ct: +v.currentTime.toFixed(2), pr: v.playbackRate, buf: v.buffered.length ? +v.buffered.end(v.buffered.length - 1).toFixed(1) : 0 }))), state: () => ({ pos: pos(), D, rate, target, dir: active === fwdT ? 'fwd' : 'rev', chunk: active?.ci, frames, chunkSwaps, paused: active?.el.paused, w: active?.el.videoWidth, q: quality, swapping, err: window.__viewerError || null }) };
