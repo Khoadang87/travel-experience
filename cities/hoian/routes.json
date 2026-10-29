@@ -3,12 +3,22 @@
   "routes": [
     {
       "id": "old-town",
-      "name": "Hội An old-town walk",
+      "name": "H\u1ed9i An old-town walk",
       "kind": "street",
       "manifest": "assets/walk/walk.json",
       "duration": 660,
       "description": "An 11-minute recorded route through the old town. Look around freely and walk forward or back along the recorded path.",
-      "connections": []
+      "connections": [],
+      "branches": [
+        {
+          "at": 657.5,
+          "radius": 2.5,
+          "auto": true,
+          "href": "gen/",
+          "back": 654,
+          "label": "Side lane (generated, fictional)"
+        }
+      ]
     }
   ]
 }

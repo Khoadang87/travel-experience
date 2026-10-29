@@ -195,7 +195,7 @@ async function switchTo(tr) { if (swapping || tr === active) return; swapping = 
     mat.map = tr.tex[tr.k]; mat.needsUpdate = true; active = tr; setBuf(tr, true); setBuf(old, false); lastAdv = performance.now(); switchStats.n++; switchStats.lastMs = Math.round(performance.now() - t0); setSpin(false); updateQuality(); } catch (e) { old.pauseAll(); showError(e.message); } finally { swapping = false; } }
 
 // input
-const view = { face: 1, turn: 0, yaw: 0, pitch: 0, sy: 0, sp: 0, gyro: null, gyroYaw0: 0, lat: 0, latT: 0 };
+const view = { face: params.get('face') === '-1' ? -1 : 1, turn: 0, yaw: +params.get('yaw') || 0, pitch: 0, sy: 0, sp: 0, gyro: null, gyroYaw0: 0, lat: 0, latT: 0 };
 // nadir cap (w1): the source's camera-carrier/stitch area under the lens warps and flows like water while walking; cover it with a stable, soft ground-toned disc that fades out by ~48 deg below the horizon
 const OLDV = params.get('lowmask') === '0', PORT = () => innerWidth < innerHeight; // w2: portrait = narrower vertical FOV, gaze ~7 deg up and a tighter look-down limit, so the smeared near road takes only the bottom of the screen (?lowmask=0 = old framing)
 const PMIN = () => OLDV ? 0.75 : PORT() ? 0.32 : 0.6, GUP = () => OLDV ? 0 : PORT() ? 0.15 : 0.07; // w7: a little less road in portrait (look-down limit 18 deg, gaze lift 8.6 deg)
@@ -279,7 +279,7 @@ let lastTurn = 0; function turnAround() { const n = performance.now(); if (n - l
     quality = params.get('q') || (weak ? (j.tracks['2k5'] ? '2k5' : 'f2k') : '4k'); if (!j.tracks[quality]) quality = '4k'; window.__walkJ = j; const F = j.tracks[quality];
     const urls = (t) => t.files ? t.files.map(f => BASE + f) : Array.from({ length: t.n }, (_, i) => BASE + t.pattern.replace('%02d', String(i).padStart(2, '0'))); window.__urls = urls;
     /* w10: 8K ladder on Cloudflare R2 (HEVC 7680/5760 + H.264 3840/2560/1280, reverse 2560); falls back to the GitHub Pages ladder if R2 is unreachable or blocks CORS. ?cdn=0 = Pages only */
-    let fU = BASE + F.hls, rU = BASE + j.tracks.rev.hls; window.__src = 'pages';
+    let fU = new URL(F.hls, BASE).href, rU = new URL(j.tracks.rev.hls, BASE).href; window.__src = 'pages';
     if (j.cdn && params.get('cdn') !== '0') { try { const ac = new AbortController(); const to = setTimeout(() => ac.abort(), 8000); /* w11: iPhone/iPad Safari gets the H.264-only ladder (3840 top): the 8K/5760 HEVC levels broke playback there; ?hevc=1 opts back in */ const cH = (isIOS && params.get('hevc') !== '1' && j.cdn.hlsIOS) ? j.cdn.hlsIOS : j.cdn.hls; window.__master = cH; const cr = await fetch(j.cdn.base + cH, { mode: 'cors', signal: ac.signal }); clearTimeout(to); if (cr.ok && (await cr.text()).includes('#EXTM3U')) { fU = j.cdn.base + cH; if (j.cdn.rev) rU = j.cdn.base + j.cdn.rev; window.__src = 'r2'; } } catch (e) { window.__src = 'pages (r2 failed: ' + e.name + ')'; } }
     fwdT = new Track(fU, D, true); revT = new Track(rU, D, true); /* w4: reverse stream loads only after the forward walk is running */ active = fwdT;
     $('badge').innerHTML = `<b>Hội An</b> · real 360° street walk · <a href="https://github.com/Khoadang87/travel-experience/blob/main/cities/hoian/CREDITS.md" target="_blank">Credits</a>`; setTimeout(() => $('badge').classList.add('fade'), 100);
@@ -299,6 +299,7 @@ let lastTurn = 0; function turnAround() { const n = performance.now(); if (n - l
     if (fwdT.el.error) throw new Error('video failed to load (' + (fwdT.el.error.code) + ')');
     clearInterval(prog); $('loader').hidden = true; document.body.classList.remove('loading'); $('hint').classList.add('fade'); window.__state.loaded = true; updateQuality(); setSpin(true);
     if (!(await playSafe(fwdT.el))) showTap();
+    startJunctions(route, catalog);
     let gyroOn = false;
     const onGesture = () => { $('tapstart').hidden = true; if (active.el.paused && !active.atEnd() && !view.standing) playSafe(active.el);
       if (!soundOn) { soundOn = true; aInit(); aud.g = 0; aud.goal = 0; if (aud.node) aud.node.gain.value = 0; else audio.volume = 0; audio.play().then(() => { if (!vidLive()) audio.pause(); }).catch(() => { soundOn = false; }); /* w4: unlock only; sound starts with the first moving frame */ }
@@ -350,3 +351,39 @@ window.HoianWalk = {
   setGyro: on => setGyro(on), gyro: () => gyroWant, setWalk: on => { btnTarget = on ? 'walk' : null; }, turnAround: () => turnAround(), faceAhead: () => { view.yaw = 0; view.pitch = 0; }, state: () => ({ pos: pos(), quality: qualityMode, lo: LO, hi: HI, facing: view.face > 0 ? 'forward' : 'back', standing: !!view.standing, sound: soundOn, rate, joy: joy.y, swapping, base: active ? (active === fwdT ? 'fwd' : 'rev') + ' rs' + active.el.readyState + (active.el.paused ? 'P' : '>') : '-' }) };
 window.__hlsInfo = () => fwdT?.hls ? { cur: fwdT.hls.currentLevel, next: fwdT.hls.nextLoadLevel, start: fwdT.hls.startLevel, bw: Math.round(fwdT.hls.bandwidthEstimate / 1e5) / 10, lv: fwdT.hls.levels.map(l => l.width) } : null;
 window.__test = { src: () => window.__src, sw: () => switchStats, hd: () => view.hd, shown: () => mat.map ? (mat.map.isVideoTexture ? 'video' : 'poster') : 'none', ttff: () => window.__ttff, head: () => headAt(pos()), vidLive: () => vidLive(), road: () => road && { gain: road.m.uniforms.gain.value.toArray(), off: road.m.uniforms.off.value }, look: () => ({ yaw: view.yaw, pitch: view.pitch, gyro: !!view.gyro }), nadir: () => nadir && nadir.m.uniforms.col.value.getHexString(), aud: () => ({ t: +audio.currentTime.toFixed(1), want: +aWant().toFixed(1), g: +aud.g.toFixed(2), paused: audio.paused, webaudio: !!aud.node, ctx: aud.ctx?.state }), turn: () => turnAround(), view: () => ({ face: view.face, turn: +view.turn.toFixed(2) }), setYaw: y => view.yaw = y, setPitch: p => view.pitch = p, key: (c, d) => keys[c] = d, els: () => [fwdT, revT].flatMap(t => t.els.map((v, j) => ({ t: t === fwdT ? "f" : "r", j, act: j === t.k, src: v.src.split("/").pop(), p: v.paused, rs: v.readyState, ct: +v.currentTime.toFixed(2), pr: v.playbackRate, buf: v.buffered.length ? +v.buffered.end(v.buffered.length - 1).toFixed(1) : 0 }))), state: () => ({ pos: pos(), D, rate, target, dir: active === fwdT ? 'fwd' : 'rev', chunk: active?.ci, frames, chunkSwaps, paused: active?.el.paused, w: active?.el.videoWidth, q: quality, swapping, err: window.__viewerError || null }) };
+
+/* w13: junction player. Each route in routes.json lists connections {route, at, entry, yaw?, face?, auto?, label}.
+   Walking forward (joystick/W) within `radius` s of `at` while looking within 35deg of `yaw` (degrees, + = right of the
+   walking direction), or reaching an `auto` junction (end of a recorded clip), hops to the connected clip at `entry`,
+   keeping your look direction. A small arrow shows where a branch is. */
+function startJunctions(route, catalog) {
+  const cons = route.branches || []; if (!cons.length) return;
+  const arrow = document.createElement('div'); arrow.id = 'jarrow'; arrow.hidden = true; document.body.appendChild(arrow);
+  let hopping = false;
+  const norm = a => Math.atan2(Math.sin(a), Math.cos(a));
+  setInterval(() => {
+    if (hopping || navigationPaused || swapping || !window.__state.loaded) return;
+    const p = pos(), walkingFwd = rate * view.face > 0.3 || (Math.abs(target) > 0.3 && Math.sign(target) === Math.sign(rate || target));
+    const moving = Math.abs(rate) > 0.3 || Math.abs(target) > 0.3, dirSign = Math.sign(rate || target) || view.face;
+    let shown = null;
+    for (const c of cons) {
+      const r = c.radius ?? 4; if (Math.abs(p - c.at) > r) continue;
+      const cf = c.face ?? 1; /* which way along this clip you must be walking: 1 = forward, -1 = back */
+      const lookYaw = norm(-view.yaw + (view.face < 0 ? Math.PI : 0)); /* view.yaw is +left; c.yaw is + right of the clip's forward */
+      const want = (c.yaw ?? 0) * Math.PI / 180, dy = Math.abs(norm(lookYaw - want));
+      shown = shown || { c, dy, want };
+      const goingRightWay = moving && dirSign === cf;
+      const atEdge = c.auto && ((cf > 0 && p >= HI - 0.6) || (cf < 0 && p <= LO + 0.6));
+      if (goingRightWay && (atEdge || (!c.auto && dy < 0.61))) { hop(c); return; }
+    }
+    if (shown) { const t = shown.c.route && catalog.routes.find(r => r.id === shown.c.route); arrow.textContent = (shown.dy < 0.61 ? '⬆ ' : '↗ ') + (shown.c.label || t?.name || ''); arrow.hidden = false; } else arrow.hidden = true;
+  }, 150);
+  function hop(c) {
+    hopping = true; arrow.textContent = '… ' + (c.label || 'next street'); arrow.hidden = false;
+    if (c.href) { const g = new URL(c.href, location.href); g.searchParams.set('from', String(c.back ?? c.at)); g.searchParams.set('yaw', '0'); if (qualityMode !== 'auto') g.searchParams.set('quality', qualityMode); location.replace(g.href); return; }
+    const u = new URL(location.href); u.searchParams.set('route', c.route); u.searchParams.set('t', (+c.entry).toFixed(2));
+    u.searchParams.set('face', String(c.entryFace ?? 1)); u.searchParams.set('yaw', (c.keepYaw === false ? 0 : view.yaw - (c.yaw ?? 0) * Math.PI / 180 * -1 * 0).toFixed(3));
+    if (qualityMode !== 'auto') u.searchParams.set('quality', qualityMode);
+    location.replace(u.href);
+  }
+}
