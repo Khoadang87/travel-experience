@@ -299,7 +299,6 @@ let lastTurn = 0; function turnAround() { const n = performance.now(); if (n - l
     if (fwdT.el.error) throw new Error('video failed to load (' + (fwdT.el.error.code) + ')');
     clearInterval(prog); $('loader').hidden = true; document.body.classList.remove('loading'); $('hint').classList.add('fade'); window.__state.loaded = true; updateQuality(); setSpin(true);
     if (!(await playSafe(fwdT.el))) showTap();
-    startJunctions(route, catalog);
     let gyroOn = false;
     const onGesture = () => { $('tapstart').hidden = true; if (active.el.paused && !active.atEnd() && !view.standing) playSafe(active.el);
       if (!soundOn) { soundOn = true; aInit(); aud.g = 0; aud.goal = 0; if (aud.node) aud.node.gain.value = 0; else audio.volume = 0; audio.play().then(() => { if (!vidLive()) audio.pause(); }).catch(() => { soundOn = false; }); /* w4: unlock only; sound starts with the first moving frame */ }
@@ -352,38 +351,3 @@ window.HoianWalk = {
 window.__hlsInfo = () => fwdT?.hls ? { cur: fwdT.hls.currentLevel, next: fwdT.hls.nextLoadLevel, start: fwdT.hls.startLevel, bw: Math.round(fwdT.hls.bandwidthEstimate / 1e5) / 10, lv: fwdT.hls.levels.map(l => l.width) } : null;
 window.__test = { src: () => window.__src, sw: () => switchStats, hd: () => view.hd, shown: () => mat.map ? (mat.map.isVideoTexture ? 'video' : 'poster') : 'none', ttff: () => window.__ttff, head: () => headAt(pos()), vidLive: () => vidLive(), road: () => road && { gain: road.m.uniforms.gain.value.toArray(), off: road.m.uniforms.off.value }, look: () => ({ yaw: view.yaw, pitch: view.pitch, gyro: !!view.gyro }), nadir: () => nadir && nadir.m.uniforms.col.value.getHexString(), aud: () => ({ t: +audio.currentTime.toFixed(1), want: +aWant().toFixed(1), g: +aud.g.toFixed(2), paused: audio.paused, webaudio: !!aud.node, ctx: aud.ctx?.state }), turn: () => turnAround(), view: () => ({ face: view.face, turn: +view.turn.toFixed(2) }), setYaw: y => view.yaw = y, setPitch: p => view.pitch = p, key: (c, d) => keys[c] = d, els: () => [fwdT, revT].flatMap(t => t.els.map((v, j) => ({ t: t === fwdT ? "f" : "r", j, act: j === t.k, src: v.src.split("/").pop(), p: v.paused, rs: v.readyState, ct: +v.currentTime.toFixed(2), pr: v.playbackRate, buf: v.buffered.length ? +v.buffered.end(v.buffered.length - 1).toFixed(1) : 0 }))), state: () => ({ pos: pos(), D, rate, target, dir: active === fwdT ? 'fwd' : 'rev', chunk: active?.ci, frames, chunkSwaps, paused: active?.el.paused, w: active?.el.videoWidth, q: quality, swapping, err: window.__viewerError || null }) };
 
-/* w13: junction player. Each route in routes.json lists connections {route, at, entry, yaw?, face?, auto?, label}.
-   Walking forward (joystick/W) within `radius` s of `at` while looking within 35deg of `yaw` (degrees, + = right of the
-   walking direction), or reaching an `auto` junction (end of a recorded clip), hops to the connected clip at `entry`,
-   keeping your look direction. A small arrow shows where a branch is. */
-function startJunctions(route, catalog) {
-  const cons = route.branches || []; if (!cons.length) return;
-  const arrow = document.createElement('div'); arrow.id = 'jarrow'; arrow.hidden = true; document.body.appendChild(arrow);
-  let hopping = false;
-  const norm = a => Math.atan2(Math.sin(a), Math.cos(a));
-  setInterval(() => {
-    if (hopping || navigationPaused || swapping || !window.__state.loaded) return;
-    const p = pos(), walkingFwd = rate * view.face > 0.3 || (Math.abs(target) > 0.3 && Math.sign(target) === Math.sign(rate || target));
-    const moving = Math.abs(rate) > 0.3 || Math.abs(target) > 0.3, dirSign = Math.sign(rate || target) || view.face;
-    let shown = null;
-    for (const c of cons) {
-      const r = c.radius ?? 4; if (Math.abs(p - c.at) > r) continue;
-      const cf = c.face ?? 1; /* which way along this clip you must be walking: 1 = forward, -1 = back */
-      const lookYaw = norm(-view.yaw + (view.face < 0 ? Math.PI : 0)); /* view.yaw is +left; c.yaw is + right of the clip's forward */
-      const want = (c.yaw ?? 0) * Math.PI / 180, dy = Math.abs(norm(lookYaw - want));
-      shown = shown || { c, dy, want };
-      const goingRightWay = moving && dirSign === cf;
-      const atEdge = c.auto && ((cf > 0 && p >= HI - 0.6) || (cf < 0 && p <= LO + 0.6));
-      if (goingRightWay && (atEdge || (!c.auto && dy < 0.61))) { hop(c); return; }
-    }
-    if (shown) { const t = shown.c.route && catalog.routes.find(r => r.id === shown.c.route); arrow.textContent = (shown.dy < 0.61 ? '⬆ ' : '↗ ') + (shown.c.label || t?.name || ''); arrow.hidden = false; } else arrow.hidden = true;
-  }, 150);
-  function hop(c) {
-    hopping = true; arrow.textContent = '… ' + (c.label || 'next street'); arrow.hidden = false;
-    if (c.href) { const g = new URL(c.href, location.href); g.searchParams.set('from', String(c.back ?? c.at)); g.searchParams.set('yaw', '0'); if (qualityMode !== 'auto') g.searchParams.set('quality', qualityMode); location.replace(g.href); return; }
-    const u = new URL(location.href); u.searchParams.set('route', c.route); u.searchParams.set('t', (+c.entry).toFixed(2));
-    u.searchParams.set('face', String(c.entryFace ?? 1)); u.searchParams.set('yaw', (c.keepYaw === false ? 0 : view.yaw - (c.yaw ?? 0) * Math.PI / 180 * -1 * 0).toFixed(3));
-    if (qualityMode !== 'auto') u.searchParams.set('quality', qualityMode);
-    location.replace(u.href);
-  }
-}

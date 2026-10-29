@@ -60,6 +60,5 @@ body.minimal #spin{width:24px;height:24px;margin:-14px;border-width:3px}
 
 #junctions{position:fixed;right:16px;bottom:calc(180px + env(safe-area-inset-bottom,0px));max-width:min(70vw,320px);z-index:9;display:grid;gap:8px}#junctions[hidden]{display:none}#junctions a{padding:13px 18px;border:1px solid #c0e6ce;border-radius:12px;background:#173b2bed;color:white;text-decoration:none;box-shadow:0 4px 20px #0005;font:600 15px system-ui}#junctions a:focus-visible{outline:3px solid #fff;outline-offset:3px}
 
-#jarrow{position:fixed;left:50%;top:38%;transform:translateX(-50%);background:#000b;color:#fff;padding:8px 14px;border-radius:18px;font:600 15px system-ui;z-index:6;pointer-events:none}
 #credit{position:fixed;left:6px;bottom:calc(env(safe-area-inset-bottom,0px) + 4px);font:11px system-ui;color:#ddd;background:#0008;padding:3px 7px;border-radius:8px;z-index:6;max-width:70vw}
 #credit a{color:#9cf}
