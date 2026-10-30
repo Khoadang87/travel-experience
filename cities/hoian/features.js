@@ -1,4 +1,4 @@
-// w17: side-street junctions, points of interest and a schematic mini-map, layered on walk.js through window.__walkAPI.
+// w18: side-street junctions, points of interest and a schematic mini-map, layered on walk.js through window.__walkAPI.
 // Bearings are degrees right of the footage frame centre at that moment; elevation is degrees above the horizon.
 import { loadCatalog } from './route-catalog.js?v=w9';
 const $ = id => document.getElementById(id);
@@ -70,8 +70,9 @@ const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2,
       window.__feat.preloaded = j.id; } catch (_) {} }
   async function take(j) { busy = true; try { const to = clipAt(j.toClip) || clips[0];
       const keep = (j.targetBearing ?? 0) + angd(W.lookBearing(), j.bearing); /* keep the compass heading: same offset from the street direction */
-      enterClip(to); await W.jump(j.toTime, keep); window.__feat.switches++; window.__feat.last = { from: j.id, to: to.id, t: j.toTime, look: +keep.toFixed(1) }; cool = performance.now() + 2500; } catch (e) { console.warn('junction', e); } finally { busy = false; } }
+      enterClip(to); await W.jump(j.toTime, keep, j.toFace ?? 1); window.__feat.switches++; window.__feat.last = { from: j.id, to: to.id, t: j.toTime, look: +keep.toFixed(1) }; cool = performance.now() + 2500; } catch (e) { console.warn('junction', e); } finally { busy = false; } }
 
+  window.__feat.enter = async (id, t, look, face) => { const c = clipAt(id); if (!c) return false; enterClip(c); await W.jump(t, look, face); return true; }; /* test hook */
   /* ---------- mini-map (schematic: heading.json is relative to the camera, not the compass) ---------- */
   const mm = $('minimap'), mx = mm.getContext('2d'); let path = null;
   const mmOn = () => localStorage.getItem('hoian.minimap') !== '0' && params.get('minimap') !== '0';
