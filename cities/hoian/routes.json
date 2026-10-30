@@ -3,12 +3,53 @@
   "routes": [
     {
       "id": "old-town",
-      "name": "H\u1ed9i An old-town walk",
+      "name": "Hội An old-town walk",
       "kind": "street",
       "manifest": "assets/walk/walk.json",
       "duration": 1436,
-      "description": "A 24-minute recorded route, from the old-town streets down to the river, through the old town. Look around freely and walk forward or back along the recorded path.",
-      "connections": []
+      "description": "A 24-minute recorded route through the old town, from the canal-side streets down to the river. Look around freely and walk forward or back along the recorded path.",
+      "connections": [],
+      "clips": [
+        {
+          "id": "main",
+          "lo": 0,
+          "hi": 1435.3
+        }
+      ],
+      "junctionsEnabled": false,
+      "junctions": [],
+      "mockClips": [
+        {
+          "id": "mock-side",
+          "lo": 300,
+          "hi": 420,
+          "mapAt": 110,
+          "credit": "Test branch (a later stretch of the same walk). 360° footage by <a href=\"https://www.youtube.com/watch?v=CErfnBokWYM\" target=\"_blank\" rel=\"noopener\">360 Japan Tours</a>"
+        }
+      ],
+      "mockJunctions": [
+        {
+          "id": "mock-in",
+          "clip": "main",
+          "at": 110,
+          "bearing": -100,
+          "label": "Side street (test)",
+          "toClip": "mock-side",
+          "toTime": 300.5,
+          "targetBearing": 0
+        },
+        {
+          "id": "mock-back",
+          "clip": "mock-side",
+          "at": 301,
+          "dir": -1,
+          "bearing": 0,
+          "label": "Back to the riverside (test)",
+          "toClip": "main",
+          "toTime": 110,
+          "targetBearing": -100
+        }
+      ]
     }
   ]
 }

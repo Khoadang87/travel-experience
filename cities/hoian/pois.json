@@ -1,0 +1,65 @@
+{
+  "note": "Seed points of interest. Positions and labels are approximate placeholders estimated from frames; no business names are given unless a sign is legible.",
+  "pois": [
+    {
+      "id": "canal",
+      "name": "Canal and small footbridge",
+      "description": "A canal meets the street here, crossed by a small footbridge.",
+      "from": 15,
+      "to": 30,
+      "bearing": 119,
+      "elevation": 5,
+      "approximate": true
+    },
+    {
+      "id": "pavilion",
+      "name": "Riverside pavilion",
+      "description": "A roofed pavilion with seating on the riverside square.",
+      "from": 90,
+      "to": 115,
+      "bearing": -106,
+      "elevation": 5,
+      "approximate": true
+    },
+    {
+      "id": "boats",
+      "name": "Boat landing",
+      "description": "Small wooden boats tie up along the river bank.",
+      "from": 90,
+      "to": 115,
+      "bearing": 62,
+      "elevation": -8,
+      "approximate": true
+    },
+    {
+      "id": "lanterns",
+      "name": "Lantern-hung shopfront",
+      "description": "A shopfront strung with silk lanterns over the street.",
+      "from": 190,
+      "to": 210,
+      "bearing": -60,
+      "elevation": 10,
+      "approximate": true
+    },
+    {
+      "id": "stalls",
+      "name": "Clothing stalls",
+      "description": "Open-front shops with clothes hung along the pavement.",
+      "from": 320,
+      "to": 345,
+      "bearing": 136,
+      "elevation": 0,
+      "approximate": true
+    },
+    {
+      "id": "bougainvillea",
+      "name": "Bougainvillea",
+      "description": "Flowering bougainvillea over the street between yellow houses.",
+      "from": 320,
+      "to": 345,
+      "bearing": 10,
+      "elevation": 10,
+      "approximate": true
+    }
+  ]
+}

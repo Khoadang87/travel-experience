@@ -160,8 +160,11 @@ class Track {
     const v = this.el;
     if (Math.abs(v.currentTime - t) >= 0.04) {
       v.currentTime = t;
-      await this.wait('seeked', () => !v.seeking && v.readyState >= 2);
-    } else await this.wait('loadeddata', () => v.readyState >= 2);
+      /* w17: the joined head/tail parts start each part ~2 frames late (0.067 s), so a seek that lands just before a part's first frame can sit in that gap forever; hop to the buffered start */
+      const gapHop = setInterval(() => { if (v.readyState >= 2 || v.seeking && v.readyState >= 2) return; const b = v.buffered; for (let i = 0; i < b.length; i++) if (b.start(i) > v.currentTime && b.start(i) - v.currentTime < 0.5) { v.currentTime = b.start(i) + 0.01; break; } }, 700);
+      try { await this.wait('seeked', () => !v.seeking && v.readyState >= 2); } finally { clearInterval(gapHop); }
+    } else { const gapHop = setInterval(() => { if (v.readyState >= 2) return; const b = v.buffered; for (let i = 0; i < b.length; i++) if (b.start(i) > v.currentTime && b.start(i) - v.currentTime < 0.5) { v.currentTime = b.start(i) + 0.01; break; } }, 700);
+      try { await this.wait('loadeddata', () => v.readyState >= 2); } finally { clearInterval(gapHop); } }
   }
   tick() {}
   atEnd() { return this.el.duration && this.el.currentTime >= this.el.duration - 0.15; }
@@ -347,8 +350,12 @@ function showTap() { const t = $('tapstart'); t.textContent = '🔊 Tap to start
    setWalk(on|null): walk forward like the stick; turnAround(); faceAhead(); state() -> { pos, lo, hi, facing, standing, sound } */
 window.HoianWalk = {
   pauseNavigation: on => { navigationPaused = !!on; if (on) { for (const key in keys) delete keys[key]; joy = {x:0,y:0,id:null}; knob.style.transform = ''; btnTarget = null; target = rate = 0; active?.pauseAll(); stopAudioNow(); } },
-  goTo: async value => { if (!Number.isFinite(value) || !active || swapping) throw new Error('Please wait for the current video to finish loading.'); const point = Math.max(LO, Math.min(HI - .1, value)); stopAudioNow(); await snapTo(point); view.hd = headAt(point); view.face = 1; view.turn = 0; target = rate = 0; },
+  goTo: async value => { if (!Number.isFinite(value) || !active || swapping) throw new Error('Please wait for the current video to finish loading.'); const point = Math.max(0, Math.min(D - .1, value)); /* w17: junctions may jump outside the current clip range */ stopAudioNow(); await snapTo(point); view.hd = headAt(point); view.face = 1; view.turn = 0; target = rate = 0; },
   setGyro: on => setGyro(on), gyro: () => gyroWant, setWalk: on => { btnTarget = on ? 'walk' : null; }, turnAround: () => turnAround(), faceAhead: () => { view.yaw = 0; view.pitch = 0; }, state: () => ({ pos: pos(), quality: qualityMode, lo: LO, hi: HI, facing: view.face > 0 ? 'forward' : 'back', standing: !!view.standing, sound: soundOn, rate, joy: joy.y, swapping, base: active ? (active === fwdT ? 'fwd' : 'rev') + ' rs' + active.el.readyState + (active.el.paused ? 'P' : '>') : '-' }) };
+/* w17: hooks for features.js (junctions, points of interest, mini-map). Footage bearing b (deg, +right of the frame centre) = camera yaw -b. */
+window.__walkAPI = { THREE, scene, camera, canvas: renderer.domElement, view, pos: () => pos(), headAt: p => headAt(p), head: () => HEAD, range: () => ({ lo: LO, hi: HI, d: D }), setRange: (lo, hi) => { LO = lo; HI = hi; }, intent: () => target, loaded: () => !!window.__state.loaded, swapping: () => swapping,
+  lookBearing: () => { const e = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ'); return -THREE.MathUtils.radToDeg(e.y); },
+  jump: async (t, lookBearing) => { await window.HoianWalk.goTo(t); if (lookBearing != null) { const y = -THREE.MathUtils.degToRad(lookBearing) - view.hd; view.yaw = view.sy = y; } } };
 window.__hlsInfo = () => fwdT?.hls ? { cur: fwdT.hls.currentLevel, next: fwdT.hls.nextLoadLevel, start: fwdT.hls.startLevel, bw: Math.round(fwdT.hls.bandwidthEstimate / 1e5) / 10, lv: fwdT.hls.levels.map(l => l.width) } : null;
 window.__test = { src: () => window.__src, sw: () => switchStats, hd: () => view.hd, shown: () => mat.map ? (mat.map.isVideoTexture ? 'video' : 'poster') : 'none', ttff: () => window.__ttff, head: () => headAt(pos()), vidLive: () => vidLive(), road: () => road && { gain: road.m.uniforms.gain.value.toArray(), off: road.m.uniforms.off.value }, look: () => ({ yaw: view.yaw, pitch: view.pitch, gyro: !!view.gyro }), nadir: () => nadir && nadir.m.uniforms.col.value.getHexString(), aud: () => ({ t: +audio.currentTime.toFixed(1), want: +aWant().toFixed(1), g: +aud.g.toFixed(2), paused: audio.paused, webaudio: !!aud.node, ctx: aud.ctx?.state }), turn: () => turnAround(), view: () => ({ face: view.face, turn: +view.turn.toFixed(2) }), setYaw: y => view.yaw = y, setPitch: p => view.pitch = p, key: (c, d) => keys[c] = d, els: () => [fwdT, revT].flatMap(t => t.els.map((v, j) => ({ t: t === fwdT ? "f" : "r", j, act: j === t.k, src: v.src.split("/").pop(), p: v.paused, rs: v.readyState, ct: +v.currentTime.toFixed(2), pr: v.playbackRate, buf: v.buffered.length ? +v.buffered.end(v.buffered.length - 1).toFixed(1) : 0 }))), state: () => ({ pos: pos(), D, rate, target, dir: active === fwdT ? 'fwd' : 'rev', chunk: active?.ci, frames, chunkSwaps, paused: active?.el.paused, w: active?.el.videoWidth, q: quality, swapping, err: window.__viewerError || null }) };
 

@@ -62,3 +62,12 @@ body.minimal #spin{width:24px;height:24px;margin:-14px;border-width:3px}
 
 #credit{position:fixed;left:6px;bottom:calc(env(safe-area-inset-bottom,0px) + 4px);font:11px system-ui;color:#ddd;background:#0008;padding:3px 7px;border-radius:8px;z-index:6;max-width:70vw}
 #credit a{color:#9cf}
+
+/* w17: junction hint, POI card, mini-map: quiet, no navigation buttons */
+#junction-hint{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 160px);transform:translateX(-50%);font:500 13px system-ui;color:#fff;background:#0007;padding:5px 12px;border-radius:14px;opacity:0;transition:opacity .4s;pointer-events:none;z-index:6}
+#junction-hint.on{opacity:.85}
+#poicard{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 150px);transform:translateX(-50%);width:min(84vw,340px);box-sizing:border-box;padding:12px 14px;background:#111d;border:1px solid #fff3;border-radius:12px;z-index:20;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#poicard[hidden]{display:none}#poicard h2{margin:0 0 6px;font-size:16px}#poicard p{margin:0 0 6px;font-size:13px;line-height:1.45;color:#ddd}#poinote{color:#aaa!important;font-size:11px!important}
+#poicard img{width:100%;border-radius:8px;margin-bottom:8px}#poiclose{border:1px solid #fff4;background:#0006;color:#fff;border-radius:14px;padding:5px 12px;font:12px system-ui}
+#minimap{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 52px);width:96px;height:96px;border-radius:12px;background:#0006;border:1px solid #fff2;z-index:5;pointer-events:none}
+#minimap[hidden]{display:none}#explore .setting{display:flex!important;gap:10px;align-items:center;justify-content:flex-start;width:auto!important}#explore .setting input{width:auto!important;margin:0;flex:none}

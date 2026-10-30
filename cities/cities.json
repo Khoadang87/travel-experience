@@ -1,0 +1,8 @@
+{
+  "cities": [
+    { "id": "hoian", "name": "Hội An", "country": "Vietnam", "path": "hoian/", "status": "live", "blurb": "A 24-minute 360° walk through the old town to the river." },
+    { "id": "hue", "name": "Huế", "country": "Vietnam", "status": "soon" },
+    { "id": "kyoto", "name": "Kyoto", "country": "Japan", "status": "soon" },
+    { "id": "lisbon", "name": "Lisbon", "country": "Portugal", "status": "soon" }
+  ]
+}
