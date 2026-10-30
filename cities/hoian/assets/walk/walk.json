@@ -18,14 +18,13 @@
   "chunk": 660,
   "cdn": {
     "base": "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/",
-    "hls": "hls11/f.m3u8",
-    "rev": "hls11/r2560/index.m3u8",
-    "hlsIOS": "hls11/f.m3u8",
-    "duration": 1660,
+    "hls": "hls12/f.m3u8",
+    "rev": "hls12/r2560/index.m3u8",
+    "hlsIOS": "hls12/f.m3u8",
+    "duration": 1584,
     "lo": 0,
     "hi": 1435.3,
-    "heading": "heading_w19.json",
-    "audio": "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/hls11/ambience.m4a",
-    "opmask": "op_w19.json"
+    "heading": "heading_w18.json",
+    "audio": "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/hls10/ambience.m4a"
   }
 }
