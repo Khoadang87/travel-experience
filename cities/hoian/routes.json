@@ -59,8 +59,7 @@
           "label": "Rejoin the main walk",
           "toClip": "main",
           "toTime": 902,
-          "toFace": -1,
-          "targetBearing": 180
+          "targetBearing": 0
         }
       ],
       "mockClips": [
