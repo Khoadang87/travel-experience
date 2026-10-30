@@ -7,17 +7,61 @@
       "kind": "street",
       "manifest": "assets/walk/walk.json",
       "duration": 1436,
-      "description": "A 24-minute recorded route through the old town, from the canal-side streets down to the river. Look around freely and walk forward or back along the recorded path.",
+      "description": "A 24-minute recorded route through the old town, from the canal-side streets down to the river, with a side route along the riverfront from another walker's footage. Look around freely and walk forward or back.",
       "connections": [],
       "clips": [
         {
           "id": "main",
           "lo": 0,
           "hi": 1435.3
+        },
+        {
+          "id": "riverside",
+          "lo": 1436.2,
+          "hi": 1583.6,
+          "mapAt": 257,
+          "credit": "Riverside branch: 360° footage by <a href=\"https://www.youtube.com/watch?v=C26CAyJkt4g\" target=\"_blank\" rel=\"noopener\">HenkWalks</a> (recorded on a different day). Main walk by <a href=\"https://www.youtube.com/watch?v=CErfnBokWYM\" target=\"_blank\" rel=\"noopener\">360 Japan Tours</a>"
         }
       ],
-      "junctionsEnabled": false,
-      "junctions": [],
+      "junctionsEnabled": true,
+      "junctions": [
+        {
+          "id": "river-in",
+          "clip": "main",
+          "at": 256.5,
+          "window": 5,
+          "trigger": 2,
+          "cone": 30,
+          "bearing": 30,
+          "label": "Along the river",
+          "toClip": "riverside",
+          "toTime": 1437.0,
+          "targetBearing": -5
+        },
+        {
+          "id": "river-back",
+          "clip": "riverside",
+          "at": 1436.8,
+          "dir": -1,
+          "cone": 45,
+          "bearing": 180,
+          "label": "Back to the old-town street",
+          "toClip": "main",
+          "toTime": 259.5,
+          "targetBearing": -5
+        },
+        {
+          "id": "river-out",
+          "clip": "riverside",
+          "at": 1581.5,
+          "cone": 60,
+          "bearing": 0,
+          "label": "Rejoin the main walk",
+          "toClip": "main",
+          "toTime": 902,
+          "targetBearing": 0
+        }
+      ],
       "mockClips": [
         {
           "id": "mock-side",
