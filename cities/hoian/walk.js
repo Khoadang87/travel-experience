@@ -157,10 +157,10 @@ class Track {
     };
     if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(frame); else v.addEventListener('timeupdate', frame);
   }
-  async seek(t) { this._inSeek = (this._inSeek || 0) + 1; try { return await this._seek(t); } finally { this._inSeek--; this._ownSeek = performance.now(); } }
+  async seek(t) { this._inSeek = (this._inSeek || 0) + 1; if (this._inSeek > 1) evlog((this === fwdT ? 'F' : 'R') + ' seek ' + t.toFixed(1) + ' replaces in-flight rs' + this.el.readyState); try { return await this._seek(t); } finally { this._inSeek--; this._ownSeek = performance.now(); } }
   async _seek(t) { const gen = this._gen = (this._gen || 0) + 1; /* w24: a newer seek on this stream supersedes this one (two retry loops fought over currentTime) */
     t = Math.max(0, Math.min(this.D - 0.05, t)); this.start(t);
-    await this.wait('loadedmetadata', () => this.el.readyState >= 1);
+    if (this._inSeek > 1 && this.hls) { /* w24: replacing a lost seek (decoder reset to rs0 by recoverMediaError): don't sit behind it waiting for metadata */ await this.wait('loadedmetadata', () => this.el.readyState >= 1, 600).catch(() => {}); } else await this.wait('loadedmetadata', () => this.el.readyState >= 1);
     const v = this.el;
     /* w23: never seek a stream that has no decoded data yet (readyState 1): WebKit leaves such a seek pending forever (no 'seeked', readyState stuck at 1) and iOS native HLS can drop it and restart from 0. Let the first data arrive (the stream was started at t), then seek only if still needed */
     if (v.readyState < 2 && !this._hadData) { try { await this.wait('loadeddata', () => v.readyState >= 2, this._inSeek > 1 ? 800 : 4000) /* w24: a seek replacing a stuck one (e.g. a lost park seek when you turn back) waits briefly; the stuck-seek repair below handles rs<2 */; } catch (e) { if (this.failure) throw e; } }
