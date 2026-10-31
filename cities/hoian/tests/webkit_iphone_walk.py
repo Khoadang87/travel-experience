@@ -17,7 +17,7 @@ from playwright.sync_api import sync_playwright
 URL = sys.argv[1]; LOCAL = sys.argv[3] if len(sys.argv) > 3 and sys.argv[2] == '--local' else None
 FLV = os.environ.get('FLV', 'hls13/f1280/index.m3u8'); MIN_ADV = 2.0; DIFF_MIN = 2.0
 POINTS = [('start', None), ('main 300', ('goto', 300)), ('after reversal', ('rev', None)),
-          ('after junction river-in', ('junc', "'main',251,0,1", 'ArrowUp', 7)), ('after junction river-back', ('junc', "'riverside',1441,0,1", 'ArrowDown', 7)), ('after junction river-out', ('junc', "'riverside',1576,0,1", 'ArrowUp', 8))]
+          ('after junction river-in', ('junc', "'main',251,30,1", 'ArrowUp', 7)), ('after junction river-back', ('junc', "'riverside',1441,0,1", 'ArrowDown', 7)), ('after junction river-out', ('junc', "'riverside',1576,0,1", 'ArrowUp', 8))]
 # junctions are entered the way a user does: jump just before one with __feat.enter, walk through it, then hold forward 8 s
 def diff(a, b):
     from PIL import Image, ImageChops, ImageStat
@@ -31,7 +31,7 @@ with sync_playwright() as p:
         except Exception: r.abort()
     pg.route('**/*', px)  # Playwright fetches for WebKit (box WebKit has no TLS backend)
     if LOCAL:
-        for f, ct in (('walk.js', 'text/javascript'), ('explore.js', 'text/javascript'), ('features.js', 'text/javascript'), ('ver.txt', 'text/plain'), ('assets/walk/walk.json', 'application/json')):
+        for f, ct in (('walk.js', 'text/javascript'), ('explore.js', 'text/javascript'), ('features.js', 'text/javascript'), ('ver.txt', 'text/plain'), ('routes.json', 'application/json'), ('pois.json', 'application/json'), ('route-catalog.js', 'text/javascript'), ('assets/walk/walk.json', 'application/json')):
             pg.route(f'**/cities/hoian/{f}*', lambda r, q=None, f=f, ct=ct: r.fulfill(body=open(os.path.join(LOCAL, f), 'rb').read().replace(b'hls13/f3840/index.m3u8', FLV.encode()), content_type=ct))
         pg.route('**/cities/hoian/?*', lambda r, q=None: r.fulfill(body=open(os.path.join(LOCAL, 'index.html'), 'rb').read(), content_type='text/html'))
     else:
@@ -45,13 +45,14 @@ with sync_playwright() as p:
         except Exception: pass
         time.sleep(1)
     else: fails.append('walk never finished loading: ' + str(ev("JSON.stringify([__test.state(), window.__evlog])")))
-    dot = "(()=>{const e=document.querySelector('#minimap .dot, #mmdot, .mm-dot, #explore-dot, [data-role=me]');if(!e)return null;const r=e.getBoundingClientRect();return [r.x,r.y,e.getAttribute('cx'),e.getAttribute('cy'),e.style.transform]})()"
+    dot = "(()=>{const c=document.getElementById('minimap');if(!c||c.hidden)return null;const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0,sx=0,sy=0;for(let i=0;i<d.length;i+=4)if(d[i]>230&&d[i+1]>70&&d[i+1]<110&&d[i+2]>60&&d[i+2]<100&&d[i+3]>200){const k=i/4;sx+=k%c.width;sy+=Math.floor(k/c.width);n++}return n?[+(sx/n).toFixed(2),+(sy/n).toFixed(2)]:null})()"
     def hold(name):
         p0 = ev('__test.state().pos'); d0 = ev(dot); shots = [pg.screenshot(type='png')]; ev("__test.key('ArrowUp',true)")
         for k in range(4): time.sleep(2); shots.append(pg.screenshot(type='png'))
         ev("__test.key('ArrowUp',false)"); st = ev('__test.state()'); p1 = st['pos']; d1 = ev(dot); tip = ev("!!document.getElementById('navigation-note') && !document.getElementById('navigation-note').hidden")
         ds = [round(diff(shots[i], shots[i + 1]), 1) for i in range(4)]; far = round(diff(shots[1], shots[4]), 1)
-        ok_pos = p1 - p0 >= MIN_ADV; ok_dot = d0 is None or d0 != d1; ok_frames = min(ds[1:]) > DIFF_MIN and far > DIFF_MIN
+        ok_pos = p1 - p0 >= MIN_ADV; clip = ev('window.__feat && window.__feat.clip'); ok_dot = (d0 != d1 and d1 is not None) if clip in (None, 'main') else True;  # riverside branch pins the dot at its mapAt by design
+        ok_frames = min(ds[1:]) > DIFF_MIN and far > DIFF_MIN
         ok_tip = not tip or name == 'start'; ok_dir = st['dir'] == 'fwd'
         row = dict(point=name, pos=[round(p0, 2), round(p1, 2)], dot=[d0, d1], frame_diffs=ds, first_last=far, tip=tip, dir=st['dir'], w=st['w'])
         bad = [k for k, v in (('position', ok_pos), ('minimap', ok_dot), ('frames', ok_frames), ('tip', ok_tip), ('direction', ok_dir)) if not v]
@@ -63,7 +64,11 @@ with sync_playwright() as p:
             if act and act[0] == 'goto': ev(f"HoianWalk.goTo({act[1]}).catch(()=>0)"); time.sleep(4)
             if act and act[0] == 'rev': ev("__test.key('ArrowDown',true)"); time.sleep(3); ev("__test.key('ArrowDown',false)"); time.sleep(1)
             if act and act[0] == 'junc':
-                ev(f"__feat.enter({act[1]})"); time.sleep(5); ev(f"__test.key('{act[2]}',true)"); time.sleep(act[3]); ev(f"__test.key('{act[2]}',false)"); time.sleep(2)
+                jid = name.split()[-1]; ev(f"__feat.enter({act[1]})"); time.sleep(5); ev(f"__test.key('{act[2]}',true)"); t0 = time.time()
+                # keep walking until the junction is actually taken (a slow far jump is fine; never taking it is a failure)
+                while time.time() - t0 < act[3] + 25 and ev(f"(window.__feat.last||{{}}).from") != jid: time.sleep(0.5)
+                ev(f"__test.key('{act[2]}',false)"); time.sleep(3)
+                if ev(f"(window.__feat.last||{{}}).from") != jid: fails.append(name + ': junction never taken evlog=' + json.dumps(ev('window.__evlog'))); continue
             hold(name)
     b.close()
 print('RESULT', 'PASS' if not fails else 'FAIL', json.dumps(fails)[:3000])

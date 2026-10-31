@@ -92,7 +92,7 @@ class Track {
           if (v.paused && !v.seeking && v.readyState >= 1) v.currentTime = t + 0.001;
         }
       });
-      h.on(Hls.Events.ERROR, (_, data) => { if (data.fatal) this.fail('The video stream could not load (' + data.type + ').'); });
+      h.on(Hls.Events.ERROR, (_, data) => { if (data.fatal && data.type === Hls.ErrorTypes.MEDIA_ERROR && this.tryRecover('hls ' + data.details)) return; if (data.fatal) this.fail('The video stream could not load (' + data.type + ').'); });
       h.loadSource(this.url); h.attachMedia(v);
     } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
       // Native Safari cannot use hls.js level controls. Pin its media playlist in manual modes.
@@ -125,13 +125,15 @@ class Track {
     return new Promise((resolve, reject) => {
       const cleanup = () => { clearTimeout(timer); v.removeEventListener(event, done); v.removeEventListener('error', failed); v.removeEventListener('streamfailure', failed); };
       const done = () => { if (ready()) { cleanup(); resolve(); } };
-      const failed = () => { cleanup(); reject(this.failure || new Error('Video decoding failed.')); };
+      const failed = () => setTimeout(() => { if (this.hls && !this.failure) return; /* w23: hls.js media error being recovered; keep waiting */ cleanup(); reject(this.failure || new Error('Video decoding failed.')); }, 0);
       const timer = setTimeout(() => { cleanup(); reject(new Error('The video is taking too long to load. Check your connection and reload.')); }, timeout);
       v.addEventListener(event, done); v.addEventListener('error', failed); v.addEventListener('streamfailure', failed);
     });
   }
+  /* w23: WebKit's MSE decoder occasionally errors on a far jump; hls.js can re-attach and carry on (max 3 per minute) */
+  tryRecover(why) { if (!this.hls) return false; const now = performance.now(); this._rec = (this._rec || []).filter(x => now - x < 60000); if (this._rec.length >= 3) return false; this._rec.push(now); evlog((this === fwdT ? 'F' : 'R') + ' recover: ' + why); switchStats.recover = (switchStats.recover || 0) + 1; const t = this.el.currentTime; this.hls.recoverMediaError(); if (t > 0) this.el.currentTime = t; return true; }
   watch(v) {
-    v.addEventListener('error', () => this.fail('The video could not be decoded.'));
+    v.addEventListener('error', () => { if (this.tryRecover('video error ' + (v.error && v.error.code))) return; this.fail('The video could not be decoded.'); });
     v.addEventListener('waiting', () => { if (this === active && !v.paused) setSpin(true); });
     v.addEventListener('playing', () => { if (this === active) setSpin(false); });
     v.addEventListener('resize', updateQuality);
@@ -155,19 +157,21 @@ class Track {
     };
     if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(frame); else v.addEventListener('timeupdate', frame);
   }
-  async seek(t) {
+  async seek(t) { this._inSeek = (this._inSeek || 0) + 1; try { return await this._seek(t); } finally { this._inSeek--; this._ownSeek = performance.now(); } }
+  async _seek(t) {
     t = Math.max(0, Math.min(this.D - 0.05, t)); this.start(t);
     await this.wait('loadedmetadata', () => this.el.readyState >= 1);
     const v = this.el;
     /* w23: never seek a stream that has no decoded data yet (readyState 1): WebKit leaves such a seek pending forever (no 'seeked', readyState stuck at 1) and iOS native HLS can drop it and restart from 0. Let the first data arrive (the stream was started at t), then seek only if still needed */
     if (v.readyState < 2 && !this._hadData) { try { await this.wait('loadeddata', () => v.readyState >= 2, 4000); } catch (e) { if (this.failure) throw e; } }
     if (v.readyState >= 2) this._hadData = true;
-    if (Math.abs(v.currentTime - t) >= 0.04) {
-      evlog((this === fwdT ? 'F' : 'R') + ' seek ' + v.currentTime.toFixed(1) + '>' + t.toFixed(1) + (this === active ? ' ACTIVE' : '')); this._ownSeek = performance.now();
-      v.currentTime = t;
+    /* w23: also wait out (and repair) a seek that hls.js itself issued via startPosition: it is the one WebKit loses */
+    if (Math.abs(v.currentTime - t) >= 0.04 || v.seeking || v.readyState < 2) {
+      if (Math.abs(v.currentTime - t) >= 0.04) { evlog((this === fwdT ? 'F' : 'R') + ' seek ' + v.currentTime.toFixed(1) + '>' + t.toFixed(1) + (this === active ? ' ACTIVE' : '')); this._ownSeek = performance.now();
+      v.currentTime = t; } else evlog((this === fwdT ? 'F' : 'R') + ' wait pending seek rs' + v.readyState);
       /* w18: the joined head/tail parts start each part ~2 frames late (0.067 s), so a seek that lands just before a part's first frame can sit in that gap forever; hop to the buffered start */
       const gapHop = setInterval(() => { if (v.readyState >= 2 || v.seeking && v.readyState >= 2) return; const b = v.buffered; for (let i = 0; i < b.length; i++) if (b.start(i) > v.currentTime && b.start(i) - v.currentTime < 0.5) { v.currentTime = b.start(i) + 0.01; break; } }, 700);
-      try { /* w23: a seek that never completes (seen in WebKit; suspected on iPhone native HLS) is re-issued every 3 s instead of hanging the walk */ for (let k = 0; ; k++) { try { await this.wait('seeked', () => !v.seeking && v.readyState >= 2, k < 5 ? 3000 : 20000); break; } catch (e) { if (k >= 5 || this.failure) throw e; evlog((this === fwdT ? 'F' : 'R') + ' seek stuck, retry ' + (k + 1) + ' ct ' + v.currentTime.toFixed(2) + ' rs' + v.readyState); this._ownSeek = performance.now(); v.currentTime = t + 0.01 * (k + 1); } } } finally { clearInterval(gapHop); }
+      try { /* w23: a seek that never completes (seen in WebKit; suspected on iPhone native HLS) is re-issued every 3 s instead of hanging the walk */ for (let k = 0; ; k++) { try { await this.wait('seeked', () => !v.seeking && v.readyState >= 2, k < 5 ? 3000 : 20000); break; } catch (e) { if (k >= 5 || this.failure) throw e; evlog((this === fwdT ? 'F' : 'R') + ' seek stuck, retry ' + (k + 1) + ' ct ' + v.currentTime.toFixed(2) + ' rs' + v.readyState); this._ownSeek = performance.now(); switchStats.stuckSeek = (switchStats.stuckSeek || 0) + 1; const bh = (() => { const b = v.buffered; for (let i = 0; i < b.length; i++) if (b.start(i) <= v.currentTime + 0.1 && b.end(i) > v.currentTime + 0.3) return true; return false; })(); if (this.hls && !bh) { /* data for the target is not buffered yet: still loading (slow network), keep waiting, do not reset the loader */ } else if (this.hls) { /* w23 root cause: WebKit's media pipeline can lose a seek issued before its first sample (readyState 1): 'seeked' never fires and re-seeking does not help; re-attaching the MediaSource does */ this.hls.recoverMediaError(); v.currentTime = t + 0.1 * (k + 1); /* step off a part boundary (EXT-X-DISCONTINUITY at 4/288/570/902/1230/1318/1436 s) */ } else { /* native HLS: reload the playlist and seek again */ const src = v.currentSrc || v.src; v.src = src; v.load(); try { await this.wait('loadedmetadata', () => v.readyState >= 1, 8000); } catch (e2) {} v.currentTime = t + 0.1 * (k + 1); } } } } finally { clearInterval(gapHop); }
     } else { const gapHop = setInterval(() => { if (v.readyState >= 2) return; const b = v.buffered; for (let i = 0; i < b.length; i++) if (b.start(i) > v.currentTime && b.start(i) - v.currentTime < 0.5) { v.currentTime = b.start(i) + 0.01; break; } }, 700);
       try { await this.wait('loadeddata', () => v.readyState >= 2); } finally { clearInterval(gapHop); } }
   }
@@ -361,10 +365,11 @@ ${EVL.join('\n')}`; }
     if (o && !o.el.paused) { o.el.pause(); evlog('paused stray ' + (o === fwdT ? 'F' : 'R')); }
     if (v.readyState >= 2 && mat.map !== active.tex[0]) { mat.map = active.tex[0]; mat.needsUpdate = true; evlog('texture -> active'); }
     const ct = v.currentTime;
-    if (wd.el === v && !v.paused && !v.seeking && ct < wd.ct - 0.6 && now - (active._ownSeek || 0) > 1500) { evlog('SNAPBACK ' + (active === fwdT ? 'F' : 'R') + ' ' + wd.ct.toFixed(1) + '>' + ct.toFixed(1)); switchStats.snap = (switchStats.snap || 0) + 1; active._ownSeek = now; v.currentTime = wd.ct; }
-    else if (!v.seeking) wd.ct = ct; wd.el = v;
+    if (wd.el === v && !active._inSeek && !v.paused && !v.seeking && ct < wd.ct - 0.6 && now - (active._ownSeek || 0) > 1500) { evlog('SNAPBACK ' + (active === fwdT ? 'F' : 'R') + ' ' + wd.ct.toFixed(1) + '>' + ct.toFixed(1)); switchStats.snap = (switchStats.snap || 0) + 1; active._ownSeek = now; v.currentTime = wd.ct; }
+    else if (!v.seeking || active._inSeek) wd.ct = ct; wd.el = v;
     const p = pos(), held = Math.abs(target) > 0.3 && !view.standing && (target > 0 ? p < HI - 0.6 : p > LO + 0.6);
     if (!held || Math.abs(p - wd.p) > 0.25) { wd.p = p; wd.pT = now; return; }
+    if (active._inSeek || swapping) wd.pT = now; /* w23: a jump/seek in progress is not a stall; never fight it */
     if (now - wd.pT > 2000) { wd.pT = now; switchStats.stuck = (switchStats.stuck || 0) + 1; const want = target > 0 ? fwdT : revT; evlog('STUCK at ' + p.toFixed(1) + ' ' + (active === fwdT ? 'F' : 'R') + ' rs' + v.readyState + (v.paused ? ' P' : ' play') + ' ct ' + ct.toFixed(2)); if (want !== active) switchTo(want); else { active._ownSeek = now; active.seek(want === fwdT ? p + 0.05 : D - p + 0.05).then(() => playSafe(active.el)).catch(() => {}); } }
   }, 250);
   setInterval(() => { if (!window.__state.loaded || swapping) return; const v = active.el; if (!v.paused && !active.atEnd() && performance.now() - lastAdv > 2500 && !active.nudged) { active.nudged = true; v.currentTime = v.currentTime + 0.02; playSafe(v); lastAdv = performance.now(); return; } if (!v.paused && !active.atEnd() && performance.now() - lastAdv > 6000) { active.nudged = false; setSpin(true); $('nodestatus').textContent = 'Reconnecting…'; const p = pos(); active.loaded = [-1, -1]; active.seek(active === fwdT ? p : D - p).then(() => playSafe(active.el)); lastAdv = performance.now(); }

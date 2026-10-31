@@ -58,7 +58,7 @@
           "bearing": 0,
           "label": "Rejoin the main walk",
           "toClip": "main",
-          "toTime": 902,
+          "toTime": 902.5,
           "targetBearing": 0
         }
       ],
