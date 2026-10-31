@@ -19,6 +19,7 @@ URL = sys.argv[1]; LOCAL = sys.argv[3] if len(sys.argv) > 3 and sys.argv[2] == '
 FLV = os.environ.get('FLV', 'hls13/f1280/index.m3u8'); MIN_ADV = 2.0; DIFF_MIN = 2.0
 POINTS = [('start', None), ('main 300', ('goto', 300)), ('after reversal', ('rev', None)),
           ('after junction river-in', ('junc', "'main',251,30,1", 'ArrowUp', 7)), ('after junction river-back', ('junc', "'riverside',1441,0,1", 'ArrowDown', 7)), ('after junction river-out', ('junc', "'riverside',1576,0,1", 'ArrowUp', 8))]
+# w24: never time.sleep: the sync route proxy below only serves requests while Python is inside a Playwright call, so sleeps starved the video fetches (a stuck seek that iPhone never sees)
 # junctions are entered the way a user does: jump just before one with __feat.enter, walk through it, then hold forward 8 s
 def diff(a, b):
     from PIL import Image, ImageChops, ImageStat
@@ -27,7 +28,6 @@ def diff(a, b):
 fails = []
 with sync_playwright() as p:
     b = p.webkit.launch(); ctx = b.new_context(**p.devices['iPhone 13']); pg = ctx.new_page()
-    if os.environ.get('DBGF'): pg.add_init_script('window.__dbgF=1')
     def px(r, q=None):
         try: r.fulfill(response=r.fetch())
         except Exception: r.abort()
@@ -38,19 +38,19 @@ with sync_playwright() as p:
         pg.route('**/cities/hoian/?*', lambda r, q=None: r.fulfill(body=open(os.path.join(LOCAL, 'index.html'), 'rb').read(), content_type='text/html'))
     else:
         pg.route('**/assets/walk/walk.json*', lambda r, q=None: r.fulfill(body=r.fetch().body().replace(b'hls13/f3840/index.m3u8', FLV.encode()), content_type='application/json'))
-    pg.goto(URL, wait_until='load'); time.sleep(3)
+    pg.goto(URL, wait_until='load'); pg.wait_for_timeout(1000*(3))
     if pg.is_visible('#tapstart'): pg.click('#tapstart')
     ev = pg.evaluate
     for i in range(120):
         try:
             if ev("window.__state && window.__state.loaded && __test.state().w > 0 && !__test.state().swapping"): break
         except Exception: pass
-        time.sleep(1)
+        pg.wait_for_timeout(1000*(1))
     else: fails.append('walk never finished loading: ' + str(ev("JSON.stringify([__test.state(), window.__evlog])")))
     dot = "(()=>{const c=document.getElementById('minimap');if(!c||c.hidden)return null;const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0,sx=0,sy=0;for(let i=0;i<d.length;i+=4)if(d[i]>230&&d[i+1]>70&&d[i+1]<110&&d[i+2]>60&&d[i+2]<100&&d[i+3]>200){const k=i/4;sx+=k%c.width;sy+=Math.floor(k/c.width);n++}return n?[+(sx/n).toFixed(2),+(sy/n).toFixed(2)]:null})()"
     def hold(name):
         p0 = ev('__test.state().pos'); d0 = ev(dot); shots = [pg.screenshot(type='png')]; ev("__test.key('ArrowUp',true)")
-        for k in range(4): time.sleep(2); shots.append(pg.screenshot(type='png'))
+        for k in range(4): pg.wait_for_timeout(1000*(2)); shots.append(pg.screenshot(type='png'))
         ev("__test.key('ArrowUp',false)"); st = ev('__test.state()'); p1 = st['pos']; d1 = ev(dot); tip = ev("!!document.getElementById('navigation-note') && !document.getElementById('navigation-note').hidden")
         ds = [round(diff(shots[i], shots[i + 1]), 1) for i in range(4)]; far = round(diff(shots[1], shots[4]), 1)
         ok_pos = p1 - p0 >= MIN_ADV; clip = ev('window.__feat && window.__feat.clip'); ok_dot = (d0 != d1 and d1 is not None) if clip in (None, 'main') else True;  # riverside branch pins the dot at its mapAt by design
@@ -60,20 +60,20 @@ with sync_playwright() as p:
         bad = [k for k, v in (('position', ok_pos), ('minimap', ok_dot), ('frames', ok_frames), ('tip', ok_tip), ('direction', ok_dir)) if not v]
         print(('PASS ' if not bad else 'FAIL ') + json.dumps(row) + (' failed=' + ','.join(bad) if bad else ''), flush=True)
         if bad: fails.append(name + ': ' + ','.join(bad) + ' evlog=' + json.dumps(ev('window.__evlog')))
-        time.sleep(1.5)
+        pg.wait_for_timeout(1000*(1.5))
     # w24: what users do: fresh default load, NO facing/yaw/face set by the test, real joystick drag
     bx = pg.locator('#joy').bounding_box(); jx, jy = bx['x'] + bx['width'] / 2, bx['y'] + bx['height'] / 2
     def stick(dy, sec):
         pg.mouse.move(jx, jy); pg.mouse.down()
-        for k in range(1, 6): pg.mouse.move(jx, jy + dy * k / 5); time.sleep(0.03)
-        time.sleep(sec); st = ev('__test.state()'); pg.mouse.up(); time.sleep(0.8); return st
+        for k in range(1, 6): pg.mouse.move(jx, jy + dy * k / 5); pg.wait_for_timeout(1000*(0.03))
+        pg.wait_for_timeout(1000*(sec)); st = ev('__test.state()'); pg.mouse.up(); pg.wait_for_timeout(1000*(0.8)); return st
     def look_turn(goal_back):
         for k in range(24):
             r = ev('HoianWalk.state().lookRel')
             if (abs(r) > 150) if goal_back else (abs(r) < 30): return r
             pg.mouse.move(innerW * 0.75, innerH * 0.35); pg.mouse.down()
-            for i in range(1, 9): pg.mouse.move(innerW * 0.75 - innerW * 0.5 * i / 8, innerH * 0.35); time.sleep(0.02)
-            pg.mouse.up(); time.sleep(0.4)
+            for i in range(1, 9): pg.mouse.move(innerW * 0.75 - innerW * 0.5 * i / 8, innerH * 0.35); pg.wait_for_timeout(1000*(0.02))
+            pg.mouse.up(); pg.wait_for_timeout(1000*(0.4))
         return ev('HoianWalk.state().lookRel')
     innerW, innerH = ev('innerWidth'), ev('innerHeight')
     if not fails:
@@ -84,19 +84,19 @@ with sync_playwright() as p:
         print('PASS' if ok_face and ok_up else 'FAIL', json.dumps({'point': 'fresh default load', 'facing': s0['facing'], 'lookRel': s0['lookRel'], 'head_rad': hs[0], 'lookBearing': hs[1], 'pos': [p0, p1], 'dir': st['dir'], 'dot': [d0, d1]}), flush=True)
         if not (ok_face and ok_up): fails.append('fresh default load: ' + ('view not facing the walk direction ' if not ok_face else '') + ('stick up did not advance' if not ok_up else ''))
     if not fails:
-        for name, act in POINTS:
-            if act and act[0] == 'goto': ev(f"HoianWalk.goTo({act[1]}).catch(()=>0)"); time.sleep(4)
-            if act and act[0] == 'rev': ev("__test.key('ArrowDown',true)"); time.sleep(3); ev("__test.key('ArrowDown',false)"); time.sleep(1)
+        for name, act in (POINTS if not os.environ.get('SKIPPTS') else []):
+            if act and act[0] == 'goto': ev(f"HoianWalk.goTo({act[1]}).catch(()=>0)"); pg.wait_for_timeout(1000*(4))
+            if act and act[0] == 'rev': ev("__test.key('ArrowDown',true)"); pg.wait_for_timeout(1000*(3)); ev("__test.key('ArrowDown',false)"); pg.wait_for_timeout(1000*(1))
             if act and act[0] == 'junc':
-                jid = name.split()[-1]; ev(f"__feat.enter({act[1]})"); time.sleep(5); ev(f"__test.key('{act[2]}',true)"); t0 = time.time()
+                jid = name.split()[-1]; ev(f"__feat.enter({act[1]})"); pg.wait_for_timeout(1000*(5)); ev(f"__test.key('{act[2]}',true)"); t0 = time.time()
                 # keep walking until the junction is actually taken (a slow far jump is fine; never taking it is a failure)
-                while time.time() - t0 < act[3] + 25 and ev(f"(window.__feat.last||{{}}).from") != jid: time.sleep(0.5)
-                ev(f"__test.key('{act[2]}',false)"); time.sleep(3)
+                while time.time() - t0 < act[3] + 25 and ev(f"(window.__feat.last||{{}}).from") != jid: pg.wait_for_timeout(1000*(0.5))
+                ev(f"__test.key('{act[2]}',false)"); pg.wait_for_timeout(1000*(3))
                 if ev(f"(window.__feat.last||{{}}).from") != jid: fails.append(name + ': junction never taken evlog=' + json.dumps(ev('window.__evlog'))); continue
             hold(name)
     if not fails:
         # w24: turn the VIEW 180 deg by dragging (not the button): stick up must walk toward where you look (back), down the other way
-        ev("HoianWalk.goTo(300).catch(()=>0)"); time.sleep(5)
+        ev(f"HoianWalk.goTo({os.environ.get('TB','300')}).catch(()=>0)"); pg.wait_for_timeout(1000*(5))
         r = look_turn(True); f = ev('HoianWalk.state().facing'); p0 = ev('__test.state().pos'); st = stick(-45, 6); p1 = st['pos']
         ok1 = abs(r) > 150 and f == 'back' and p0 - p1 >= MIN_ADV and st['dir'] == 'rev'
         print('PASS' if ok1 else 'FAIL', json.dumps({'point': 'looking back, stick up', 'lookRel': r, 'facing': f, 'pos': [p0, p1], 'dir': st['dir']}), flush=True)

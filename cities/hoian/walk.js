@@ -92,7 +92,6 @@ class Track {
           if (v.paused && !v.seeking && v.readyState >= 1) v.currentTime = t + 0.001;
         }
       });
-      if (window.__dbgF) { const nm = () => (this === fwdT ? 'F' : 'R'); h.on(Hls.Events.FRAG_LOADING, (_, d) => evlog(nm() + ' fragLoading ' + d.frag.sn + ' @' + d.frag.start.toFixed(1))); h.on(Hls.Events.FRAG_BUFFERED, (_, d) => evlog(nm() + ' fragBuffered ' + d.frag.sn)); h.on(Hls.Events.ERROR, (_, d) => evlog(nm() + ' hlsErr ' + d.details + (d.fatal ? ' FATAL' : ''))); }
       h.on(Hls.Events.ERROR, (_, data) => { if (data.fatal && data.type === Hls.ErrorTypes.MEDIA_ERROR && this.tryRecover('hls ' + data.details)) return; if (data.fatal) this.fail('The video stream could not load (' + data.type + ').'); });
       h.loadSource(this.url); h.attachMedia(v);
     } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
@@ -194,7 +193,7 @@ async function playSafe(v) { try { return await Promise.race([v.play().then(() =
 async function snapTo(p) { if (swapping || !active) return; swapping = true; try { /* w22: jumps and junctions always land on the forward stream (parked, paused, decoded) so the first push up starts at once; reverse gets parked behind it */ if (active !== fwdT) { const old = active; old.pauseAll(); await fwdT.seek(p); active = fwdT; setBuf(fwdT, true); setBuf(old, false); } await active.seek(active === fwdT ? p : D - p); active.el.pause(); if (active.el.readyState >= 2) { mat.map = active.tex[active.k]; mat.needsUpdate = true; } } finally { swapping = false; } }
 /* w5: direction switch without a hitch: the other stream is kept primed (paused at the mirrored frame) whenever you slow down or reverse,
    so switching is just play(); the old picture stays on screen until the new stream has a decoded frame, then we hand over. */
-let primeT = 0; var switchStats = { n: 0, lastMs: 0, seeks: 0 }; const EVL = []; const evlog = m => { EVL.push((performance.now() / 1000).toFixed(1) + ' ' + m); if (EVL.length > (window.__dbgF ? 40 : 8)) EVL.shift(); }; window.__evlog = EVL; /* w23: ?debug=1 shows the last events (seeks, switches, guards) */
+let primeT = 0; var switchStats = { n: 0, lastMs: 0, seeks: 0 }; const EVL = []; const evlog = m => { EVL.push((performance.now() / 1000).toFixed(1) + ' ' + m); if (EVL.length > 8) EVL.shift(); }; window.__evlog = EVL; /* w23: ?debug=1 shows the last events (seeks, switches, guards) */
 /* w6: primed continuously, also while walking (every ~0.9 s, at most one seek in flight); a reversal of the stick primes at once */
 let primeP = null;
 const inBuf = (v, t) => { const b = v.buffered; for (let i = 0; i < b.length; i++) if (t >= b.start(i) - 0.05 && t <= b.end(i) - 0.5) return true; return false; };
