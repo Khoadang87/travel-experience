@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """Hoi An walk: WebKit iPhone regression test (w23). Run before every push.
 
@@ -26,6 +27,7 @@ def diff(a, b):
 fails = []
 with sync_playwright() as p:
     b = p.webkit.launch(); ctx = b.new_context(**p.devices['iPhone 13']); pg = ctx.new_page()
+    if os.environ.get('DBGF'): pg.add_init_script('window.__dbgF=1')
     def px(r, q=None):
         try: r.fulfill(response=r.fetch())
         except Exception: r.abort()
@@ -105,5 +107,5 @@ with sync_playwright() as p:
         for n, ok in (('looking back stick up', ok1), ('looking back stick down', ok2), ('looking ahead again stick up', ok3)):
             if not ok: fails.append(n + ' evlog=' + json.dumps(ev('window.__evlog')))
     b.close()
-print('RESULT', 'PASS' if not fails else 'FAIL', json.dumps(fails)[:3000])
+print("RESULT", "PASS" if not fails else "FAIL", json.dumps(fails)[:12000])
 sys.exit(1 if fails else 0)
