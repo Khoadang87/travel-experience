@@ -130,7 +130,7 @@ with sync_playwright() as p:
         for k in range(1, 6): pg.mouse.move(jx, jy - 45 * k / 5); pg.wait_for_timeout(30)
         p0 = None
         for i in range(60):
-            pg.wait_for_timeout(250)
+            pg.wait_for_timeout(250); pg.mouse.move(jx, jy - 45 - (i % 2))  # a held thumb micro-moves
             try:
                 st = ev('__test.state()'); dirs.add(st['dir']); p0 = st['pos'] if (p0 is None and st['w'] > 0) else p0
                 tap = tap or ev("!document.getElementById('tapstart').hidden")
