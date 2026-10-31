@@ -104,6 +104,15 @@ with sync_playwright() as p:
         print('PASS' if ok2 else 'FAIL', json.dumps({'point': 'looking back, stick down', 'pos': [p0, p1], 'dir': st['dir']}), flush=True)
         r = look_turn(False); p0 = ev('__test.state().pos'); st = stick(-45, 6); p1 = st['pos']; ok3 = abs(r) < 30 and p1 - p0 >= MIN_ADV and st['dir'] == 'fwd'
         print('PASS' if ok3 else 'FAIL', json.dumps({'point': 'looking ahead again, stick up', 'lookRel': r, 'pos': [p0, p1], 'dir': st['dir']}), flush=True)
+        # w25: iPhone recording: view ~90-115 deg off the street (a wall), UP held -> must keep walking forward, never flap to reverse
+        for k in range(30):
+            r = ev('HoianWalk.state().lookRel')
+            if 95 <= abs(r) <= 115: break
+            pg.mouse.move(innerW * 0.6, innerH * 0.35); pg.mouse.down(); pg.mouse.move(innerW * 0.6 - innerW * 0.08, innerH * 0.35, steps=4); pg.mouse.up(); pg.wait_for_timeout(500)
+        p0 = ev('__test.state().pos'); n0 = ev('__test.sw().n'); st = stick(-45, 6); p1 = st['pos']; n1 = ev('__test.sw().n')
+        ok4 = 95 <= abs(r) <= 115 and p1 - p0 >= MIN_ADV and st['dir'] == 'fwd' and n1 == n0
+        print('PASS' if ok4 else 'FAIL', json.dumps({'point': 'looking sideways (~105 deg), stick up', 'lookRel': r, 'pos': [p0, p1], 'dir': st['dir'], 'switches': n1 - n0}), flush=True)
+        if not ok4: fails.append('sideways evlog=' + json.dumps(ev('window.__evlog')))
         for n, ok in (('looking back stick up', ok1), ('looking back stick down', ok2), ('looking ahead again stick up', ok3)):
             if not ok: fails.append(n + ' evlog=' + json.dumps(ev('window.__evlog')))
     # w25: iPhone-like load timing (fake): the first play()/seek of each video resolves ~2.5 s late, like iOS native HLS sitting at currentTime 0 / readyState 1;
@@ -123,13 +132,13 @@ with sync_playwright() as p:
         for i in range(60):
             pg.wait_for_timeout(250)
             try:
-                st = ev('__test.state()'); dirs.add(st['dir']); p0 = st['pos'] if p0 is None else p0
+                st = ev('__test.state()'); dirs.add(st['dir']); p0 = st['pos'] if (p0 is None and st['w'] > 0) else p0
                 tap = tap or ev("!document.getElementById('tapstart').hidden")
             except Exception: pass
         st = ev('__test.state()'); pg.mouse.up()
-        ok = 'rev' not in dirs and st['pos'] - p0 >= MIN_ADV and not tap
+        ok = 'rev' not in dirs and p0 is not None and st['pos'] - p0 >= MIN_ADV and not tap
         print('PASS' if ok else 'FAIL', json.dumps({'point': 'iOS-like slow start, UP held from load', 'dirs': sorted(dirs), 'pos': [p0, st['pos']], 'tap_shown': tap, 'revBlocked': ev('__test.sw().revBlocked||0')}), flush=True)
-        if not ok: fails.append('iOS-like start evlog=' + json.dumps(ev('window.__evlog')))
+        if not ok: fails.append('iOS-like start state=' + json.dumps(ev('__test.state()')) + ' evlog=' + json.dumps(ev('window.__evlog')))
     b.close()
 print("RESULT", "PASS" if not fails else "FAIL", json.dumps(fails)[:12000])
 sys.exit(1 if fails else 0)
