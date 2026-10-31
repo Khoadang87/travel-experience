@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+<script>/* stale guard: if ver.txt (never cached) says a newer build, hard-reload with a unique param */(function(){var V='w27';fetch('ver.txt?'+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(v){v=v.trim();if(/^w\d+[a-z]?$/.test(v)&&v!==V){var u=new URL(location.href);if(u.searchParams.get('_v')!==v){u.searchParams.set('_v',v);location.replace(u)}}}).catch(function(){})})();</script>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Hội An 360° walk (test w27)</title><link rel="icon" href="data:,">
+<script type="importmap">{"imports":{"three":"../vendor/three.module.js"}}</script>
+<style>[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font:14px -apple-system,system-ui,sans-serif;touch-action:none;-webkit-user-select:none;user-select:none}
+#app canvas{display:block;width:100vw;height:100vh}
+#ver{position:fixed;left:8px;top:calc(env(safe-area-inset-top) + 52px);background:#c00;padding:2px 8px;border-radius:10px;font-weight:700;font-size:12px}
+#explore-toggle,#sound{position:fixed;top:calc(env(safe-area-inset-top) + 10px);background:rgba(0,0,0,.6);color:#fff;border:0;border-radius:16px;padding:8px 14px;font-size:14px}
+#explore-toggle{left:8px}#sound{left:100px}
+#minimap{position:fixed;right:8px;top:calc(env(safe-area-inset-top) + 10px);width:120px;height:120px;background:rgba(0,0,0,.45);border-radius:10px;touch-action:none}
+#joy{position:fixed;left:24px;bottom:calc(env(safe-area-inset-bottom) + 60px);width:130px;height:130px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(255,255,255,.12);touch-action:none}
+#knob{position:absolute;left:40px;top:40px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.9);pointer-events:none}
+#status{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 210px);background:rgba(0,0,0,.6);padding:6px 10px;border-radius:8px;max-width:80vw}#status:empty{display:none}
+#hint{position:fixed;right:8px;bottom:calc(env(safe-area-inset-bottom) + 60px);background:rgba(0,0,0,.5);padding:6px 8px;border-radius:8px;font-size:12px;max-width:150px}
+#credit{position:fixed;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom) + 8px);font-size:11px;background:rgba(0,0,0,.5);padding:4px 6px;border-radius:6px}#credit a{color:#9cf}
+#loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6)}
+#error{position:fixed;left:10%;right:10%;top:40%;background:#600;padding:12px;border-radius:8px}
+#explore{position:fixed;left:10px;right:10px;top:60px;background:rgba(20,20,20,.95);padding:14px;border-radius:12px}#explore input{width:100%}
+</style></head><body class="loading">
+<div id="app"></div>
+<div id="ver"></div>
+<button id="explore-toggle" type="button">Explore</button><button id="sound" type="button" aria-label="Sound">🔇</button>
+<canvas id="minimap" width="120" height="120" aria-label="Schematic map: tap to jump"></canvas>
+<div id="joy"><div id="knob"></div></div>
+<div id="status"></div>
+<div id="hint">Stick up: walk (push harder = faster) · release: stop · drag: look · tap map: jump</div>
+<div id="loader">Loading the walk…</div><div id="error" hidden></div>
+<section id="explore" hidden><b>Explore</b><p>Choose a point on the walk (or tap the mini-map).</p><input id="pos" type="range" step="1"><p><button id="go" type="button">Go here</button> <button id="explore-close" type="button">Close</button></p></section>
+<div id="credit">TEST build. Non-commercial. 360° footage by <a href="https://www.youtube.com/watch?v=CErfnBokWYM" target="_blank" rel="noopener">360 Japan Tours</a>; riverside by <a href="https://www.youtube.com/watch?v=C26CAyJkt4g" target="_blank" rel="noopener">HenkWalks</a></div>
+<script src="../vendor/hls.min.js"></script>
+<script type="module" src="walk-w27.js"></script>
+</body></html>
