@@ -1,6 +1,6 @@
 import os
 #!/usr/bin/env python3
-"""Hoi An walk: WebKit iPhone regression test (w23). Run before every push.
+"""Hoi An walk: WebKit iPhone regression test (w25, forward-only: one video, stick up = forward whatever the look). Run before every push.
 
 Holds forward for 8 s at: the start, main 300 s, after a reversal, and after each junction
 (river-in, river-back, river-out). Each hold must show ALL of:
@@ -17,8 +17,8 @@ import sys, os, time, json, io
 from playwright.sync_api import sync_playwright
 URL = sys.argv[1]; LOCAL = sys.argv[3] if len(sys.argv) > 3 and sys.argv[2] == '--local' else None
 FLV = os.environ.get('FLV', 'hls13/f1280/index.m3u8'); MIN_ADV = 2.0; DIFF_MIN = 2.0
-POINTS = [('start', None), ('main 300', ('goto', 300)), ('after reversal', ('rev', None)),
-          ('after junction river-in', ('junc', "'main',251,30,1", 'ArrowUp', 7)), ('after junction river-back', ('junc', "'riverside',1441,0,1", 'ArrowDown', 7)), ('after junction river-out', ('junc', "'riverside',1576,0,1", 'ArrowUp', 8))]
+POINTS = [('start', None), ('main 300', ('goto', 300)), ('after release+DOWN', ('down', None)),
+          ('after junction river-in', ('junc', "'main',251,30,1", 'ArrowUp', 7)), ('after junction river-out', ('junc', "'riverside',1576,0,1", 'ArrowUp', 8))]
 # w24: never time.sleep: the sync route proxy below only serves requests while Python is inside a Playwright call, so sleeps starved the video fetches (a stuck seek that iPhone never sees)
 # junctions are entered the way a user does: jump just before one with __feat.enter, walk through it, then hold forward 8 s
 def diff(a, b):
@@ -31,7 +31,11 @@ with sync_playwright() as p:
     def px(r, q=None):
         try: r.fulfill(response=r.fetch())
         except Exception: r.abort()
-    pg.route('**/*', px)  # Playwright fetches for WebKit (box WebKit has no TLS backend)
+    pg.route('**/*', px)
+    CONS = []; REQS = []
+    pg.on('console', lambda m: CONS.append(m.type + ': ' + m.text[:200]) if m.type in ('error', 'warning') else None)
+    pg.on('pageerror', lambda e: CONS.append('pageerror: ' + str(e)[:200]))
+    pg.on('request', lambda r: REQS.append(r.url) if ('r2560' in r.url or '/r1280' in r.url or 'tracks/rev' in r.url) else None)  # Playwright fetches for WebKit (box WebKit has no TLS backend)
     if LOCAL:
         for f, ct in (('walk.js', 'text/javascript'), ('explore.js', 'text/javascript'), ('features.js', 'text/javascript'), ('ver.txt', 'text/plain'), ('routes.json', 'application/json'), ('pois.json', 'application/json'), ('route-catalog.js', 'text/javascript'), ('assets/walk/walk.json', 'application/json')):
             pg.route(f'**/cities/hoian/{f}*', lambda r, q=None, f=f, ct=ct: r.fulfill(body=open(os.path.join(LOCAL, f), 'rb').read().replace(b'hls13/f3840/index.m3u8', FLV.encode()), content_type=ct))
@@ -83,43 +87,47 @@ with sync_playwright() as p:
         ok_up = p1 - p0 >= MIN_ADV and st['dir'] == 'fwd' and d1 is not None and d0 != d1
         print('PASS' if ok_face and ok_up else 'FAIL', json.dumps({'point': 'fresh default load', 'facing': s0['facing'], 'lookRel': s0['lookRel'], 'head_rad': hs[0], 'lookBearing': hs[1], 'pos': [p0, p1], 'dir': st['dir'], 'dot': [d0, d1]}), flush=True)
         if not (ok_face and ok_up): fails.append('fresh default load: ' + ('view not facing the walk direction ' if not ok_face else '') + ('stick up did not advance' if not ok_up else ''))
+
+    def rep(name, ok, **kw):
+        print('PASS' if ok else 'FAIL', json.dumps(dict(point=name, **kw)), flush=True)
+        if not ok: fails.append(name + ' evlog=' + json.dumps(ev('window.__evlog')))
     if not fails:
         for name, act in (POINTS if not os.environ.get('SKIPPTS') else []):
             if act and act[0] == 'goto': ev(f"HoianWalk.goTo({act[1]}).catch(()=>0)"); pg.wait_for_timeout(1000*(4))
-            if act and act[0] == 'rev': ev("__test.key('ArrowDown',true)"); pg.wait_for_timeout(1000*(3)); ev("__test.key('ArrowDown',false)"); pg.wait_for_timeout(1000*(1))
+            if act and act[0] == 'down':  # forward-only: DOWN must never walk backwards
+                p0 = ev('__test.state().pos'); ev("__test.key('ArrowDown',true)"); pg.wait_for_timeout(3000); p1 = ev('__test.state().pos'); ev("__test.key('ArrowDown',false)"); pg.wait_for_timeout(1000)
+                rep('DOWN does not walk back', p1 >= p0 - 0.3, pos=[p0, p1])
             if act and act[0] == 'junc':
                 jid = name.split()[-1]; ev(f"__feat.enter({act[1]})"); pg.wait_for_timeout(1000*(5)); ev(f"__test.key('{act[2]}',true)"); t0 = time.time()
-                # keep walking until the junction is actually taken (a slow far jump is fine; never taking it is a failure)
                 while time.time() - t0 < act[3] + 25 and ev(f"(window.__feat.last||{{}}).from") != jid: pg.wait_for_timeout(1000*(0.5))
                 ev(f"__test.key('{act[2]}',false)"); pg.wait_for_timeout(1000*(3))
                 if ev(f"(window.__feat.last||{{}}).from") != jid: fails.append(name + ': junction never taken evlog=' + json.dumps(ev('window.__evlog'))); continue
             hold(name)
     if not fails:
-        # w24: turn the VIEW 180 deg by dragging (not the button): stick up must walk toward where you look (back), down the other way
         ev(f"HoianWalk.goTo({os.environ.get('TB','300')}).catch(()=>0)"); pg.wait_for_timeout(1000*(5))
-        r = look_turn(True); f = ev('HoianWalk.state().facing'); p0 = ev('__test.state().pos'); st = stick(-45, 6); p1 = st['pos']
-        ok1 = abs(r) > 150 and f == 'back' and p0 - p1 >= MIN_ADV and st['dir'] == 'rev'
-        print('PASS' if ok1 else 'FAIL', json.dumps({'point': 'looking back, stick up', 'lookRel': r, 'facing': f, 'pos': [p0, p1], 'dir': st['dir']}), flush=True)
-        p0 = ev('__test.state().pos'); st = stick(45, 6); p1 = st['pos']; ok2 = p1 - p0 >= MIN_ADV and st['dir'] == 'fwd'
-        print('PASS' if ok2 else 'FAIL', json.dumps({'point': 'looking back, stick down', 'pos': [p0, p1], 'dir': st['dir']}), flush=True)
-        r = look_turn(False); p0 = ev('__test.state().pos'); st = stick(-45, 6); p1 = st['pos']; ok3 = abs(r) < 30 and p1 - p0 >= MIN_ADV and st['dir'] == 'fwd'
-        print('PASS' if ok3 else 'FAIL', json.dumps({'point': 'looking ahead again, stick up', 'lookRel': r, 'pos': [p0, p1], 'dir': st['dir']}), flush=True)
-        # w25: iPhone recording: view ~90-115 deg off the street (a wall), UP held -> must keep walking forward, never flap to reverse
-        for k in range(30):
+        # look 180 deg by dragging: stick UP still plays the video FORWARD
+        r = look_turn(True); p0 = ev('__test.state().pos'); st = stick(-45, 6); p1 = st['pos']
+        rep('looking back (180), stick up advances', abs(r) > 150 and p1 - p0 >= MIN_ADV and st['dir'] == 'fwd', lookRel=r, pos=[p0, p1], dir=st['dir'])
+        p0 = ev('__test.state().pos'); st = stick(45, 4); p1 = st['pos']
+        rep('looking back, stick down does not walk back', p1 >= p0 - 0.3, pos=[p0, p1], dir=st['dir'])
+        # sideways (~90-115 deg, the wall view from the iPhone recording)
+        for k in range(40):
             r = ev('HoianWalk.state().lookRel')
-            if 95 <= abs(r) <= 115: break
-            pg.mouse.move(innerW * 0.6, innerH * 0.35); pg.mouse.down(); pg.mouse.move(innerW * 0.6 - innerW * 0.08, innerH * 0.35, steps=4); pg.mouse.up(); pg.wait_for_timeout(500)
-        p0 = ev('__test.state().pos'); n0 = ev('__test.sw().n'); st = stick(-45, 6); p1 = st['pos']; n1 = ev('__test.sw().n')
-        ok4 = 95 <= abs(r) <= 115 and p1 - p0 >= MIN_ADV and st['dir'] == 'fwd' and n1 == n0
-        print('PASS' if ok4 else 'FAIL', json.dumps({'point': 'looking sideways (~105 deg), stick up', 'lookRel': r, 'pos': [p0, p1], 'dir': st['dir'], 'switches': n1 - n0}), flush=True)
-        if not ok4: fails.append('sideways evlog=' + json.dumps(ev('window.__evlog')))
-        for n, ok in (('looking back stick up', ok1), ('looking back stick down', ok2), ('looking ahead again stick up', ok3)):
-            if not ok: fails.append(n + ' evlog=' + json.dumps(ev('window.__evlog')))
-    # w25: iPhone-like load timing (fake): the first play()/seek of each video resolves ~2.5 s late, like iOS native HLS sitting at currentTime 0 / readyState 1;
-    # the user pushes UP before the first frame and keeps holding. Reverse must never be chosen, and 'Tap to start' must not show while walking.
+            if 90 <= abs(r) <= 115: break
+            pg.mouse.move(innerW * 0.6, innerH * 0.35); pg.mouse.down(); pg.mouse.move(innerW * 0.6 - innerW * 0.06, innerH * 0.35, steps=4); pg.mouse.up(); pg.wait_for_timeout(400)
+        p0 = ev('__test.state().pos'); st = stick(-45, 6); p1 = st['pos']
+        rep('looking sideways, stick up advances', 90 <= abs(r) <= 115 and p1 - p0 >= MIN_ADV and st['dir'] == 'fwd', lookRel=r, pos=[p0, p1])
+        # sound only while moving
+        ev("__test.key('ArrowUp',true)"); pg.wait_for_timeout(4000); a1 = ev('__test.aud()'); ev("__test.key('ArrowUp',false)"); pg.wait_for_timeout(4000); a2 = ev('__test.aud()')
+        rep('sound only while moving', (not a1['on'] or a1['g'] > 0.3) and (a2['paused'] or a2['g'] < 0.05), moving=a1, stopped=a2)
+        # Explore "Go here" (same API the Explore panel calls), then stick up
+        ev("HoianWalk.goTo(600).catch(()=>0)"); pg.wait_for_timeout(6000); p0 = ev('__test.state().pos'); st = stick(-45, 6); p1 = st['pos']
+        rep('Explore go-here 600 then stick up', abs(p0 - 600) < 3 and p1 - p0 >= MIN_ADV and st['dir'] == 'fwd', pos=[p0, p1])
+        rep('one video element, no reverse requests', ev('__test.vids()') == 1 and not REQS, vids=ev('__test.vids()'), rev_requests=REQS[:3])
+    # iPhone-like load timing (fake): the first play() of each video resolves ~2.5 s late; the user presses UP while loading and holds.
     if not os.environ.get('SKIPIOS'):
-        pg.add_init_script("""(()=>{const t0=performance.now(),P=HTMLMediaElement.prototype,pl=P.play;P.play=function(){const me=this,args=arguments;if(performance.now()-t0<6000&&!me.__slow){me.__slow=1;return new Promise((res,rej)=>setTimeout(()=>pl.apply(me,args).then(res,rej),2500));}return pl.apply(this,args);};})()""")
-        pg.reload(wait_until='load'); dirs = set(); tap = False; t1 = time.time()
+        pg.add_init_script("""(()=>{const t0=performance.now(),P=HTMLMediaElement.prototype,pl=P.play;P.play=function(){const me=this,args=arguments;if(performance.now()-t0<6000&&!me.__slow){me.__slow=1;return new Promise((res,rej)=>setTimeout(()=>pl.apply(me,args).then(res,rej),2500));}return pl.apply(this,args);};const D=Object.getOwnPropertyDescriptor(P,'currentTime');})()""")
+        pg.reload(wait_until='load'); tap = False
         for i in range(100):
             try:
                 if pg.locator('#joy').is_visible(): break
@@ -128,17 +136,18 @@ with sync_playwright() as p:
         bx = pg.locator('#joy').bounding_box(); jx, jy = bx['x'] + bx['width'] / 2, bx['y'] + bx['height'] / 2
         pg.mouse.move(jx, jy); pg.mouse.down()
         for k in range(1, 6): pg.mouse.move(jx, jy - 45 * k / 5); pg.wait_for_timeout(30)
-        p0 = None
-        for i in range(60):
-            pg.wait_for_timeout(250); pg.mouse.move(jx, jy - 45 - (i % 2))  # a held thumb micro-moves
+        p0 = None; hd0 = None
+        for i in range(80):
+            pg.wait_for_timeout(250); pg.mouse.move(jx, jy - 45 - (i % 2))
             try:
-                st = ev('__test.state()'); dirs.add(st['dir']); p0 = st['pos'] if (p0 is None and st['w'] > 0) else p0
-                tap = tap or ev("!document.getElementById('tapstart').hidden")
+                st = ev('__test.state()')
+                if p0 is None and st['w'] > 0: p0 = st['pos']; hd0 = ev('HoianWalk.state().lookRel')
+                if p0 is not None: tap = tap or ev("!document.getElementById('tapstart').hidden")
             except Exception: pass
         st = ev('__test.state()'); pg.mouse.up()
-        ok = 'rev' not in dirs and p0 is not None and st['pos'] - p0 >= MIN_ADV and not tap
-        print('PASS' if ok else 'FAIL', json.dumps({'point': 'iOS-like slow start, UP held from load', 'dirs': sorted(dirs), 'pos': [p0, st['pos']], 'tap_shown': tap, 'revBlocked': ev('__test.sw().revBlocked||0')}), flush=True)
-        if not ok: fails.append('iOS-like start state=' + json.dumps(ev('__test.state()')) + ' evlog=' + json.dumps(ev('window.__evlog')))
+        rep('iOS-like slow start, UP pressed during load', p0 is not None and st['pos'] - p0 >= MIN_ADV and st['dir'] == 'fwd' and not tap and hd0 is not None and abs(hd0) < 30, pos=[p0, st['pos']], lookRel_at_load=hd0, tap_shown=tap, state=st)
+    bad = [c for c in CONS if 'Failed to load resource' not in c and 'AbortError' not in c]
+    rep('console clean', not bad, errors=bad[:10])
     b.close()
 print("RESULT", "PASS" if not fails else "FAIL", json.dumps(fails)[:12000])
 sys.exit(1 if fails else 0)

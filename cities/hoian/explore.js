@@ -91,5 +91,5 @@ setInterval(() => {
   }
   junctions.hidden = nearby.length === 0;
   $('navigation-note').hidden = edgeN < 2;
-  $('navigation-note').textContent = atEnd ? 'End of this recorded street. Walk back or choose another point in Explore.' : 'Start of this recorded street. Walk forward or choose a point in Explore.';
+  $('navigation-note').textContent = atEnd ? 'End of this recorded street. Choose another point in Explore.' : 'Start of this recorded street. Walk forward or choose a point in Explore.';
 }, 500);

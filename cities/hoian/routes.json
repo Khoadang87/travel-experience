@@ -39,18 +39,6 @@
           "targetBearing": -5
         },
         {
-          "id": "river-back",
-          "clip": "riverside",
-          "at": 1436.8,
-          "dir": -1,
-          "cone": 180,
-          "bearing": 0,
-          "label": "Back to the old-town street",
-          "toClip": "main",
-          "toTime": 259.5,
-          "targetBearing": -5
-        },
-        {
           "id": "river-out",
           "clip": "riverside",
           "at": 1581.5,
