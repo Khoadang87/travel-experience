@@ -59,6 +59,28 @@ with sync_playwright() as p:
         print(('PASS ' if not bad else 'FAIL ') + json.dumps(row) + (' failed=' + ','.join(bad) if bad else ''), flush=True)
         if bad: fails.append(name + ': ' + ','.join(bad) + ' evlog=' + json.dumps(ev('window.__evlog')))
         time.sleep(1.5)
+    # w24: what users do: fresh default load, NO facing/yaw/face set by the test, real joystick drag
+    bx = pg.locator('#joy').bounding_box(); jx, jy = bx['x'] + bx['width'] / 2, bx['y'] + bx['height'] / 2
+    def stick(dy, sec):
+        pg.mouse.move(jx, jy); pg.mouse.down()
+        for k in range(1, 6): pg.mouse.move(jx, jy + dy * k / 5); time.sleep(0.03)
+        time.sleep(sec); st = ev('__test.state()'); pg.mouse.up(); time.sleep(0.8); return st
+    def look_turn(goal_back):
+        for k in range(24):
+            r = ev('HoianWalk.state().lookRel')
+            if (abs(r) > 150) if goal_back else (abs(r) < 30): return r
+            pg.mouse.move(innerW * 0.75, innerH * 0.35); pg.mouse.down()
+            for i in range(1, 9): pg.mouse.move(innerW * 0.75 - innerW * 0.5 * i / 8, innerH * 0.35); time.sleep(0.02)
+            pg.mouse.up(); time.sleep(0.4)
+        return ev('HoianWalk.state().lookRel')
+    innerW, innerH = ev('innerWidth'), ev('innerHeight')
+    if not fails:
+        s0 = ev('HoianWalk.state()'); hs = ev('[__test.head(), window.__walkAPI && __walkAPI.lookBearing()]')
+        ok_face = s0['facing'] == 'forward' and abs(s0['lookRel']) < 30 and abs(hs[0]) < 0.6
+        d0 = ev(dot); p0 = ev('__test.state().pos'); st = stick(-45, 6); d1 = ev(dot); p1 = st['pos']
+        ok_up = p1 - p0 >= MIN_ADV and st['dir'] == 'fwd' and d1 is not None and d0 != d1
+        print('PASS' if ok_face and ok_up else 'FAIL', json.dumps({'point': 'fresh default load', 'facing': s0['facing'], 'lookRel': s0['lookRel'], 'head_rad': hs[0], 'lookBearing': hs[1], 'pos': [p0, p1], 'dir': st['dir'], 'dot': [d0, d1]}), flush=True)
+        if not (ok_face and ok_up): fails.append('fresh default load: ' + ('view not facing the walk direction ' if not ok_face else '') + ('stick up did not advance' if not ok_up else ''))
     if not fails:
         for name, act in POINTS:
             if act and act[0] == 'goto': ev(f"HoianWalk.goTo({act[1]}).catch(()=>0)"); time.sleep(4)
@@ -70,6 +92,18 @@ with sync_playwright() as p:
                 ev(f"__test.key('{act[2]}',false)"); time.sleep(3)
                 if ev(f"(window.__feat.last||{{}}).from") != jid: fails.append(name + ': junction never taken evlog=' + json.dumps(ev('window.__evlog'))); continue
             hold(name)
+    if not fails:
+        # w24: turn the VIEW 180 deg by dragging (not the button): stick up must walk toward where you look (back), down the other way
+        ev("HoianWalk.goTo(300).catch(()=>0)"); time.sleep(5)
+        r = look_turn(True); f = ev('HoianWalk.state().facing'); p0 = ev('__test.state().pos'); st = stick(-45, 6); p1 = st['pos']
+        ok1 = abs(r) > 150 and f == 'back' and p0 - p1 >= MIN_ADV and st['dir'] == 'rev'
+        print('PASS' if ok1 else 'FAIL', json.dumps({'point': 'looking back, stick up', 'lookRel': r, 'facing': f, 'pos': [p0, p1], 'dir': st['dir']}), flush=True)
+        p0 = ev('__test.state().pos'); st = stick(45, 6); p1 = st['pos']; ok2 = p1 - p0 >= MIN_ADV and st['dir'] == 'fwd'
+        print('PASS' if ok2 else 'FAIL', json.dumps({'point': 'looking back, stick down', 'pos': [p0, p1], 'dir': st['dir']}), flush=True)
+        r = look_turn(False); p0 = ev('__test.state().pos'); st = stick(-45, 6); p1 = st['pos']; ok3 = abs(r) < 30 and p1 - p0 >= MIN_ADV and st['dir'] == 'fwd'
+        print('PASS' if ok3 else 'FAIL', json.dumps({'point': 'looking ahead again, stick up', 'lookRel': r, 'pos': [p0, p1], 'dir': st['dir']}), flush=True)
+        for n, ok in (('looking back stick up', ok1), ('looking back stick down', ok2), ('looking ahead again stick up', ok3)):
+            if not ok: fails.append(n + ' evlog=' + json.dumps(ev('window.__evlog')))
     b.close()
 print('RESULT', 'PASS' if not fails else 'FAIL', json.dumps(fails)[:3000])
 sys.exit(1 if fails else 0)
