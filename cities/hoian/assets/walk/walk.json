@@ -20,11 +20,21 @@
     "base": "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/",
     "hls": "hls13/f.m3u8",
     "rev": "hls13/r2560/index.m3u8",
-    "hlsIOS": "hls13/f.m3u8",
+    "hlsIOS": "hls13/f3840/index.m3u8",
     "duration": 1584,
-    "lo": 0,
+    "lo": 4.5,
     "hi": 1435.3,
     "heading": "heading_w18.json",
-    "audio": "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/hls10/ambience.m4a"
+    "audio": "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/hls10/ambience.m4a",
+    "still": [
+      [
+        0,
+        4.5
+      ],
+      [
+        1574.5,
+        1577.5
+      ]
+    ]
   }
 }
