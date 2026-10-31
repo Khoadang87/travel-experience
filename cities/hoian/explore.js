@@ -72,10 +72,10 @@ loadCatalog().then(data => {
   catalog = data;
   current = data.routes.find(route => route.id === (new URLSearchParams(location.search).get('route') || data.defaultRoute));
 }).catch(() => {}); // The player reports catalog failures; do not duplicate them here.
-let junctionKey = '';
+let junctionKey = '', edgeN = 0;
 setInterval(() => {
   if (!window.__state?.loaded || !panel.hidden) return;
-  const state = window.HoianWalk.state(), atEnd = state.pos >= state.hi - .5, atStart = state.pos <= state.lo + .1;
+  const state = window.HoianWalk.state(), atEnd = state.pos >= state.hi - .5, atStart = state.pos <= state.lo + .1, edge = (atEnd || atStart) && !state.swapping; edgeN = edge ? edgeN + 1 : 0; /* w22: show the start/end tip only when you really stay there (two checks in a row), never on a transient read during a switch */
   const nearby = (current?.connections || []).filter(connection => Math.abs(state.pos - connection.at) <= (connection.radius ?? 6));
   const key = nearby.map(connection => `${connection.route}:${connection.at}:${state.quality}`).join('|');
   const junctions = $('junctions');
@@ -90,6 +90,6 @@ setInterval(() => {
     }
   }
   junctions.hidden = nearby.length === 0;
-  $('navigation-note').hidden = !(atEnd || atStart);
+  $('navigation-note').hidden = edgeN < 2;
   $('navigation-note').textContent = atEnd ? 'End of this recorded street. Walk back or choose another point in Explore.' : 'Start of this recorded street. Walk forward or choose a point in Explore.';
 }, 500);
