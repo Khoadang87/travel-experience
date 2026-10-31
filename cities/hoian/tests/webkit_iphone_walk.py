@@ -42,7 +42,13 @@ with sync_playwright() as p:
         pg.route('**/cities/hoian/?*', lambda r, q=None: r.fulfill(body=open(os.path.join(LOCAL, 'index.html'), 'rb').read(), content_type='text/html'))
     else:
         pg.route('**/assets/walk/walk.json*', lambda r, q=None: r.fulfill(body=r.fetch().body().replace(b'hls13/f3840/index.m3u8', FLV.encode()), content_type='application/json'))
-    pg.goto(URL, wait_until='load'); pg.wait_for_timeout(1000*(3))
+    for attempt in range(2):  # w25: the box's route proxy sometimes loses the first R2 fetches (CDN probe -> pages fallback -> networkError); one reload, reported
+        pg.goto(URL, wait_until='load'); pg.wait_for_timeout(1000*(3))
+        for i in range(40):
+            if pg.evaluate("!!window.__viewerError || (window.__state && window.__state.loaded)"): break
+            pg.wait_for_timeout(500)
+        if not pg.evaluate("!!window.__viewerError"): break
+        print('WARN initial load failed on the box, reloading once:', pg.evaluate('window.__viewerError'), flush=True); CONS.clear()
     if pg.is_visible('#tapstart'): pg.click('#tapstart')
     ev = pg.evaluate
     for i in range(120):
