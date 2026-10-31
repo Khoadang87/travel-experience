@@ -37,7 +37,7 @@ with sync_playwright() as p:
     pg.on('pageerror', lambda e: CONS.append('pageerror: ' + str(e)[:200]))
     pg.on('request', lambda r: REQS.append(r.url) if ('r2560' in r.url or '/r1280' in r.url or 'tracks/rev' in r.url) else None)  # Playwright fetches for WebKit (box WebKit has no TLS backend)
     if LOCAL:
-        for f, ct in (('walk.js', 'text/javascript'), ('explore.js', 'text/javascript'), ('features.js', 'text/javascript'), ('ver.txt', 'text/plain'), ('routes.json', 'application/json'), ('pois.json', 'application/json'), ('route-catalog.js', 'text/javascript'), ('assets/walk/walk.json', 'application/json'), ('vendor/hls.min.js', 'text/javascript'), ('vendor/three.module.js', 'text/javascript'), ('style.css', 'text/css')):
+        for f, ct in (('walk.js', 'text/javascript'), ('explore.js', 'text/javascript'), ('features.js', 'text/javascript'), ('ver.txt', 'text/plain'), ('routes.json', 'application/json'), ('pois.json', 'application/json'), ('route-catalog.js', 'text/javascript'), ('assets/walk/walk.json', 'application/json'), ('vendor/hls.min.js', 'text/javascript'), ('vendor/three.module.js', 'text/javascript'), ('vendor/three.core.js', 'text/javascript'), ('style.css', 'text/css')):
             pg.route(f'**/cities/hoian/{f}*', lambda r, q=None, f=f, ct=ct: r.fulfill(body=open(os.path.join(LOCAL, f), 'rb').read().replace(b'hls13/f3840/index.m3u8', FLV.encode()), content_type=ct))
         pg.route('**/cities/hoian/?*', lambda r, q=None: r.fulfill(body=open(os.path.join(LOCAL, 'index.html'), 'rb').read(), content_type='text/html'))
     else:

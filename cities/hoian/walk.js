@@ -326,7 +326,7 @@ let lastTurn = 0; function turnAround() { const n = performance.now(); if (n - l
     await fwdT.seek(Math.max(LO, +(params.get('t') || 0))); fwdT.el.playbackRate = isIOS ? 1 : Math.max(0.0625, IDLE);
     if (fwdT.el.error) throw new Error('video failed to load (' + (fwdT.el.error.code) + ')');
     clearInterval(prog); $('loader').hidden = true; document.body.classList.remove('loading'); $('hint').classList.add('fade'); window.__state.loaded = true; updateQuality(); setSpin(true);
-    if (!(await playSafe(fwdT.el))) showTap();
+    if (!(await playSafe(fwdT.el)) && joy.id == null && fwdT.el.paused) showTap(); /* w25: not while a thumb is already on the stick (slow iOS start) */
     let gyroOn = false;
     const onGesture = () => { $('tapstart').hidden = true; if (active.el.paused && !active.atEnd() && !view.standing) playSafe(active.el);
       if (!soundOn) { soundOn = true; aInit(); aud.g = 0; aud.goal = 0; if (aud.node) aud.node.gain.value = 0; else audio.volume = 0; audio.play().then(() => { if (!vidLive()) audio.pause(); }).catch(() => { soundOn = false; }); /* w4: unlock only; sound starts with the first moving frame */ }
@@ -386,7 +386,7 @@ ${EVL.join('\n')}\nlook ${Math.round(THREE.MathUtils.radToDeg(lookRel()))}deg hd
     if (now - wd.pT > 2000) { wd.pT = now; switchStats.stuck = (switchStats.stuck || 0) + 1; let want = fwdT; /* w25: target 0 (stick released) used to pick REVERSE here */ if (want === revT && want !== active && revBlocked()) want = active; evlog('STUCK at ' + p.toFixed(1) + ' ' + (active === fwdT ? 'F' : 'R') + ' rs' + v.readyState + (v.paused ? ' P' : ' play') + ' ct ' + ct.toFixed(2)); if (want !== active) switchTo(want); else { active._ownSeek = now; active.seek(want === fwdT ? p + 0.05 : D - p + 0.05).then(() => playSafe(active.el)).catch(() => {}); } }
   }, 250);
   setInterval(() => { if (!window.__state.loaded || swapping) return; const v = active.el; if (!v.paused && !active.atEnd() && performance.now() - lastAdv > 2500 && !active.nudged) { active.nudged = true; v.currentTime = v.currentTime + 0.02; playSafe(v); lastAdv = performance.now(); return; } if (!v.paused && !active.atEnd() && performance.now() - lastAdv > 6000) { active.nudged = false; setSpin(true); $('nodestatus').textContent = 'Reconnecting…'; const p = pos(); active.loaded = [-1, -1]; active.seek(active === fwdT ? p : D - p).then(() => playSafe(active.el)); lastAdv = performance.now(); }
-    else if (v.paused && !view.standing && !active.atEnd() && $('tapstart').hidden && !soundOn && !swapping && !active._inSeek && !v.seeking && Math.abs(target) < 0.05) showTap(); /* w25: never while a switch/seek is pausing the video or while you push the stick */ }, 1000);
+    else if (v.paused && !view.standing && !active.atEnd() && $('tapstart').hidden && !soundOn && !swapping && !active._inSeek && !v.seeking && Math.abs(target) < 0.05 && joy.id == null) showTap(); /* w25: never while a switch/seek is pausing the video or while you push the stick */ }, 1000);
 })();
 function showTap() { const t = $('tapstart'); t.textContent = '🔊 Tap to start'; t.hidden = false; }
 /* Public hooks for custom UI (buttons etc.). Example: HoianWalk.setWalk(true) while a button is held.
