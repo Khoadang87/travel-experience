@@ -106,6 +106,30 @@ with sync_playwright() as p:
         print('PASS' if ok3 else 'FAIL', json.dumps({'point': 'looking ahead again, stick up', 'lookRel': r, 'pos': [p0, p1], 'dir': st['dir']}), flush=True)
         for n, ok in (('looking back stick up', ok1), ('looking back stick down', ok2), ('looking ahead again stick up', ok3)):
             if not ok: fails.append(n + ' evlog=' + json.dumps(ev('window.__evlog')))
+    # w25: iPhone-like load timing (fake): the first play()/seek of each video resolves ~2.5 s late, like iOS native HLS sitting at currentTime 0 / readyState 1;
+    # the user pushes UP before the first frame and keeps holding. Reverse must never be chosen, and 'Tap to start' must not show while walking.
+    if not os.environ.get('SKIPIOS'):
+        pg.add_init_script("""(()=>{const t0=performance.now(),P=HTMLMediaElement.prototype,pl=P.play;P.play=function(){const me=this,args=arguments;if(performance.now()-t0<6000&&!me.__slow){me.__slow=1;return new Promise((res,rej)=>setTimeout(()=>pl.apply(me,args).then(res,rej),2500));}return pl.apply(this,args);};})()""")
+        pg.reload(wait_until='load'); dirs = set(); tap = False; t1 = time.time()
+        for i in range(100):
+            try:
+                if pg.locator('#joy').is_visible(): break
+            except Exception: pass
+            pg.wait_for_timeout(100)
+        bx = pg.locator('#joy').bounding_box(); jx, jy = bx['x'] + bx['width'] / 2, bx['y'] + bx['height'] / 2
+        pg.mouse.move(jx, jy); pg.mouse.down()
+        for k in range(1, 6): pg.mouse.move(jx, jy - 45 * k / 5); pg.wait_for_timeout(30)
+        p0 = None
+        for i in range(60):
+            pg.wait_for_timeout(250)
+            try:
+                st = ev('__test.state()'); dirs.add(st['dir']); p0 = st['pos'] if p0 is None else p0
+                tap = tap or ev("!document.getElementById('tapstart').hidden")
+            except Exception: pass
+        st = ev('__test.state()'); pg.mouse.up()
+        ok = 'rev' not in dirs and st['pos'] - p0 >= MIN_ADV and not tap
+        print('PASS' if ok else 'FAIL', json.dumps({'point': 'iOS-like slow start, UP held from load', 'dirs': sorted(dirs), 'pos': [p0, st['pos']], 'tap_shown': tap, 'revBlocked': ev('__test.sw().revBlocked||0')}), flush=True)
+        if not ok: fails.append('iOS-like start evlog=' + json.dumps(ev('window.__evlog')))
     b.close()
 print("RESULT", "PASS" if not fails else "FAIL", json.dumps(fails)[:12000])
 sys.exit(1 if fails else 0)
