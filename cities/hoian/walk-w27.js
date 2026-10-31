@@ -70,7 +70,7 @@ $('sound').onclick = () => { soundOn = !soundOn; $('sound').textContent = soundO
 // ---------- clips, junctions, jumps ----------
 const clipAt = t => clips.find(c => t >= c.lo - 0.5 && t <= c.hi + 0.5) || clips[0];
 let jumping = false, lastJ = 0;
-async function jump(t) { jumping = true; try { await seekTo(t); clip = clipAt(t); hd = headAt(t); look.yaw = 0; look.pitch = 0; window.__w.lastJump = t; } finally { lastPos = v ? v.currentTime : t; jumping = false; } }
+async function jump(t) { jumping = true; clip = clipAt(t); try { await seekTo(t); clip = clipAt(t); hd = headAt(t); look.yaw = 0; look.pitch = 0; window.__w.lastJump = t; } finally { lastPos = v ? v.currentTime : t; jumping = false; } }
 function checkJunction(p) { if (performance.now() - lastJ < 3000) return; for (const j of junctions) { if (j.clip !== clip.id) continue; if (p >= j.at - 0.3 && p <= j.at + (j.window || 2)) { lastJ = performance.now(); log('junction ' + j.id); window.__w.lastJunction = j.id; jump(j.toTime); return; } } }
 
 // ---------- minimap (schematic: integrate the heading table) ----------
@@ -92,7 +92,7 @@ $('go').onclick = () => { $('explore').hidden = true; jump(+$('pos').value); };
 let hd = 0, rate = 0, last = performance.now(), lastPos = 0;
 renderer.setAnimationLoop(() => { const now = performance.now(), dt = Math.min(0.1, (now - last) / 1000); last = now;
   if (ready && !jumping) { const want = speed(); rate += (want - rate) * Math.min(1, dt * 8);
-    const p = pos(); if (clip && p >= clip.hi - 0.3) { if (!v.paused) v.pause(); $('status').textContent = 'End of this street: tap the mini-map or Explore to continue'; }
+    const p = pos(); if (!jumping && clip && (p < clip.lo - 1 || p > clip.hi + 1)) clip = clipAt(p); if (!jumping && clip && p >= clip.hi - 0.3) { if (!v.paused) v.pause(); $('status').textContent = 'End of this street: tap the mini-map or Explore to continue'; }
     else if (want > 0) { const r = Math.max(0.5, Math.min(1, want)); if (v.playbackRate !== r) v.playbackRate = r; if (v.paused) v.play().catch(e => log('play ' + e.name)); $('status').textContent = ''; }
     else if (!v.paused) v.pause();
     if (soundOn) { if (v.paused) { audio.volume = 0.25; } else { audio.volume = 0.85; if (Math.abs(audio.currentTime - p) > 1.5) audio.currentTime = p; audio.playbackRate = v.playbackRate; } if (audio.paused) audio.play().catch(() => {}); }
