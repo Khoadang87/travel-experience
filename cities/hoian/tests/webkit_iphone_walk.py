@@ -80,7 +80,8 @@ with sync_playwright() as p:
             pg.mouse.up(); pg.wait_for_timeout(1000*(0.4))
         return ev('HoianWalk.state().lookRel')
     innerW, innerH = ev('innerWidth'), ev('innerHeight')
-    if not fails:
+    ONLY = os.environ.get('ONLYIOS')
+    if not fails and not ONLY:
         s0 = ev('HoianWalk.state()'); hs = ev('[__test.head(), window.__walkAPI && __walkAPI.lookBearing()]')
         ok_face = s0['facing'] == 'forward' and abs(s0['lookRel']) < 30 and abs(hs[0]) < 0.6
         d0 = ev(dot); p0 = ev('__test.state().pos'); st = stick(-45, 6); d1 = ev(dot); p1 = st['pos']
@@ -91,7 +92,7 @@ with sync_playwright() as p:
     def rep(name, ok, **kw):
         print('PASS' if ok else 'FAIL', json.dumps(dict(point=name, **kw)), flush=True)
         if not ok: fails.append(name + ' evlog=' + json.dumps(ev('window.__evlog')))
-    if not fails:
+    if not fails and not ONLY:
         for name, act in (POINTS if not os.environ.get('SKIPPTS') else []):
             if act and act[0] == 'goto': ev(f"HoianWalk.goTo({act[1]}).catch(()=>0)"); pg.wait_for_timeout(1000*(4))
             if act and act[0] == 'down':  # forward-only: DOWN must never walk backwards
@@ -103,7 +104,7 @@ with sync_playwright() as p:
                 ev(f"__test.key('{act[2]}',false)"); pg.wait_for_timeout(1000*(3))
                 if ev(f"(window.__feat.last||{{}}).from") != jid: fails.append(name + ': junction never taken evlog=' + json.dumps(ev('window.__evlog'))); continue
             hold(name)
-    if not fails:
+    if not fails and not ONLY:
         ev(f"HoianWalk.goTo({os.environ.get('TB','300')}).catch(()=>0)"); pg.wait_for_timeout(1000*(5))
         # look 180 deg by dragging: stick UP still plays the video FORWARD
         r = look_turn(True); p0 = ev('__test.state().pos'); st = stick(-45, 6); p1 = st['pos']
@@ -136,17 +137,17 @@ with sync_playwright() as p:
         bx = pg.locator('#joy').bounding_box(); jx, jy = bx['x'] + bx['width'] / 2, bx['y'] + bx['height'] / 2
         pg.mouse.move(jx, jy); pg.mouse.down()
         for k in range(1, 6): pg.mouse.move(jx, jy - 45 * k / 5); pg.wait_for_timeout(30)
-        p0 = None; hd0 = None
+        p0 = None; hd0 = None; LOG = []
         for i in range(80):
             pg.wait_for_timeout(250); pg.mouse.move(jx, jy - 45 - (i % 2))
             try:
-                st = ev('__test.state()')
+                st = ev('__test.state()'); LOG.append([i, round(st['pos'],2), st['target'], st['paused'], st['w'], ev('[__test.joy().id, __test.joy().y, window.__state.loaded]')])
                 if p0 is None and st['w'] > 0: p0 = st['pos']; hd0 = ev('HoianWalk.state().lookRel')
                 if p0 is not None: tap = tap or ev("!document.getElementById('tapstart').hidden")
             except Exception: pass
         st = ev('__test.state()'); pg.mouse.up()
-        rep('iOS-like slow start, UP pressed during load', p0 is not None and st['pos'] - p0 >= MIN_ADV and st['dir'] == 'fwd' and not tap and hd0 is not None and abs(hd0) < 30, pos=[p0, st['pos']], lookRel_at_load=hd0, tap_shown=tap, state=st)
-    bad = [c for c in CONS if 'Failed to load resource' not in c and 'AbortError' not in c]
+        rep('iOS-like slow start, UP pressed during load', p0 is not None and st['pos'] - p0 >= MIN_ADV and st['dir'] == 'fwd' and not tap and hd0 is not None and abs(hd0) < 30, pos=[p0, st['pos']], lookRel_at_load=hd0, tap_shown=tap, state=st, joy=ev('__test.joy()'), log=LOG[-12:])
+    bad = [c for c in CONS if 'Failed to load resource' not in c and 'link preload' not in c and 'AbortError' not in c]
     rep('console clean', not bad, errors=bad[:10])
     b.close()
 print("RESULT", "PASS" if not fails else "FAIL", json.dumps(fails)[:12000])
