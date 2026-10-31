@@ -118,7 +118,7 @@ with sync_playwright() as p:
         p0 = ev('__test.state().pos'); st = stick(-45, 6); p1 = st['pos']
         rep('looking sideways, stick up advances', 90 <= abs(r) <= 115 and p1 - p0 >= MIN_ADV and st['dir'] == 'fwd', lookRel=r, pos=[p0, p1])
         # sound only while moving
-        ev("__test.key('ArrowUp',true)"); pg.wait_for_timeout(4000); a1 = ev('__test.aud()'); ev("__test.key('ArrowUp',false)"); pg.wait_for_timeout(4000); a2 = ev('__test.aud()')
+        ev("__test.key('ArrowUp',true)"); pg.wait_for_timeout(4000); a1 = ev('__test.aud2()'); ev("__test.key('ArrowUp',false)"); pg.wait_for_timeout(4000); a2 = ev('__test.aud2()')
         rep('sound only while moving', (not a1['on'] or a1['g'] > 0.3) and (a2['paused'] or a2['g'] < 0.05), moving=a1, stopped=a2)
         # Explore "Go here" (same API the Explore panel calls), then stick up
         ev("HoianWalk.goTo(600).catch(()=>0)"); pg.wait_for_timeout(6000); p0 = ev('__test.state().pos'); st = stick(-45, 6); p1 = st['pos']
