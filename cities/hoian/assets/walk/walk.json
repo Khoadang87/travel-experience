@@ -18,9 +18,9 @@
   "chunk": 660,
   "cdn": {
     "base": "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/",
-    "hls": "hls12/f.m3u8",
-    "rev": "hls12/r2560/index.m3u8",
-    "hlsIOS": "hls12/f.m3u8",
+    "hls": "hls13/f.m3u8",
+    "rev": "hls13/r2560/index.m3u8",
+    "hlsIOS": "hls13/f.m3u8",
     "duration": 1584,
     "lo": 0,
     "hi": 1435.3,
