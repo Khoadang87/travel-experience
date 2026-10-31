@@ -1,48 +1,38 @@
 <!doctype html>
 <html lang="en"><head>
-<meta http-equiv="Cache-Control" content="no-cache"><script>/* stale-page guard: GitHub Pages caches index.html ~10 min; if a newer build is live, reload once with a cache-busting param */(function(){var V='w23';fetch('ver.txt?'+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(v){v=v.trim();if(/^[a-z]\w{0,8}$/.test(v)&&v!==V){var u=new URL(location.href);if(u.searchParams.get('_v')!==v){u.searchParams.set('_v',v);location.replace(u)}}}).catch(function(){})})();</script>
 <meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
+<script>/* stale guard: if ver.txt (never cached) says a newer build, hard-reload with a unique param */(function(){var V='w27';fetch('ver.txt?'+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(v){v=v.trim();if(/^w\d+[a-z]?$/.test(v)&&v!==V){var u=new URL(location.href);if(u.searchParams.get('_v')!==v){u.searchParams.set('_v',v);location.replace(u)}}}).catch(function(){})})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Hội An 360° walk</title>
-<link rel="icon" href="data:,">
-<link rel="preload" as="image" href="assets/walk/start.jpg"><link rel="preload" as="image" href="assets/walk/poster.jpg">
-<link rel="preload" as="fetch" crossorigin href="assets/walk/walk.json">
-<link rel="stylesheet" href="style.css?v=w23">
+<title>Hội An 360° walk (w27)</title><link rel="icon" href="data:,">
 <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
-</head><body class="loading">
+<style>[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font:14px -apple-system,system-ui,sans-serif;touch-action:none;-webkit-user-select:none;user-select:none}
+#app canvas{display:block;width:100vw;height:100vh}
+#ver{position:fixed;left:8px;top:calc(env(safe-area-inset-top) + 52px);background:#c00;padding:2px 8px;border-radius:10px;font-weight:700;font-size:12px}
+#explore-toggle,#sound{position:fixed;top:calc(env(safe-area-inset-top) + 10px);background:rgba(0,0,0,.6);color:#fff;border:0;border-radius:16px;padding:8px 14px;font-size:14px}
+#explore-toggle{left:8px}#sound{left:100px}
+#minimap{position:fixed;right:8px;top:calc(env(safe-area-inset-top) + 10px);width:120px;height:120px;background:rgba(0,0,0,.45);border-radius:10px;touch-action:none}
+#joy{position:fixed;left:24px;bottom:calc(env(safe-area-inset-bottom) + 60px);width:130px;height:130px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(255,255,255,.12);touch-action:none}
+#knob{position:absolute;left:40px;top:40px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.9);pointer-events:none}
+#status{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 210px);background:rgba(0,0,0,.6);padding:6px 10px;border-radius:8px;max-width:80vw}#status:empty{display:none}
+#hint{position:fixed;right:8px;bottom:calc(env(safe-area-inset-bottom) + 60px);background:rgba(0,0,0,.5);padding:6px 8px;border-radius:8px;font-size:12px;max-width:150px}
+#credit{position:fixed;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom) + 8px);font-size:11px;background:rgba(0,0,0,.5);padding:4px 6px;border-radius:6px}#credit a{color:#9cf}
+#loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6)}
+#error{position:fixed;left:10%;right:10%;top:40%;background:#600;padding:12px;border-radius:8px}
+#explore{position:fixed;left:10px;right:10px;top:60px;background:rgba(20,20,20,.95);padding:14px;border-radius:12px}#explore input{width:100%}
+</style></head><body class="loading">
 <div id="app"></div>
-<div id="badge"></div>
-<div id="loader"><div id="loadmsg">Starting…</div><div id="bar"><div id="fill"></div></div><div id="loaddetail"></div></div>
-<div id="error" hidden></div>
-<div id="live"></div><div id="spin" role="status" aria-label="Buffering the walk" hidden></div>
-<button id="tapstart" hidden>▶ Tap to start the walk</button>
-<div id="streetbar" hidden><div id="strack"><div id="sfill"></div></div><div id="slabel"></div><div id="nodestatus"></div></div>
+<div id="ver"></div>
+<button id="explore-toggle" type="button">Explore</button><button id="sound" type="button" aria-label="Sound">🔇</button>
+<canvas id="minimap" width="120" height="120" aria-label="Schematic map: tap to jump"></canvas>
 <div id="joy"><div id="knob"></div></div>
-<div id="buttons"><button id="turnL" aria-label="Turn around">⟲ Turn</button><button id="turnR" aria-label="Turn right">Turn ⟳</button><button id="reset">Reset</button><button id="scene"></button></div>
-<button id="quality" type="button" aria-label="Video quality: cycle Auto, High, Data saver" disabled>Auto · loading</button>
-<button id="explore-toggle" type="button" aria-controls="explore" aria-expanded="false">Explore</button>
-<nav id="junctions" aria-label="Available turns" hidden></nav>
-<div id="navigation-note" role="status" hidden></div>
-<div id="explore-shade" hidden></div>
-<section id="explore" role="dialog" aria-modal="true" aria-labelledby="explore-title" hidden>
-  <header><h1 id="explore-title">Explore Hội An</h1><button id="explore-close" type="button" aria-label="Close Explore">Close</button></header>
-  <h2 id="route-name"></h2><p id="route-description"></p>
-  <label for="route-position">Choose a point on this walk</label><input id="route-position" type="range" step="1"><output id="route-time" for="route-position"></output>
-  <button id="route-go" type="button">Go here</button><p id="explore-message" role="status"></p>
-  <h2>Settings</h2><label class="setting"><input type="checkbox" id="minimap-toggle"> Show mini-map (schematic)</label>
-  <p><a href="../">All cities</a></p>
-  <h2>Available walks</h2><nav id="route-list" aria-label="Available walks"></nav>
-  <h2>Connected streets & entrances</h2><nav id="route-connections" aria-label="Connected streets and entrances"></nav>
-  <p id="no-connections">This walk has no connected routes yet. New streets and building or temple interiors need additional recorded footage.</p>
-</section>
-<div id="credit">Non-commercial test. 360° footage by <a href="https://www.youtube.com/watch?v=CErfnBokWYM" target="_blank" rel="noopener">360 Japan Tours</a></div>
-<div id="junction-hint" aria-live="polite"></div>
-<canvas id="minimap" width="120" height="120" aria-label="Schematic map of the walk" hidden></canvas>
-<section id="poicard" role="dialog" aria-labelledby="poiname" hidden><img id="poiimg" alt="" hidden><h2 id="poiname"></h2><p id="poidesc"></p><p id="poinote"></p><button id="poiclose" type="button" aria-label="Close">Close</button></section>
-<div id="hint">Drag to look · WASD / arrows to move (desktop) · joystick to move (phone)</div>
-<script src="vendor/hls.min.js"></script>
-<script type="module" src="walk.js?v=w25"></script>
-<script type="module" src="explore.js?v=w23"></script>
-<script type="module" src="features.js?v=w23"></script>
-<!-- w4: bottom blur band (#lowmask) removed: blurring the moving street looked like rippling water -->
+<div id="status"></div>
+<div id="hint">Stick up: walk (push harder = faster) · release: stop · drag: look · tap map: jump</div>
+<div id="loader">Loading the walk…</div><div id="error" hidden></div>
+<section id="explore" hidden><b>Explore</b><p>Choose a point on the walk (or tap the mini-map).</p><input id="pos" type="range" step="1"><p><button id="go" type="button">Go here</button> <button id="explore-close" type="button">Close</button></p></section>
+<div id="credit">Non-commercial. 360° footage by <a href="https://www.youtube.com/watch?v=CErfnBokWYM" target="_blank" rel="noopener">360 Japan Tours</a>; riverside by <a href="https://www.youtube.com/watch?v=C26CAyJkt4g" target="_blank" rel="noopener">HenkWalks</a></div>
+<script src="./vendor/hls.min.js"></script>
+<script>window.WALK_ROOT = "";</script>
+<script type="module" src="walk-w27.js"></script>
 </body></html>

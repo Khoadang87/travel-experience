@@ -4,6 +4,9 @@ The box can't decode 3840 H.264 fast enough, so the 1280 rung of the same hls13 
 import sys, os, json
 from playwright.sync_api import sync_playwright
 URL = sys.argv[1]; LOCAL = sys.argv[3] if len(sys.argv) > 3 and sys.argv[2] == '--local' else None
+SUB = 'test/' if '/hoian/test/' in URL else ''
+VER = os.environ.get('VER', 'w27')
+JS = os.environ.get('WALKJS', f'walk-{VER}.js')
 FLV = os.environ.get('FLV', 'hls13/f1280/index.m3u8')
 fails = []
 def rep(name, ok, **kw):
@@ -23,9 +26,9 @@ with sync_playwright() as p:
         if LOCAL:
             def lf(path, ct):
                 return lambda r, q=None: r.fulfill(body=open(os.path.join(LOCAL, path), 'rb').read().replace(b'hls13/f3840/index.m3u8', FLV.encode()), content_type=ct)
-            for f, ct in (('test/walk-w27.js', 'text/javascript'), ('test/ver.txt', 'text/plain'), ('routes.json', 'application/json'), ('assets/walk/walk.json', 'application/json'), ('assets/walk/heading_w18.json', 'application/json'), ('vendor/hls.min.js', 'text/javascript'), ('vendor/three.module.js', 'text/javascript'), ('vendor/three.core.js', 'text/javascript')):
+            for f, ct in ((SUB + JS, 'text/javascript'), (SUB + 'ver.txt', 'text/plain'), ('routes.json', 'application/json'), ('assets/walk/walk.json', 'application/json'), ('assets/walk/heading_w18.json', 'application/json'), ('vendor/hls.min.js', 'text/javascript'), ('vendor/three.module.js', 'text/javascript'), ('vendor/three.core.js', 'text/javascript')):
                 pg.route(f'**/cities/hoian/{f}*', lf(f, ct))
-            pg.route('**/cities/hoian/test/', lf('test/index.html', 'text/html')); pg.route('**/cities/hoian/test/?*', lf('test/index.html', 'text/html'))
+            pg.route(f'**/cities/hoian/{SUB}', lf(SUB + 'index.html', 'text/html')); pg.route(f'**/cities/hoian/{SUB}?*', lf(SUB + 'index.html', 'text/html')); pg.route(f'**/cities/hoian/{SUB}index.html*', lf(SUB + 'index.html', 'text/html'))
         else:
             pg.route('**/assets/walk/walk.json*', lambda r, q=None: r.fulfill(body=r.fetch().body().replace(b'hls13/f3840/index.m3u8', FLV.encode()), content_type='application/json'))
         return pg
@@ -45,7 +48,7 @@ with sync_playwright() as p:
     st0 = ev('__w.state()'); pg.wait_for_timeout(5000); st1 = ev('__w.state()'); pg.mouse.up(); pg.wait_for_timeout(700); st2 = ev('__w.state()')
     rep('load + stick held during load walks once ready', st0['ready'] and st1['pos'] - st0['pos'] > 2, s0=st0, s1=st1, err=ev("document.getElementById('error').textContent"))
     rep('release pauses', not st2['playing'], s2=st2)
-    rep('version label w27 visible', ev("document.getElementById('ver').textContent") == 'w27' and pg.is_visible('#ver'))
+    rep(f'version label {VER} visible', ev("document.getElementById('ver').textContent") == VER and pg.is_visible('#ver'))
     rep('one video element, no reverse stream', ev('__w.vids()') <= 1 and ev("performance.getEntriesByType('resource').every(e=>!/r2560|\\/r1280/.test(e.name))"))
     # initial view faces down the street: camera yaw = heading at the start position (fresh reload)
     pg.reload(wait_until='load')
@@ -68,6 +71,14 @@ with sync_playwright() as p:
         back = min(b2 - a2 for a2, b2 in zip(ps, ps[1:])); adv.append(round(ps[-1] - ps[0], 2))
         if back < -0.05 or ps[-1] - ps[0] < 0.5: bad.append(dict(angle=a, back=round(back, 3), adv=round(ps[-1] - ps[0], 2)))
     rep('360 deg in 15 deg steps: stick UP only moves forward', not bad, bad=bad, adv=adv)
+    if VER != 'w27':  # w28+: nadir disc makes the straight-down view a calm patch (no operator fragments)
+        import io
+        from PIL import Image, ImageStat
+        ev('__w.jump(1110)'); pg.wait_for_timeout(3000); ev('__w.setLook(0, -89)'); pg.wait_for_timeout(800)
+        im = Image.open(io.BytesIO(pg.screenshot())).convert('L'); w, h = im.size
+        c = ImageStat.Stat(im.crop((w // 2 - 60, h // 2 - 60, w // 2 + 60, h // 2 + 60))).stddev[0]
+        rep('nadir disc: straight-down view is smooth', ev('!!(window.__nadir && __nadir.on)') and c < 22, centre_std=round(c, 1))
+        ev('__w.setLook(0, 0)')
     ev('__w.setLook(0)')
     ps, rl = hold(-24, 3); ps2, rf = hold(-60, 3); rep('analog speed: light push ~0.5-0.8x, full push 1x', 0.45 <= rl <= 0.85 and rf > 0.95, light=rl, full=rf)
     t = ev('__w.mmTap(600)'); pg.mouse.click(t['x'], t['y']); pg.wait_for_timeout(4000); lj = ev('__w.lastJump'); ps, r = hold(-50, 3)

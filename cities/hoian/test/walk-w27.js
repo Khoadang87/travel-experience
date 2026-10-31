@@ -4,7 +4,7 @@ import * as THREE from 'three';
 const VER = 'w27';
 const $ = id => document.getElementById(id), params = new URLSearchParams(location.search);
 const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-const A = '../assets/walk/', ROOT = '../';
+const ROOT = window.WALK_ROOT ?? '../', A = ROOT + 'assets/walk/';
 const evlog = []; const log = s => { evlog.push((performance.now() / 1000).toFixed(1) + ' ' + s); if (evlog.length > 60) evlog.shift(); };
 window.__evlog = evlog;
 $('ver').textContent = VER;
