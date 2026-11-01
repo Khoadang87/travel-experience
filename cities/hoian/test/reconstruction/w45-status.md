@@ -1,3 +1,13 @@
+# FAILED VISUAL ACCEPTANCE — w45
+
+User feedback: "I can't see the images, but dark spaces". Treat w45 as a failed visual test, not a usable small-area prototype. Do not send it as evidence of a realistic reconstructed area.
+
+The page loads photo textures onto sparse, incomplete triangle fragments against a dark background. The missing surfaces dominate the view. Starting camera orientation is based on an average of sparse vertex locations and has not been visually validated in Safari; outlier geometry can also aim the initial view away from useful fragments. Network accessibility and JavaScript syntax were insufficient verification. Existing CPU projection already showed large holes and should have blocked presenting this as a useful visual experience.
+
+Keep w44 only as the accepted CONTROL baseline. The user has not approved a completed 3D scene. Real photo coverage, usable surfaces, camera framing and phone visual QA remain blocking. No new runtime change is made in this status correction. Live w27 untouched.
+
+---
+
 # w45 small textured surface test
 
 Standalone page ../free-walk-w45.html; preserves the accepted w44 joystick and horizontal picture-drag behavior. Does not replace w42 video test or live w27.
