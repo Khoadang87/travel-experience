@@ -1,0 +1,57 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>w43 — 3D movement diagnostic</title><script type="importmap">{"imports":{"three":"../vendor/three.module.js"}}</script><style>
+*{box-sizing:border-box}body{margin:0;overflow:hidden;background:#101820;color:#fff;font:14px system-ui;touch-action:none}canvas{display:block}header{position:fixed;top:env(safe-area-inset-top,0);left:0;right:0;padding:12px;background:#101820dd;pointer-events:none}h1{font-size:16px;margin:0 0 6px}p{margin:6px 0;line-height:1.4}#message{color:#f7d785}#timer{float:right;font-variant-numeric:tabular-nums}#joy{position:fixed;left:20px;bottom:calc(env(safe-area-inset-bottom) + 24px);width:124px;height:124px;border-radius:50%;border:2px solid #d5e5ed;background:#ffffff16;touch-action:none}#knob{position:absolute;left:39px;top:39px;width:42px;height:42px;border-radius:50%;background:#fff;pointer-events:none}nav{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom) + 24px);max-width:48vw;text-align:right}button,a{display:inline-block;padding:10px 12px;border:1px solid #c4d1d9;border-radius:10px;color:#fff;background:#1c303e;font:inherit;text-decoration:none;margin:4px 0}small{display:block;font-size:11px;line-height:1.4}#coords{font-size:11px;opacity:.75}#intro{position:fixed;inset:0;z-index:10;background:#0c1624e8;display:grid;place-items:center;padding:24px}#intro section{max-width:480px}#intro[hidden]{display:none}#intro p{margin:14px 0}
+</style></head><body>
+<header><span id="timer">15:00</span><h1>w43 · 3D movement diagnostic</h1><p>Sparse bridge points + temporary grid floor.</p><p id="message">Loading reconstructed points…</p><span id="coords"></span></header>
+<div id="joy" aria-label="Move in all directions"><div id="knob"></div></div>
+<nav><small>Left stick: move<br>Drag picture: look<br>Yellow line: test boundary</small><button id="reset">Reset position</button><br><a href="./">Back to video test</a></nav>
+<div id="intro"><section><h1>Test real spatial movement</h1><p>This is an engineering preview of a partial reconstruction. You will see sparse points, not a finished street. The grid floor and yellow perimeter are temporary test geometry, not measured Hội An surfaces.</p><p>Move forward, backward and sideways with the left stick. Drag elsewhere to look. The session lasts 15 minutes while this tab is visible. No video reversal, seek jumps, heading gates or automatic turns.</p><button id="start" disabled>Loading…</button></section></div>
+<script type="module">
+import * as THREE from 'three';
+const $=id=>document.getElementById(id);
+const renderer=new THREE.WebGLRenderer({antialias:false});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));document.body.prepend(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color('#101820');
+const camera=new THREE.PerspectiveCamera(75,1,.05,150);camera.position.set(0,0,0);
+let yaw=0,pitch=0,running=false,remaining=900,last=performance.now(),lookPointer=null;
+const joy={id:null,x:0,y:0},keys={},bounds={minX:-4,maxX:4,minZ:-8,maxZ:2};
+const floor=-1.5;
+const grid=new THREE.GridHelper(80,80,0x425466,0x263440);grid.position.y=floor;scene.add(grid);
+function resize(){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+const stopInput=()=>{joy.id=null;joy.x=joy.y=0;$('knob').style.transform='';lookPointer=null;for(const k of Object.keys(keys))keys[k]=false};
+function reset(){stopInput();camera.position.set(0,0,0);yaw=pitch=0}
+$('reset').onclick=reset;
+document.addEventListener('visibilitychange',stopInput);addEventListener('blur',stopInput);
+$('joy').addEventListener('pointerdown',e=>{if(!running||joy.id!==null)return;e.preventDefault();joy.id=e.pointerId;$('joy').setPointerCapture(e.pointerId);move(e)});
+function move(e){if(e.pointerId!==joy.id)return;const r=$('joy').getBoundingClientRect(),R=r.width/2;let x=(e.clientX-r.left-R)/R,y=(e.clientY-r.top-R)/R;const n=Math.max(1,Math.hypot(x,y));joy.x=x/n;joy.y=y/n;$('knob').style.transform='translate('+joy.x*36+'px,'+joy.y*36+'px)'}
+$('joy').addEventListener('pointermove',move);
+for(const ev of ['pointerup','pointercancel','lostpointercapture'])$('joy').addEventListener(ev,e=>{if(e.pointerId===joy.id){joy.id=null;joy.x=joy.y=0;$('knob').style.transform=''}});
+renderer.domElement.addEventListener('pointerdown',e=>{if(!running||lookPointer)return;renderer.domElement.setPointerCapture(e.pointerId);lookPointer={id:e.pointerId,x:e.clientX,y:e.clientY}});
+renderer.domElement.addEventListener('pointermove',e=>{const d=lookPointer;if(!d||d.id!==e.pointerId)return;yaw-=(e.clientX-d.x)*.004;pitch=Math.max(-1.4,Math.min(1.4,pitch-(e.clientY-d.y)*.004));d.x=e.clientX;d.y=e.clientY});
+for(const ev of ['pointerup','pointercancel','lostpointercapture'])renderer.domElement.addEventListener(ev,e=>{if(lookPointer?.id===e.pointerId)lookPointer=null});
+addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyW','KeyA','KeyS','KeyD'].includes(e.code)){keys[e.code]=true;e.preventDefault()}});
+addEventListener('keyup',e=>keys[e.code]=false);
+function localMotion(x,forward,y,dt){const n=Math.max(1,Math.hypot(x,forward));return {x:(x*Math.cos(y)-forward*Math.sin(y))*dt/n,z:(-x*Math.sin(y)-forward*Math.cos(y))*dt/n}}
+$('start').onclick=()=>{remaining=900;running=true;last=performance.now();reset();$('intro').hidden=true};
+async function load(){try{
+ const data=await(await fetch('reconstruction/navigation-points-w43.json')).json();
+ const xyz=[],colors=[];for(const row of data.points){xyz.push(...row.slice(0,3));for(const c of row.slice(3))colors.push(c/255)}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(xyz,3));g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+ scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:.035,vertexColors:true,sizeAttenuation:true})));
+ const cs=data.cameras.map(c=>c.position),geom=new THREE.BufferGeometry().setFromPoints(cs.map(p=>new THREE.Vector3(...p)));scene.add(new THREE.Line(geom,new THREE.LineBasicMaterial({color:0x73d2ff})));
+ bounds.minX=Math.min(-3,...cs.map(p=>p[0]-2));bounds.maxX=Math.max(3,...cs.map(p=>p[0]+2));bounds.minZ=Math.min(-6,...cs.map(p=>p[2]-2));bounds.maxZ=Math.max(2,...cs.map(p=>p[2]+2));
+ const y=floor+.02,corners=[[bounds.minX,y,bounds.minZ],[bounds.maxX,y,bounds.minZ],[bounds.maxX,y,bounds.maxZ],[bounds.minX,y,bounds.maxZ],[bounds.minX,y,bounds.minZ]];
+ scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(corners.map(p=>new THREE.Vector3(...p))),new THREE.LineBasicMaterial({color:0xf7cf70})));
+ $('message').textContent=data.points.length+' points · scale unverified · no reconstructed walls';
+ $('start').disabled=false;$('start').textContent='Start movement test';
+}catch(e){$('message').textContent='Could not load geometry. Reload this test.';$('start').textContent='Geometry unavailable'}}
+load();
+renderer.setAnimationLoop(()=>{const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;
+ if(running&&!document.hidden){remaining=Math.max(0,remaining-dt);if(!remaining){running=false;stopInput();$('intro').hidden=false;$('start').textContent='Start another session'}
+ let x=joy.x+(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0),f=-joy.y+(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0);
+ if(Math.hypot(x,f)>.12){const d=localMotion(x,f,yaw,dt*1.2),nx=camera.position.x+d.x,nz=camera.position.z+d.z;camera.position.x=Math.max(bounds.minX,Math.min(bounds.maxX,nx));camera.position.z=Math.max(bounds.minZ,Math.min(bounds.maxZ,nz))}
+ }
+ camera.quaternion.setFromEuler(new THREE.Euler(pitch,yaw,0,'YXZ'));
+ const s=Math.ceil(remaining);$('timer').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');$('coords').textContent='Position '+camera.position.x.toFixed(2)+' / '+camera.position.z.toFixed(2)+' (arbitrary units)';
+ renderer.render(scene,camera);
+});
+</script></body></html>
