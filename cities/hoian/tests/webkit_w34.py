@@ -3,8 +3,8 @@ import sys, os, json
 from playwright.sync_api import sync_playwright
 URL = sys.argv[1]; LOCAL = sys.argv[3] if len(sys.argv) > 3 and sys.argv[2] == '--local' else None
 SUB = 'test/' if '/hoian/test/' in URL else ''
-VER = os.environ.get('VER', 'w35')
-EVD = os.environ.get('EVD', os.environ.get('EVD2','/workspace/qa/w35/ev'))
+VER = os.environ.get('VER', 'w36')
+EVD = os.environ.get('EVD', os.environ.get('EVD2','/workspace/qa/w36/ev'))
 os.makedirs(EVD, exist_ok=True)
 JS = os.environ.get('WALKJS', f'walk-{VER}.js')
 FLV = os.environ.get('FLV', 'hls13/f1280/index.m3u8')
@@ -94,6 +94,38 @@ with sync_playwright() as p:
         sf, sb = sim(aft, fwd), sim(aft, back); blur = cv2.Laplacian(cv2.cvtColor(mid, cv2.COLOR_BGR2GRAY), cv2.CV_64F).var(); sharp = cv2.Laplacian(cv2.cvtColor(aft, cv2.COLOR_BGR2GRAY), cv2.CV_64F).var()
         rep(f'turnaround at {t}s: one turn, ends facing travel, picture matches forward view (not back), walks on forward, never backwards', ev('__w.turns') - n0 == 1 and abs(rel) < 10 and max(abs(r) for r in rels if r is not None) < 10 and sf > 2 * sb and ps[-1] - ps[0] > 1.5 and min(b - a for a, b in zip(ps, ps[1:])) > -0.05,
             rel_just_after_turn=rel, rel_track=rels, match_fwd=sf, match_back=sb, walk=[ps[0], ps[-1]], blur_mid=round(blur), sharp_after=round(sharp))
+    # w36: replay the phone gesture - pull the stick DOWN (and back diagonals) from various looks / times / places
+    def sim2(a, b):
+        g = [cv2.cvtColor(x, cv2.COLOR_BGR2GRAY)[int(x.shape[0] * .15):int(x.shape[0] * .65)] for x in (a, b)]
+        k1, d1 = sift.detectAndCompute(g[0], None); k2, d2 = sift.detectAndCompute(g[1], None)
+        if d1 is None or d2 is None: return 0
+        return len([p for p, q in cv2.BFMatcher().knnMatch(d1, d2, k=2) if p.distance < 0.7 * q.distance])
+    cases = [('t', 600, 0, 0, 50), ('t', 600, 180, 0, 50), ('t', 900, 60, 0, 50), ('t', 300, 0, 35, 40), ('t', 1500, 0, -35, 40), ('place', 'market', None, 0, 50), ('place', 'hall', None, 30, 45), ('place', 'bridge', None, 0, 50)]
+    for kind, where, look0, dx, dy in cases:
+        if kind == 't': ev(f'__w.jump({where})'); pg.wait_for_timeout(3000); ev(f'__w.setLook({look0}, 0)')
+        else: ev(f'__w.goPlace("{where}")'); pg.wait_for_timeout(3500)
+        pg.wait_for_timeout(400); tag = f'pull_{where}_{look0}_{dx}_{dy}'; before = shot(tag + '_0_before'); ly0 = ev('__w.state().lookYaw'); hd0 = ev('__w.state().hd')
+        ev('__w.setLook(0, 0)'); pg.wait_for_timeout(400); fwd = shot(tag + '_ref_fwd'); ev(f'__w.state && 0'); ev(f'(()=>{{}})()')
+        pg.evaluate(f'__w.setLook({np.degrees(ly0)}, 0)'); pg.wait_for_timeout(300)
+        n0 = ev('__w.turns || 0'); p0 = ev('__w.state().pos')
+        pg.mouse.move(jx, jy); pg.mouse.down(); pg.mouse.move(jx + dx, jy + dy, steps=3)
+        for k in range(20):
+            if ev('__w.turns || 0') > n0 and not ev('__w.turnBusy()'): break
+            pg.wait_for_timeout(100)
+        aft = shot(tag + '_1_after'); rel0 = ev('__w.relYaw()'); ps = [ev('__w.state().pos')]
+        for k in range(12): pg.wait_for_timeout(250); ps.append(ev('__w.state().pos'))
+        pg.mouse.up(); pg.wait_for_timeout(300); shot(tag + '_2_walked')
+        sf, sb = sim2(aft, fwd), sim2(aft, before)
+        ok = ev('__w.turns') - n0 == 1 and abs(rel0) < 10 and ps[-1] - ps[0] > 1.2 and min(b - a for a, b in zip(ps, ps[1:])) > -0.05 and min(ps) >= p0 - 0.05 and (sf > 2 * sb or look0 == 0 or (kind == 'place' and sf >= 20))
+        rep(f'pull stick back ({dx},{dy}) at {kind} {where} look {look0}: one turnaround, faces travel, walks forward, never backward', ok, rel=rel0, match_fwd=sf, match_before=sb, walk=[ps[0], ps[-1]], p0=p0)
+    # sideways push: turns the view, no walking, no turnaround
+    ev('__w.jump(700)'); pg.wait_for_timeout(3000); ev('__w.setLook(0, 0)'); pg.wait_for_timeout(300)
+    for dx in (55, -55):
+        y0 = ev('__w.state().lookYaw'); p0 = ev('__w.state().pos'); n0 = ev('__w.turns || 0')
+        pg.mouse.move(jx, jy); pg.mouse.down(); pg.mouse.move(jx + dx, jy, steps=3); pg.wait_for_timeout(1500); shot(f'side_{dx}'); pg.mouse.up(); pg.wait_for_timeout(300)
+        dyaw = np.degrees(ev('__w.state().lookYaw') - y0); p1 = ev('__w.state().pos')
+        rep(f'sideways push {dx}: turns the view that way, no walk, no turnaround', 30 < abs(dyaw) < 140 and np.sign(dyaw) == np.sign(dx) and abs(p1 - p0) < 0.3 and ev('__w.turns || 0') == n0, dyaw=round(dyaw, 1), pos=[p0, p1])
+    ev('__w.setLook(0, 0)')
     # 360 sweep: whatever the facing, a push never moves the position backwards
     bad = []
     ev('__w.jump(700)'); pg.wait_for_timeout(3000)
