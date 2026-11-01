@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "routes_sha256": "f9c118682786f2e446169b3033c40dfb3847597a6101fa331d01492682d079c6",
+  "player_sha256": "b19b196c0884c6753129aa953bead3ed4470c27bdfcfe7c7ea4098599a4346f4",
+  "clips": [
+    {
+      "route": "old-town",
+      "clip": "main",
+      "lo": 0,
+      "hi": 1435.3,
+      "timeline_span_seconds": 1435.3,
+      "physical_distance_verified": false,
+      "return_coverage_verified": false
+    },
+    {
+      "route": "old-town",
+      "clip": "riverside",
+      "lo": 1436.2,
+      "hi": 1583.6,
+      "timeline_span_seconds": 147.4,
+      "physical_distance_verified": false,
+      "return_coverage_verified": false
+    }
+  ],
+  "junctions": [
+    {
+      "id": "river-in",
+      "from": [
+        "main",
+        256.5
+      ],
+      "to": [
+        "riverside",
+        1437.0
+      ],
+      "known_clip_ids": true,
+      "physical_continuity": "unreviewed",
+      "eligible_for_free_roam": false
+    },
+    {
+      "id": "river-out",
+      "from": [
+        "riverside",
+        1581.5
+      ],
+      "to": [
+        "main",
+        902.5
+      ],
+      "known_clip_ids": true,
+      "physical_continuity": "unreviewed",
+      "eligible_for_free_roam": false
+    }
+  ],
+  "findings": [
+    {
+      "code": "mock_edges",
+      "detail": "Mock/test links exist in configuration and are not evidence of connected streets."
+    },
+    {
+      "code": "description_overclaims",
+      "detail": "Route description promises forward/back movement, which the player source does not establish."
+    },
+    {
+      "code": "seek_is_not_backward_motion",
+      "detail": "Player implements pull-back as an earlier five-second seek, not continuous spatial retreat."
+    },
+    {
+      "code": "turn_is_not_strafe",
+      "detail": "Side stick changes view yaw; it does not establish captured sideways translation."
+    },
+    {
+      "code": "map_not_surveyed",
+      "detail": "Drawn route integrates heading samples; no verified geographic coordinates or metric scale were found by this audit."
+    }
+  ],
+  "verified_spatial_connections": 0,
+  "delivery_approved": false,
+  "missing_evidence": [
+    "independent current-candidate review",
+    "rendered movement in all promised directions",
+    "physical continuity of junctions",
+    "real iPhone Safari acceptance",
+    "expanded-area coverage for the promised exploration duration"
+  ],
+  "scope": "Static source audit only; not a rendered-picture, map-accuracy or phone test."
+}
