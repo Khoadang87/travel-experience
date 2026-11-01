@@ -1,0 +1,35 @@
+{
+  "status": "requirements and feasibility gate; no free-movement build delivered",
+  "userRequirement": "Choose an area and move freely in every ground-plane direction for up to 15 minutes.",
+  "interpretation": {
+    "duration": "15-minute exploration session, not a 15-minute prerecorded route",
+    "movement": "continuous forward/backward/left/right/diagonal, independent of looking",
+    "look": "drag to look; no automatic turn or view snap",
+    "environment": "real Hội An area represented by captured/reconstructed 3D",
+    "boundaries": "visible walkable perimeter, wall and canal collision; no walking through buildings"
+  },
+  "firstMilestone": {
+    "area": "one small bridge-adjacent stretch, provisional 20–30 metres, sized after capture feasibility",
+    "controls": "left joystick translates relative to current look; right-side drag turns view",
+    "acceptance": [
+      "Every joystick direction visibly translates the camera appropriately",
+      "No temporal reverse footage, seek jumps or blur used as movement",
+      "Navigation never depends on optical-flow heading estimates",
+      "Stops immediately on release or interrupted touch",
+      "15-minute session stability on user's real iPhone Safari",
+      "Photoreal coverage and missing geometry disclosed; no invented unseen streets"
+    ]
+  },
+  "assetGate": "Need suitable licensed scan/reconstruction or own multi-view capture. Existing single-path 360 video can supply references and possible reconstruction inputs, but complete 3D coverage and reconstruction quality are not established.",
+  "implementationCandidates": [
+    "textured mesh with collision geometry",
+    "Gaussian splat with separate collision mesh"
+  ],
+  "restrictions": [
+    "All experiments under test/",
+    "Do not change live w27 without explicit approval",
+    "No paid accounts or services without cost discussion",
+    "Do not claim current 360 sphere supports spatial free movement",
+    "Keep current w42 as reference until replacement passes real phone acceptance"
+  ]
+}
