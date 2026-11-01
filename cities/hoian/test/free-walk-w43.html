@@ -17,7 +17,7 @@ const floor=-1.5;
 const grid=new THREE.GridHelper(80,80,0x425466,0x263440);grid.position.y=floor;scene.add(grid);
 function resize(){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}
 addEventListener('resize',resize);resize();
-const stopInput=()=>{joy.id=null;joy.x=joy.y=0;$('knob').style.transform='';lookPointer=null;for(const k of Object.keys(keys))keys[k]=false};
+const stopInput=()=>{joy.id=null;joy.x=joy.y=0;$('knob').style.transform='';lookPointer=null;last=performance.now();for(const k of Object.keys(keys))keys[k]=false};
 function reset(){stopInput();camera.position.set(0,0,0);yaw=pitch=0}
 $('reset').onclick=reset;
 document.addEventListener('visibilitychange',stopInput);addEventListener('blur',stopInput);
@@ -45,8 +45,8 @@ async function load(){try{
  $('start').disabled=false;$('start').textContent='Start movement test';
 }catch(e){$('message').textContent='Could not load geometry. Reload this test.';$('start').textContent='Geometry unavailable'}}
 load();
-renderer.setAnimationLoop(()=>{const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;
- if(running&&!document.hidden){remaining=Math.max(0,remaining-dt);if(!remaining){running=false;stopInput();$('intro').hidden=false;$('start').textContent='Start another session'}
+renderer.setAnimationLoop(()=>{const now=performance.now(),elapsed=Math.max(0,(now-last)/1000),dt=Math.min(.05,elapsed);last=now;
+ if(running&&!document.hidden){remaining=Math.max(0,remaining-elapsed);if(!remaining){running=false;stopInput();$('intro').hidden=false;$('start').textContent='Start another session'}
  let x=joy.x+(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0),f=-joy.y+(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0);
  if(Math.hypot(x,f)>.12){const d=localMotion(x,f,yaw,dt*1.2),nx=camera.position.x+d.x,nz=camera.position.z+d.z;camera.position.x=Math.max(bounds.minX,Math.min(bounds.maxX,nx));camera.position.z=Math.max(bounds.minZ,Math.min(bounds.maxZ,nz))}
  }
