@@ -2,16 +2,16 @@
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
-<script>/* stale guard: if ver.txt (never cached) says a newer build, hard-reload with a unique param */(function(){var V='w30';fetch('ver.txt?'+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(v){v=v.trim();if(/^w\d+[a-z]?$/.test(v)&&v!==V){var u=new URL(location.href);if(u.searchParams.get('_v')!==v){u.searchParams.set('_v',v);location.replace(u)}}}).catch(function(){})})();</script>
+<script>/* stale guard: if ver.txt (never cached) says a newer build, hard-reload with a unique param */(function(){var V='w31';fetch('ver.txt?'+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(v){v=v.trim();if(/^w\d+[a-z]?$/.test(v)&&v!==V){var u=new URL(location.href);if(u.searchParams.get('_v')!==v){u.searchParams.set('_v',v);location.replace(u)}}}).catch(function(){})})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Hội An 360° walk (test w30)</title><link rel="icon" href="data:,">
+<title>Hội An 360° walk (test w31)</title><link rel="icon" href="data:,">
 <script type="importmap">{"imports":{"three":"../vendor/three.module.js"}}</script>
 <style>[hidden]{display:none!important}
 html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font:14px -apple-system,system-ui,sans-serif;touch-action:none;-webkit-user-select:none;user-select:none}
 #app canvas{display:block;width:100vw;height:100vh}
 #ver{position:fixed;left:8px;top:calc(env(safe-area-inset-top) + 52px);background:#c00;padding:2px 8px;border-radius:10px;font-weight:700;font-size:12px}
 #explore-toggle,#sound{position:fixed;top:calc(env(safe-area-inset-top) + 10px);background:rgba(0,0,0,.6);color:#fff;border:0;border-radius:16px;padding:8px 14px;font-size:14px}
-#explore-toggle{left:8px}#sound{left:100px}
+#explore-toggle{left:8px}#sound{left:100px;font-weight:600}
 #minimap{position:fixed;right:8px;top:calc(env(safe-area-inset-top) + 10px);width:120px;height:120px;background:rgba(0,0,0,.45);border-radius:10px;touch-action:none}
 #joy{position:fixed;left:24px;bottom:calc(env(safe-area-inset-bottom) + 60px);width:130px;height:130px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(255,255,255,.12);touch-action:none}
 #knob{position:absolute;left:40px;top:40px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.9);pointer-events:none}
@@ -33,5 +33,5 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font:1
 <section id="explore" hidden><b>Explore</b><p>Choose a point on the walk (or tap the mini-map).</p><input id="pos" type="range" step="1"><p><button id="go" type="button">Go here</button> <button id="explore-close" type="button">Close</button></p></section>
 <div id="credit">TEST build. Non-commercial. 360° footage by <a href="https://www.youtube.com/watch?v=CErfnBokWYM" target="_blank" rel="noopener">360 Japan Tours</a>; riverside by <a href="https://www.youtube.com/watch?v=C26CAyJkt4g" target="_blank" rel="noopener">HenkWalks</a></div>
 <script src="../vendor/hls.min.js"></script>
-<script type="module" src="walk-w30.js"></script>
+<script type="module" src="walk-w31.js"></script>
 </body></html>
