@@ -1,0 +1,39 @@
+{
+  "status": "standalone edit preview; NOT wired into player; NOT a backward walking solution",
+  "source": "360 Japan Tours — CErfnBokWYM; existing R2 hls13 forward footage",
+  "sourceTimeline": [
+    1108,
+    1118
+  ],
+  "cuts": [
+    [
+      1108,
+      1112
+    ],
+    [
+      1112,
+      1118
+    ]
+  ],
+  "edit": "Cut two adjacent bridge approach sections and concatenate in original chronological order. No reversal, blur or synthetic movement.",
+  "outputs": {
+    "panorama": {
+      "filename": "hoian-bridge-edit-360.mp4",
+      "width": 2560,
+      "height": 1280,
+      "durationSeconds": 10
+    },
+    "preview": {
+      "filename": "hoian-bridge-edit-preview.mp4",
+      "width": 1280,
+      "height": 720,
+      "projection": "v360 equirect to flat",
+      "horizontalFov": 90,
+      "verticalFov": 59,
+      "yaw": -3.6,
+      "pitch": 0
+    }
+  },
+  "validation": "Both encoded successfully; preview decoded without errors; cropped bridge frame visually inspected. No iPhone acceptance test.",
+  "rights": "Non-commercial test only. Reuse permission not verified. No live player changes."
+}
