@@ -92,11 +92,12 @@ with sync_playwright() as p:
     start = shot(pg); shots.append(('centred', start)); log['centred'] = dict(t=tnow, target=round(tgt, 1), got=round(got, 1), facing=ev('__w.facingBridge ? __w.facingBridge() : null'))
     # 3) push up and hold (~8 s after which we check)
     log['push_bridge'] = push(int(os.environ.get('HOLD', '9000'))); end = shot(pg); s1 = ev('__w.state()'); pg.mouse.up()
-    for t in (1116, 1120):
+    ev('__w.setLook(0, 0)'); pg.wait_for_timeout(300); end = shot(pg)  # w35: compare at look 0, same as the refs
+    for t in (round(s1['pos'], 2), 1116, 1120):  # w35: first ref is rendered at the exact end position (position-matched)
         ev(f'__w.jump({t})'); pg.wait_for_timeout(3000); ev('__w.setLook(0, 0)'); pg.wait_for_timeout(800); refs[t] = shot(pg)
     sc_start = max(inliers(start, r) for r in refs.values()); sc_end = max(inliers(end, r) for r in refs.values()); sc_es = inliers(end, start)
     pb = log['push_bridge']; first_gap = next((o['ms'] for o in pb if o['gap']), None)
-    ok = bool(first_gap is not None and first_gap <= 1500 and s1['pos'] > 1110 and sc_end >= 6 and sc_end > 2 * max(sc_start, 3) and sc_es < 6)
+    ok = bool(first_gap is not None and first_gap <= 1500 and s1['pos'] > 1110 and sc_end >= 8 and sc_end >= 2 * max(sc_start, 4))  # w35: end-vs-start dropped: the start view at 9-13 s looks AT the bridge, so it legitimately shares points with the inside view
     os.makedirs(OUT, exist_ok=True); h = 600; R = lambda x: cv2.resize(x, (int(x.shape[1] * h / x.shape[0]), h))
     cv2.imwrite(OUT + f'/gesture_{TS or "load"}_start_vs_end.jpg', np.hstack([R(x) for n, x in shots] + [R(end), R(refs[1120])]))
     res = dict(ok=ok, t_start=TS, hint_after=ev("document.getElementById('status').textContent"), ver=VER, load=s_load['pos'], centred=log['centred'], first_gap_ms=first_gap, end_pos=round(s1['pos'], 2), inliers_start_vs_inside=sc_start, inliers_end_vs_inside=sc_end, inliers_end_vs_start=sc_es, log=log)

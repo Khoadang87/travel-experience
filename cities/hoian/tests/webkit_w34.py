@@ -3,8 +3,8 @@ import sys, os, json
 from playwright.sync_api import sync_playwright
 URL = sys.argv[1]; LOCAL = sys.argv[3] if len(sys.argv) > 3 and sys.argv[2] == '--local' else None
 SUB = 'test/' if '/hoian/test/' in URL else ''
-VER = os.environ.get('VER', 'w34')
-EVD = os.environ.get('EVD', '/workspace/qa/w34/ev')
+VER = os.environ.get('VER', 'w35')
+EVD = os.environ.get('EVD', os.environ.get('EVD2','/workspace/qa/w35/ev'))
 os.makedirs(EVD, exist_ok=True)
 JS = os.environ.get('WALKJS', f'walk-{VER}.js')
 FLV = os.environ.get('FLV', 'hls13/f1280/index.m3u8')
@@ -60,7 +60,7 @@ with sync_playwright() as p:
         H, inl = cv2.findHomography(p2, p1, cv2.RANSAC, 8.0)
         if inl is None: return 0, None
         inl = inl.ravel().astype(bool); return int(inl.sum()), float(np.median(p1[inl, 0]) / w)
-    REF = os.environ.get('PLACEREF', '/workspace/qa/w34/ref')
+    REF = os.environ.get('PLACEREF', '/workspace/qa/w35/ref')
     for pl in ev('__w.places'):
         if pl['t'] is None: continue
         if not pg.is_visible('#places'): pg.click('#explore-toggle'); pg.click('#go-places')
@@ -75,20 +75,24 @@ with sync_playwright() as p:
             ps, rel = hold(-50, 5); img2 = shot('place_bridge_walk5s'); n2, cx2 = landmark(img2, ref)
             rep('bridge place: UP walks in toward the bridge entrance', ps[-1] > ps[0] + 3 and min(b - a for a, b in zip(ps, ps[1:])) > -0.05, walk=[ps[0], ps[-1]], inl_after=n2)
     # turnaround: facing back + push -> blur, view swings to the travel direction, then forward walking; position never goes backwards
-    for t in (300, 600, 900, 1500):
+    for t in (300, 600, 900, 1300, 1500):
         ev(f'__w.jump({t})'); pg.wait_for_timeout(3000); ev('__w.setLook(0, 0)'); pg.wait_for_timeout(500); fwd = shot(f'turn_{t}_ref_fwd')
         ev('__w.setLook(180, 0)'); pg.wait_for_timeout(500); back = shot(f'turn_{t}_0_back'); n0 = ev('__w.turns || 0')
         pg.mouse.move(jx, jy); pg.mouse.down(); pg.mouse.move(jx, jy - 50, steps=3); pg.wait_for_timeout(250); mid = shot(f'turn_{t}_1_mid')
+        for k in range(20):
+            if (ev('__w.turns || 0') > n0) and not ev('__w.turnBusy()'): break
+            pg.wait_for_timeout(100)
+        aft = shot(f'turn_{t}_2_after')  # w35: picture right after the turn (the walker itself may turn a corner later, e.g. ~1300 s)
         ps = [ev('__w.state().pos')]
         rels = []
-        for k in range(14): pg.wait_for_timeout(250); ps.append(ev('__w.state().pos')); rels.append(None if ev('__w.turnBusy()') else round(ev('__w.relYaw()') * 57.3, 1))
-        pg.mouse.up(); pg.wait_for_timeout(400); aft = shot(f'turn_{t}_2_after'); rel = next((r for r in rels if r is not None), 999)
+        for k in range(14): pg.wait_for_timeout(250); ps.append(ev('__w.state().pos')); rels.append(None if ev('__w.turnBusy()') else round(ev('__w.relYaw()'), 1))
+        pg.mouse.up(); pg.wait_for_timeout(400); shot(f'turn_{t}_3_walked'); rel = next((r for r in rels if r is not None), 999)
         def sim(a, b):
             g = [cv2.cvtColor(x, cv2.COLOR_BGR2GRAY)[int(x.shape[0] * .15):int(x.shape[0] * .65)] for x in (a, b)]
             k1, d1 = sift.detectAndCompute(g[0], None); k2, d2 = sift.detectAndCompute(g[1], None)
             return len([p for p, q in cv2.BFMatcher().knnMatch(d1, d2, k=2) if p.distance < 0.7 * q.distance])
         sf, sb = sim(aft, fwd), sim(aft, back); blur = cv2.Laplacian(cv2.cvtColor(mid, cv2.COLOR_BGR2GRAY), cv2.CV_64F).var(); sharp = cv2.Laplacian(cv2.cvtColor(aft, cv2.COLOR_BGR2GRAY), cv2.CV_64F).var()
-        rep(f'turnaround at {t}s: one turn, ends facing travel, picture matches forward view (not back), walks on forward, never backwards', ev('__w.turns') - n0 == 1 and abs(rel) < 25 and sf > 2 * sb and ps[-1] - ps[0] > 1.5 and min(b - a for a, b in zip(ps, ps[1:])) > -0.05,
+        rep(f'turnaround at {t}s: one turn, ends facing travel, picture matches forward view (not back), walks on forward, never backwards', ev('__w.turns') - n0 == 1 and abs(rel) < 10 and max(abs(r) for r in rels if r is not None) < 10 and sf > 2 * sb and ps[-1] - ps[0] > 1.5 and min(b - a for a, b in zip(ps, ps[1:])) > -0.05,
             rel_just_after_turn=rel, rel_track=rels, match_fwd=sf, match_back=sb, walk=[ps[0], ps[-1]], blur_mid=round(blur), sharp_after=round(sharp))
     # 360 sweep: whatever the facing, a push never moves the position backwards
     bad = []
