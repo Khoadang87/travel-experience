@@ -1,0 +1,37 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Bridge edit — w40 test</title><script type="importmap">{"imports":{"three":"../vendor/three.module.js"}}</script><style>
+*{box-sizing:border-box}body{margin:0;background:#111;color:#fff;font:16px system-ui}header,footer{padding:16px;max-width:960px;margin:auto}a{color:#bce9ff}h1{font-size:22px;margin:0 0 8px}p{line-height:1.5}#stage{height:60vh;min-height:300px;position:relative;touch-action:none}canvas{display:block;width:100%;height:100%}video{position:absolute;width:2px;height:2px;opacity:.01;pointer-events:none}button{padding:12px 16px;background:#333;color:white;border:1px solid #888;border-radius:10px;font:inherit;margin:4px}#message{min-height:3em}button:disabled{opacity:.45}</style></head><body>
+<header><a href="./">← Return to test walk</a><h1>Bridge approach · w40 test</h1><p>10-second edited approach. Choose a fixed crop or drag to explore the full 360° view.</p></header>
+<div id="stage"><video id="video" playsinline muted crossorigin="anonymous"></video></div>
+<footer><button id="play" disabled>Play edit</button><button id="restart" disabled>Restart</button><button id="mode" aria-pressed="false">Switch to 360° look</button><p id="message" role="status">Loading bridge footage…</p><p>Forward footage, original chronological order. This edit does not provide backward walking.</p><small>Non-commercial test. Footage: <a href="https://www.youtube.com/watch?v=CErfnBokWYM">360 Japan Tours</a>. Reuse permission remains unverified.</small></footer>
+<script src="../vendor/hls.min.js"></script><script type="module">
+import * as THREE from 'three';
+const $=id=>document.getElementById(id),v=$('video'),stage=$('stage'),START=1108,END=1118;
+const src='https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/hls13/f2560/index.m3u8';
+const renderer=new THREE.WebGLRenderer({antialias:false}); renderer.setPixelRatio(Math.min(devicePixelRatio,2));stage.append(renderer.domElement);
+const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(90,1,.1,100);
+const geometry=new THREE.SphereGeometry(50,96,48);geometry.scale(-1,1,1);
+const texture=new THREE.VideoTexture(v);texture.colorSpace=THREE.SRGBColorSpace;scene.add(new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({map:texture})));
+const baseYaw=2*Math.PI*(.75-.49);let yaw=baseYaw,pitch=0,free=false,drag=null,ready=false,ended=false;
+function resize(){const r=stage.getBoundingClientRect();renderer.setSize(r.width,r.height);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+function status(s){$('message').textContent=s}
+function sync(){ $('play').textContent=v.paused?'Play edit':'Pause'; }
+function stopAtEnd(){v.pause();ended=true;status('End of the 10-second edit. Tap Restart to review again.');sync()}
+function bound(){if(v.currentTime>=END)stopAtEnd()}
+v.addEventListener('timeupdate',bound);v.addEventListener('play',sync);v.addEventListener('pause',sync);
+v.addEventListener('error',()=>status('Video could not load. Return to the test walk or reload this page.'));
+function seekStart(){ended=false;v.pause();v.currentTime=START;status('Seeking to bridge approach…')}
+v.addEventListener('loadedmetadata',seekStart,{once:true});
+v.addEventListener('seeked',()=>{if(v.currentTime>=START-.1&&v.currentTime<END){ready=true;$('play').disabled=$('restart').disabled=false;status(free?'Drag the picture to look around. Tap Play edit to approach.':'Fixed bridge-facing crop. Tap Play edit to approach.')}});
+$('play').onclick=async()=>{if(!ready)return;if(!v.paused){v.pause();return}if(ended||v.currentTime>=END){seekStart();return}try{await v.play();status(free?'Playing · drag to look around.':'Playing · fixed bridge-facing crop.')}catch(e){status('Safari needs another tap on Play edit.')}};
+$('restart').onclick=()=>{yaw=baseYaw;pitch=0;seekStart()};
+$('mode').onclick=()=>{free=!free;drag=null;yaw=baseYaw;pitch=0;$('mode').textContent=free?'Switch to fixed crop':'Switch to 360° look';$('mode').setAttribute('aria-pressed',String(free));status(free?'360° look enabled. Drag the picture.':'Fixed crop enabled.')};
+stage.addEventListener('pointerdown',e=>{if(!free)return;stage.setPointerCapture(e.pointerId);drag={id:e.pointerId,x:e.clientX,y:e.clientY}});
+stage.addEventListener('pointermove',e=>{if(!free||!drag||e.pointerId!==drag.id)return;yaw+=(e.clientX-drag.x)*.004;pitch=Math.max(-1.4,Math.min(1.4,pitch+(e.clientY-drag.y)*.004));drag.x=e.clientX;drag.y=e.clientY});
+for(const event of ['pointerup','pointercancel','lostpointercapture'])stage.addEventListener(event,()=>drag=null);
+document.addEventListener('visibilitychange',()=>{if(document.hidden){v.pause();drag=null}});
+renderer.setAnimationLoop(()=>{if(!v.paused)bound();camera.quaternion.setFromEuler(new THREE.Euler(pitch,yaw,0,'YXZ'));renderer.render(scene,camera)});
+if(v.canPlayType('application/vnd.apple.mpegurl'))v.src=src;
+else if(window.Hls&&Hls.isSupported()){const h=new Hls({startPosition:START,maxBufferLength:12});h.loadSource(src);h.attachMedia(v);h.on(Hls.Events.ERROR,(_,d)=>{if(d.fatal)status('Stream failed. Reload or return to the test walk.')})}
+else status('This browser does not support this video stream.');
+</script></body></html>
