@@ -1,0 +1,53 @@
+{
+  "status": "internal_unapproved_rough_cut",
+  "owner_tolerance": "One or two small gaps allowed for testing; disclose edits, do not label them technical failures.",
+  "sources": [
+    {
+      "creator": "360 Japan Tours",
+      "source": "https://www.youtube.com/watch?v=CErfnBokWYM",
+      "existingTimeline": [
+        248,
+        258
+      ],
+      "localInput": "main-river.mp4"
+    },
+    {
+      "creator": "HenkWalks",
+      "source": "https://www.youtube.com/watch?v=C26CAyJkt4g",
+      "existingTimeline": [
+        1436,
+        1446
+      ],
+      "localInput": "other-river.mp4"
+    }
+  ],
+  "output": {
+    "localPath": "/workspace/scratch/058760c451a1/hoian-multiclip/internal-junction-assembly.mp4",
+    "duration": 20,
+    "width": 1280,
+    "height": 640,
+    "audio": false
+  },
+  "verification": {
+    "both_inputs_decoded": true,
+    "output_ffprobe_valid": true,
+    "first_panoramas_visually_inspected": true,
+    "exact_junction_verified": false,
+    "orientation_aligned": false,
+    "independent_advisor_approved": false,
+    "iphone_accepted": false
+  },
+  "limitations": [
+    "Different recording dates/lighting/camera positions",
+    "Possible corner overlap only; physical adjacency not certified",
+    "Hard cut does not establish free backward or sideways movement",
+    "No spherical metadata injection verified; image layout remains equirectangular"
+  ],
+  "next": [
+    "Match cafe facades and river landmarks across adjoining frames",
+    "Align panorama yaw across cut and verify travel direction",
+    "Keep draft internal until review passes"
+  ],
+  "runtimeChanges": false,
+  "liveChanges": false
+}
