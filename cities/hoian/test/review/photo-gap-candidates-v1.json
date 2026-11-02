@@ -1,0 +1,19 @@
+{
+  "policy": "Real photos may bridge one or two small gaps with brief disclosed still transitions; footage remains the main experience.",
+  "candidate": {
+    "source_page": "https://vinpearl.com/en/flowers-of-vietnam-explore-the-blooming-seasons-through-12-months",
+    "image_url": "https://statics.vinpearl.com/flowers-of-vietnam-01_1669734481.jpg",
+    "size": [
+      700,
+      525
+    ],
+    "downloaded": true,
+    "visually_inspected": true,
+    "accepted": false,
+    "reason": "Blue-painted door/window trim and ornate corner roof do not establish an exact match to the green-shutter riverside corner in the two selected panoramas. Do not insert a merely similar yellow facade."
+  },
+  "google_images_direct_access": "unavailable_via_search_tool",
+  "other_image_search": "available",
+  "runtime_inserted": false,
+  "advisor_approved": false
+}
