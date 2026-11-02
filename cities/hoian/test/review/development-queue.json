@@ -2,8 +2,8 @@
   "schema_version": 1,
   "project": "hoian",
   "execution_mode": "scheduled_agent_runs_not_continuous_daemon",
-  "candidate": "w61",
-  "candidate_source_sha256": "5e3a5b7f60b264c17d4d0f8293c407ea57776e961d8aa0006b4050cff2a0baf4",
+  "candidate": "w63",
+  "candidate_source_sha256": "4bb40727130f07a66f70bb28151e10e4616a425bd0f5fd318bc26d0ed9ea43eb",
   "tasks": [
     {
       "id": "verify-w57-startup-failure-ui",
@@ -21,14 +21,14 @@
       "id": "render-current-candidate",
       "status": "partial",
       "action": "Inspect exact w61 rendered routes and both explicit edits via supported cloud CUA. CPU fallback now permits actual scenery inspection without WebGL; default WebGL path still lacks GPU environment.",
-      "evidence": "w61actualcloudCPUplayer: bothrealroutesrendered, positive-timejoystickmovement/releasestop, bothmanualdisclosededitslandpaused, acceptedpicture-dragmappingobserved. Picturecoarse/responsivenessunmeasured; phone/advisorabsent.",
-      "next": "Actual quality/performance and edited-position review; GPU WebGL and real iPhone still absent."
+      "evidence": "Actualcloudw62shortpressfailedbothsources; w63sharedinput/controlpolicy responds to500ms main1066->1066.381665 andreturn5->5.478295, releasespausedready4. Sourcechange/pauseddragchecked. Quality/FPS/phone/advisor/broadcoverageunapproved.",
+      "next": "w63bothjunctionregression, measuredquality/performance and realGPU/Safari/device checks remain."
     },
     {
       "id": "correct-observed-player-failures",
       "status": "partial",
       "action": "Fix observed loading/movement/control failures under a new test version; retain prior files and repeat affected checks.",
-      "evidence": "w61softwareCanvas2Ddecodedreadpathcorrectedobservedreturnpreparationfailureinthiscloudplayer. W59/w60failedresultsretained. Not a Safari or fullnavigationfix."
+      "evidence": "w63event-driven sharedmovementpolicypassedbounded500msresponsechecks. w62negativepreserved; no blanketnavigationfix."
     },
     {
       "id": "independent-review",
@@ -49,7 +49,7 @@
       "id": "software-render-quality",
       "status": "ready",
       "action": "Test exactw62 paused cache source/view/time/seek invalidation and actual short-input responsiveness, compare before/after measured render work. Quality/resolution remainsunchanged; follow with actualpicture improvement separately.",
-      "evidence": "w62separatebranchcachecorrectionprepared;22sourcechecks pass and affected seek-cache test rerun. Noactualw62browser/quality/performance/phonepass."
+      "evidence": "Actualw63picturecoarse; pausedcacheunitdrawcountverified butnoactualCPU/FPSmeasurement. 500msfunctionalresponseobservedonly. Improveactualpixelsamplingandmeasureundernewversion."
     },
     {
       "id": "grok-junction-heading-review",
@@ -74,16 +74,20 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "Grok coordination requestpostedissue1; acknowledgementabsent. Preservedw42gseparately/restoreddefaultw42byte-for-byte. W62paused-picturecachecorrectionbackedonisolatedbranch;sourcechecks only.",
+  "last_verified_progress": "Actualcloudw62shortpressfailedbothsources; w63sharedinput/controlpolicy responds to500ms main1066->1066.381665 andreturn5->5.478295, releasespausedready4. Sourcechange/pauseddragchecked. Quality/FPS/phone/advisor/broadcoverageunapproved.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
     "follow_up_comment": 6589580276,
-    "grok_status": "requested_awaiting_acknowledgement",
+    "grok_status": "new_w42h_commit_seen_but_assigned_review_not_acknowledged",
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "abe4dfc2057bc7b2541177f1cc8e82c847fbb5c1",
-    "working_source_sha256": "e7fae913f391fa3fdf58ccf1f8ea6fb4ae6cc2344a85bec0130e4afe3f573ad4"
-  }
+    "working_commit": "02ea4472f7247d5e44b1ef996f8bffafa0651a61",
+    "working_source_sha256": "4bb40727130f07a66f70bb28151e10e4616a425bd0f5fd318bc26d0ed9ea43eb",
+    "feedback_comment": 6590223108,
+    "actual_checks_comment": 6590354389
+  },
+  "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
+  "evidence_commit": "02ea4472f7247d5e44b1ef996f8bffafa0651a61"
 }
