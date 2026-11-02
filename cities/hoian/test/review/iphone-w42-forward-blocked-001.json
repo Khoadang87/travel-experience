@@ -1,0 +1,20 @@
+{
+  "case": "iphone-w42-forward-blocked-001",
+  "recording_sha256": "ca26f0664f2fc9c851ad897f459f901b77adab75c0e28126813f1ac23e77a07e",
+  "seconds": 8.933333,
+  "observed_version": "w42",
+  "device_evidence": "User supplied real iPhone Safari screen recording",
+  "observations": [
+    "Stick is visibly pushed upward/upper-left",
+    "Scene remains at effectively the same position",
+    "Player shows: Face along the route to walk. Drag or turn sideways."
+  ],
+  "result": "FAIL: input does not advance toward viewed street",
+  "likely_mechanism": "Direction/heading gate, based on visible status. Runtime heading/debug state is absent; distinguish wrong heading estimate from genuinely unavailable travel direction before changing gating.",
+  "not_evidence_for": [
+    "w48 assembly playback",
+    "independent full-map acceptance",
+    "fixed navigation"
+  ],
+  "delivery_approved": false
+}
