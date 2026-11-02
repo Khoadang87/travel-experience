@@ -1,0 +1,67 @@
+{
+  "version": "w53",
+  "scope": "Internal two-source recorded-route trial, not free roaming",
+  "heading_src": "../assets/walk/heading_foe.json",
+  "main_audio_src": "../assets/walk/walk.json",
+  "paths": {
+    "bridge_bound": {
+      "label": "Toward Japanese Bridge",
+      "description": "100 seconds of filmed bridge approach, crossing and adjoining street.",
+      "src": "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/hls13/f2560/index.m3u8",
+      "source_kind": "hls",
+      "start": 1102,
+      "end": 1202,
+      "heading_kind": "main_foe",
+      "entry_yaw": 1.5167
+    },
+    "street_bound": {
+      "label": "Away from bridge \u00b7 Tr\u1ea7n Ph\u00fa",
+      "description": "30 seconds of genuinely forward-filmed return-direction footage from a different day.",
+      "src": "assets/henk-return-w53.mp4",
+      "source_kind": "mp4",
+      "start": 5,
+      "end": 35,
+      "heading_kind": "return_geometry_estimate",
+      "entry_yaw": 1.6500732804435634,
+      "heading_verified_for_full_clip": false,
+      "original_source": "https://deovr.com/glcyf0",
+      "original_seconds": [
+        695,
+        730
+      ],
+      "source_sha256": "8742afb41f2d2fad7dfebd39e8fe7e89645201b9cc2d589be6b2b2d45302e3e2",
+      "media_hosting_verified": false,
+      "sound_available": false,
+      "heading_src": "heading-return-w53.json",
+      "asset_sha256": "a537f1373a0b7b82bc72c0a7964efbf25351223fca3d81d78a5b5c0695a592bf",
+      "asset_transcode": {
+        "width": 2160,
+        "height": 1080,
+        "fps": 25,
+        "codec": "h264",
+        "crf": 25,
+        "audio": false,
+        "duration": 35.08,
+        "bytes": 26460459
+      }
+    }
+  },
+  "junctions": [
+    {
+      "id": "bridge_street_edit",
+      "from": "bridge_bound",
+      "window": [
+        1102,
+        1106
+      ],
+      "to": "street_bound",
+      "to_time": 5,
+      "kind": "disclosed_edit",
+      "spatial_alignment_verified": false,
+      "notice": "This is an edited change to real footage filmed on another day near the same junction. Lighting and camera position differ; it is not a continuous step. The exact junction alignment is still under review."
+    }
+  ],
+  "sideways_travel_available": false,
+  "delivery_approved": false,
+  "iphone_accepted": false
+}

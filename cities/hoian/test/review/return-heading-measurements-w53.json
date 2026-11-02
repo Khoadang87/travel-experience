@@ -1,0 +1,593 @@
+{
+  "source_sha256": "8742afb41f2d2fad7dfebd39e8fe7e89645201b9cc2d589be6b2b2d45302e3e2",
+  "source_origin_seconds": 695,
+  "method": "u=.5 perspective, upper-facade SIFT, essential RANSAC, cheirality",
+  "results": [
+    {
+      "local_seconds": [
+        0,
+        1
+      ],
+      "usable": true,
+      "matches": 122,
+      "cheirality_inliers": 111,
+      "rotation_degrees": 10.672,
+      "median_pixel_displacement": 76.447,
+      "translation_camera2_from_camera1": [
+        0.12599652839071934,
+        0.05961826479414405,
+        -0.9902376166034199
+      ],
+      "travel_yaw_second_frame": 1.697354950538162
+    },
+    {
+      "local_seconds": [
+        1,
+        2
+      ],
+      "usable": true,
+      "matches": 97,
+      "cheirality_inliers": 73,
+      "rotation_degrees": 11.524,
+      "median_pixel_displacement": 87.973,
+      "translation_camera2_from_camera1": [
+        0.14368737098756712,
+        -0.006776300453931372,
+        -0.9895999298559187
+      ],
+      "travel_yaw_second_frame": 1.7149861119894463
+    },
+    {
+      "local_seconds": [
+        2,
+        3
+      ],
+      "usable": true,
+      "matches": 121,
+      "cheirality_inliers": 111,
+      "rotation_degrees": 11.726,
+      "median_pixel_displacement": 91.9,
+      "translation_camera2_from_camera1": [
+        0.10088346406999703,
+        0.04497707076403583,
+        -0.9938810742652888
+      ],
+      "travel_yaw_second_frame": 1.6719544225966723
+    },
+    {
+      "local_seconds": [
+        3,
+        4
+      ],
+      "usable": true,
+      "matches": 178,
+      "cheirality_inliers": 149,
+      "rotation_degrees": 9.743,
+      "median_pixel_displacement": 71.972,
+      "translation_camera2_from_camera1": [
+        -0.03610918208908437,
+        0.05418854888180332,
+        -0.9978776118036428
+      ],
+      "travel_yaw_second_frame": 1.5346261258868643
+    },
+    {
+      "local_seconds": [
+        4,
+        5
+      ],
+      "usable": true,
+      "matches": 167,
+      "cheirality_inliers": 153,
+      "rotation_degrees": 6.704,
+      "median_pixel_displacement": 33.497,
+      "translation_camera2_from_camera1": [
+        0.07917764801032033,
+        0.02028264069274116,
+        -0.9966541599482155
+      ],
+      "travel_yaw_second_frame": 1.6500732804435634
+    },
+    {
+      "local_seconds": [
+        5,
+        6
+      ],
+      "usable": true,
+      "matches": 202,
+      "cheirality_inliers": 191,
+      "rotation_degrees": 3.178,
+      "median_pixel_displacement": 30.221,
+      "translation_camera2_from_camera1": [
+        0.1886103008986463,
+        0.016036430620908385,
+        -0.9819210697850734
+      ],
+      "travel_yaw_second_frame": 1.7605678834924305
+    },
+    {
+      "local_seconds": [
+        6,
+        7
+      ],
+      "usable": true,
+      "matches": 178,
+      "cheirality_inliers": 141,
+      "rotation_degrees": 1.611,
+      "median_pixel_displacement": 20.845,
+      "translation_camera2_from_camera1": [
+        0.15918574102715202,
+        -0.026087916121050752,
+        -0.9869039064093816
+      ],
+      "travel_yaw_second_frame": 1.7307170460084231
+    },
+    {
+      "local_seconds": [
+        7,
+        8
+      ],
+      "usable": true,
+      "matches": 151,
+      "cheirality_inliers": 141,
+      "rotation_degrees": 1.142,
+      "median_pixel_displacement": 20.938,
+      "translation_camera2_from_camera1": [
+        0.05739585789159499,
+        0.00195314057222496,
+        -0.9983495884402382
+      ],
+      "travel_yaw_second_frame": 1.6282238541983987
+    },
+    {
+      "local_seconds": [
+        8,
+        9
+      ],
+      "usable": true,
+      "matches": 179,
+      "cheirality_inliers": 160,
+      "rotation_degrees": 1.129,
+      "median_pixel_displacement": 20.792,
+      "translation_camera2_from_camera1": [
+        0.0886201373168122,
+        0.00047358078475730734,
+        -0.9960653828856767
+      ],
+      "travel_yaw_second_frame": 1.6595328827575289
+    },
+    {
+      "local_seconds": [
+        9,
+        10
+      ],
+      "usable": true,
+      "matches": 168,
+      "cheirality_inliers": 146,
+      "rotation_degrees": 0.692,
+      "median_pixel_displacement": 22.713,
+      "translation_camera2_from_camera1": [
+        0.11418334020012122,
+        0.006718325431122238,
+        -0.9934369778320842
+      ],
+      "travel_yaw_second_frame": 1.6852318453019215
+    },
+    {
+      "local_seconds": [
+        10,
+        11
+      ],
+      "usable": true,
+      "matches": 177,
+      "cheirality_inliers": 148,
+      "rotation_degrees": 0.514,
+      "median_pixel_displacement": 22.294,
+      "translation_camera2_from_camera1": [
+        -0.0004913363735088249,
+        0.036325571921807284,
+        -0.999339887832524
+      ],
+      "travel_yaw_second_frame": 1.5703046659096453
+    },
+    {
+      "local_seconds": [
+        11,
+        12
+      ],
+      "usable": true,
+      "matches": 156,
+      "cheirality_inliers": 120,
+      "rotation_degrees": 1.338,
+      "median_pixel_displacement": 22.519,
+      "translation_camera2_from_camera1": [
+        0.2037225686631023,
+        -0.016387250188558022,
+        -0.9788915021842641
+      ],
+      "travel_yaw_second_frame": 1.7759830075530398
+    },
+    {
+      "local_seconds": [
+        12,
+        13
+      ],
+      "usable": true,
+      "matches": 202,
+      "cheirality_inliers": 190,
+      "rotation_degrees": 0.737,
+      "median_pixel_displacement": 28.369,
+      "translation_camera2_from_camera1": [
+        0.04382177604376035,
+        0.06939087742675537,
+        -0.9966265890865624
+      ],
+      "travel_yaw_second_frame": 1.6147381280678885
+    },
+    {
+      "local_seconds": [
+        13,
+        14
+      ],
+      "usable": true,
+      "matches": 148,
+      "cheirality_inliers": 140,
+      "rotation_degrees": 1.362,
+      "median_pixel_displacement": 20.212,
+      "translation_camera2_from_camera1": [
+        0.20198478818198098,
+        -0.0030846820961509757,
+        -0.9793838012135212
+      ],
+      "travel_yaw_second_frame": 1.7741813651151233
+    },
+    {
+      "local_seconds": [
+        14,
+        15
+      ],
+      "usable": true,
+      "matches": 141,
+      "cheirality_inliers": 131,
+      "rotation_degrees": 0.403,
+      "median_pixel_displacement": 22.948,
+      "translation_camera2_from_camera1": [
+        0.07080999578843451,
+        0.05669678495244126,
+        -0.9958772108410245
+      ],
+      "travel_yaw_second_frame": 1.6417800036549277
+    },
+    {
+      "local_seconds": [
+        15,
+        16
+      ],
+      "usable": true,
+      "matches": 167,
+      "cheirality_inliers": 153,
+      "rotation_degrees": 0.314,
+      "median_pixel_displacement": 24.135,
+      "translation_camera2_from_camera1": [
+        0.11821947452283244,
+        -0.007992269923977093,
+        -0.9929553260167386
+      ],
+      "travel_yaw_second_frame": 1.68929671975298
+    },
+    {
+      "local_seconds": [
+        16,
+        17
+      ],
+      "usable": true,
+      "matches": 113,
+      "cheirality_inliers": 100,
+      "rotation_degrees": 1.761,
+      "median_pixel_displacement": 27.286,
+      "translation_camera2_from_camera1": [
+        -0.12153154260842677,
+        0.026092997530641617,
+        -0.9922445462843734
+      ],
+      "travel_yaw_second_frame": 1.4489219072706856
+    },
+    {
+      "local_seconds": [
+        17,
+        18
+      ],
+      "usable": true,
+      "matches": 94,
+      "cheirality_inliers": 73,
+      "rotation_degrees": 0.193,
+      "median_pixel_displacement": 25.52,
+      "translation_camera2_from_camera1": [
+        0.07506578593758244,
+        0.016687566175731538,
+        -0.9970389425276747
+      ],
+      "travel_yaw_second_frame": 1.6459432735139723
+    },
+    {
+      "local_seconds": [
+        18,
+        19
+      ],
+      "usable": true,
+      "matches": 47,
+      "cheirality_inliers": 36,
+      "rotation_degrees": 0.19,
+      "median_pixel_displacement": 21.381,
+      "translation_camera2_from_camera1": [
+        0.03359129531618117,
+        -0.05023820940842558,
+        -0.9981722031765943
+      ],
+      "travel_yaw_second_frame": 1.6044364371667652
+    },
+    {
+      "local_seconds": [
+        19,
+        20
+      ],
+      "usable": true,
+      "matches": 47,
+      "cheirality_inliers": 36,
+      "rotation_degrees": 0.414,
+      "median_pixel_displacement": 20.14,
+      "translation_camera2_from_camera1": [
+        0.1168114088276879,
+        -0.015011156570219146,
+        -0.9930406637928354
+      ],
+      "travel_yaw_second_frame": 1.6878882806962063
+    },
+    {
+      "local_seconds": [
+        20,
+        21
+      ],
+      "usable": true,
+      "matches": 96,
+      "cheirality_inliers": 77,
+      "rotation_degrees": 0.258,
+      "median_pixel_displacement": 20.377,
+      "translation_camera2_from_camera1": [
+        0.12789747432547466,
+        0.04324470785334621,
+        -0.9908441508652324
+      ],
+      "travel_yaw_second_frame": 1.6991658306367057
+    },
+    {
+      "local_seconds": [
+        21,
+        22
+      ],
+      "usable": true,
+      "matches": 109,
+      "cheirality_inliers": 98,
+      "rotation_degrees": 0.481,
+      "median_pixel_displacement": 21.733,
+      "translation_camera2_from_camera1": [
+        0.044129258653420156,
+        -0.009976418262742703,
+        -0.9989760155325785
+      ],
+      "travel_yaw_second_frame": 1.614942119212389
+    },
+    {
+      "local_seconds": [
+        22,
+        23
+      ],
+      "usable": true,
+      "matches": 141,
+      "cheirality_inliers": 121,
+      "rotation_degrees": 0.399,
+      "median_pixel_displacement": 15.861,
+      "translation_camera2_from_camera1": [
+        0.06940339332600422,
+        -0.00022938190457280145,
+        -0.9975886508871167
+      ],
+      "travel_yaw_second_frame": 1.6402555604729887
+    },
+    {
+      "local_seconds": [
+        23,
+        24
+      ],
+      "usable": true,
+      "matches": 139,
+      "cheirality_inliers": 113,
+      "rotation_degrees": 0.66,
+      "median_pixel_displacement": 15.017,
+      "translation_camera2_from_camera1": [
+        -0.11602005643153537,
+        0.05873027304076293,
+        -0.9915090022456583
+      ],
+      "travel_yaw_second_frame": 1.4543124204476399
+    },
+    {
+      "local_seconds": [
+        24,
+        25
+      ],
+      "usable": true,
+      "matches": 114,
+      "cheirality_inliers": 89,
+      "rotation_degrees": 0.201,
+      "median_pixel_displacement": 11.598,
+      "translation_camera2_from_camera1": [
+        0.11219974772663904,
+        -0.06331598652892682,
+        -0.9916664270105888
+      ],
+      "travel_yaw_second_frame": 1.683459842289511
+    },
+    {
+      "local_seconds": [
+        25,
+        26
+      ],
+      "usable": true,
+      "matches": 116,
+      "cheirality_inliers": 104,
+      "rotation_degrees": 0.529,
+      "median_pixel_displacement": 8.822,
+      "translation_camera2_from_camera1": [
+        0.03886387945012817,
+        -0.019505854376015683,
+        -0.9990541129083788
+      ],
+      "travel_yaw_second_frame": 1.6096773973771967
+    },
+    {
+      "local_seconds": [
+        26,
+        27
+      ],
+      "usable": true,
+      "matches": 93,
+      "cheirality_inliers": 85,
+      "rotation_degrees": 0.658,
+      "median_pixel_displacement": 4.29,
+      "translation_camera2_from_camera1": [
+        0.14818029062034754,
+        0.03687770444880524,
+        -0.9882725516709729
+      ],
+      "travel_yaw_second_frame": 1.7196263118566504
+    },
+    {
+      "local_seconds": [
+        27,
+        28
+      ],
+      "usable": true,
+      "matches": 114,
+      "cheirality_inliers": 103,
+      "rotation_degrees": 0.949,
+      "median_pixel_displacement": 6.985,
+      "translation_camera2_from_camera1": [
+        0.09360357298693336,
+        -0.03193579012790709,
+        -0.995097219588612
+      ],
+      "travel_yaw_second_frame": 1.6645851083552465
+    },
+    {
+      "local_seconds": [
+        28,
+        29
+      ],
+      "usable": true,
+      "matches": 179,
+      "cheirality_inliers": 164,
+      "rotation_degrees": 0.162,
+      "median_pixel_displacement": 12.681,
+      "translation_camera2_from_camera1": [
+        0.13714408351825808,
+        0.016570564016599513,
+        -0.990412498287511
+      ],
+      "travel_yaw_second_frame": 1.7083930149960997
+    },
+    {
+      "local_seconds": [
+        29,
+        30
+      ],
+      "usable": true,
+      "matches": 178,
+      "cheirality_inliers": 154,
+      "rotation_degrees": 1.371,
+      "median_pixel_displacement": 16.537,
+      "translation_camera2_from_camera1": [
+        -0.23009499811089087,
+        -0.18874874300916056,
+        -0.9546885376167512
+      ],
+      "travel_yaw_second_frame": 1.3342911144684115
+    },
+    {
+      "local_seconds": [
+        30,
+        31
+      ],
+      "usable": true,
+      "matches": 204,
+      "cheirality_inliers": 166,
+      "rotation_degrees": 0.864,
+      "median_pixel_displacement": 14.382,
+      "translation_camera2_from_camera1": [
+        0.23414063982718533,
+        0.10649915937741683,
+        -0.9663519492572156
+      ],
+      "travel_yaw_second_frame": 1.8085086126341592
+    },
+    {
+      "local_seconds": [
+        31,
+        32
+      ],
+      "usable": true,
+      "matches": 186,
+      "cheirality_inliers": 171,
+      "rotation_degrees": 0.368,
+      "median_pixel_displacement": 14.763,
+      "translation_camera2_from_camera1": [
+        -0.13895701842927152,
+        -0.019301984992383895,
+        -0.9901102869905962
+      ],
+      "travel_yaw_second_frame": 1.431362043071673
+    },
+    {
+      "local_seconds": [
+        32,
+        33
+      ],
+      "usable": true,
+      "matches": 216,
+      "cheirality_inliers": 196,
+      "rotation_degrees": 0.24,
+      "median_pixel_displacement": 17.257,
+      "translation_camera2_from_camera1": [
+        -0.005932873904755704,
+        -0.0066611755866767255,
+        -0.9999602140820572
+      ],
+      "travel_yaw_second_frame": 1.5648632864531489
+    },
+    {
+      "local_seconds": [
+        33,
+        34
+      ],
+      "usable": true,
+      "matches": 275,
+      "cheirality_inliers": 256,
+      "rotation_degrees": 0.883,
+      "median_pixel_displacement": 14.165,
+      "translation_camera2_from_camera1": [
+        0.07835474978572754,
+        0.06333078692482709,
+        -0.9949119280687604
+      ],
+      "travel_yaw_second_frame": 1.64938956841766
+    }
+  ],
+  "rendered_picture_checked": false,
+  "independent_advisor_approved": false,
+  "iphone_safari_checked": false,
+  "limits": [
+    "Moving objects may contaminate estimates",
+    "No metric or geographic join is established",
+    "Direction inferences require consecutive rendered-picture inspection"
+  ]
+}
