@@ -1,0 +1,46 @@
+{
+  "candidate": "w49",
+  "delivery_approved": false,
+  "runtime_changed_live": false,
+  "runtime_changed_test_index": false,
+  "phone_failure_version": "w42",
+  "source_investigation": {
+    "r2_timeline_segment": [
+      1104,
+      1108
+    ],
+    "phone_location": "probable match near Japanese Covered Bridge; exact video time not yet established",
+    "pixel_projection_best_match": {
+      "position": 1104,
+      "u": 0.025,
+      "pitch": 0,
+      "matches": 24,
+      "homography_inliers": 15,
+      "source": "pixel reprojection, not browser or phone acceptance"
+    },
+    "heading_radians_at_1104": 0.0541,
+    "interpretation": "Phone view appears to point along the street behind the recorded travel direction. Fifteen RANSAC homography inliers support a local scene match, but neither exact heading calibration nor camera translation is yet independently verified. No gate removal authorized by this inference."
+  },
+  "candidate_changes": [
+    "Explain estimated recorded direction instead of vague face-along-route instruction",
+    "Explicit Face recorded path button rotates only view after user taps; stops stick/key input and never seeks, reverses or auto-starts playback",
+    "Record capped direction-failure telemetry in memory for exact-player review"
+  ],
+  "acceptance": {
+    "syntax": true,
+    "direction_math_checks": true,
+    "rendered_browser": false,
+    "independent_exact_player_advisor": false,
+    "real_iphone_safari": false,
+    "continuous_backward_sideways": false
+  },
+  "next_checks": [
+    "Verify recorded camera translation using consecutive actual source frames near1104",
+    "Visually check w49 controls, text and button on exact player; no browser acceptance available in this environment",
+    "Require independent review and real iPhone acceptance before final delivery"
+  ],
+  "source_hashes": {
+    "hoian-review/walk-w42.js": "b19b196c0884c6753129aa953bead3ed4470c27bdfcfe7c7ea4098599a4346f4",
+    "hoian-review/heading_foe.json": "a4093ec9a494a825372867f553f0a9556e6bf0baab7d9afe51f7a4a6723b2a8c"
+  }
+}
