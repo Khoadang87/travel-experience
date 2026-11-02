@@ -1,0 +1,31 @@
+{
+  "version": "w62",
+  "base": "w61",
+  "source_hashes": {
+    "route-trial-w62.html": "1073f9cb336d0cc1bc37df04db87bc3c22d2f67ea469d0f6bd46b4ad49460880",
+    "route-w62.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523",
+    "walk-w62.js": "4364f19d9299c9a160c10f23cb31da4b018b9a01633fac119d1c8d19286cc229",
+    "navigation-w62.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "source-session-w62.mjs": "15ac3d0d36b58f60fe2bbc3a9f56159617f9667f571a4ddac2de41948c1230b8",
+    "route-network-w62.json": "3be3fbc0104089b21fc948b51072d32d4db86ad168c5230092779abd2189f839",
+    "heading-return-w62.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11",
+    "software-360-w62.mjs": "5c78b05bdabcf17449de6168f51d3160f1488c69b7d590877d18127ee35a18f0"
+  },
+  "candidate_source_sha256": "e7fae913f391fa3fdf58ccf1f8ea6fb4ae6cc2344a85bec0130e4afe3f573ad4",
+  "change": "Reuse actual projected video picture only while decoded time, source object, view and output size remain unchanged; keep animation/control tick active. Do not draw pending seeks.",
+  "checks": {
+    "tests_passed": 22,
+    "updated_paused_picture_test_passed": true,
+    "syntax_passed": true,
+    "actual_browser_checked": false,
+    "real_iphone_checked": false,
+    "independent_advisor_approved": false
+  },
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "limits": [
+    "Unit draw-call verification is not measured browser responsiveness/fps",
+    "640 output sampling and source/route/heading limitations unchanged fromw61",
+    "No addedcapturedcoverage or professionalqualitypass"
+  ]
+}
