@@ -2,9 +2,9 @@
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
-<script>/* stale guard: if ver.txt (never cached) says a newer build, hard-reload with a unique param */(function(){var V='w42g';fetch('ver.txt?'+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(v){v=v.trim();if(/^w\d+[a-z]?$/.test(v)&&v!==V){var u=new URL(location.href);if(u.searchParams.get('_v')!==v){u.searchParams.set('_v',v);location.replace(u)}}}).catch(function(){})})();</script>
+<script>/* stale guard: if ver.txt (never cached) says a newer build, hard-reload with a unique param */(function(){var V='w42';fetch('ver.txt?'+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(v){v=v.trim();if(/^w\d+[a-z]?$/.test(v)&&v!==V){var u=new URL(location.href);if(u.searchParams.get('_v')!==v){u.searchParams.set('_v',v);location.replace(u)}}}).catch(function(){})})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Hội An 360° walk (test w42g)</title><link rel="icon" href="data:,">
+<title>Hội An 360° walk (test w42)</title><link rel="icon" href="data:,">
 <script type="importmap">{"imports":{"three":"../vendor/three.module.js"}}</script>
 <style>[hidden]{display:none!important}
 html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font:14px -apple-system,system-ui,sans-serif;touch-action:none;-webkit-user-select:none;user-select:none}
@@ -22,7 +22,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font:1
 #error{position:fixed;left:10%;right:10%;top:40%;background:#600;padding:12px;border-radius:8px}
 #explore{position:fixed;left:10px;right:10px;top:60px;background:rgba(20,20,20,.95);padding:14px;border-radius:12px}#explore input{width:100%}
 
-/* w42g: keep messages away from touch controls; details live inside Explore. */
+/* w42: keep messages away from touch controls; details live inside Explore. */
 #app canvas{height:100dvh}
 #minimap{width:96px;height:96px}
 #status{top:calc(env(safe-area-inset-top) + 116px);bottom:auto;left:12px;right:12px;transform:none;max-width:none;max-height:64px;overflow:auto;font-size:13px;line-height:1.35;pointer-events:none;z-index:12}
@@ -51,5 +51,5 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font:1
 <section id="explore" hidden><b>Explore</b><p>Choose a point on the walk (or tap the mini-map).</p><input id="pos" type="range" step="1"><p><button id="go" type="button">Go here</button> <button id="explore-close" type="button">Close</button></p><details><summary>Controls and limitations</summary><p>Push up to walk along the recorded path. Sideways turns the view. Drag the picture to look around. Release to stop.</p><p>Pull back once to jump five seconds earlier. Release before another jump. This is a jump between recorded points, not continuous backward walking. At the start of a route, there is no earlier point.</p></details><p><a href="bridge-edit-w40.html">Review bridge edit</a></p></section>
 <div id="credit">TEST build. Non-commercial. 360° footage by <a href="https://www.youtube.com/watch?v=CErfnBokWYM" target="_blank" rel="noopener">360 Japan Tours</a>; riverside by <a href="https://www.youtube.com/watch?v=C26CAyJkt4g" target="_blank" rel="noopener">HenkWalks</a></div>
 <script src="../vendor/hls.min.js"></script>
-<script type="module" src="walk-w42g.js"></script>
+<script type="module" src="walk-w42.js"></script>
 </body></html>
