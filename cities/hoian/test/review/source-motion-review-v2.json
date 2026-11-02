@@ -1,0 +1,135 @@
+{
+  "actual_segment_start": 1102.0,
+  "source_sha256": "14215f6200cd32e4c37b4c05fd5fc1238d38be26624a29d517f08e44dbe94562",
+  "method": "calibrated perspective reprojection, masked SIFT, essential-matrix RANSAC and cheirality",
+  "results": [
+    {
+      "view": "estimated_forward",
+      "u": 0.5,
+      "forward_timeline": [
+        1102.2,
+        1103.2
+      ],
+      "usable": true,
+      "matches": 157,
+      "essential_inliers": 130,
+      "cheirality_inliers": 122,
+      "median_pixel_displacement": 1.875,
+      "rotation_degrees": 0.757,
+      "translation_camera2_from_camera1": [
+        -0.12430292525852256,
+        -0.12384775006386702,
+        -0.9844848996182175
+      ],
+      "interpretation": "t_z positive suggests camera moved away from this view; negative suggests toward. Direction is relative, no metric scale."
+    },
+    {
+      "view": "estimated_forward",
+      "u": 0.5,
+      "forward_timeline": [
+        1103.2,
+        1104.2
+      ],
+      "usable": true,
+      "matches": 122,
+      "essential_inliers": 101,
+      "cheirality_inliers": 62,
+      "median_pixel_displacement": 11.929,
+      "rotation_degrees": 1.27,
+      "translation_camera2_from_camera1": [
+        -0.19541419833514043,
+        -0.0073572690865679365,
+        -0.9806932046673018
+      ],
+      "interpretation": "t_z positive suggests camera moved away from this view; negative suggests toward. Direction is relative, no metric scale."
+    },
+    {
+      "view": "estimated_forward",
+      "u": 0.5,
+      "forward_timeline": [
+        1102.2,
+        1104.2
+      ],
+      "usable": true,
+      "matches": 63,
+      "essential_inliers": 50,
+      "cheirality_inliers": 49,
+      "median_pixel_displacement": 11.538,
+      "rotation_degrees": 14.197,
+      "translation_camera2_from_camera1": [
+        -0.7880303796628202,
+        -0.06553382805837552,
+        -0.6121384141748392
+      ],
+      "interpretation": "t_z positive suggests camera moved away from this view; negative suggests toward. Direction is relative, no metric scale."
+    },
+    {
+      "view": "phone_street_candidate",
+      "u": 0.05,
+      "forward_timeline": [
+        1102.2,
+        1103.2
+      ],
+      "usable": true,
+      "matches": 123,
+      "essential_inliers": 110,
+      "cheirality_inliers": 109,
+      "median_pixel_displacement": 49.674,
+      "rotation_degrees": 1.239,
+      "translation_camera2_from_camera1": [
+        -0.19266004914220483,
+        -0.035260824536885484,
+        0.9806318267920444
+      ],
+      "interpretation": "t_z positive suggests camera moved away from this view; negative suggests toward. Direction is relative, no metric scale."
+    },
+    {
+      "view": "phone_street_candidate",
+      "u": 0.05,
+      "forward_timeline": [
+        1103.2,
+        1104.2
+      ],
+      "usable": true,
+      "matches": 98,
+      "essential_inliers": 81,
+      "cheirality_inliers": 81,
+      "median_pixel_displacement": 42.432,
+      "rotation_degrees": 4.856,
+      "translation_camera2_from_camera1": [
+        -0.3165756289346651,
+        -0.011924411392752661,
+        0.9484923191979773
+      ],
+      "interpretation": "t_z positive suggests camera moved away from this view; negative suggests toward. Direction is relative, no metric scale."
+    },
+    {
+      "view": "phone_street_candidate",
+      "u": 0.05,
+      "forward_timeline": [
+        1102.2,
+        1104.2
+      ],
+      "usable": false,
+      "matches": 22,
+      "essential_inliers": 16,
+      "cheirality_inliers": 16,
+      "median_pixel_displacement": 108.428,
+      "rotation_degrees": 5.747,
+      "translation_camera2_from_camera1": [
+        -0.225787196145816,
+        -0.0436574466984368,
+        0.9731979086518754
+      ],
+      "interpretation": "t_z positive suggests camera moved away from this view; negative suggests toward. Direction is relative, no metric scale."
+    }
+  ],
+  "independent_advisor_approved": false,
+  "iphone_accepted": false,
+  "limits": [
+    "Moving people and foliage can contaminate motion estimates",
+    "No camera translation magnitude or geographic route continuity is established",
+    "Exact phone timestamp and view yaw are not recovered",
+    "This provides no newly captured backward or sideways route"
+  ]
+}
