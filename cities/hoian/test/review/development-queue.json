@@ -38,6 +38,11 @@
       "id": "iphone-acceptance",
       "status": "blocked",
       "requires": "Actual real iPhone Safari evidence for exact current candidate."
+    },
+    {
+      "id": "native-return-media-decode",
+      "status": "completed",
+      "evidence": "w58 actual CUA video:2160x1080,duration35.08,readyState4,playback and two seeks5/20,CORS pixelreads successful. Media-only, not w57 player or phone acceptance."
     }
   ],
   "run_rules": [
@@ -57,5 +62,6 @@
       "What remains blocked"
     ],
     "deliverable_gate": "Final/preview delivery still requires exact-player advisor and real iPhone evidence; progress reports are now explicitly requested."
-  }
+  },
+  "last_verified_progress": "Return media compatibility observed in Chrome native video; virtual-walk and real-device acceptance remain blocked."
 }

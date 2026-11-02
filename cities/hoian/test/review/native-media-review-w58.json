@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-02",
+  "artifact_kind": "media_diagnostic_only",
+  "diagnostic_version": "w58",
+  "diagnostic_commit": "38e02dd87090b4dd942533230fef87df9cb4587d",
+  "player_candidate_unchanged": "w57",
+  "asset_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+  "observations": [
+    {
+      "action": "Play via actual page button",
+      "event": "playing",
+      "time": 0.135606,
+      "duration": 35.08,
+      "readyState": 4,
+      "width": 2160,
+      "height": 1080,
+      "paused": false,
+      "error": null
+    },
+    {
+      "action": "Seek via actual button to5 then check decoded pixels",
+      "event": "canplay",
+      "time": 5,
+      "readyState": 4,
+      "paused": true,
+      "seeking": false,
+      "pixel_readable": true,
+      "mean_rgb": 142.478515625
+    },
+    {
+      "action": "Seek via actual button to20 then check decoded pixels",
+      "event": "canplay",
+      "time": 20,
+      "readyState": 4,
+      "paused": true,
+      "seeking": false,
+      "pixel_readable": true,
+      "mean_rgb": 140.94791666666666
+    },
+    {
+      "action": "Play from20 then pause via actual buttons",
+      "playing_time": 20.050932,
+      "paused_time": 25.403415,
+      "readyState": 4,
+      "error": null
+    }
+  ],
+  "picture_inspection": "Actual CUA screenshots at the seek points showed real yellow buildings, street, pedestrians and lanterns in the raw panorama. This is not perspective360 rendering or spatial walking.",
+  "conclusions": {
+    "chrome_native_mp4_decode_observed": true,
+    "chrome_seek_to_two_points_observed": true,
+    "cross_origin_canvas_read_observed": true,
+    "chrome_raw_media_mime_did_not_block_this_test": true,
+    "full_clip_smoothness_or_professional_quality_verified": false,
+    "player_movement_verified": false,
+    "webgl_rendering_verified": false,
+    "iphone_safari_verified": false,
+    "independent_player_advisor_approved": false,
+    "delivery_approved": false
+  },
+  "limits": [
+    "Raw panorama diagnostic is not a substitute virtual-walk experience",
+    "Seeks here test decoder access, not spatial movement",
+    "No scenery/joystick/junction acceptance follows from native media tests",
+    "Cloud WebGL remains disabled; no flags or security controls changed",
+    "Real iPhone evidence and broad captured coverage remain missing"
+  ],
+  "preservation": {
+    "live_changed": false,
+    "test_index_or_ver_changed": false,
+    "existing_files_deleted": false,
+    "laptop_accessed": false,
+    "new_paid_resources": false
+  }
+}
