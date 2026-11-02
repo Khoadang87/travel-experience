@@ -1,0 +1,61 @@
+{
+  "version": "w63",
+  "main_commit": "bb47b95b5796c4e50fb454a6312a4c3b7dfd6d14",
+  "source_hashes": {
+    "route-trial-w63.html": "1256b40540f30427a9fbbad07bb1e5282497a26c8644292e3ad6490220220764",
+    "route-w63.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523",
+    "walk-w63.js": "d7dd94a7c75e38d85f1a26c784e902c8a165f5c98e614d2c54f3ca589030be89",
+    "navigation-w63.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "source-session-w63.mjs": "831a5cebe22d0d8ebe5ba1761eb47af242c5c618d8fb14ee3b2f9b6f48519e6d",
+    "route-network-w63.json": "6564bd76857a217d57f4a5419418377d0c8b1f320bdcaa3aef5670e860af8ee3",
+    "heading-return-w63.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11",
+    "software-360-w63.mjs": "5c78b05bdabcf17449de6168f51d3160f1488c69b7d590877d18127ee35a18f0"
+  },
+  "candidate_source_sha256": "4bb40727130f07a66f70bb28151e10e4616a425bd0f5fd318bc26d0ed9ea43eb",
+  "change": "Shared bounded movement handler runs on joystick/key input and animation ticks, reducing reliance on waiting for render tick to start valid user-requested playback. Same captured routes/edit policy and paused-picture cache.",
+  "checks": {
+    "source_tests_passed": 22,
+    "syntax_passed": true,
+    "actual_browser_checked": true,
+    "real_iphone_checked": false,
+    "independent_advisor_approved": false
+  },
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "limits": [
+    "No additionalcapturedmovementcoverage",
+    "No measuredFPS or latencygain",
+    "CPU640longestpicturecoarse; physicaljunctionalignment andrealSafariunapproved"
+  ],
+  "actual_observations": {
+    "environment": "actualcloudChromeCUACPUfallbackonly",
+    "main_short_press": {
+      "input_ms": 500,
+      "before": 1066,
+      "after": 1066.381665,
+      "paused_after_release": true,
+      "readyState": 4
+    },
+    "return_short_press": {
+      "input_ms": 500,
+      "before": 5,
+      "after": 5.478295,
+      "paused_after_release": true,
+      "readyState": 4
+    },
+    "source_selection": "realreturnpicture replacedmainpicture,startedpaused5ready4",
+    "drag": "rightwarddragchangedrealpanoramaview; videoremained5.478295pausedready4",
+    "scope": "successfulboundedinputresponseobservations, not measuredFPS/latencydistributions orrealdeviceperformance",
+    "not_retested": [
+      "both edited junctions onw63",
+      "full136secondroute",
+      "WebGLpath",
+      "phoneSafari",
+      "independentadvisor"
+    ]
+  },
+  "evidence": {
+    "path": "review/evidence/w63/hoian-w63-return-input-drag-20261102.jpg",
+    "sha256": "e9a7b93f6faf9a59bb3992f11c4a90b8a063793ffdce6449fc6f9c86263604f3"
+  }
+}

@@ -17,7 +17,7 @@
     "tests_passed": 22,
     "updated_paused_picture_test_passed": true,
     "syntax_passed": true,
-    "actual_browser_checked": false,
+    "actual_browser_checked": true,
     "real_iphone_checked": false,
     "independent_advisor_approved": false
   },
@@ -27,5 +27,16 @@
     "Unit draw-call verification is not measured browser responsiveness/fps",
     "640 output sampling and source/route/heading limitations unchanged fromw61",
     "No addedcapturedcoverage or professionalqualitypass"
-  ]
+  ],
+  "main_commit": "26659b7208ebf5a18c733a246665a23b80861b37",
+  "rendered_scope": "partial cloud CPU only",
+  "actual_observations": {
+    "main": "realstreetpicturevisible,paused1066ready4",
+    "short_input_main": "500msjoystickpress produced noadvance,still1066pausedready4; responsivenessFAIL/unresolved",
+    "drag": "rightwarddrag visiblychangedviewwhilevideostayed1066paused; cacheinvalidatesview",
+    "source_change": "menuselection changedpicturetorealreturnsource5pausedready4; cacheinvalidatessource",
+    "short_input_return": "500mspress producednoadvance,still5pausedready4; unresolved",
+    "quality": "visiblycoarse, noFPSorresponsivenessimprovementmeasured",
+    "followup": "w63sharesmovementpolicybetweeninputeventsandanimationtick; exactbrowsercheckpending"
+  }
 }
