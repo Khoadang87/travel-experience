@@ -1,0 +1,25 @@
+{
+  "key": "hoian-supervised-bridge-source-1102-v1",
+  "goal": "Supervisor assignment: acquire the exact existing real 360 segment near Japanese Bridge for AI-led motion inspection. The segment starts at forward timeline1102, not1104; a requested probe time is not the first decoded frame timestamp. Keep all output internal. This acquisition does not fix map movement, approve the player, or complete free exploration.",
+  "goal_kind": "internal_source_acquisition",
+  "artifact_kind": "source_video",
+  "operation": "download_parts",
+  "urls": [
+    "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/hls13/main/j4/f2560/init.mp4",
+    "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/hls13/main/j4/f2560/s050.m4s"
+  ],
+  "source_timeline": {
+    "start": 1102,
+    "end": 1106,
+    "requested_probe": 1104
+  },
+  "supervisor_requirements": [
+    "Verify first decoded timestamp against playlist segment start before reporting camera movement",
+    "Use consecutive real source frames to judge whether scenery approaches or recedes",
+    "Do not remove heading gate or synthesize return travel",
+    "Only exact-player independent review and real iPhone evidence can approve map delivery"
+  ],
+  "revisions": [
+    {}
+  ]
+}
