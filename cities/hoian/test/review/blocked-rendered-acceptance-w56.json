@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-02",
+  "candidate_version": "w56",
+  "candidate_commit": "85863a7a561ead83e3e6b2ee2c32a7ad5430e8ff",
+  "candidate_source_sha256": "096a095cdb60c8c77bc054048777b4d742dca737949e0390e163ff5ff6d7dca7",
+  "status": "blocked_at_rendered_acceptance",
+  "approved": false,
+  "phone_testing_ready": false,
+  "verified_partial": [
+    "Versioned two-source player source and exact return test media backed up",
+    "Two disclosed endpoint edit proposals, not unrestricted movement",
+    "Public media HTTP range/CORS and native FFmpeg frame decode verified",
+    "Sixteen injected-adapter/route tests pass; these are not browser evidence"
+  ],
+  "current_environment_blockers": [
+    {
+      "kind": "cloud_browser",
+      "details": "Existing Playwright library has no browser binaries. Official Chromium download returned195-byte SiteUnavailable HTML. A normal apt-get update also failed with setgroups/seteuid permission errors. No sandbox/user/network/TLS overrides were attempted. No browser installed or rendered run performed."
+    },
+    {
+      "kind": "device_acceptance",
+      "details": "No real iPhone Safari evidence for current exact candidate. Owner requested laptop shutdown; laptop and its worker remain untouched."
+    },
+    {
+      "kind": "captured_coverage",
+      "details": "Current candidate supplies a short opposing street-route trial with endpoint edits. Genuine sideways movement, matched midstreet return and broad15-minute free-roaming captured coverage are not implemented."
+    },
+    {
+      "kind": "independent_review",
+      "details": "No independent exact-player approval exists. Earlier video-assembly review does not approve this candidate."
+    }
+  ],
+  "resumption_requirements": [
+    "An authorized usable browser environment for rendered exact-player inspection",
+    "Real iPhone Safari movement/control evidence against exact source/media hashes",
+    "Additional genuinely captured and spatially matched coverage to fulfill broad all-direction scope"
+  ],
+  "live_changed": false,
+  "test_index_version_changed": false,
+  "files_deleted": false,
+  "new_paid_resources": false,
+  "laptop_accessed": false
+}
