@@ -1,0 +1,46 @@
+{
+  "results": [
+    {
+      "main_times": [
+        1066.2,
+        1067.2
+      ],
+      "estimated_heading_yaw": 1.470576326794898,
+      "u": 0.5159505083966696,
+      "usable": true,
+      "matches": 149,
+      "essential_inliers": 127,
+      "cheirality_inliers": 123,
+      "median_pixel_displacement": 35.862,
+      "rotation_degrees": 3.272,
+      "translation_camera2_from_camera1": [
+        0.31228545164434696,
+        0.022142776405201018,
+        -0.9497302217705592
+      ],
+      "interpretation": "t_z positive suggests camera moved away from this view; negative suggests toward. Direction is relative, no metric scale."
+    },
+    {
+      "main_times": [
+        1067.2,
+        1068.2
+      ],
+      "estimated_heading_yaw": 1.4974763267948974,
+      "u": 0.5116692404274976,
+      "usable": true,
+      "matches": 78,
+      "essential_inliers": 56,
+      "cheirality_inliers": 52,
+      "median_pixel_displacement": 55.095,
+      "rotation_degrees": 4.152,
+      "translation_camera2_from_camera1": [
+        -0.011829074649353842,
+        -0.035482860200491996,
+        -0.9993002750049318
+      ],
+      "interpretation": "t_z positive suggests camera moved away from this view; negative suggests toward. Direction is relative, no metric scale."
+    }
+  ],
+  "rendered_or_phone_evidence": false,
+  "heading_correction_approved": false
+}

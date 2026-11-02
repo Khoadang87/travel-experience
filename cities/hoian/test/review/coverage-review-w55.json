@@ -1,0 +1,36 @@
+{
+  "first_segment_start": 1058,
+  "last_segment_end": 1102,
+  "segments": [
+    "s039.m4s",
+    "s040.m4s",
+    "s041.m4s",
+    "s042.m4s",
+    "s043.m4s",
+    "s044.m4s",
+    "s045.m4s",
+    "s046.m4s",
+    "s047.m4s",
+    "s048.m4s",
+    "s049.m4s"
+  ],
+  "decode_exit_code": 0,
+  "source_sha256": "163064223fa8719ffb07079a809beec36f5b2ce406aa3accb1c9e89cccb8336d",
+  "same_initialization_as_bridge_route": true,
+  "spatial_junction_alignment_verified": false,
+  "rendered_player_accepted": false,
+  "iphone_accepted": false,
+  "decoded_picture_samples_checked": [
+    1058,
+    1069,
+    1080,
+    1091,
+    1101
+  ],
+  "observations": [
+    "Gate frontage, adjoining yellow corner, middle street, bougainvillea shop and169corner occur in chronological main footage",
+    "Same assembly gate and opposing yellow corner are present in Henk source729; supports same junction identity, not identical camera position"
+  ],
+  "timing_correction": "Prior probe-1061 first decoded frame is timeline1058, not1061",
+  "independent_approval": false
+}

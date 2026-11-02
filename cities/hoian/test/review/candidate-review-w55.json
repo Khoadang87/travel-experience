@@ -1,0 +1,118 @@
+{
+  "version": "w55",
+  "artifact_kind": "hoian_interactive_player",
+  "candidate_source_sha256": "e30c40aa1db5c7e011946ff9251017178ebe5aa014bf7605437b50281abaa73d",
+  "source_hashes": {
+    "route-trial-w55.html": "cf5b478da3cfb5f850ab9014f24d5372488b9b3c4f01cbd73ed2150173c4ad4f",
+    "route-w55.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523",
+    "walk-w55.js": "57547b396ae0cdd09ff16ac58bf20874d292f95444c16f451d9ada6e1419b2c8",
+    "navigation-w55.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "source-session-w55.mjs": "29972a3df833fb8041bd3969fb07e220b21bbb9f33a07fa70245f5ee72e6d065",
+    "route-network-w55.json": "6a6d317e83bb3a3aff4c9b3b1c82afd9856bfb7adb1f0dc0daf9ff5669eca90e",
+    "heading-return-w55.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11"
+  },
+  "scope": "Two opposing recorded street traversals with two explicitly confirmed source edits; no sideways route or broad15minutearea",
+  "media": {
+    "return_file": "assets/henk-return-w54.mp4",
+    "return_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+    "return_backed_up_on_review_branch": true,
+    "http_playback_verified": false
+  },
+  "new_main_span": {
+    "first_segment_start": 1058,
+    "last_segment_end": 1102,
+    "segments": [
+      "s039.m4s",
+      "s040.m4s",
+      "s041.m4s",
+      "s042.m4s",
+      "s043.m4s",
+      "s044.m4s",
+      "s045.m4s",
+      "s046.m4s",
+      "s047.m4s",
+      "s048.m4s",
+      "s049.m4s"
+    ],
+    "decode_exit_code": 0,
+    "source_sha256": "163064223fa8719ffb07079a809beec36f5b2ce406aa3accb1c9e89cccb8336d",
+    "same_initialization_as_bridge_route": true,
+    "spatial_junction_alignment_verified": false,
+    "rendered_player_accepted": false,
+    "iphone_accepted": false,
+    "decoded_picture_samples_checked": [
+      1058,
+      1069,
+      1080,
+      1091,
+      1101
+    ],
+    "observations": [
+      "Gate frontage, adjoining yellow corner, middle street, bougainvillea shop and169corner occur in chronological main footage",
+      "Same assembly gate and opposing yellow corner are present in Henk source729; supports same junction identity, not identical camera position"
+    ],
+    "timing_correction": "Prior probe-1061 first decoded frame is timeline1058, not1061",
+    "independent_approval": false
+  },
+  "junctions": [
+    {
+      "id": "bridge_street_edit",
+      "from": "bridge_bound",
+      "window": [
+        1102,
+        1106
+      ],
+      "to": "street_bound",
+      "to_time": 5,
+      "kind": "disclosed_edit",
+      "spatial_alignment_verified": false,
+      "notice": "This is an edited change to real footage filmed on another day near the same junction. Lighting and camera position differ; it is not a continuous step. The exact junction alignment is still under review."
+    },
+    {
+      "id": "assembly_gate_edit",
+      "from": "street_bound",
+      "window": [
+        31,
+        35
+      ],
+      "to": "bridge_bound",
+      "to_time": 1066.2,
+      "kind": "disclosed_edit",
+      "spatial_alignment_verified": false,
+      "notice": "This changes to footage filmed on another day near the Qu\u1ea3ng Tri\u1ec7u assembly-hall gate. Camera position, lighting and crowds differ. It is an edited change, not a continuous step; exact alignment is still under review."
+    }
+  ],
+  "checks": {
+    "route_session_tests_passed": 14,
+    "syntax_passed": true,
+    "rendered_browser": false,
+    "real_iphone_safari": false,
+    "independent_exact_player_review": false
+  },
+  "prior_phone_failure_unresolved": "iphone-w42-forward-blocked-001.json",
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "main_test_index_changed": false,
+  "live_changed": false,
+  "laptop_accessed": false,
+  "limits": [
+    "No installed browser executable or browser control tool was available; existing Playwright library alone cannot run a browser",
+    "Physical camera joins and view directions remain unverified in rendered player",
+    "Source pictures and decoded video do not constitute rendered player or real iPhone evidence",
+    "Two disclosed edits do not establish all-direction movement"
+  ],
+  "selected_main_span": [
+    1066,
+    1202
+  ],
+  "entry_selection": {
+    "rejected_initial_target": 1058.2,
+    "reason": "Two geometry checks fail usable thresholds during24\u201330degree camera rotations; do not count as direction proof",
+    "selected_target": 1066.2,
+    "repeated_geometry_inliers": [
+      123,
+      52
+    ],
+    "limits": "Supports motion into estimated view near entry; no metric join, rendered player or phone proof"
+  }
+}
