@@ -1,0 +1,26 @@
+[
+  {
+    "level": "info",
+    "message": "Hoian software picture {\"version\":\"w64\",\"width\":960,\"height\":659,\"sourceWidth\":2048,\"renderSamples\":10,\"medianRenderMs\":126.79999999701977,\"maxRenderMs\":133.60000000149012}",
+    "timestamp": "2026-11-02T23:37:36.734Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/software-360-w64.mjs"
+  },
+  {
+    "level": "info",
+    "message": "Hoian software picture {\"version\":\"w64\",\"width\":960,\"height\":659,\"sourceWidth\":2048,\"renderSamples\":12,\"medianRenderMs\":108,\"maxRenderMs\":133.60000000149012}",
+    "timestamp": "2026-11-02T23:37:38.805Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/software-360-w64.mjs"
+  },
+  {
+    "level": "info",
+    "message": "Hoian software picture {\"version\":\"w64\",\"width\":960,\"height\":659,\"sourceWidth\":2048,\"renderSamples\":14,\"medianRenderMs\":106.39999999850988,\"maxRenderMs\":133.60000000149012}",
+    "timestamp": "2026-11-02T23:37:40.823Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/software-360-w64.mjs"
+  },
+  {
+    "level": "info",
+    "message": "Hoian software picture {\"version\":\"w64\",\"width\":960,\"height\":659,\"sourceWidth\":2048,\"renderSamples\":16,\"medianRenderMs\":106.39999999850988,\"maxRenderMs\":133.60000000149012}",
+    "timestamp": "2026-11-02T23:37:42.838Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/software-360-w64.mjs"
+  }
+]

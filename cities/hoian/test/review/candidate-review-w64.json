@@ -1,0 +1,41 @@
+{
+  "version": "w64",
+  "main_commit": "058f9aa738f63b0a0b7591a8e0f14f152e79195b",
+  "source_hashes": {
+    "route-trial-w64.html": "14c0fc459e472f7758233f436e13b6fc52b00fd48ccffd283338bbc085ce8e3f",
+    "route-w64.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523",
+    "walk-w64.js": "4c009a96d55f4a6c51d8b73c2954b8647d99a605cf8f0cacdb9788180065d4fa",
+    "navigation-w64.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "source-session-w64.mjs": "c8d551cc8617124cd4df9020dac7ea8d16d14f4be5ac6aa08da009a567db8033",
+    "route-network-w64.json": "31eaa7c56eadd17099d40d00d7ff4f7bc43646bf3070eaef566a067ffd3bfa55",
+    "heading-return-w64.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11",
+    "software-360-w64.mjs": "82ff2368c95f2cfcf9562d5eb0f8e58509280abbce0396f4adf3400cba692bd4"
+  },
+  "candidate_source_sha256": "e9e29a53eec670b756a7bf28dc33fe1c1e451c21cde8ceca083ac16318477b8e",
+  "source_sample": [
+    2048,
+    1024
+  ],
+  "max_output_side": 960,
+  "change": "Actualvideo bilinear sampling andcachednormalizedrays; cacheinvalidatesdecodedframe/resolution; outputcapbounded after measuredcost",
+  "checks": {
+    "source_tests_passed": 23,
+    "actual_browser_checked": true,
+    "real_iphone_checked": false,
+    "independent_advisor_approved": false
+  },
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "actual_observations": {
+    "baseline_comparison": "Actualcloudw63andw64pausedmain1066,ready4,decoded2560x1280,matchingview. W64visiblylessblocky/morefinedetail, notprofessionalqualityapproval",
+    "short_press": "500msmain1066->1066.379719pausedready4",
+    "longer_playback": "main1069.525754pausedafter3secandfurther10secwalkchecked",
+    "render_cost_samples": "actualconsolemedian126.8msat10samples,108msat12samples,106.4msat14/16samples;max133.6ms. Costexceeds100msbudget. Notactualfpsorend-to-endlatency",
+    "metrics_file": "hoian-w64-projection-cost-20261102.json",
+    "not_checked": [
+      "w64return/junctions",
+      "realphone",
+      "strictadvisor"
+    ]
+  }
+}
