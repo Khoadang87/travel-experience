@@ -1,0 +1,42 @@
+{
+  "results": [
+    {
+      "source_seconds": [
+        700,
+        701
+      ],
+      "usable": true,
+      "matches": 202,
+      "essential_inliers": 185,
+      "cheirality_inliers": 185,
+      "median_pixel_displacement": 30.06,
+      "rotation_degrees": 3.28,
+      "translation_camera2_from_camera1": [
+        0.19731670689531589,
+        0.028419004664582415,
+        -0.9799277919080885
+      ],
+      "interpretation": "t_z positive suggests camera moved away from this view; negative suggests toward. Direction is relative, no metric scale."
+    },
+    {
+      "source_seconds": [
+        701,
+        702
+      ],
+      "usable": true,
+      "matches": 178,
+      "essential_inliers": 145,
+      "cheirality_inliers": 141,
+      "median_pixel_displacement": 20.845,
+      "rotation_degrees": 1.611,
+      "translation_camera2_from_camera1": [
+        0.15918574102715202,
+        -0.026087916121050752,
+        -0.9869039064093816
+      ],
+      "interpretation": "t_z positive suggests camera moved away from this view; negative suggests toward. Direction is relative, no metric scale."
+    }
+  ],
+  "direction_relative_to_main_requires_landmark_review": true,
+  "player_accepted": false
+}

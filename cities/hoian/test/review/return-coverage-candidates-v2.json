@@ -1,0 +1,54 @@
+{
+  "purpose": "Investigate genuine return or side travel, not merely add similar scenery",
+  "candidates": [
+    {
+      "url": "https://deovr.com/glcyf0",
+      "creator": "HenkWalks",
+      "relationship": "Same filming and chapters as existing YouTube C26CAyJkt4g; alternate hosting, not a new walk",
+      "candidate_interval": [
+        562,
+        577
+      ],
+      "reason": "Creator chapter: Old Town from Japanese Bridge to Tour Boats; orientation and street match need decoded-picture verification",
+      "accepted": false
+    },
+    {
+      "url": "https://deovr.com/9h7843",
+      "creator": "VRoamWithMe",
+      "rejected_for_movement": true,
+      "reason": "Creator explicitly describes six static scenes; not continuous walking"
+    },
+    {
+      "url": "https://deovr.com/jlizib",
+      "creator": "VRoamWithMe",
+      "reason": "Creator describes three assembly-hall scenes; no verified street movement or return path",
+      "accepted": false
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=oIwNaMAb1-E",
+      "creator": "Vietnam Tourism Board",
+      "rejected_for_movement": true,
+      "reason": "Creator describes a panoramic bridge view rather than walkable captured return travel"
+    }
+  ],
+  "current_player_acceptance": false,
+  "live_modified": false,
+  "retrieval_progress": {
+    "henk_sample_seconds": [
+      562,
+      577
+    ],
+    "duration_decoded": 15,
+    "first_frame_black": true,
+    "scout_frames_decoded": [
+      190,
+      1228,
+      1260,
+      1320
+    ],
+    "matching_result": "No accepted physical junction. Best11 homography inliers between1228 and main1080 are concentrated on roof/tree/sky boundaries and fail visual architecture comparison. Do not align or connect these views.",
+    "transport_fix": "Use installed system CA trust rather than certifi; certificate verification stays enabled. yt-dlp lacks an extractor for this short DeoVR URL; normal public page exposes a nonpremium media source, fetched without login or access-control changes.",
+    "source_signed_urls_saved_publicly": false,
+    "player_modified": false
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "source": "https://deovr.com/glcyf0",
+  "original_creator": "HenkWalks",
+  "source_seconds": [
+    695,
+    730
+  ],
+  "duration_decoded": 35.0,
+  "sha256": "8742afb41f2d2fad7dfebd39e8fe7e89645201b9cc2d589be6b2b2d45302e3e2",
+  "landmark_match": "169 yellow curved-balcony building visible in main capture near1104 and Henk700; visual overlap candidate",
+  "recorded_return_direction_verified": true,
+  "junction_alignment_verified": false,
+  "exact_player_review": false,
+  "iphone_accepted": false,
+  "delivery_approved": false,
+  "qualification": "Consecutive-frame geometry confirms forward movement down the newly sampled street. Visual landmarks169 curved balcony, opposite Tran Phu shop and Cantonese assembly-gate approach support opposite traversal to the main bridge approach. Exact join positions/yaw remain unverified; no player or iPhone approval.",
+  "motion_evidence": "henk-return-motion-v1.json"
+}

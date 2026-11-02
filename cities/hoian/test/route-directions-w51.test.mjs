@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { directionChoice } from './route-directions-w51.mjs';
+const network=JSON.parse(readFileSync(new URL('./route-directions-w51.json',import.meta.url)));
+assert.equal(directionChoice(network,'bridge_bound',1104,'forward').playbackRate,1);
+const proposal=directionChoice(network,'bridge_bound',1104,'return');
+assert.equal(proposal.kind,'edit_proposal');assert.equal(proposal.automatic,false);assert.equal(proposal.reviewed,false);
+assert.equal(proposal.path,'street_bound');assert.equal(proposal.time,5);
+assert.equal(directionChoice(network,'bridge_bound',1110,'return').kind,'blocked');
+assert.equal(directionChoice(network,'street_bound',10,'return').kind,'blocked');
+assert.equal(directionChoice(network,'street_bound',35,'forward').kind,'blocked');
+assert.equal(directionChoice(network,'street_bound',10,'sideways').kind,'blocked');
+assert.equal(directionChoice(network,'missing',10,'forward').kind,'blocked');
+assert.equal(directionChoice(network,'bridge_bound',NaN,'return').kind,'blocked');
+console.log('Captured-route bounds and disclosed-edit proposal checks passed; no player acceptance claimed.');

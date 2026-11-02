@@ -1,0 +1,9 @@
+{
+  "henk_seconds": 700,
+  "main_first_decoded_seconds": 1102,
+  "landmark": "169 curved-balcony facade",
+  "matches": 4,
+  "homography_inliers": 4,
+  "physical_camera_positions_not_solved": true,
+  "route_join_approved": false
+}

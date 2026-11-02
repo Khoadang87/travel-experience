@@ -1,0 +1,45 @@
+{
+  "version": "w51",
+  "scope": "Two filmed directions near Japanese Bridge; experimental edited junction, not free roaming",
+  "paths": {
+    "bridge_bound": {
+      "src": "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/hls13/f2560/index.m3u8",
+      "source_kind": "hls",
+      "start": 1102,
+      "end": 1114,
+      "entry_yaw": 1.5167,
+      "label": "Toward Japanese Bridge"
+    },
+    "street_bound": {
+      "src": "assets/henk-return-w51.mp4",
+      "source_kind": "mp4",
+      "start": 5,
+      "end": 35,
+      "entry_yaw": 1.77,
+      "label": "Away from bridge along Tran Phu",
+      "original_source": "https://deovr.com/glcyf0",
+      "original_seconds": [
+        695,
+        730
+      ],
+      "media_hosting_verified": false
+    }
+  },
+  "junctions": [
+    {
+      "from": "bridge_bound",
+      "window": [
+        1102,
+        1106
+      ],
+      "to": "street_bound",
+      "to_time": 5,
+      "kind": "disclosed_edit",
+      "spatial_alignment_verified": false,
+      "notice": "Switches to footage filmed on another day near the same junction; exact camera positions differ."
+    }
+  ],
+  "delivery_approved": false,
+  "iphone_accepted": false,
+  "sideways_travel_available": false
+}
