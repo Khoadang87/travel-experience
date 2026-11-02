@@ -14,12 +14,13 @@
   "w56_observed": "Exact isolated w56 page shows renderer failure message but misleading Preparing heading and no recovery button",
   "change": "Guard synchronous startup failure, show unavailable view, disable controls, expose user-triggered reload; no replacement scenery or render fallback",
   "tests_passed": 16,
-  "w57_failure_screen_visually_verified": false,
+  "w57_failure_screen_visually_verified": true,
   "rendered_movement_verified": false,
   "iphone_verified": false,
   "independent_advisor_approved": false,
   "delivery_approved": false,
   "phone_testing_ready": false,
   "live_changed": false,
-  "test_index_or_ver_changed": false
+  "test_index_or_ver_changed": false,
+  "visual_check_scope": "Cloud CUA screenshot and accessibility tree of exact deployed w57: explicit unavailable heading, disabled Routes/Sound, joystick hidden, Not loaded status and enabled Reload page. Reload clicked; explicit unavailable state remained. This is startup-failure handling only."
 }

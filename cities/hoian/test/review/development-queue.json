@@ -7,8 +7,9 @@
   "tasks": [
     {
       "id": "verify-w57-startup-failure-ui",
-      "status": "ready_after_deployment",
-      "action": "Verify isolated route-trial-w57.html in cloud CUA; expected unavailable heading, disabled controls, hidden joystick, enabled Reload page. Only startup failure handling can pass here, never movement/Safari acceptance."
+      "status": "completed",
+      "action": "Verify isolated route-trial-w57.html in cloud CUA; expected unavailable heading, disabled controls, hidden joystick, enabled Reload page. Only startup failure handling can pass here, never movement/Safari acceptance.",
+      "evidence": "Actual w57 CUA screenshot and AX confirm explicit unavailable heading, disabled controls, hidden joystick, Not loaded, Reload page control; clicking Reload leaves honest unsupported-renderer state. Movement is not checked."
     },
     {
       "id": "render-existing-failure",
@@ -24,9 +25,9 @@
     },
     {
       "id": "correct-observed-player-failures",
-      "status": "in_progress",
+      "status": "partial",
       "action": "Fix observed loading/movement/control failures under a new test version; retain prior files and repeat affected checks.",
-      "evidence": "w57 startup error UI implemented; 16 route/session tests and syntax pass. GitHub Pages upload/deploy pending at last observation."
+      "evidence": "Startup failure handling implemented and visually checked in exact w57; all scenery/movement errors remain unverified."
     },
     {
       "id": "independent-review",
