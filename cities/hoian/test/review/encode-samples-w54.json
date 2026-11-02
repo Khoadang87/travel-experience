@@ -1,0 +1,25 @@
+{
+  "source_sha256": "8742afb41f2d2fad7dfebd39e8fe7e89645201b9cc2d589be6b2b2d45302e3e2",
+  "asset_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+  "samples": [
+    {
+      "local_second": 5,
+      "psnr_panorama_db": 20.83
+    },
+    {
+      "local_second": 15,
+      "psnr_panorama_db": 21.68
+    },
+    {
+      "local_second": 25,
+      "psnr_panorama_db": 20.6
+    }
+  ],
+  "rendered_player_evidence": false,
+  "iphone_evidence": false,
+  "limits": [
+    "Nominal second samples are not frame-accurately synchronized across 50fps source and25fps encode; PSNR values cannot be used as a quality conclusion",
+    "Visual sample inspection is not browser or iPhone evidence"
+  ],
+  "manual_sample_observation": "Same actual streets remain visible in all three crops; compression softens fine detail. No black or replacement scenery was observed in these samples. Professional-quality approval is absent."
+}

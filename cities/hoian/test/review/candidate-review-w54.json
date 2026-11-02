@@ -1,0 +1,96 @@
+{
+  "version": "w54",
+  "artifact_kind": "hoian_interactive_player",
+  "goal": "Real filmed connected routes with truthful movement; broad free-roaming/15-minute area goal remains incomplete",
+  "candidate_source_sha256": "bc1a08e295d9fe7c8a99566b205cf4bae12ff4a5403d8ecbc10d945ba194b8d9",
+  "source_hashes": {
+    "route-trial-w54.html": "2593efc535b9fce3bd912ad2168b6346712eaa0ecfe36af60a8ca8a1de785a72",
+    "route-w54.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523",
+    "walk-w54.js": "37d86c1f10524130ad2ad17f1352cfbb3cdbf957c91480972ea7ac31e3d466a6",
+    "navigation-w54.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "source-session-w54.mjs": "82f3e70e980d2b3baa1dc089097c75d1c34f07e9ac8fafd6ccf8ea5deb79a5b0",
+    "route-network-w54.json": "0d6b9d9ff1b147049cb8d992e980b6256cc8f38fe1fd4dc3d893a6e0e4309d87",
+    "heading-return-w54.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11"
+  },
+  "media": {
+    "return": {
+      "file": "assets/henk-return-w54.mp4",
+      "sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 2160,
+            "height": 1080,
+            "pix_fmt": "yuv420p",
+            "r_frame_rate": "25/1"
+          }
+        ],
+        "format": {
+          "duration": "35.080000",
+          "size": "10554227"
+        }
+      },
+      "full_decode_exit_code": 0,
+      "blackdetect": {
+        "d": 0.1,
+        "pix_th": 0.1,
+        "black_intervals": 0
+      },
+      "durable_hosting_verified": false,
+      "committed_to_github": true,
+      "git_blob_sha1": "ee4e04c0b3b674cf0888b2e87e336abfcc346b41",
+      "compression_visual_approval": false
+    }
+  },
+  "implementation": {
+    "two_source_player_source_present": true,
+    "return_requires_explicit_disclosed_edit": true,
+    "no_automatic_route_switch": true,
+    "no_reverse_playback": true,
+    "no_pullback_seek": true,
+    "side_stick_turns_view_only": true,
+    "accepted_horizontal_drag_sign_preserved": true,
+    "old_panorama_selection_retained_until_target_decode": true,
+    "cancel_and_failed_load_preserve_old_selection_in_unit_tests": true,
+    "estimated_return_heading_pairs": 34,
+    "return_heading_usable_pairs": 34,
+    "return_heading_filter": "centered three-pair median",
+    "return_heading_rendered_acceptance": false
+  },
+  "checks": {
+    "node_tests_passed": 12,
+    "node_syntax_passed": true,
+    "python_script_compiles": true,
+    "html_unique_ids": 23,
+    "referenced_ids_present": true,
+    "rendered_browser": {
+      "status": "missing",
+      "reason": "No cloud browser/visual-control tool is available in the current tool catalog. No browser installed or browser test claimed."
+    },
+    "real_iphone_safari": {
+      "status": "missing",
+      "unresolved_failure": "iphone-w42-forward-blocked-001.json"
+    },
+    "independent_exact_player_advisor": {
+      "status": "not_performed",
+      "approved": false
+    }
+  },
+  "blockers": [
+    "Exact return asset backed up as a Git blob on review branch; public HTTP playback, range requests and CORS are not verified. No Pages candidate is published.",
+    "Exact camera positions and heading at the edited junction are not spatially verified",
+    "Rendered player movement, panning, loading/error transitions and layout remain untested",
+    "Real iPhone Safari acceptance of this exact candidate is absent",
+    "Independent advisor review of this exact player and evidence is absent",
+    "No genuine sideways captured route or broad 15-minute free-roaming area is implemented"
+  ],
+  "source_self_review_only": true,
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "main_test_index_changed": false,
+  "main_test_version_changed": false,
+  "live_changed": false,
+  "laptop_accessed": false
+}
