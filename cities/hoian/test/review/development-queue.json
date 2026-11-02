@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "project": "hoian",
+  "execution_mode": "scheduled_agent_runs_not_continuous_daemon",
+  "candidate": "w56",
+  "candidate_source_sha256": "096a095cdb60c8c77bc054048777b4d742dca737949e0390e163ff5ff6d7dca7",
+  "tasks": [
+    {
+      "id": "render-existing-failure",
+      "status": "ready",
+      "action": "Use supported cloud CUA browser to diagnose w42 loading failure from actual UI and dev logs; record exact source version. Never count w42 as w56 evidence."
+    },
+    {
+      "id": "render-current-candidate",
+      "status": "pending",
+      "action": "Prepare exact review-branch candidate for authorized isolated browser inspection without modifying live or test index. Record runtime/media hashes and actual rendered outcomes."
+    },
+    {
+      "id": "correct-observed-player-failures",
+      "status": "pending",
+      "action": "Fix observed loading/movement/control failures under a new test version; retain prior files and repeat affected checks."
+    },
+    {
+      "id": "independent-review",
+      "status": "blocked",
+      "requires": "Exact current player and rendered evidence; reviewer must not approve missing device evidence."
+    },
+    {
+      "id": "iphone-acceptance",
+      "status": "blocked",
+      "requires": "Actual real iPhone Safari evidence for exact current candidate."
+    }
+  ],
+  "run_rules": [
+    "Execute useful ready work before reporting; do not merely poll GitHub or repeat completed checks.",
+    "Save exact commit, evidence, task state and next feasible action after each run.",
+    "Transient failures: one bounded retry through same authorized route, then choose independent ready work.",
+    "Never invent heartbeat, unattended editing, browser tests, approvals or completion.",
+    "When fully blocked, report exact needs; do not hide stopped work.",
+    "Keep laptop untouched, live w27 unchanged, all runtime changes versioned under test/. No deletion or new paid resources."
+  ],
+  "notifications": {
+    "on": "New verified progress, materially changed blocker or user decision needed",
+    "deduplicate": true,
+    "include": [
+      "What changed",
+      "What was actually checked",
+      "What remains blocked"
+    ],
+    "deliverable_gate": "Final/preview delivery still requires exact-player advisor and real iPhone evidence; progress reports are now explicitly requested."
+  }
+}
