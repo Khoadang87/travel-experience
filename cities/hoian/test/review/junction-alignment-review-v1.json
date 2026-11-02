@@ -1,0 +1,75 @@
+{
+  "purpose": "Candidate panorama yaw alignment; does not verify shared physical location or travel direction.",
+  "comparisons": [
+    {
+      "main_seconds": 6,
+      "other_seconds": 0,
+      "ratio_matches": 8,
+      "verified": false,
+      "homography_inliers": 4,
+      "rough_yaw_degrees": 158.9496307373047,
+      "yaw_mad_degrees": 13.647662162780762
+    },
+    {
+      "main_seconds": 6,
+      "other_seconds": 2,
+      "ratio_matches": 7,
+      "verified": false
+    },
+    {
+      "main_seconds": 6,
+      "other_seconds": 4,
+      "ratio_matches": 7,
+      "verified": false
+    },
+    {
+      "main_seconds": 8,
+      "other_seconds": 0,
+      "ratio_matches": 5,
+      "verified": false
+    },
+    {
+      "main_seconds": 8,
+      "other_seconds": 2,
+      "ratio_matches": 10,
+      "verified": false,
+      "homography_inliers": 5,
+      "rough_yaw_degrees": -28.930057525634766,
+      "yaw_mad_degrees": 10.52706527709961
+    },
+    {
+      "main_seconds": 8,
+      "other_seconds": 4,
+      "ratio_matches": 8,
+      "verified": false,
+      "homography_inliers": 4,
+      "rough_yaw_degrees": -6.869647979736328,
+      "yaw_mad_degrees": 105.4439468383789
+    },
+    {
+      "main_seconds": 9,
+      "other_seconds": 0,
+      "ratio_matches": 7,
+      "verified": false
+    },
+    {
+      "main_seconds": 9,
+      "other_seconds": 2,
+      "ratio_matches": 5,
+      "verified": false
+    },
+    {
+      "main_seconds": 9,
+      "other_seconds": 4,
+      "ratio_matches": 12,
+      "verified": false,
+      "homography_inliers": 5,
+      "rough_yaw_degrees": -66.78777313232422,
+      "yaw_mad_degrees": 21.062936782836914
+    }
+  ],
+  "advisor_approved": false,
+  "decision": "reject_automatic_alignment",
+  "reason": "All nine candidate pairs have only 4–5 homography inliers or insufficient matches; yaw estimates disagree. Do not rotate the footage using these numbers or treat this as a verified junction.",
+  "next_revision": "Use a different landmark-matched pair or retain only a clearly disclosed edited transition; verify direction visually before any release."
+}
