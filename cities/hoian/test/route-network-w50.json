@@ -1,0 +1,85 @@
+{
+  "version": "w50",
+  "scope": "Small real-footage directed-route trial; not unrestricted area movement",
+  "nodes": [
+    {
+      "id": "street",
+      "time": 1102,
+      "label": "Street beside Japanese Covered Bridge"
+    },
+    {
+      "id": "entrance",
+      "time": 1110,
+      "label": "Bridge entrance"
+    },
+    {
+      "id": "exit",
+      "time": 1150,
+      "label": "Other bridge entrance"
+    },
+    {
+      "id": "corner",
+      "time": 1158,
+      "label": "Street beyond bridge"
+    },
+    {
+      "id": "alley",
+      "time": 1198,
+      "label": "Narrow alley"
+    }
+  ],
+  "edges": [
+    {
+      "id": "street-entrance",
+      "from": "street",
+      "to": "entrance",
+      "source": "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/hls13/f2560/index.m3u8",
+      "start": 1102,
+      "end": 1110,
+      "direction": "captured_forward",
+      "continuity": "same_capture_pending_full_decode",
+      "return_edge": null
+    },
+    {
+      "id": "entrance-exit",
+      "from": "entrance",
+      "to": "exit",
+      "source": "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/hls13/f2560/index.m3u8",
+      "start": 1110,
+      "end": 1150,
+      "direction": "captured_forward",
+      "continuity": "same_capture_pending_full_decode",
+      "return_edge": null
+    },
+    {
+      "id": "exit-corner",
+      "from": "exit",
+      "to": "corner",
+      "source": "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/hls13/f2560/index.m3u8",
+      "start": 1150,
+      "end": 1158,
+      "direction": "captured_forward",
+      "continuity": "same_capture_pending_full_decode",
+      "return_edge": null
+    },
+    {
+      "id": "corner-alley",
+      "from": "corner",
+      "to": "alley",
+      "source": "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/hoian/hls13/f2560/index.m3u8",
+      "start": 1158,
+      "end": 1198,
+      "direction": "captured_forward",
+      "continuity": "same_capture_pending_full_decode",
+      "return_edge": null
+    }
+  ],
+  "verified_branch_choices": 0,
+  "missing": [
+    "Genuine filmed return route",
+    "Captured side branch at the intersection",
+    "Exact-player advisor review",
+    "Real iPhone Safari acceptance"
+  ],
+  "delivery_approved": false
+}

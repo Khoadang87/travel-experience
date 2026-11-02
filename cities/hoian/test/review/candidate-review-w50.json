@@ -1,0 +1,28 @@
+{
+  "version": "w50",
+  "purpose": "Bounded starting trial for a future footage route network",
+  "source_interval": [
+    1102,
+    1202
+  ],
+  "capture_full_decode": true,
+  "graph_checks": true,
+  "js_syntax": true,
+  "rendered_player_checked": false,
+  "independent_exact_player_review": false,
+  "iphone_safari_accepted": false,
+  "verified_return_routes": 0,
+  "verified_side_branches": 0,
+  "delivery_approved": false,
+  "limitations": [
+    "This candidate is a directed recorded spine, not a completed branching route network",
+    "100 seconds is not the15-minute free-roaming goal",
+    "Native HLS seeking, view controls, layout and scenery must be checked on the exact rendered player",
+    "Existing phone failure not resolved by this limited trial"
+  ],
+  "source_hashes": {
+    "navigation-w50.mjs": "e942f8a57248467160e2499aef73941c6b322c3a4d53d87b3e39cda3913e1ebb",
+    "walk-w50.js": "b2d7d2f99e25ab638ee5bba8ec005ba035bf6e20bba072aa833fa72b11169ae5",
+    "route-trial-w50.html": "827119fbd8a425750e02015c552cfabd226db4c194ffb0daba98bc7c83c4125c"
+  }
+}
