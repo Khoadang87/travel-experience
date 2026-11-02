@@ -1,0 +1,43 @@
+{
+  "version": "w60",
+  "main_commit": "0be0a36b15536f175e9d15ab7cc660174445207a",
+  "source_hashes": {
+    "route-trial-w60.html": "5267dea0df0aac77a94924176c63c284bb092408fb237ed077bf3f9db2493f2f",
+    "route-w60.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523",
+    "walk-w60.js": "d6b1296d82acd40aaa3b5018b00de320e20577f1fa25ef5c4995389661d7ba8b",
+    "navigation-w60.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "source-session-w60.mjs": "90763cc47e99a07d783caa3d8a3ef1331ad8a083ff92d0df9b1aed5432494a68",
+    "route-network-w60.json": "0f0966d398012dcb6e03820dbaaa5d22f73575b82ae29265368fe43303050ebb",
+    "heading-return-w60.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11",
+    "software-360-w60.mjs": "ebee957b3abb93e985a699afd3c0461101ad57333c858eda986bf0ab0c95904d"
+  },
+  "candidate_source_sha256": "0d76bf2247bcb7fb0cf518723aa501134cc3729f31993c65dcdde8333f278628",
+  "media_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+  "change": "CPU projection of actual360video as WebGL fallback retained; after muted decode priming pause and re-seek requested point ifplayheadadvanced>.12s, then require settled decodedreadyState before source validation. Add console landing diagnostics.",
+  "checks": {
+    "route_projection_tests_passed": 21,
+    "syntax_passed": true,
+    "rendered_picture_checked": true,
+    "real_iphone_checked": false,
+    "independent_advisor_approved": false
+  },
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "limitations": [
+    "Main route136sec, return30sec; no sidewalking or broad15minute coverage",
+    "CPU output640longest dimension,10fps target; visibly coarsew59 output, smoothness not measured",
+    "w59return selection failed validation; w60 intendedcorrection not visuallyverifiedyet",
+    "Two edits and underlying physicalalignment unverified"
+  ],
+  "deployment": {
+    "run": 41531069925,
+    "last_observed": "success",
+    "browser_before_deploy": "404, not evidence of runtimefailure"
+  },
+  "rendered_observations": {
+    "main_start": "actual cloud CUA mainroute loaded paused at1066.038642,readyState4",
+    "return_selection": "FAIL: actual menu selection displayed A decoded panorama was not presented; prior street view preserved",
+    "landing_diagnostic": "only main1066produced landing diagnostic; return failed before final settle block; w60 does not fix observed return failure",
+    "follow_up": "w61software path verifies Canvas2D readable decoded frame rather than requiring compositor callback on obscured video"
+  }
+}
