@@ -1,0 +1,33 @@
+{
+  "version": "w52",
+  "scope": "Internal visual polish pass on w50 single-route player; return source not yet integrated",
+  "real_scenery_preserved": true,
+  "drag_and_movement_logic_changed": false,
+  "return_clip_encoding": {
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "dimensions": [
+      2160,
+      1080
+    ],
+    "fps": 50,
+    "seconds": 35,
+    "black_intervals_detected": []
+  },
+  "syntax_check": true,
+  "browser_render_checked": false,
+  "iphone_safari_checked": false,
+  "independent_advisor_approved": false,
+  "delivery_approved": false,
+  "pending": [
+    "Check rendered portrait/landscape spacing, text wraps and button overlap",
+    "Integrate genuine return footage without presenting an edited junction as continuous movement",
+    "Verify exact candidate visually and on real iPhone Safari"
+  ],
+  "files": {
+    "polish-w52.css": "c14319e9c3dab7843dddf92e40e2d935219729f126af3f9c8fa8aada48c1c4fe",
+    "navigation-w52.mjs": "e942f8a57248467160e2499aef73941c6b322c3a4d53d87b3e39cda3913e1ebb",
+    "route-trial-w52.html": "78e15fb4957f0c7b33bb51ab6bcdf6f66c4d62c84eb1f944e9415ab26efb35cc",
+    "walk-w52.js": "ecf8ceaad36205b7667be73b8a5f53e755a88dd9a9afd83bf8f7a16bbb3a8a5a"
+  }
+}
