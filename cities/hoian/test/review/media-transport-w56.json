@@ -1,0 +1,17 @@
+{
+  "url": "https://raw.githubusercontent.com/Khoadang87/travel-experience/fb7f1952b2cbe6deeb1531ccc6a1b02260828e93/cities/hoian/test/assets/henk-return-w54.mp4",
+  "head_status": 200,
+  "head_bytes": 10554227,
+  "range_status": 206,
+  "range_header": "bytes 0-1023/10554227",
+  "range_bytes": 1024,
+  "range_matches_original_asset": true,
+  "cors_allow_origin": "*",
+  "content_type": "application/octet-stream",
+  "nosniff": true,
+  "is_public_commit_pinned_url": true,
+  "no_signed_url_or_account_needed": true,
+  "browser_playback_verified": false,
+  "iphone_verified": false,
+  "mime_compatibility_requires_browser_check": true
+}
