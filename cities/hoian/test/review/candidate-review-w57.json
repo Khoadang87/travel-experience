@@ -1,0 +1,25 @@
+{
+  "version": "w57",
+  "source_hashes": {
+    "route-trial-w57.html": "ca9f056feacdcb5fb96ef49eedc7af6311ae055073c1ee99d9eb1be6f983d88d",
+    "route-w57.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523",
+    "walk-w57.js": "5bb8f5e340ef09da371b8786d483b56ce13aacb6fd29636d51d7f60eef9d6179",
+    "navigation-w57.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "source-session-w57.mjs": "e1b8e584222aceb31d861873dfcd9bdc206050aa4a5b10781a9d157ae56a38a0",
+    "route-network-w57.json": "7eb1de842ab5578526408df35eca811eb26631df86704d14fe806e5fe3eaca60",
+    "heading-return-w57.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11"
+  },
+  "candidate_source_sha256": "18e36b469305a9df8fdb2c5cb5fdbfa88157ddc2704df6f19b25c2303e050177",
+  "root_cause_w42_observed": "Cloud browser dev logs report GL_VENDOR=Disabled,GL_RENDERER=Disabled,Error creating WebGL context at walk-w42.js:20 before footage loading",
+  "w56_observed": "Exact isolated w56 page shows renderer failure message but misleading Preparing heading and no recovery button",
+  "change": "Guard synchronous startup failure, show unavailable view, disable controls, expose user-triggered reload; no replacement scenery or render fallback",
+  "tests_passed": 16,
+  "w57_failure_screen_visually_verified": false,
+  "rendered_movement_verified": false,
+  "iphone_verified": false,
+  "independent_advisor_approved": false,
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "live_changed": false,
+  "test_index_or_ver_changed": false
+}
