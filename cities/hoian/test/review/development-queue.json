@@ -2,8 +2,8 @@
   "schema_version": 1,
   "project": "hoian",
   "execution_mode": "scheduled_agent_runs_not_continuous_daemon",
-  "candidate": "w57",
-  "candidate_source_sha256": "18e36b469305a9df8fdb2c5cb5fdbfa88157ddc2704df6f19b25c2303e050177",
+  "candidate": "w61",
+  "candidate_source_sha256": "5e3a5b7f60b264c17d4d0f8293c407ea57776e961d8aa0006b4050cff2a0baf4",
   "tasks": [
     {
       "id": "verify-w57-startup-failure-ui",
@@ -19,15 +19,16 @@
     },
     {
       "id": "render-current-candidate",
-      "status": "blocked",
-      "action": "Prepare exact review-branch candidate for authorized isolated browser inspection without modifying live or test index. Record runtime/media hashes and actual rendered outcomes.",
-      "blocker": "Cloud browser WebGL disabled; cannot inspect scenery/movement. w56 exact isolated test entry now served; startup-only observation is not movement evidence."
+      "status": "partial",
+      "action": "Inspect exact w61 rendered routes and both explicit edits via supported cloud CUA. CPU fallback now permits actual scenery inspection without WebGL; default WebGL path still lacks GPU environment.",
+      "evidence": "w61actualcloudCPUplayer: bothrealroutesrendered, positive-timejoystickmovement/releasestop, bothmanualdisclosededitslandpaused, acceptedpicture-dragmappingobserved. Picturecoarse/responsivenessunmeasured; phone/advisorabsent.",
+      "next": "Actual quality/performance and edited-position review; GPU WebGL and real iPhone still absent."
     },
     {
       "id": "correct-observed-player-failures",
       "status": "partial",
       "action": "Fix observed loading/movement/control failures under a new test version; retain prior files and repeat affected checks.",
-      "evidence": "Startup failure handling implemented and visually checked in exact w57; all scenery/movement errors remain unverified."
+      "evidence": "w61softwareCanvas2Ddecodedreadpathcorrectedobservedreturnpreparationfailureinthiscloudplayer. W59/w60failedresultsretained. Not a Safari or fullnavigationfix."
     },
     {
       "id": "independent-review",
@@ -43,6 +44,12 @@
       "id": "native-return-media-decode",
       "status": "completed",
       "evidence": "w58 actual CUA video:2160x1080,duration35.08,readyState4,playback and two seeks5/20,CORS pixelreads successful. Media-only, not w57 player or phone acceptance."
+    },
+    {
+      "id": "software-render-quality",
+      "status": "ready",
+      "action": "After route source switching works, measure and improve actual software picture quality/performance under a new version. Current640longestdimension/10fpstarget is visiblycoarse and unapproved. Do not confuse higher output resolution with captured directionalcoverage.",
+      "evidence": "Visible640-longestoutputcoarse; firstshortbackinputunresponsiveuntillongerholdafterclosingoldtesttabs. Need actualmeasurementandimprovement, no smoothnesspass."
     }
   ],
   "run_rules": [
@@ -54,14 +61,13 @@
     "Keep laptop untouched, live w27 unchanged, all runtime changes versioned under test/. No deletion or new paid resources."
   ],
   "notifications": {
-    "on": "New verified progress, materially changed blocker or user decision needed",
-    "deduplicate": true,
+    "on": "Every hourly run, including unchanged blocker",
+    "deduplicate": false,
     "include": [
-      "What changed",
-      "What was actually checked",
-      "What remains blocked"
+      "New concrete work or unchanged blocker",
+      "No approved updated test link yet ifgateabsent"
     ],
-    "deliverable_gate": "Final/preview delivery still requires exact-player advisor and real iPhone evidence; progress reports are now explicitly requested."
+    "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "Return media compatibility observed in Chrome native video; virtual-walk and real-device acceptance remain blocked."
+  "last_verified_progress": "w61actualcloudCPUplayer: bothrealroutesrendered, positive-timejoystickmovement/releasestop, bothmanualdisclosededitslandpaused, acceptedpicture-dragmappingobserved. Picturecoarse/responsivenessunmeasured; phone/advisorabsent."
 }

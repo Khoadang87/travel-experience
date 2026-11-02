@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>Hội An · recorded-route trial w61</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="route-w61.css">
+  <script type="importmap">{"imports":{"three":"../vendor/three.module.js"}}</script>
+</head>
+<body>
+  <main id="app" aria-label="360 degree filmed view of Hội An"></main>
+  <header class="topbar">
+    <div class="identity"><strong>HỘI AN</strong><span>Recorded routes · internal w61</span></div>
+    <nav aria-label="Walk tools"><button id="routes-open" type="button">Routes</button><button id="sound" type="button" aria-pressed="false">Sound off</button></nav>
+  </header>
+  <div class="route-label"><span class="dot"></span><span id="route-label">Preparing footage</span></div>
+  <div id="status" role="status" aria-live="polite"></div>
+  <button id="face-route" class="face-route" type="button" hidden>Face recorded path</button>
+  <div id="joy" role="group" aria-label="Walking joystick. Up follows filmed route; sideways turns view; back requests a filmed return connection."><div id="knob"></div></div>
+  <div class="hint">Push up to follow footage<br>Drag the picture to look around<br>Release to stop</div>
+  <footer><span id="progress">Paused</span><span>Real filmed routes · no sideways walking coverage</span></footer>
+  <div id="startup" class="startup"><div><p class="eyebrow">Hội An · 360°</p><h1>Preparing the filmed view</h1><p id="load-message">The walk stays paused until you push.</p><button id="retry" type="button" hidden>Retry recorded route</button></div></div>
+  <section id="routes" class="sheet" role="dialog" aria-modal="true" aria-labelledby="routes-title" hidden>
+    <div class="sheet-head"><div><p class="eyebrow">Choose a recorded starting point</p><h2 id="routes-title">Explore Hội An</h2></div><button id="routes-close" type="button" aria-label="Close routes">Close</button></div>
+    <p>Each route follows the camera's actual walk. Choosing a route changes your starting point; it does not walk across the space between routes.</p>
+    <div id="route-choices"></div>
+    <details><summary>About this internal trial</summary><p>The bridge route and the short Trần Phú return-direction clip were filmed on different days. Two proposed edited junctions at the bridge and assembly-hall gate are disclosed before switching. Their exact alignment remains unverified.</p><p>Up follows footage when facing the recorded direction. Sideways turns the view. Pulling back pauses and offers a direction-change edit only where a filmed connection is proposed. No backward video, automatic seeks or simulated sideways walking.</p><p>Return-clip heading is provisional. This candidate has not passed independent player review or real iPhone Safari testing.</p></details>
+    <p class="credits">Testing footage: <a href="https://www.youtube.com/watch?v=CErfnBokWYM" target="_blank" rel="noopener">360 Japan Tours</a> and <a href="https://deovr.com/glcyf0" target="_blank" rel="noopener">HenkWalks</a>.</p>
+  </section>
+  <section id="edit" class="sheet" role="dialog" aria-modal="true" aria-labelledby="edit-title" hidden>
+    <p class="eyebrow">Edited junction · internal review</p><h2 id="edit-title">Change filming direction?</h2><p id="edit-notice"></p>
+    <p>Playback will stay paused after the change. Push up again to follow the selected filmed route.</p>
+    <div class="actions"><button id="edit-confirm" type="button">View return footage</button><button id="edit-cancel" type="button">Stay here</button></div>
+    <p id="edit-error" role="alert"></p>
+  </section>
+  <pre id="debug" hidden></pre>
+  <script src="../vendor/hls.min.js"></script>
+  <script type="module" src="walk-w61.js"></script>
+</body>
+</html>

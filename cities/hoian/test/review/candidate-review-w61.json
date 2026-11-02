@@ -1,0 +1,108 @@
+{
+  "version": "w61",
+  "main_commit": "9f590a03947d63d47033afa7a13d1371d1928e57",
+  "source_hashes": {
+    "route-trial-w61.html": "0136b4439510b4a41374c975ccff8c8b41e770bbed07e18d1e2016bac33509e3",
+    "route-w61.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523",
+    "walk-w61.js": "5dab73cc12f6e9442f72cee1dabd3377d5af7f510fabec1c77f5ccfe45e4fdeb",
+    "navigation-w61.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "source-session-w61.mjs": "0f219f00a04331372872cd4e1ca16014aec55851e6c342996690fb01bb2fa647",
+    "route-network-w61.json": "e77d66946ccc6f36939de3a251c30faad6bd51b61f9be2160101627e87e96451",
+    "heading-return-w61.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11",
+    "software-360-w61.mjs": "ebee957b3abb93e985a699afd3c0461101ad57333c858eda986bf0ab0c95904d"
+  },
+  "candidate_source_sha256": "5e3a5b7f60b264c17d4d0f8293c407ea57776e961d8aa0006b4050cff2a0baf4",
+  "return_media_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+  "change": "Actual360video CPUprojection fallback; software media preparation verifies settled decoded frame viaCanvas2D draw/read, without playing obscured video to await compositorcallback. WebGLmode retains originalpresentationpriming.",
+  "checks": {
+    "route_projection_tests_passed": 21,
+    "syntax_passed": true,
+    "rendered_picture_checked": true,
+    "real_iphone_checked": false,
+    "independent_advisor_approved": false,
+    "rendered_scope": "Partial cloud CPU fallback only; source selection, actual positive-time route movement, stop, both disclosed edits, picture drag. Not full WebGL/Safari/quality review."
+  },
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "limitations": [
+    "Two bounded captured routes136sec+30sec with disclosed edits; no uncaptured side/back movement or15minutearea",
+    "CPU640longestdimension and10fps target; coarsequalityobservedonw59, speedandprofessionalqualityunapproved",
+    "WebGLpath unavailable inthiscloudGPU; exactdeviceandindependentreviewmissing",
+    "Runtime source lock covers8candidatefiles; full main HLS capture/CDN dependency immutability is not established. Exact advisor evidence still incomplete."
+  ],
+  "deployment": {
+    "run": 41531558987,
+    "result": "completed/success"
+  },
+  "rendered_observations": {
+    "environment": "Actual cloud Chrome CUA; default WebGL unavailable, ordinary Canvas2D CPU projection of actual video; no flags/security/network changes",
+    "landings": [
+      {
+        "route": "main_start",
+        "requested": 1066,
+        "actual": 1066,
+        "paused": true,
+        "readyState": 4
+      },
+      {
+        "route": "return_start",
+        "requested": 5,
+        "actual": 5,
+        "paused": true,
+        "readyState": 4
+      },
+      {
+        "route": "assembly_edit",
+        "requested": 1066.2,
+        "actual": 1066.2,
+        "paused": true,
+        "readyState": 4
+      },
+      {
+        "route": "bridge_edit",
+        "requested": 5,
+        "actual": 5,
+        "paused": true,
+        "readyState": 4
+      }
+    ],
+    "return_motion": "Actual on-screen joystick push5.5sec: visible filmed street/pedestrians progress; after release DOM video9.824599 pausedtrue ready4. Before/after screenshots saved.",
+    "return_end": "Actual forward input followed capture to34.923285 and stopped; no auto source jump. First500msbackinput produced no visible response; after closing earlier agent test tabs,1800msbackinput opened explicit edit notice. CPU responsiveness remains concern, not an acceptance pass.",
+    "assembly_edit": "Actual notice confirmed manually: targetmain1066.2pausedready4. Different-day/camera-offset disclosed. Physical exactness/pleasantness not independently approved.",
+    "bridge_edit": "After real playback to1102.313582, backward joystick opened explicit edit notice; manual confirmation loadedreturn5pausedready4. No blur/reverse/automaticseeking claimed as walking.",
+    "drag": "On exactw61returnpaused5, actual rightdrag650,450to900,450 movedlandmarksright; DOMvideo remainedpaused5ready4.",
+    "picture_quality": "Visibly coarse/pixelated compatibility picture; no measured10fps or professional/smoothness claim. No continuous screen recording or iPhone evidence."
+  },
+  "evidence_files": [
+    {
+      "path": "review/evidence/w61/hoian-w61-return-before-20261102.jpg",
+      "sha256": "94201ad76662ff84d90ff0041e5f14dfee0fb0cefead01f48afc1e03a4aa4fa8",
+      "scope": "actual cloud player screenshot, not real iPhone"
+    },
+    {
+      "path": "review/evidence/w61/hoian-w61-return-after-20261102.jpg",
+      "sha256": "25d676a6e45910b10f28818837e2972c134bb5a0aa40ae6d2d21168c87facc5f",
+      "scope": "actual cloud player screenshot, not real iPhone"
+    },
+    {
+      "path": "review/evidence/w61/hoian-w61-assembly-edit-notice-20261102.jpg",
+      "sha256": "34ad52beb2590fcbea77f2eb8ec69184420c6d4cab6176ea78f134359cfe6f72",
+      "scope": "actual cloud player screenshot, not real iPhone"
+    },
+    {
+      "path": "review/evidence/w61/hoian-w61-assembly-edit-after-20261102.jpg",
+      "sha256": "069c0efbbf720b26670e121f70dd37df5c8dda6d0e4c4a7423d7553f58bd7f91",
+      "scope": "actual cloud player screenshot, not real iPhone"
+    },
+    {
+      "path": "review/evidence/w61/hoian-w61-bridge-before-20261102.jpg",
+      "sha256": "6e71137cb1da6ff8694611c93846e9446b81124377cc0a16755119dd701e471d",
+      "scope": "actual cloud player screenshot, not real iPhone"
+    },
+    {
+      "path": "review/evidence/w61/hoian-w61-bridge-after-20261102.jpg",
+      "sha256": "544c1605ac16a0468ddb5d35bcca4018a1970ee3c75dd3e517cd154b711408d8",
+      "scope": "actual cloud player screenshot, not real iPhone"
+    }
+  ]
+}
