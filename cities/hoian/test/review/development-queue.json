@@ -56,7 +56,7 @@
       "id": "grok-junction-heading-review",
       "status": "requested_after_reply",
       "action": "Read new substantive Grok reply on issue1, verify actual hashes/frame evidence, review proposed diff and respond; continue independent CPU/render work while awaiting. Never describe posting a request as active review or approval.",
-      "evidence": "EAN/Grok replied in6598831602 with gap/UX/requirements questions. Answered6599037293, provided captured return route and requested exact-frame physical junction review. No verdict."
+      "evidence": "EAN/Grok replied in6598831602 with gap/UX/requirements questions. Answered6599037293, provided captured return route and requested exact-frame physical junction review. No verdict. New exact-picture handoff comment6600268789 with evidence commit07b67e4e6858fc8f001513ae42afc10aa19e6925; no verdict."
     },
     {
       "id": "media-startup-response-w65",
@@ -64,6 +64,13 @@
       "action": "Isolate actual return-source clock/decoded-frame and projected-picture response without speculative warmup or heading-gate changes.",
       "evidence": "w68 paint-only media callbacks and changed-only playbackRate writes; main first sampled projected-output change343.9ms while playing. Return500ms tests5->5.055787 and5.055787->5.068975 fail; repeat change636.4ms alreadypaused. Visible/focused cloud rAF idle gaps~1016ms; cause not established. No screen-paint/FPS claim. w69 independent media-only actual comparison: sameclip5->5.506664 visible1x,5.480231 visible.9497x,5.478851 obscured.9497x. Hidden presentation/fractional rate alone did not reproduce player failure; cause unproven. w70 matched nativevsactualprojector500ms comparison:baseline5.479875,projector5.47882/5.478943. Freshunchangedw68return5->5.477745->5.941922;sampledoutputchange329.7/106.9msbeforerelease. Earlierfailuresretained; intermittentnotfixed. w71 old rejection clearing new input deterministically reproduced; request identity/generation correction passes8new+24existingchecks. Deployment pending, actualcandidate404; renderedcheckNOTperformed. Priorw68intermittencycauseunknown.",
       "next": "Once w71 Pages deployment completes, actual current player rapid release/repress and source-change checks; correlate decoded-frame/pause-reason logs. Do not call source race fix a proven clock-stall fix."
+    },
+    {
+      "id": "physical-junction-picture-review-w73",
+      "status": "partial",
+      "action": "Compare genuine captured junction pictures, validate source integrity and timeline provenance; obtain independent landmark/heading/camera-offset review before alignment changes.",
+      "evidence": "Ten decoded source frames compared at both edit areas. Gate/yellow corner and169/shopfront identity supported; exact camera position/yaw and seamless continuity not established. Truncated44s local review MP4 preserved; retained fragments recovered44s with full decode exit0 and identical readable8.2s prefix. Main HLS labels inherited, mapping not reverified.",
+      "next": "Reconstruct original HLS playlist-to-global timing using ordinary public source, retain local/nominal labels separately; review Grok exact-frame findings when available. Keep w73 runtime stable."
     }
   ],
   "run_rules": [
@@ -83,7 +90,7 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "Current w73 actual native35.08 endpoint and both manual route changes passed limited CPU functional checks; accepted drag preserved. Grok communication resumed and concrete shared handoff sent. No runtime changes or final/device/advisor approval.",
+  "last_verified_progress": "w73 stable. Backed up two real junction picture comparisons, hashes and a recovered44-second analysis sample provenance. Landmark identity supported; camera joins/heading and global timeline mapping not independently validated. No new rendered/device/advisor acceptance.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
@@ -92,13 +99,14 @@
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "62090dd570ef6a31cfa766468cf0c0eaa2760f57",
+    "working_commit": "07b67e4e6858fc8f001513ae42afc10aa19e6925",
     "working_source_sha256": "61d436c2547b75637ab4c4763da12d878b8ce1c7cf4d5b6f7e5990115a75eac3",
     "feedback_comment": 6590223108,
     "actual_checks_comment": 6593204567,
     "grok_reply_comment": 6598831602,
-    "chatgpt_reply_comment": 6599037293
+    "chatgpt_reply_comment": 6599037293,
+    "picture_review_comment": 6600268789
   },
   "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
-  "evidence_commit": "62090dd570ef6a31cfa766468cf0c0eaa2760f57"
+  "evidence_commit": "07b67e4e6858fc8f001513ae42afc10aa19e6925"
 }

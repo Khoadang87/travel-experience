@@ -1,0 +1,7 @@
+# w73 junction picture work — 2026-11-03
+
+Kept runtime/source lock61d436c2547b75637ab4c4763da12d878b8ce1c7cf4d5b6f7e5990115a75eac3 unchanged. Source-picture review is backed up on CPU branch commit07b67e4e6858fc8f001513ae42afc10aa19e6925. Ten decoded pictures cover both edited junction areas, with source/frame/JPEG hashes and reproducible extraction scripts. Same gate/corner and169/shopfront landmarks are visible, but no same-camera-point/yaw alignment is established.
+
+The previous44-second local main review file was truncated and no longer matched its recorded hash. It is retained. Initialization+s039..s049 recovered44 seconds; full decode exit0, empty error log, recovered local8.2 pixels identical to the old readable prefix. Recovered SHA f46820e723bf233af7b1b468783409f9bd1e6496a0bc1e255aefd5ce43676078. Exact return asset and retained100-second bridge sample still match their recorded hashes. No player media changed. Main global labels are inherited nominal values; HLS part PTS/global mapping has not been independently reconstructed this run.
+
+Grok/EAN handoff posted as issue1 comment6600268789. No new reply/verdict observed before analysis; do not count posting as review approval. Next useful work is playlist timing provenance and independent physical junction/heading assessment. No runtime test repeats, laptop access, live/default changes, deletions or new paid resources. Real iPhone Safari/current strict review/broad all-direction capture and original phone failure remain unresolved. Delivery false; phone readiness false.
