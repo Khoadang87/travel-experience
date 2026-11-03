@@ -2,8 +2,8 @@
   "schema_version": 1,
   "project": "hoian",
   "execution_mode": "scheduled_agent_runs_not_continuous_daemon",
-  "candidate": "w74",
-  "candidate_source_sha256": "d82831fa7e6a50b3d6f7f58f2da7d5cd6bba824b8c8d3cea3e9b3ce6fc52e063",
+  "candidate": "w75",
+  "candidate_source_sha256": "061c01c3202fc415de1635911cb21912d9c23e7187e432680c7cc169dd835d30",
   "tasks": [
     {
       "id": "verify-w57-startup-failure-ui",
@@ -122,12 +122,21 @@
     },
     {
       "id": "w75-frame-clock-correlation",
-      "status": "waiting_transient_pages_deployment",
+      "status": "partial_actual_failures_recorded",
       "source_lock": "061c01c3202fc415de1635911cb21912d9c23e7187e432680c7cc169dd835d30",
       "main_commit": "cb8d52c8b1dc1e5d1e8c25e630858a41a484be08",
       "action": "After Pages41675994914 deployment completes, inspect actualw75firstreturn500ms input and bounded repeats; capture frame-callback mediaTime/processingDuration,seeking/buffered state alongside clock and release. Do not repeat oldnative/worker/CSS loops or changewarmup/gate speculatively.",
-      "evidence": "w75onlyaddsboundedtiming=1metadata+versionreferences; movement/media/route/heading/dragpoliciesunchanged.41sourcechecks+syntaxpass;9newtestfiles,oldblobsunchanged,nodeletions. InitialactualCUA404whilebuildpending;no currentrenderedclaim.",
-      "next": "Actualsource-switchframe/clockcomparisonandindependentphysicaljunctionreview; keepw74FAIL/realSafari/strictadvisor/broadcoveragegates."
+      "evidence": "MainW5001066→1066.400554;returnfirst503.8ms5→5.034846FAIL,next505.5ms→5.539506;reloadfirst514ms5→5FAIL,allpausedready4. Failedpressesbuffered0..20.911,seekingfalse,playresolved9.3/53.8ms,norecordedseek/policypausebeforekeyup. LastcallbackmediaTime5/presentedFrames2unchanged,decoded132→261/133→258. HiddenvideocallbackabsenceNOTfullprojectedcanvas/compositorproof,causeunproven.",
+      "next": "Bounded codec A/B on exactplayer with localfile selector+hash/duration validation; no speculative warmup/gatechange or repeatedoldnative/worker/CSS checks."
+    },
+    {
+      "id": "duration-matched-codec-comparison",
+      "status": "ready_internal_implementation",
+      "action": "Implement uniquely versioned test-only local-file codec override with exact SHA/duration/format checks, preserving same route/heading/input/source transactions. Use cloud shared-file chooser (read documented upload guidance) to compare retainedw54vsnewvariant in actualplayer, without newpaidhosting, security overrides or productdelivery. Keep runtimew75stableuntilnewcandidateversion.",
+      "local_variant": "/workspace/scratch/a7d4ca2c1f7e/hoian-player-w75/review/evidence/frame-clock-w75-20261103/return-short-gop-v2-review.mp4",
+      "sha256": "74309688675b6d6a5c4b6c603e05d8160ef0f7f6f9a98031b6b0d220637ca3e9",
+      "bytes": 12691172,
+      "evidence": "Variant2fromoriginalSHA8742...,-r25CRF32slowgop25,duration35.08/877frames/allPTSidenticalruntime/full_decode0. Variant1fpsfilter35.00sexcluded/preserved. Binarylocalonly,recipe/hashbacked;reproduceifpruned. No actual codec comparison, qualityapproval, responsivenessgain or newcapture."
     }
   ],
   "run_rules": [
@@ -147,7 +156,7 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "Prepared/published isolatedw75timing-onlyinstrumentation;41sourcechecks+syntaxpass. Retainedreturnkeyframes0/10/20/30 verified; runtime5requirespossiblepreroll,notprovenstallcause. Pages41675994914uploadpending;initialactualCUA404, no w75renderedpass.",
+  "last_verified_progress": "Actualw75deployment/renderedframeclocktraces:twofirstreturn500msFAILsdespitebuffered0..20.911/seekingfalse;nofreshframecallbackbeforefailedrelease,playresolvednormally. Nextpressworks;causeunproven. LocaldurationmatchedshortGOPvariantfullydecoded,notadopted/hosted/approved.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
@@ -156,8 +165,8 @@
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "4652912ea79fa0e19c147cf600adbe14d3d586cc",
-    "working_source_sha256": "d82831fa7e6a50b3d6f7f58f2da7d5cd6bba824b8c8d3cea3e9b3ce6fc52e063",
+    "working_commit": "1864916429f6bf636c9957642c18e21fbf283e83",
+    "working_source_sha256": "061c01c3202fc415de1635911cb21912d9c23e7187e432680c7cc169dd835d30",
     "feedback_comment": 6590223108,
     "actual_checks_comment": 6593204567,
     "grok_reply_comment": 6598831602,
@@ -171,11 +180,12 @@
     "departure_review_comment": 6605266112,
     "w74_source_review_comment": 6606916198,
     "w74_rendered_review_comment": 6608409013,
-    "w75_instrumentation_comment": 6609842621
+    "w75_instrumentation_comment": 6609842621,
+    "w75_actual_review_comment": 6611265060
   },
   "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
-  "evidence_commit": "4652912ea79fa0e19c147cf600adbe14d3d586cc",
+  "evidence_commit": "1864916429f6bf636c9957642c18e21fbf283e83",
   "prepared_candidate": "w75",
   "prepared_candidate_source_sha256": "061c01c3202fc415de1635911cb21912d9c23e7187e432680c7cc169dd835d30",
-  "prepared_candidate_status": "published_build_pending"
+  "prepared_candidate_status": "served_isolated_timing_candidate_with_actual_failures"
 }
