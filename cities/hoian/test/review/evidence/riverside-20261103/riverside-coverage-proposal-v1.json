@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "proposal_only": true,
+  "enabled_in_player": false,
+  "candidate_player_changed": false,
+  "purpose": "Alternative one-edit riverside pair; not an additional third edit in current w73",
+  "source_edges": [
+    {
+      "id": "main-river.mp4",
+      "sha256": "ec6d11312ab1bde80986bcf37bce8bba18159d1eafa39cb37e916cde9e261c9a",
+      "bounds_basis": "Decoded local frame span, not inherited global timeline",
+      "local_bounds_seconds": [
+        0,
+        20
+      ],
+      "playback_direction": "positive time only",
+      "camera_travel_heading_verified": false
+    },
+    {
+      "id": "other-river.mp4",
+      "sha256": "85d8ab00f0a2f66812317dd1ef9c46a4f448c6ac7f53ef08971558dbc4648ac8",
+      "bounds_basis": "Decoded local frame span, not inherited global timeline",
+      "local_bounds_seconds": [
+        0,
+        24
+      ],
+      "playback_direction": "positive time only",
+      "camera_travel_heading_verified": false
+    }
+  ],
+  "junction_candidate": {
+    "from": "main-river.mp4",
+    "source_picture_local_seconds": 19,
+    "to": "other-river.mp4",
+    "target_picture_local_seconds": 0,
+    "status": "needs_independent_location_pose_heading_review",
+    "automatic_transition": false,
+    "disclosure_required": "Different capture day and camera position; edited transition",
+    "confirm_then_pause": true,
+    "continuous_camera_trajectory_verified": false
+  },
+  "forbidden_claims": [
+    "Seamless return",
+    "Sideways or arbitrary free roaming",
+    "Current w73 approved",
+    "Broad15-minute scope complete"
+  ],
+  "required_before_runtime": [
+    "Independent corner AND balcony identity comparison",
+    "Continuous source-motion/heading verification",
+    "Frame-accurate source/global timeline provenance",
+    "Feasible exact-media hosting/source lock",
+    "Versioned player implementation and rendered control checks; real iPhone Safari and exact-player advisor approval before delivery"
+  ]
+}

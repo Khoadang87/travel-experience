@@ -1,0 +1,88 @@
+[
+  {
+    "file": "main-river.mp4",
+    "decoded_frame": true,
+    "requested": [
+      248,
+      268
+    ],
+    "segments": [
+      {
+        "t": 248.0,
+        "end": 252.0,
+        "init": "../main/j1/f2560/init.mp4",
+        "file": "../main/j1/f2560/s061.m4s"
+      },
+      {
+        "t": 252.0,
+        "end": 256.0,
+        "init": "../main/j1/f2560/init.mp4",
+        "file": "../main/j1/f2560/s062.m4s"
+      },
+      {
+        "t": 256.0,
+        "end": 260.0,
+        "init": "../main/j1/f2560/init.mp4",
+        "file": "../main/j1/f2560/s063.m4s"
+      },
+      {
+        "t": 260.0,
+        "end": 264.0,
+        "init": "../main/j1/f2560/init.mp4",
+        "file": "../main/j1/f2560/s064.m4s"
+      },
+      {
+        "t": 264.0,
+        "end": 268.0,
+        "init": "../main/j1/f2560/init.mp4",
+        "file": "../main/j1/f2560/s065.m4s"
+      }
+    ]
+  },
+  {
+    "file": "other-river.mp4",
+    "decoded_frame": true,
+    "requested": [
+      1436.2,
+      1456.2
+    ],
+    "segments": [
+      {
+        "t": 1436.0,
+        "end": 1440.0,
+        "init": "../../hls12/river/f2560/init.mp4",
+        "file": "../../hls12/river/f2560/s000.m4s"
+      },
+      {
+        "t": 1440.0,
+        "end": 1444.0,
+        "init": "../../hls12/river/f2560/init.mp4",
+        "file": "../../hls12/river/f2560/s001.m4s"
+      },
+      {
+        "t": 1444.0,
+        "end": 1448.0,
+        "init": "../../hls12/river/f2560/init.mp4",
+        "file": "../../hls12/river/f2560/s002.m4s"
+      },
+      {
+        "t": 1448.0,
+        "end": 1452.0,
+        "init": "../../hls12/river/f2560/init.mp4",
+        "file": "../../hls12/river/f2560/s003.m4s"
+      },
+      {
+        "t": 1452.0,
+        "end": 1456.0,
+        "init": "../../hls12/river/f2560/init.mp4",
+        "file": "../../hls12/river/f2560/s004.m4s"
+      },
+      {
+        "t": 1456.0,
+        "end": 1460.0,
+        "init": "../../hls12/river/f2560/init.mp4",
+        "file": "../../hls12/river/f2560/s005.m4s"
+      }
+    ]
+  }
+]

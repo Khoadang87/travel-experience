@@ -1,0 +1,46 @@
+[
+  {
+    "image": "corner-details.jpg",
+    "source": "main-river-local-19.png",
+    "native_pixel_crop": [
+      1800,
+      230,
+      2560,
+      1000
+    ],
+    "alterations": "Crop and proportional downscale only; no reconstruction"
+  },
+  {
+    "image": "corner-details.jpg",
+    "source": "other-river-local-0.png",
+    "native_pixel_crop": [
+      0,
+      230,
+      760,
+      1000
+    ],
+    "alterations": "Crop and proportional downscale only; no reconstruction"
+  },
+  {
+    "image": "balcony-details.jpg",
+    "source": "main-river-local-0.png",
+    "native_pixel_crop": [
+      240,
+      260,
+      1300,
+      1000
+    ],
+    "alterations": "Crop and proportional downscale only; no reconstruction"
+  },
+  {
+    "image": "balcony-details.jpg",
+    "source": "other-river-local-11.png",
+    "native_pixel_crop": [
+      0,
+      260,
+      850,
+      1000
+    ],
+    "alterations": "Crop and proportional downscale only; no reconstruction"
+  }
+]

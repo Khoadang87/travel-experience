@@ -1,0 +1,148 @@
+{
+  "scope": "Actual retained source coverage analysis; not a player test",
+  "sources": {
+    "main-river.mp4": {
+      "sha256": "ec6d11312ab1bde80986bcf37bce8bba18159d1eafa39cb37e916cde9e261c9a",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 2560,
+            "height": 1280,
+            "r_frame_rate": "30/1"
+          }
+        ],
+        "format": {
+          "start_time": "244.066016",
+          "duration": "264.000000",
+          "size": "11251877"
+        }
+      },
+      "full_decode_exit": 0,
+      "full_decode_stderr": "",
+      "decoded_timing": {
+        "frames": 600,
+        "first_pts_seconds": 244.066016,
+        "last_pts_seconds": 264.032682,
+        "frame_span_seconds": 19.966666000000032,
+        "elapsed_seconds_including_last_frame_at30fps": 19.999999333333367,
+        "note": "Local ffmpeg -ss requests are relative to file start. PTS and container duration field are not main global route seconds."
+      }
+    },
+    "other-river.mp4": {
+      "sha256": "85d8ab00f0a2f66812317dd1ef9c46a4f448c6ac7f53ef08971558dbc4648ac8",
+      "probe": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 2560,
+            "height": 1280,
+            "r_frame_rate": "30/1"
+          }
+        ],
+        "format": {
+          "start_time": "0.066016",
+          "duration": "24.000000",
+          "size": "13846451"
+        }
+      },
+      "full_decode_exit": 0,
+      "full_decode_stderr": "",
+      "decoded_timing": {
+        "frames": 720,
+        "first_pts_seconds": 0.066016,
+        "last_pts_seconds": 24.032682,
+        "frame_span_seconds": 23.966666,
+        "elapsed_seconds_including_last_frame_at30fps": 23.999999333333335,
+        "note": "Local ffmpeg -ss requests are relative to file start. PTS and container duration field are not main global route seconds."
+      }
+    }
+  },
+  "frames": [
+    {
+      "source": "main-river.mp4",
+      "requested_local_seconds": 0,
+      "file": "main-river-local-0.png",
+      "sha256": "2101e32aa09007f218117db1fb7764e99b2be23891eca3e48cf266ff0a91425d"
+    },
+    {
+      "source": "main-river.mp4",
+      "requested_local_seconds": 9,
+      "file": "main-river-local-9.png",
+      "sha256": "6eb79c352f9c453683a8ad920b5357e9ebde698e026da8e5fc631421b3d4f05d"
+    },
+    {
+      "source": "main-river.mp4",
+      "requested_local_seconds": 19,
+      "file": "main-river-local-19.png",
+      "sha256": "4f2a348f1f3dfe9edb10abab1a86ba76a8134f7ca87c6c1473175d0f34be469b"
+    },
+    {
+      "source": "other-river.mp4",
+      "requested_local_seconds": 0,
+      "file": "other-river-local-0.png",
+      "sha256": "4b120f1255d8608fd8c676ec8fd5d62d70607a631254eba84ee45037ec84d727"
+    },
+    {
+      "source": "other-river.mp4",
+      "requested_local_seconds": 11,
+      "file": "other-river-local-11.png",
+      "sha256": "803fa77d2b69c7b6acd0911aefaa3d3437d2482533215241349e974f3fea89fb"
+    },
+    {
+      "source": "other-river.mp4",
+      "requested_local_seconds": 23,
+      "file": "other-river-local-23.png",
+      "sha256": "63f5d62e4bcf9fc98836c3399fcaf0b561d23ff7a2d1a9780d874cc4e8b86180"
+    }
+  ],
+  "runtime_changed": false,
+  "delivery_approved": false,
+  "contact_sha256": "cd03542de8f895c7c5f350906c3e32f6e4b8a4c9acef0cd063c85abd9107616a",
+  "assessment": {
+    "candidate": "Same turquoise-shutter/vine-covered corner at main local19 vs other local0; opposite utility installation and waterfront add context. Identity supported, exact camera join unverified.",
+    "opposing_route_hypothesis": "Main clip approaches the shuttered corner from a vine-covered balcony frontage; other clip starts at the corner and continues toward balcony-frontage/quay. Ordering supports possible opposing traversal; balcony identity, travel headings and endpoint poses still need independent verification.",
+    "not_established": [
+      "Same camera position/yaw at edit",
+      "Metric/geographic route scale",
+      "Continuous connection from current w73 bridge trial",
+      "Sideways/midstreet return or broad15-minute coverage"
+    ],
+    "gap_budget": "Existing w73 already uses two disclosed edits. Do not append a third unapproved junction. This is an alternative route candidate, not a runtime graph addition.",
+    "runtime_action": "Keep w73/source lock unchanged; no assembly/seek/reverse/blur or new runtime source selection."
+  },
+  "global_timeline": {
+    "status": "inherited nominal only",
+    "main_prior_selection": [
+      248,
+      268
+    ],
+    "other_prior_selection": [
+      1436,
+      1460
+    ],
+    "playlist_mapping_independently_verified": false
+  },
+  "evidence_images": [
+    {
+      "file": "riverside-contact.jpg",
+      "bytes": 369146,
+      "sha256": "cd03542de8f895c7c5f350906c3e32f6e4b8a4c9acef0cd063c85abd9107616a",
+      "git_blob_sha1": "c201e971f801fe4a1952bea18abe2a3ac5ebe982"
+    },
+    {
+      "file": "corner-details.jpg",
+      "bytes": 104558,
+      "sha256": "0e90e7e26b567a4b3ce3ba400019874bc662d537035a6e3ad0e584c7a7ebc29c",
+      "git_blob_sha1": "8d3fe6f282110500d5831ab251ce97b82d6d6abc"
+    },
+    {
+      "file": "balcony-details.jpg",
+      "bytes": 99845,
+      "sha256": "32bf3c22bd6572f1477859fed69e4da25ad0912c7495b20e880864c813794e2c",
+      "git_blob_sha1": "43a0184863be0bf267b70a01faff9d37476f9e05"
+    }
+  ]
+}
