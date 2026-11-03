@@ -80,6 +80,13 @@
       "acceptance": "Only actual matched scene evidence may support a later disclosed-edit proposal; no automatic alignment, seamless claim or device/advisor approval.",
       "evidence": "Exact unchanged return asset decoded at0/2/4; actual169/opposite-shop approach visible before current start5. No closer camera pose established or runtime bounds changed.",
       "next": "Independent comparison of lead-in0/2/4/5 against main junction poses; validate captured heading and HLS mapping before later target proposal."
+    },
+    {
+      "id": "riverside-opposing-coverage-review",
+      "status": "partial",
+      "action": "Assess retained real riverside clips as an alternative one-edit captured-route pair, not a third edit in current w73.",
+      "evidence": "Full decode passed for main20s/600frames and other24s/720frames,2560x1280. Six whole panoramas and two detail pairs support a turquoise-shutter corner candidate. Opposing route hypothesis needs balcony identity, heading and pose verification. Exact hashes/proposal backed; proposal disabled.",
+      "next": "Independent review of source motion/landmark order and exact endpoint poses; only propose runtime work if coverage and edit count remain truthful. Do not repeat the same six-frame extraction."
     }
   ],
   "run_rules": [
@@ -99,7 +106,7 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "w73 unchanged. Provisional gate-point comparison inconclusive; automated matcher unavailable and HLS mapping still unverified. Also decoded actual return0/2/4 lead-in before current start5 and sent extra junction viewpoints to Grok. No pose alignment/new branch/device/advisor approval.",
+  "last_verified_progress": "Decoded retained20s/24s riverside clips fully and compared six real source frames plus facade details. Saved disabled alternative one-edit coverage proposal and exact hashes; possible opposing traversal remains unverified. w73 unchanged, no new player/device/advisor approval.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
@@ -108,7 +115,7 @@
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "8d0a70e47bdfc48da51ccd87ab22e63789a16ad3",
+    "working_commit": "8246e105f58fee6a7c024d3044fc1c52233b249e",
     "working_source_sha256": "61d436c2547b75637ab4c4763da12d878b8ce1c7cf4d5b6f7e5990115a75eac3",
     "feedback_comment": 6590223108,
     "actual_checks_comment": 6593204567,
@@ -116,8 +123,9 @@
     "chatgpt_reply_comment": 6599037293,
     "picture_review_comment": 6600268789,
     "bearing_review_comment": 6601358440,
-    "leadin_review_comment": 6601404297
+    "leadin_review_comment": 6601404297,
+    "riverside_review_comment": 6602865431
   },
   "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
-  "evidence_commit": "8d0a70e47bdfc48da51ccd87ab22e63789a16ad3"
+  "evidence_commit": "8246e105f58fee6a7c024d3044fc1c52233b249e"
 }
