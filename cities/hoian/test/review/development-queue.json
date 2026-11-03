@@ -106,9 +106,19 @@
     },
     {
       "id": "public-alley-opposing-source-scout",
-      "status": "ready",
+      "status": "blocked_current_playback",
       "action": "Use ordinary permitted public footage research/site interaction to identify real opposing bridge-exit/alley traversal or document absent coverage. Use existing nonpremium source where suitable. No access-control/network/TLS bypass, laptop access or paid provider. Do not rediscover/retest unchanged known failed candidate.",
-      "acceptance": "Actual captured moving viewpoint, matched local landmarks, explicit provenance and continuous visible source interval. No independent/phone approval inferred."
+      "acceptance": "Actual captured moving viewpoint, matched local landmarks, explicit provenance and continuous visible source interval. No independent/phone approval inferred.",
+      "evidence": "Public metadata/listings verified, but qemnForPJ4c normal browser playback stayed0x0/ready0 after one ordinary play retry; DeoVRhb0w3h reports createVertexArray null and no video node. New Part2 listing ay8t6CMlRiw observed, not decoded/downloaded. No new usable source acquired.",
+      "next": "Do not repeat failed playback without changed evidence. Independent source frames from a normal working environment may unblock coverage; no new paid/login/access/network workaround."
+    },
+    {
+      "id": "w74-fresh-keyboard-intent-regression",
+      "status": "ready_for_internal_render",
+      "action": "Test prepared w74 guard in actual rendered candidate after isolated versioned test publication; keep defaultw42/livew27 untouched and no user draft link.",
+      "evidence": "Registered actual w73keydown/reset functions reproduce post-reset repeat rearming movement;3of4new cases fail. New repeat-on-unheld-key guard passes41source checks+syntax. Review branch ONLY, not served. No OS/browser-repeat reproduction/phone/advisor pass yet.",
+      "source_lock": "d82831fa7e6a50b3d6f7f58f2da7d5cd6bba824b8c8d3cea3e9b3ce6fc52e063",
+      "next": "Publish only isolated new w74test runtime files if no version collision, verify exact source lock, then freshpress/heldrepeat/reset/modal/sourcechange behavior and joystick/pausedlandings. Do not call this original phone or joystick-stall fix."
     }
   ],
   "run_rules": [
@@ -128,7 +138,7 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "17 new short heading samples:13 heuristic-consistent,4 inconclusive and inspected. Actual alley turn visible in source. Separate departure clip fully decodes but has0.44s black lead-in and no verified alley return, so not integrated. w73/gate unchanged; no phone/advisor approval.",
+  "last_verified_progress": "Public source scout acquired no verified usable media. Independently reproduced keyboard repeat rearming canceled intent; prepared isolated w74guard,41source checks+syntax pass. Review-only; servedw73 unchanged. Browser/device/strict approval missing.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
@@ -137,7 +147,7 @@
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "237b3953244db62cc84684a220fd8b7a20bc35a3",
+    "working_commit": "674ff0cd0fa5a0655e1fedc033d82d77aa5c65a3",
     "working_source_sha256": "61d436c2547b75637ab4c4763da12d878b8ce1c7cf4d5b6f7e5990115a75eac3",
     "feedback_comment": 6590223108,
     "actual_checks_comment": 6593204567,
@@ -149,8 +159,11 @@
     "riverside_review_comment": 6602865431,
     "direction_contrast_comment": 6604065067,
     "heading_span_review_comment": 6605180513,
-    "departure_review_comment": 6605266112
+    "departure_review_comment": 6605266112,
+    "w74_source_review_comment": 6606916198
   },
   "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
-  "evidence_commit": "237b3953244db62cc84684a220fd8b7a20bc35a3"
+  "evidence_commit": "674ff0cd0fa5a0655e1fedc033d82d77aa5c65a3",
+  "prepared_candidate": "w74",
+  "prepared_candidate_source_sha256": "d82831fa7e6a50b3d6f7f58f2da7d5cd6bba824b8c8d3cea3e9b3ce6fc52e063"
 }
