@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-03",
+  "runtime_changed_by_source_scout": false,
+  "new_usable_media_acquired": false,
+  "sources": [
+    {
+      "url": "https://www.youtube.com/watch?v=qemnForPJ4c",
+      "creator": "j2Wanders",
+      "browser_observation": {
+        "duration_seconds": 1913,
+        "time": 0,
+        "width": 0,
+        "height": 0,
+        "readyState": 0,
+        "error": null,
+        "normal_pause_play_retry": "No decoded frame verified; final pausedtrue/time0/ready0"
+      },
+      "outcome": "Cannot verify captured coverage in this browser; not declared source down/bot blocked."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=ay8t6CMlRiw",
+      "creator": "j2Wanders",
+      "evidence": "Observed related-video link labelled Part2,11min47s in actual YouTube page; not played or downloaded",
+      "route_coverage_verified": false
+    },
+    {
+      "url": "https://deovr.com/hb0w3h",
+      "creator": "360JapanTours",
+      "browser_observation": {
+        "visible_player_error": "Cannot read properties of null (reading 'createVertexArray')",
+        "video_nodes": 0,
+        "ordinary_download_menu": "Download clicked via public menu; no dialog or acquired usable media verified"
+      },
+      "outcome": "No decoded candidate picture; no WebGL/security/network override. Same filming as existingmain NOT established."
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=C26CAyJkt4g",
+      "creator": "HenkWalks",
+      "primary_description_notes": "Creator describes JapaneseBridge under construction in that filmed visit; chapter09:22Bridge-to-boats. Metadata only, not proof of any particular alley traversal."
+    }
+  ],
+  "no_claims": [
+    "No new filmed return route established",
+    "No bot/paywall/login reason invented from black playback",
+    "No download, decoded footage or source identity claimed from metadata alone"
+  ],
+  "source_research_refs": [
+    "turn21youtube8",
+    "turn21youtube9",
+    "turn22view1",
+    "turn22view2",
+    "turn23view0"
+  ]
+}

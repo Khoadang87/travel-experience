@@ -1,0 +1,35 @@
+{
+  "version": "w74",
+  "status": "internal_prepared_not_served",
+  "source_hashes": {
+    "heading-return-w74.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11",
+    "navigation-w74.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "playback-request-w74.mjs": "7d6864d46bd3d1ce40d8d94cb51100b138a4d957553d2aa485d20fcc388a003a",
+    "route-network-w74.json": "e11478ac87cfa6210f3619b76245386b33df023a81faadd50b37d6ecb3e1e0d6",
+    "route-trial-w74.html": "e6b3d265aede8e3955e781e3ef607be95726a373fb1cbc44109abfe9640265d6",
+    "route-w74.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523",
+    "software-360-w74.mjs": "363dc1869b4afe4c5253fd08211cbb1527b5cb1420c61f7273de63dd7727656b",
+    "source-session-w74.mjs": "de3e4985e00cffb735595847b08875535e66eca3e5dc23ba486149d3c013e467",
+    "walk-w74.js": "b36f05a50e288e42135a913780b194e85e3deb73c2ae10f4ea97ab22adec3fe2"
+  },
+  "candidate_source_sha256": "d82831fa7e6a50b3d6f7f58f2da7d5cd6bba824b8c8d3cea3e9b3ce6fc52e063",
+  "lock_method": "SHA256 compact sorted JSON filename->SHA256 for nine runtime files; excludes mutable mainHLS/CDN dependencies",
+  "source_tests_passed": 41,
+  "syntax_passed": true,
+  "actual_browser_checked": false,
+  "real_iphone_checked": false,
+  "independent_advisor_approved": false,
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "served_candidate_remains": "w73",
+  "legacy_reproduction": "Actual registered w73 keydown+resetInput functions: post-reset OS repeat rearms movement;3of4 new regression cases fail on old source. Not a rendered OS/browser reproduction.",
+  "change": "Ignore repeat=true movement-key events unless that key is already registered held. Fresh nonrepeat presses and held-key repeat preserve normal behavior.",
+  "return_media_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+  "limits": [
+    "No browser/device verification for w74",
+    "Not proven cause of original phone failure or intermittent short-press stall",
+    "Route/heading/drag/projection/footage/gaps unchanged",
+    "Full main dependency immutability and physical joins remain unverified",
+    "Broad all-direction15min goal incomplete"
+  ]
+}
