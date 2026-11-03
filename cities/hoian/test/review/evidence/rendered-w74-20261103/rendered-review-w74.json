@@ -1,0 +1,210 @@
+{
+  "version": "w74",
+  "main_commit": "b5e04f464869a5a16e060f3f9708d930535cdc43",
+  "pages_workflow": 41666032132,
+  "source_lock": "d82831fa7e6a50b3d6f7f58f2da7d5cd6bba824b8c8d3cea3e9b3ce6fc52e063",
+  "source_tests": 41,
+  "source_tests_result": "pass",
+  "runtime_files_added": 9,
+  "existing_files_modified": 0,
+  "files_deleted": 0,
+  "test_default": "w42",
+  "live": "w27",
+  "actual_browser_checked": true,
+  "real_iphone_checked": false,
+  "independent_advisor_approved": false,
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "scenarios_pending": [
+    "Direct observed OS autorepeat after reset/focus/source change; current input logs do not record repeat flag",
+    "Real iPhone Safari and WebGL player acceptance",
+    "Independent exact-current-player review"
+  ],
+  "limitations": [
+    "OS autorepeat must be observed before claiming browser reproduction; source harness alone is insufficient",
+    "Original phone failure and intermittent stalls remain unresolved",
+    "No new captured coverage",
+    "Physical junction alignment, broad all-direction goal, exact immutable HLS lock, real iPhone Safari and independent exact-player approval absent"
+  ],
+  "pages_deployment_result": "success",
+  "rendering_path": "Cloud Chrome actual Canvas2D video projection; ordinary WebGL unavailable",
+  "status": "partial_functional_checks_with_return_short_press_failure",
+  "actual_observations": [
+    {
+      "case": "main-start",
+      "media": [
+        {
+          "duration": 1584,
+          "paused": true,
+          "readyState": 4,
+          "time": 1066
+        }
+      ]
+    },
+    {
+      "case": "main-W500-release",
+      "media": [
+        {
+          "paused": true,
+          "readyState": 4,
+          "time": 1066.40806
+        }
+      ]
+    },
+    {
+      "case": "main-Up1200-release",
+      "media": [
+        {
+          "paused": true,
+          "readyState": 4,
+          "time": 1067.626475
+        }
+      ]
+    },
+    {
+      "case": "routes-click-with-W-held",
+      "media": [
+        {
+          "paused": true,
+          "readyState": 4,
+          "time": 1069.096662
+        }
+      ]
+    },
+    {
+      "case": "fresh-W-after-modal-reset",
+      "media": [
+        {
+          "paused": true,
+          "readyState": 4,
+          "time": 1069.602333
+        }
+      ]
+    },
+    {
+      "case": "return-source-paused-landing",
+      "media": [
+        {
+          "paused": true,
+          "readyState": 4,
+          "time": 5
+        }
+      ]
+    },
+    {
+      "case": "return-W500-release",
+      "media": [
+        {
+          "paused": true,
+          "readyState": 4,
+          "time": 5.046057
+        }
+      ]
+    },
+    {
+      "case": "return-joystick500-release",
+      "media": [
+        {
+          "paused": true,
+          "readyState": 4,
+          "time": 5.521609
+        }
+      ]
+    },
+    {
+      "case": "return-Up1200-release",
+      "media": [
+        {
+          "paused": true,
+          "readyState": 4,
+          "time": 6.725287
+        }
+      ]
+    },
+    {
+      "case": "right-picture-drag-150px",
+      "media": [
+        {
+          "paused": true,
+          "readyState": 4,
+          "time": 6.725287
+        }
+      ]
+    },
+    {
+      "case": "return-long-forward",
+      "media": [
+        {
+          "duration": 35.08,
+          "ended": false,
+          "paused": true,
+          "readyState": 4,
+          "time": 34.022482
+        }
+      ]
+    },
+    {
+      "case": "return-native-end",
+      "media": [
+        {
+          "duration": 35.08,
+          "ended": false,
+          "paused": true,
+          "readyState": 4,
+          "time": 34.972803
+        }
+      ]
+    },
+    {
+      "case": "assembly-confirm-paused-landing",
+      "media": [
+        {
+          "paused": true,
+          "readyState": 4,
+          "time": 1066.2
+        }
+      ]
+    },
+    {
+      "case": "main-bridge-anchor",
+      "media": [
+        {
+          "paused": true,
+          "readyState": 4,
+          "time": 1103.143025
+        }
+      ]
+    },
+    {
+      "case": "bridge-confirm-paused-landing",
+      "media": [
+        {
+          "paused": true,
+          "readyState": 4,
+          "time": 5
+        }
+      ]
+    }
+  ],
+  "os_repeat_generation_observed": false,
+  "original_phone_failure_resolved": false,
+  "short_press_failure": {
+    "case": "return-W500-release",
+    "start": 5,
+    "end": 5.046057,
+    "actual_key_hold_ms": 504.29999999701977,
+    "paused_after_release": true,
+    "verdict": "FAIL responsiveness; no cause established"
+  },
+  "endpoint": {
+    "time": 34.972803,
+    "duration": 35.08,
+    "ended": false,
+    "note": "Policy stopped near endpoint; raw observation label return-native-end is an attempted scenario label, not native-ended proof"
+  },
+  "visual_drag": "Right150px moved landmarks right; media stayed6.725287 pausedready4",
+  "junctions": "Return34.972803 backward input shows assembly notice; explicit confirmation landsmain1066.2pausedready4. Main ordinary traversalto1103.143025 backward input shows bridge notice; confirmationlandsreturn5pausedready4. No physical join/quality approval.",
+  "hud_limit": "AX/screenshot HUD can lag media state; media readbacks and input trace retained separately. No compositor timing/FPS inference.",
+  "screenshot_count": 9,
+  "missing_expected_screenshot": "04-return-input-release.jpg not present after synchronization; not counted or replaced with fabricated capture"
+}

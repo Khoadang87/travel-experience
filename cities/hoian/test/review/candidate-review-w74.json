@@ -1,6 +1,6 @@
 {
   "version": "w74",
-  "status": "internal_prepared_not_served",
+  "status": "partial_functional_checks_with_return_short_press_failure",
   "source_hashes": {
     "heading-return-w74.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11",
     "navigation-w74.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
@@ -16,20 +16,28 @@
   "lock_method": "SHA256 compact sorted JSON filename->SHA256 for nine runtime files; excludes mutable mainHLS/CDN dependencies",
   "source_tests_passed": 41,
   "syntax_passed": true,
-  "actual_browser_checked": false,
+  "actual_browser_checked": true,
   "real_iphone_checked": false,
   "independent_advisor_approved": false,
   "delivery_approved": false,
   "phone_testing_ready": false,
-  "served_candidate_remains": "w73",
+  "served_candidate_remains": "w74 isolated test entry; default w42 and live w27 unchanged",
   "legacy_reproduction": "Actual registered w73 keydown+resetInput functions: post-reset OS repeat rearms movement;3of4 new regression cases fail on old source. Not a rendered OS/browser reproduction.",
   "change": "Ignore repeat=true movement-key events unless that key is already registered held. Fresh nonrepeat presses and held-key repeat preserve normal behavior.",
   "return_media_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
   "limits": [
-    "No browser/device verification for w74",
     "Not proven cause of original phone failure or intermittent short-press stall",
     "Route/heading/drag/projection/footage/gaps unchanged",
     "Full main dependency immutability and physical joins remain unverified",
-    "Broad all-direction15min goal incomplete"
-  ]
+    "Broad all-direction15min goal incomplete",
+    "Actual cloud functional checks only; return first500ms keyboardpress advanced0.046057s: responsivenessFAIL",
+    "OS repeat-after-reset rendered path not established; source reproduction remains separate",
+    "Real iPhone Safari and strict exact-player approval absent"
+  ],
+  "main_commit": "b5e04f464869a5a16e060f3f9708d930535cdc43",
+  "pages_workflow": 41666032132,
+  "pages_deployment_result": "success",
+  "rendered_evidence": "review/evidence/rendered-w74-20261103/rendered-review-w74.json",
+  "os_repeat_generation_observed": false,
+  "original_phone_failure_resolved": false
 }

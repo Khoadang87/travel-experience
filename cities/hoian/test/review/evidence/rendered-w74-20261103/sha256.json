@@ -1,0 +1,54 @@
+{
+  "07-assembly-notice.jpg": {
+    "bytes": 121320,
+    "sha256": "e27bec4a96930ff867ec787c4888cb94c44c2e77d55d38ca33ea5c001b34e86e"
+  },
+  "03-return-start.jpg": {
+    "bytes": 107300,
+    "sha256": "37e94909af14b7bbf0895048f5d3b5796183da6e536662d1c4e881e11028f92e"
+  },
+  "01-main-start.jpg": {
+    "bytes": 129859,
+    "sha256": "8409e8dc0fe7874fe5e125eec7641d547f360cb8bbaeb38778ff82e296a880ef"
+  },
+  "observed-media.json": {
+    "bytes": 2493,
+    "sha256": "47975a44ccbef820e5a5eea471e52b741e9bc97f1f0db8db4897780bb52b50fb"
+  },
+  "final-ax.txt": {
+    "bytes": 1460,
+    "sha256": "a8ce9428daca0fa6dbb54f6c13ac6e79f8fd434633f6e809e01514762d97559e"
+  },
+  "05-return-before-drag.jpg": {
+    "bytes": 104627,
+    "sha256": "39f5c7c24dff520009a97882c7b15cda33aad3c4a17d9ed783d4855d5cc6b345"
+  },
+  "06-return-after-drag.jpg": {
+    "bytes": 107019,
+    "sha256": "09f29b39f6ebf436487b9045e54ee5f12fa1920778a44f844ca2db3cd205f78a"
+  },
+  "rendered-review-w74.json": {
+    "bytes": 5459,
+    "sha256": "93d3e5f41cfdb218777fdbb5770df0cbd93f2e13b45d90af38dcba6b78a3e5f9"
+  },
+  "input-trace.json": {
+    "bytes": 65045,
+    "sha256": "31e7a2931700c2a0f4665d9a3232a6eb7627f0e4ec23b88d99f1905fd2ca9fdd"
+  },
+  "10-return-edit-landing.jpg": {
+    "bytes": 108949,
+    "sha256": "401b9065e57fa9a1a1973d1f2e90640f38baa3d32bcefc44f3be5350a6be6a26"
+  },
+  "02-main-key-release.jpg": {
+    "bytes": 124660,
+    "sha256": "4b99970085dab356e5e214eb806867afdde0bc3fce777ee202f0632d815b580a"
+  },
+  "09-bridge-notice.jpg": {
+    "bytes": 122727,
+    "sha256": "2e4fd83e2cea22bc4bfb3cda2059e92e4a6744e949b7f56d837720dc3f56066f"
+  },
+  "08-main-edit-landing.jpg": {
+    "bytes": 127320,
+    "sha256": "908a7c9f6372cb7fff32b53f98f63231177cd10dfce51598b7e22fd927806b14"
+  }
+}

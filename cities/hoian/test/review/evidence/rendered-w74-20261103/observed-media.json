@@ -1,0 +1,157 @@
+[
+  {
+    "case": "main-start",
+    "media": [
+      {
+        "duration": 1584,
+        "paused": true,
+        "readyState": 4,
+        "time": 1066
+      }
+    ]
+  },
+  {
+    "case": "main-W500-release",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 1066.40806
+      }
+    ]
+  },
+  {
+    "case": "main-Up1200-release",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 1067.626475
+      }
+    ]
+  },
+  {
+    "case": "routes-click-with-W-held",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 1069.096662
+      }
+    ]
+  },
+  {
+    "case": "fresh-W-after-modal-reset",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 1069.602333
+      }
+    ]
+  },
+  {
+    "case": "return-source-paused-landing",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 5
+      }
+    ]
+  },
+  {
+    "case": "return-W500-release",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 5.046057
+      }
+    ]
+  },
+  {
+    "case": "return-joystick500-release",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 5.521609
+      }
+    ]
+  },
+  {
+    "case": "return-Up1200-release",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 6.725287
+      }
+    ]
+  },
+  {
+    "case": "right-picture-drag-150px",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 6.725287
+      }
+    ]
+  },
+  {
+    "case": "return-long-forward",
+    "media": [
+      {
+        "duration": 35.08,
+        "ended": false,
+        "paused": true,
+        "readyState": 4,
+        "time": 34.022482
+      }
+    ]
+  },
+  {
+    "case": "return-native-end",
+    "media": [
+      {
+        "duration": 35.08,
+        "ended": false,
+        "paused": true,
+        "readyState": 4,
+        "time": 34.972803
+      }
+    ]
+  },
+  {
+    "case": "assembly-confirm-paused-landing",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 1066.2
+      }
+    ]
+  },
+  {
+    "case": "main-bridge-anchor",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 1103.143025
+      }
+    ]
+  },
+  {
+    "case": "bridge-confirm-paused-landing",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 5
+      }
+    ]
+  }
+]
