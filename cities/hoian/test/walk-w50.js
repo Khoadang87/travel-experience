@@ -161,7 +161,7 @@ async function go(t, why) { if (fading || !ready) return; fading = true; const r
     await jump(t); const h1 = headAt(pos());
     /* heading match: keep your angle to the direction of travel */
     look.yaw = r0; hd = h1; if (snapped) snap.rotation.y = h1 - h0;
-    window.__w.lastGo = { t, why, landed: pos(), snapped };
+    window.__w.lastGo = { t, why, landed: pos(), snapped }; if (!why.startsWith('place')) { const q = PLACES.filter(x => x.t != null).sort((a, b) => Math.abs(a.t - t) - Math.abs(b.t - t))[0]; $('where').textContent = q && Math.abs(q.t - t) < 40 ? 'Near ' + q.name : t >= 1436 ? 'Riverside' : 'Old-town streets'; }
     if (snapped) { await new Promise(r => setTimeout(r, 60)); const T = 500, s0 = performance.now(); await new Promise(res => { const st = () => { const k = Math.min(1, (performance.now() - s0) / T); snap.material.opacity = 1 - k * k * (3 - 2 * k); k < 1 ? requestAnimationFrame(st) : res(); }; st(); }); snap.visible = false; }
     else dip.classList.remove('on');
   } finally { fading = false; } }
