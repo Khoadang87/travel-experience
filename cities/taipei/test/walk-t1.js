@@ -63,7 +63,7 @@ const rawH = p => { if (!HEAD) return 0; const i = Math.min(HEAD.h.length - 1, p
 const headAt = p => Math.PI / 2 - rawH(p);
 
 // ---------- video: two streams (F forward, R reversed); only the active one plays, the other is parked at the mapped time ----------
-const st = { F: { id: 'F' }, R: { id: 'R' } }; let DIR = 'F'; let RD = 0; /* reversed stream duration: R time = RD - forward time */
+const st = { F: { id: 'F' }, R: { id: 'R' } }; let DIR = 'F'; let backWant = false; let RD = 0; /* reversed stream duration: R time = RD - forward time */
 let v, tex; /* v/tex = the active stream's element/texture */
 const sync = () => { v = st[DIR].v; tex = st[DIR].tex; };
 function mkV(s) { const old = s.v, ot = s.tex; const el = document.createElement('video'); el.muted = true; el.defaultMuted = true; el.playsInline = true; el.setAttribute('playsinline', ''); el.crossOrigin = 'anonymous'; el.preload = 'auto';
@@ -130,7 +130,7 @@ addEventListener('blur', () => { joyEnd(); look.drag = null; for (const k of Obj
 const joyAng = () => Math.atan2(joy.x, -joy.y) * 180 / Math.PI; /* 0 = stick up, +-180 = pulled back */
 const joyBack = () => joy.id != null && Math.hypot(joy.x, joy.y) >= 0.22 && joy.y > 0.1 && Math.abs(joyAng()) > 100; /* w60: any downward drag past the deadzone */
 const speed = () => { if (keys.ArrowUp || keys.KeyW) return 1; if (joy.id == null) return 0;
-  const m = Math.hypot(joy.x, joy.y); if (joyBack()) return 0; /* w36: pulled back = turnaround first, then forward while held */
+  const m = Math.hypot(joy.x, joy.y); if (joyBack()) { if (!joy.backDone && REV) { joy.backDone = true; $('turn').click(); } return 0; } /* w36: pulled back = turnaround first, then forward while held */
   const u = -joy.y; if (u < 0.2) return 0; return 0.5 + 0.5 * Math.min(1, (u - 0.2) / 0.65); };
 const joyTurn = () => { if (joy.id == null || joyBack()) return 0; const x = joy.x; return Math.abs(x) < 0.3 ? 0 : Math.sign(x) * (Math.abs(x) - 0.3) / 0.7; }; /* w36: sideways = turn the view (up to 70 deg/s) */
 
@@ -148,7 +148,7 @@ function soundTick(walking, p) { if (!soundOn || !walking) { if (!audio.paused) 
 // ---------- clips, junctions, jumps ----------
 const clipAt = t => clips.find(c => t >= c.lo - 0.5 && t <= c.hi + 0.5) || clips[0];
 let jumping = false, lastJ = 0;
-async function jump(t) { jumpGen++; jumping = true; $('status').textContent = ''; clip = clipAt(t); try { while (parking) await new Promise(r => setTimeout(r, 30)); /* w30: a park of this stream finishing after our seek used to drag the walk back to the old spot */ if (DIR !== 'F') { st.R.v.pause(); DIR = 'F'; sync(); mat.map = tex; mat.needsUpdate = true; } await seekTo(t); clip = clipAt(t); hd = headAt(t); look.yaw = 0; look.pitch = 0; window.__w.lastJump = t; } finally { lastPos = pos(); jumping = false; } }
+async function jump(t) { jumpGen++; backWant = false; jumping = true; $('status').textContent = ''; clip = clipAt(t); try { while (parking) await new Promise(r => setTimeout(r, 30)); /* w30: a park of this stream finishing after our seek used to drag the walk back to the old spot */ if (DIR !== 'F') { st.R.v.pause(); DIR = 'F'; sync(); mat.map = tex; mat.needsUpdate = true; } await seekTo(t); clip = clipAt(t); hd = headAt(t); look.yaw = 0; look.pitch = 0; window.__w.lastJump = t; } finally { lastPos = pos(); jumping = false; } }
 function checkJunction(p) { if (performance.now() - lastJ < 3000) return; for (const j of junctions) { if (j.clip !== clip.id) continue; if (p >= j.at - 0.3 && p <= j.at + (j.window || 2)) { lastJ = performance.now(); log('junction ' + j.id); window.__w.lastJunction = j.id; jump(j.toTime); return; } } }
 
 const wrap = a => Math.atan2(Math.sin(a), Math.cos(a)), D2R = Math.PI / 180;
@@ -156,7 +156,7 @@ let hd = 0, rate = 0, last = performance.now(), lastPos = 0, idleT = 0, aligning
 const relYaw = () => wrap(look.yaw + hd - headAt(pos()));
 const REV = !!CFG.rev; let revOn = false; /* true once the reversed stream is attached */
 /* travel axis you are closest to: forward, or (w50c) backward along the same filmed street */
-const relPath = () => { const r = relYaw(); return revOn && clip && Math.abs(r) > Math.PI / 2 ? wrap(r - Math.PI) : r; };
+const relPath = () => { const r = relYaw(); return revOn && clip && (backWant || DIR === 'R') && Math.abs(r) > Math.PI / 2 ? wrap(r - Math.PI) : r; }; /* t1b: without Turn back, 'behind' counts as off the path, so a forward push swings the view back to where the footage goes */
 
 // ---------- transitions: w50 = short dip; w50a = 0.5 s crossfade with the old frame rotated so both travel directions line up ----------
 const snapCv = document.createElement('canvas'); snapCv.width = 2048; snapCv.height = 1024; const snapCtx = snapCv.getContext('2d');
@@ -253,7 +253,7 @@ if (params.get('places') === '0' || params.get('t')) closePlaces(); else openPla
 // integrated and loop-closed at the real junctions. Approximate (dead reckoning, no GPS). Solid = filmed, green rings = real junctions,
 // grey dashes = openings nobody filmed. ----------
 const mm = $('minimap'), mctx = mm.getContext('2d'); let MP = null;
-fetch('t1/path-t1.json?v=1').then(r => r.json()).then(j => { MP = j.pts; window.__w.mapPts = MP.length; drawMap(); }).catch(e => log('map ' + e.message));
+fetch('t1/path-t1.json?v=2').then(r => r.json()).then(j => { MP = j.pts; window.__w.mapPts = MP.length; drawMap(); }).catch(e => log('map ' + e.message));
 const mpAt = t => { if (!MP) return null; let lo = 0, hi = MP.length - 1; while (lo < hi) { const m = (lo + hi) >> 1; if (MP[m][0] < t) lo = m + 1; else hi = m; } const q = MP[lo], r = MP[Math.max(0, lo - 1)]; if (!r || q[0] === r[0] || t >= q[0]) return q; if (q[0] - r[0] > 1.5 || clips.some(c => r[0] <= c.hi && q[0] >= c.hi)) return t - r[0] < q[0] - t ? r : q; /* gap between main end and riverside start */ const f = (t - r[0]) / (q[0] - r[0]); return [t, r[1] + (q[1] - r[1]) * f, r[2] + (q[2] - r[2]) * f, q[3]]; };
 function drawMap() { if (!MP) return; const W = 120; mctx.clearRect(0, 0, W, W);
   const seg = (lo, hi) => MP.filter(q => q[0] >= lo && q[0] <= hi);
@@ -267,7 +267,7 @@ function drawMap() { if (!MP) return; const W = 120; mctx.clearRect(0, 0, W, W);
 mm.addEventListener('pointerdown', e => { e.stopPropagation(); if (!MP || !ready) return; const r = mm.getBoundingClientRect(), x = (e.clientX - r.left) * 120 / r.width, y = (e.clientY - r.top) * 120 / r.height; let best = null, bd = 1e9; for (const q of MP) { if (q[0] < LO || clips.every(c => q[0] < c.lo || q[0] > c.hi - 1)) continue; const d = (q[1] - x) ** 2 + (q[2] - y) ** 2; if (d < bd) { bd = d; best = q; } } if (best && bd < 120) go(best[0], 'map'); });
 
 // ---------- w50c: walk back on reversed real footage ----------
-if (REV) { $('turn').hidden = false; $('turn').onclick = () => { const y0 = look.yaw, s0 = performance.now(); lastAct = 'turn back'; window.__w.turnBacks = (window.__w.turnBacks || 0) + 1; const st = () => { const k = Math.min(1, (performance.now() - s0) / 600), e = k < .5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2; look.yaw = y0 + Math.PI * e; if (k < 1) requestAnimationFrame(st); }; st(); }; }
+if (REV) { $('turn').hidden = false; $('turn').onclick = () => { const y0 = look.yaw, s0 = performance.now(); backWant = DIR === 'F'; lastAct = 'turn back'; window.__w.turnBacks = (window.__w.turnBacks || 0) + 1; const st = () => { const k = Math.min(1, (performance.now() - s0) / 600), e = k < .5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2; look.yaw = y0 + Math.PI * e; if (k < 1) requestAnimationFrame(st); }; st(); }; }
 
 // ---------- loop ----------
 const OFF = 45 * D2R; let edgeT = 0;
@@ -283,7 +283,8 @@ renderer.setAnimationLoop(() => { const now = performance.now(), dt = Math.min(0
       look.yaw -= Math.sign(rp) * Math.min(Math.abs(rp), 1.3 * dt); edge(true, -Math.sign(rp)); lastAct = 'off-path push';
       camera.quaternion.setFromEuler(new THREE.Euler(look.pitch, look.yaw + hd, 0, 'YXZ')); renderer.render(scene, camera); return; }
     edge(false);
-    const wd = revOn && clip ? (Math.abs(relYaw()) > 100 * D2R ? 'R' : Math.abs(relYaw()) < 80 * D2R ? 'F' : DIR) : 'F';
+    const ry = Math.abs(relYaw()); if (ry < 80 * D2R) backWant = false; /* t1b: a forward push never reverses the footage by itself; only Turn back / pulling the stick down arms reverse */
+    const wd = revOn && clip && backWant && ry > 100 * D2R ? 'R' : 'F';
     if (want > 0 && wd !== DIR) { setDir(wd, 'push'); return; }
     const atEnd = DIR === 'F' ? (clip && p >= clip.hi - 0.3) : (clip && p <= clip.lo + 0.3);
     if (want > 0 && atEnd) { if (!v.paused) v.pause(); if (false) { const st0 = $('status'); if (!st0.querySelector('#loop-btn')) { st0.innerHTML = 'End of this filmed walk. <button id="loop-btn" class="btn pri" type="button">Round the square again</button>'; $('loop-btn').onclick = e => { e.stopPropagation(); st0.textContent = ''; const x = EXITS.find(q => q.id === 'loop-start'); window.__w.exits = (window.__w.exits || 0) + 1; log('end loop'); go(x.to, 'end loop', x.rot * -D2R); }; } } else $('status').textContent = DIR === 'F' ? 'End of the filmed street. Pick another place to keep going.' : 'Start of this filmed walk. Pick another place to keep going.'; }
@@ -304,7 +305,7 @@ const T0 = performance.now();
   /* w51: native iPhone HLS gets one fixed level; time a 400 KB slice first and drop to f1280 (1.8 Mbps) on a slow link, since f2560 (6 Mbps) cannot keep up there */
   if (isIOS && url.includes('f2560') && params.get('q') !== 'hi') { try { const pl = await (await fetch(url)).text(), seg = new URL(pl.split('\n').find(l => /\.m4s/.test(l) && !/^#/.test(l)).trim(), url).href, t0 = performance.now(), rb = await (await fetch(seg, { headers: { Range: 'bytes=0-399999' } })).arrayBuffer(), mbps = rb.byteLength * 8 / ((performance.now() - t0) * 1000); log('probe ' + mbps.toFixed(1) + ' Mbps'); if (mbps < 7 || params.get('q') === 'lo') { url = url.replace('f2560', 'f1280'); slowNet = true; } } catch (e) { log('probe failed'); } }
   const r = await (await fetch(ROOT + 'routes.json', { cache: 'no-cache' })).json(); clips = r.routes[0].clips; clip = clips[0];
-  fetch(A + 'heading_foe.json').then(x => x.json()).then(h => { HEAD = h; hd = headAt(Math.max(pos(), c.lo || 0)); drawMap(); }).catch(() => {});
+  fetch(A + 'heading_foe.json?v=2').then(x => x.json()).then(h => { HEAD = h; hd = headAt(Math.max(pos(), c.lo || 0)); drawMap(); }).catch(() => {});
   if (c.audio) audio.src = c.audio; else $('sound').hidden = true; /* t1: no ambience track yet */
   $('load-msg').textContent = 'Connecting to the street…';
   if (!(await probe(url))) throw new Error('The video stream is not reachable. Check the connection and reload.');
@@ -314,4 +315,4 @@ const T0 = performance.now();
   await seekTo(t0); mat.map = tex; mat.needsUpdate = true; ready = true; document.body.classList.remove('loading'); window.__ttff = performance.now() - T0; log('ready');
   if (REV && c.rev && slowNet) log('rev skipped on slow link'); else if (REV && c.rev) { const ru = c.base + c.rev; if (await probe(ru)) { RD = c.revDuration || c.duration; attach(st.R, ru, media('R', pos())); revOn = true; log('rev attached'); } else log('rev unreachable'); }
 } catch (e) { $('error').hidden = false; $('error').textContent = e.message; log('error ' + e.message); } })();
-Object.assign(window.__w, { ver: VER, state: () => ({ pos: pos(), ready, clip: clip && clip.id, dir: DIR, revOn, relYaw: relYaw() / D2R, playing: !v.paused, fading }), go, goPlace, takeExit, showNF, setLook: (d, pt) => { look.yaw = d * D2R; if (pt != null) look.pitch = pt * D2R; }, key: (k, on) => { keys[k] = on; }, lastAct: () => lastAct, exits: 0, places: PLACES, headAt, ttff: () => window.__ttff, switches: () => switches.slice() });
+Object.assign(window.__w, { ver: VER, state: () => ({ pos: pos(), backWant, hd, ready, clip: clip && clip.id, dir: DIR, revOn, relYaw: relYaw() / D2R, playing: !v.paused, fading }), go, goPlace, takeExit, showNF, setLook: (d, pt) => { look.yaw = d * D2R; if (pt != null) look.pitch = pt * D2R; }, key: (k, on) => { keys[k] = on; }, lastAct: () => lastAct, exits: 0, places: PLACES, headAt, ttff: () => window.__ttff, switches: () => switches.slice() });
