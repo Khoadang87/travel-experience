@@ -14,11 +14,19 @@
   "candidate_source_sha256": "c14efcf036108025d720be419e827983212660aafd34f9bbe15d1765d33e4e3f",
   "source_tests_passed": 34,
   "syntax_passed": true,
-  "actual_browser_checked": false,
+  "actual_browser_checked": true,
   "delivery_approved": false,
   "phone_testing_ready": false,
   "change": "Only semantic runtime change from w71: actual35.08s return media endpoint and disclosed edit window endpoint replace rounded35.00. No seek, added footage or reverse.",
   "failed_source_case": "rendered-review-w71.json native endpoint35.08 blocks disclosed return at oldroute35",
   "tests": "34pass; first test run33pass1fail due old expected35.01outside, updated to actual outside35.081; failure retained in run record.",
-  "media_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda"
+  "media_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+  "main_commit": "db988ea1b447e56907b659a0ce394730280a3eb1",
+  "deployment": {
+    "id": 41585224735,
+    "status": "success"
+  },
+  "browser_scope": "rendered-review-w72.json limited CPU functional observations; no overall acceptance",
+  "independent_advisor_approved": false,
+  "real_iphone_checked": false
 }

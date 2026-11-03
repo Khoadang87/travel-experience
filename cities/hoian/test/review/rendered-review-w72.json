@@ -1,0 +1,102 @@
+{
+  "version": "w72",
+  "main_commit": "db988ea1b447e56907b659a0ce394730280a3eb1",
+  "candidate_source_sha256": "c14efcf036108025d720be419e827983212660aafd34f9bbe15d1765d33e4e3f",
+  "return_media_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+  "deployment": {
+    "id": 41585224735,
+    "status": "success"
+  },
+  "actual_cloud_browser_checked": true,
+  "scope": "Bounded CPU-path functional regression using ordinary actual UI input; no hidden playback mutation or artificial seek.",
+  "observations": {
+    "return_route_start": {
+      "time": 5,
+      "duration": 35.08,
+      "paused": true,
+      "readyState": 4
+    },
+    "ordinary_forward_traversal": {
+      "after30000ms": 33.080696,
+      "after3500ms": 35.002806,
+      "paused": true,
+      "readyState": 4,
+      "native_ended": false
+    },
+    "corrected_endpoint": {
+      "time": 35.002806,
+      "beyond_prior35s_boundary": true,
+      "backward500ms": "disclosed assembly edit notice",
+      "automatic_jump": false,
+      "notice": "Different day, camera position, lighting and crowds; edited change, not continuous step.",
+      "after_manual_confirm": {
+        "route": "bridge_bound",
+        "time": 1066.2,
+        "paused": true,
+        "readyState": 4
+      }
+    },
+    "bridge_connection": {
+      "ordinary30000ms_landing": 1094.676436,
+      "ordinary9000ms_landing": 1103.227451,
+      "backward500ms": "disclosed bridge edit notice",
+      "after_manual_confirm": {
+        "route": "street_bound",
+        "time": 5,
+        "paused": true,
+        "readyState": 4
+      }
+    },
+    "accepted_right_drag": {
+      "from": [
+        620,
+        450
+      ],
+      "to": [
+        770,
+        450
+      ],
+      "landmarks_moved": "right",
+      "time_before": 5,
+      "time_after": 5,
+      "paused": true,
+      "readyState": 4
+    }
+  },
+  "limits": [
+    "Exact native-ended35.08 boundary not reached in this run; it stopped35.002806. Boundary tests cover35.08, but this browser observation validates beyond old35.00 only.",
+    "Functional manual edits do not establish exact physical join, heading alignment, seamless stepping, visual quality or original broad free-roaming goal.",
+    "Not sustainedFPS, latency distribution or professional smoothness acceptance.",
+    "No current real iPhone Safari/WebGL evidence or strict independent advisor approval; full immutable mainHLS/CDN dependency lock absent.",
+    "Original w42phoneFAIL and prior intermittent shortpress failures remain unresolved; this run does not clear them.",
+    "Sideways/midstreetreturn/15-minute capturedcoverage remains incomplete."
+  ],
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "evidence": [
+    {
+      "path": "cities/hoian/test/review/evidence/w72/hoian-w72-endpoint-notice-20261103.jpg",
+      "sha256": "66d0e4464795c438207107bcde1ee916de3483ec50ad0e9e4499124466646e5a"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w72/hoian-w72-assembly-landed-20261103.jpg",
+      "sha256": "7bfe73bdb18b8cf2525d96a549e2f27cc9d7be1ae0f0985bc5bd9b9346ac7ef7"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w72/hoian-w72-bridge-notice-20261103.jpg",
+      "sha256": "cdb81b7e2864c1c3722f889b53491229823b1edfd418a51146941e26dbe25bf9"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w72/hoian-w72-return-before-drag-20261103.jpg",
+      "sha256": "d364517caa14f897ad8dfd95a2bb77d4351eee8a8dda727085dbdc9e88e7b817"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w72/hoian-w72-return-after-drag-20261103.jpg",
+      "sha256": "b39d00e127809e4149a7138a0f2a9901034fb52f7f727172f54c4770da19180e"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w72/hoian-w72-rendered-20261103.json",
+      "sha256": "01c05fc84a79001a18960df1f0d0af961d2e4f828c49b8bc26941718576119b1"
+    }
+  ]
+}
