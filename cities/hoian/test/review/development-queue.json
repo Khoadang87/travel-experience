@@ -131,12 +131,19 @@
     },
     {
       "id": "duration-matched-codec-comparison",
-      "status": "ready_internal_implementation",
+      "status": "partial_selector_implemented_filechooser_tool_timeout",
       "action": "Implement uniquely versioned test-only local-file codec override with exact SHA/duration/format checks, preserving same route/heading/input/source transactions. Use cloud shared-file chooser (read documented upload guidance) to compare retainedw54vsnewvariant in actualplayer, without newpaidhosting, security overrides or productdelivery. Keep runtimew75stableuntilnewcandidateversion.",
       "local_variant": "/workspace/scratch/a7d4ca2c1f7e/hoian-player-w75/review/evidence/frame-clock-w75-20261103/return-short-gop-v2-review.mp4",
       "sha256": "74309688675b6d6a5c4b6c603e05d8160ef0f7f6f9a98031b6b0d220637ca3e9",
       "bytes": 12691172,
       "evidence": "Variant2fromoriginalSHA8742...,-r25CRF32slowgop25,duration35.08/877frames/allPTSidenticalruntime/full_decode0. Variant1fpsfilter35.00sexcluded/preserved. Binarylocalonly,recipe/hashbacked;reproduceifpruned. No actual codec comparison, qualityapproval, responsivenessgain or newcapture."
+    },
+    {
+      "id": "w76-file-selection-recovery",
+      "status": "ready_bounded_diagnostic",
+      "action": "Read HANDOFF-w76 first. New exactw76 deployed/UIverified;43checks. Documentedlargefilechooserattemptstalled/timedout,tab29notfoundafterbindingsreset. Do not repeat large file transfer blindly. Use bounded tiny negative fixture chooser test with per-call timeout/documented nativepickerfallback if exposed, separating chooser vs filetransfer. If blocked,current rendered codec comparison stays incomplete; continue independent capturedcoverage/physicalreview without security/network/laptop/paid bypass.",
+      "next": "Once file selection works, both knownhashfiles via same localblobpath,pausedlanding+first500ms+repeat/reload traces. No genericnativechecks or speculativewarmup/gatechange.",
+      "source_lock": "93b4e03b31835035aec4d294bcc0605526e29659c2db35220a81b185ce2349b4"
     }
   ],
   "run_rules": [
@@ -156,7 +163,7 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "Actualw75deployment/renderedframeclocktraces:twofirstreturn500msFAILsdespitebuffered0..20.911/seekingfalse;nofreshframecallbackbeforefailedrelease,playresolvednormally. Nextpressworks;causeunproven. LocaldurationmatchedshortGOPvariantfullydecoded,notadopted/hosted/approved.",
+  "last_verified_progress": "W76hashvalidatedclientlocalcodecselectorimplemented10newisolatedtestfiles;43checks+syntax,Pages41695642910success,actualmain1066pausedready4/Routes/details/fileinputAX. Filechooseroperationtimedout/stalled,noA-Bresultorhashacceptanceverified. Source/evidencebacked;w75fail/phone/advisorgatesremain.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
@@ -165,7 +172,7 @@
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "1864916429f6bf636c9957642c18e21fbf283e83",
+    "working_commit": "f46127e0ca30fc1cd06f4afc02555b7d2e7f3ab0",
     "working_source_sha256": "061c01c3202fc415de1635911cb21912d9c23e7187e432680c7cc169dd835d30",
     "feedback_comment": 6590223108,
     "actual_checks_comment": 6593204567,
@@ -181,11 +188,12 @@
     "w74_source_review_comment": 6606916198,
     "w74_rendered_review_comment": 6608409013,
     "w75_instrumentation_comment": 6609842621,
-    "w75_actual_review_comment": 6611265060
+    "w75_actual_review_comment": 6611265060,
+    "w76_comment": 6613937602
   },
   "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
-  "evidence_commit": "1864916429f6bf636c9957642c18e21fbf283e83",
-  "prepared_candidate": "w75",
-  "prepared_candidate_source_sha256": "061c01c3202fc415de1635911cb21912d9c23e7187e432680c7cc169dd835d30",
-  "prepared_candidate_status": "served_isolated_timing_candidate_with_actual_failures"
+  "evidence_commit": "f46127e0ca30fc1cd06f4afc02555b7d2e7f3ab0",
+  "prepared_candidate": "w76",
+  "prepared_candidate_source_sha256": "93b4e03b31835035aec4d294bcc0605526e29659c2db35220a81b185ce2349b4",
+  "prepared_candidate_status": "served_isolated_ui_checked_codec_comparison_incomplete"
 }
