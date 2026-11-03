@@ -21,8 +21,8 @@
       "id": "render-current-candidate",
       "status": "partial",
       "action": "Inspect exact current player through supported cloud CUA; preserve real filmed scenery, manual disclosed edits and paused target landings. GPU/Safari path still needs appropriate environment/device.",
-      "evidence": "w73limitedactualkeyboardW/ArrowUpreleasebothsources+returnjoystickpassed. w72currentbothmanualedits/dragchecksnowhistoricalonly.",
-      "next": "w73currentendpoint+bothdisclosedmanualedit/dragregression; independentphysicaljunction/headingreview. No repeatnative-onlydiagnostics/workerpolls."
+      "evidence": "Current w73 actual cloud CPU: exact native endpoint35.08 ended/paused/ready4; both disclosed manual edits landed paused1066.2 and5; rightward150px picture drag moved landmarks right with time held5. No overall acceptance.",
+      "next": "Keep candidate stable; prioritize genuine captured coverage and physical alignment/heading review with Grok. Real iPhone Safari and independent exact-player verdict still required."
     },
     {
       "id": "correct-observed-player-failures",
@@ -54,8 +54,9 @@
     },
     {
       "id": "grok-junction-heading-review",
-      "status": "awaiting_acknowledgement",
-      "action": "Read new substantive Grok reply on issue1, verify actual hashes/frame evidence, review proposed diff and respond; continue independent CPU/render work while awaiting. Never describe posting a request as active review or approval."
+      "status": "requested_after_reply",
+      "action": "Read new substantive Grok reply on issue1, verify actual hashes/frame evidence, review proposed diff and respond; continue independent CPU/render work while awaiting. Never describe posting a request as active review or approval.",
+      "evidence": "EAN/Grok replied in6598831602 with gap/UX/requirements questions. Answered6599037293, provided captured return route and requested exact-frame physical junction review. No verdict."
     },
     {
       "id": "media-startup-response-w65",
@@ -82,20 +83,22 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "Observedw72keyboardreleasecontinuedplaybothsources;w73synchronouskeyupcontrolcorrection37tests andlimitedactualbeforeafterchecks pass. Currentfullregression/quality/realiPhone/strictadvisor missing.",
+  "last_verified_progress": "Current w73 actual native35.08 endpoint and both manual route changes passed limited CPU functional checks; accepted drag preserved. Grok communication resumed and concrete shared handoff sent. No runtime changes or final/device/advisor approval.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
     "follow_up_comment": 6589580276,
-    "grok_status": "requested_exact_w68_review_no_acknowledgement_observed",
+    "grok_status": "replied_with_questions; answered with shared source, requirements and independent review request; no review verdict",
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "1e3d9b62a07859d4fb58b8a60fc8e5bc4fa1eabf",
+    "working_commit": "62090dd570ef6a31cfa766468cf0c0eaa2760f57",
     "working_source_sha256": "61d436c2547b75637ab4c4763da12d878b8ce1c7cf4d5b6f7e5990115a75eac3",
     "feedback_comment": 6590223108,
-    "actual_checks_comment": 6593204567
+    "actual_checks_comment": 6593204567,
+    "grok_reply_comment": 6598831602,
+    "chatgpt_reply_comment": 6599037293
   },
   "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
-  "evidence_commit": "1e3d9b62a07859d4fb58b8a60fc8e5bc4fa1eabf"
+  "evidence_commit": "62090dd570ef6a31cfa766468cf0c0eaa2760f57"
 }
