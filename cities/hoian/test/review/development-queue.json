@@ -87,6 +87,13 @@
       "action": "Assess retained real riverside clips as an alternative one-edit captured-route pair, not a third edit in current w73.",
       "evidence": "Full decode passed for main20s/600frames and other24s/720frames,2560x1280. Six whole panoramas and two detail pairs support a turquoise-shutter corner candidate. Opposing route hypothesis needs balcony identity, heading and pose verification. Exact hashes/proposal backed; proposal disabled.",
       "next": "Independent review of source motion/landmark order and exact endpoint poses; only propose runtime work if coverage and edit count remain truthful. Do not repeat the same six-frame extraction."
+    },
+    {
+      "id": "source-heading-direction-contrast-w73",
+      "status": "partial",
+      "action": "Compare actual source pixels at estimated forward headings and180-degree-opposed views before any navigation-gate change.",
+      "evidence": "Three short spans/18 projected source pictures/12 screen-flow pairs: forward-view median right-minus-left flow positive, opposed-view negative. Axis conversion consistent. Two synthetic tracking checks pass; no camera3D/full-route/browser/device acceptance.",
+      "next": "Extend only to distinct unchecked main-route/return intervals if useful; flag turns/ambiguous/moving-object windows. Independently review exact original phone pose/heading and physical joins. No gate removal based on sparse flow."
     }
   ],
   "run_rules": [
@@ -106,7 +113,7 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "Decoded retained20s/24s riverside clips fully and compared six real source frames plus facade details. Saved disabled alternative one-edit coverage proposal and exact hashes; possible opposing traversal remains unverified. w73 unchanged, no new player/device/advisor approval.",
+  "last_verified_progress": "Actual-source offline heading contrast at three short spans supports forward/opposed direction sign; no obvious180-degree reversal found at those samples. Evidence and point-level diagnostics backed/shared with Grok. w73/gate unchanged; original phone FAIL and exact-player/device approval unresolved.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
@@ -115,7 +122,7 @@
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "8246e105f58fee6a7c024d3044fc1c52233b249e",
+    "working_commit": "696674709e54c0e4bfe9698df840ffd194119e39",
     "working_source_sha256": "61d436c2547b75637ab4c4763da12d878b8ce1c7cf4d5b6f7e5990115a75eac3",
     "feedback_comment": 6590223108,
     "actual_checks_comment": 6593204567,
@@ -124,8 +131,9 @@
     "picture_review_comment": 6600268789,
     "bearing_review_comment": 6601358440,
     "leadin_review_comment": 6601404297,
-    "riverside_review_comment": 6602865431
+    "riverside_review_comment": 6602865431,
+    "direction_contrast_comment": 6604065067
   },
   "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
-  "evidence_commit": "8246e105f58fee6a7c024d3044fc1c52233b249e"
+  "evidence_commit": "696674709e54c0e4bfe9698df840ffd194119e39"
 }
