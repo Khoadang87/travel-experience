@@ -69,8 +69,15 @@
       "id": "physical-junction-picture-review-w73",
       "status": "partial",
       "action": "Compare genuine captured junction pictures, validate source integrity and timeline provenance; obtain independent landmark/heading/camera-offset review before alignment changes.",
-      "evidence": "Ten decoded source frames compared at both edit areas. Gate/yellow corner and169/shopfront identity supported; exact camera position/yaw and seamless continuity not established. Truncated44s local review MP4 preserved; retained fragments recovered44s with full decode exit0 and identical readable8.2s prefix. Main HLS labels inherited, mapping not reverified.",
-      "next": "Reconstruct original HLS playlist-to-global timing using ordinary public source, retain local/nominal labels separately; review Grok exact-frame findings when available. Keep w73 runtime stable."
+      "evidence": "Ten decoded source frames compared at both edit areas. Gate/yellow corner and169/shopfront identity supported; exact camera position/yaw and seamless continuity not established. Truncated44s local review MP4 preserved; retained fragments recovered44s with full decode exit0 and identical readable8.2s prefix. Main HLS labels inherited, mapping not reverified. Current run: provisional gate-point angular comparison is inconclusive after uncertainty; no alignment correction. Automated SIFT unavailable (cv2 absent); public manifest could not be read through research tool. Failed attempt and annotations backed up.",
+      "next": "Inspect actual return clip local0..4 lead-in against main169 junction before assuming local5 is best edit target; keep runtime unchanged. Await independent exact-point review. HLS global mapping needs ordinary authorized manifest access."
+    },
+    {
+      "id": "return-leadin-coverage-w73",
+      "status": "ready",
+      "action": "Decode exact retained return asset local0..4 and compare169 corner/camera positions with retained main local0..4. These are new candidate review frames, not permission to change runtime bounds or claim new broad-direction coverage.",
+      "requires": "Verify exact return/bridge sample hashes; retain local vs inherited global time labels separately.",
+      "acceptance": "Only actual matched scene evidence may support a later disclosed-edit proposal; no automatic alignment, seamless claim or device/advisor approval."
     }
   ],
   "run_rules": [
@@ -90,7 +97,7 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "w73 stable. Backed up two real junction picture comparisons, hashes and a recovered44-second analysis sample provenance. Landmark identity supported; camera joins/heading and global timeline mapping not independently validated. No new rendered/device/advisor acceptance.",
+  "last_verified_progress": "w73 unchanged. Gate close-up point comparison remains inconclusive with uncertainty; no yaw/position correction applied. Matcher unavailable and HLS mapping unverified. Exact annotated evidence/failed script backed up and shared with Grok.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
@@ -99,14 +106,15 @@
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "07b67e4e6858fc8f001513ae42afc10aa19e6925",
+    "working_commit": "5a343c401ddda4a3fc28705efd13623745fb0fb7",
     "working_source_sha256": "61d436c2547b75637ab4c4763da12d878b8ce1c7cf4d5b6f7e5990115a75eac3",
     "feedback_comment": 6590223108,
     "actual_checks_comment": 6593204567,
     "grok_reply_comment": 6598831602,
     "chatgpt_reply_comment": 6599037293,
-    "picture_review_comment": 6600268789
+    "picture_review_comment": 6600268789,
+    "bearing_review_comment": 6601358440
   },
   "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
-  "evidence_commit": "07b67e4e6858fc8f001513ae42afc10aa19e6925"
+  "evidence_commit": "5a343c401ddda4a3fc28705efd13623745fb0fb7"
 }
