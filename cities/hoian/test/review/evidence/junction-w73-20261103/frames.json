@@ -1,0 +1,94 @@
+{
+  "sources": {
+    "main": {
+      "sha256": "f46820e723bf233af7b1b468783409f9bd1e6496a0bc1e255aefd5ce43676078",
+      "media": {
+        "programs": [],
+        "streams": [
+          {
+            "width": 2560,
+            "height": 1280,
+            "r_frame_rate": "30/1",
+            "start_time": "0.066016"
+          }
+        ],
+        "format": {
+          "duration": "44.000000"
+        }
+      },
+      "nominal_timeline_origin_inherited": 1058,
+      "timeline_mapping_reverified": false
+    },
+    "return": {
+      "sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+      "media": {
+        "programs": [],
+        "streams": [
+          {
+            "width": 2160,
+            "height": 1080,
+            "r_frame_rate": "25/1",
+            "start_time": "0.000000"
+          }
+        ],
+        "format": {
+          "duration": "35.080000"
+        }
+      },
+      "nominal_timeline_origin_inherited": 0,
+      "timeline_mapping_reverified": true
+    }
+  },
+  "frames": [
+    {
+      "file": "main-local-8.2.png",
+      "local_time_requested": 8.2,
+      "main_timeline_nominal": 1066.2,
+      "sha256": "88445618d00e0c0dd53ee2ec2cba09de9fca80328f7c18e961e44c49e31280f7",
+      "width": 2560,
+      "height": 1280
+    },
+    {
+      "file": "main-local-11.png",
+      "local_time_requested": 11,
+      "main_timeline_nominal": 1069,
+      "sha256": "b3625fc57ea7f2d6498915931b65799dfa0b27d21ca2eb09f54bdcdc444abf31",
+      "width": 2560,
+      "height": 1280
+    },
+    {
+      "file": "main-local-14.png",
+      "local_time_requested": 14,
+      "main_timeline_nominal": 1072,
+      "sha256": "731512bedf390397cff60e67c69620a58e7369d28fb7c80e3e1d1e82dadb82c7",
+      "width": 2560,
+      "height": 1280
+    },
+    {
+      "file": "return-local-31.png",
+      "local_time_requested": 31,
+      "main_timeline_nominal": null,
+      "sha256": "618f5ed97caf9dcca4dcb9ad68c9e4a082682f3498109e656fa08a3c40206412",
+      "width": 2160,
+      "height": 1080
+    },
+    {
+      "file": "return-local-33.png",
+      "local_time_requested": 33,
+      "main_timeline_nominal": null,
+      "sha256": "b598df12e2fe8d33f548174285a2c7cb7c6f9bae8e385c1a6ba7ae43fd2103a6",
+      "width": 2160,
+      "height": 1080
+    },
+    {
+      "file": "return-local-35.png",
+      "local_time_requested": 35,
+      "main_timeline_nominal": null,
+      "sha256": "09ba86274549e0c5f00401a36d1e9c6f3997adbb464951dac41ae23e1a43e99b",
+      "width": 2160,
+      "height": 1080
+    }
+  ],
+  "spatial_alignment_verified": false,
+  "delivery_approved": false
+}

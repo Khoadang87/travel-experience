@@ -1,0 +1,108 @@
+{
+  "old_file_sha256": "e495cabc7c2ad6870c8ac692cc3c33224943f28a876876eb52b8a04979b85afc",
+  "old_recorded_expected_sha256": "163064223fa8719ffb07079a809beec36f5b2ce406aa3accb1c9e89cccb8336d",
+  "old_status": "truncated; ffmpeg Invalid NAL unit/partial file; failed extracting local11s; NOT original validated media",
+  "assembled_probe": {
+    "programs": [],
+    "streams": [
+      {
+        "width": 2560,
+        "height": 1280,
+        "start_time": "156.066016",
+        "duration": "200.000000"
+      }
+    ],
+    "format": {
+      "start_time": "156.066016",
+      "duration": "200.000000"
+    }
+  },
+  "remux_exit": 0,
+  "remux_errors": "",
+  "recovered_probe": {
+    "programs": [],
+    "streams": [
+      {
+        "width": 2560,
+        "height": 1280,
+        "start_time": "0.066016",
+        "duration": "44.000000"
+      }
+    ],
+    "format": {
+      "start_time": "0.066016",
+      "duration": "44.000000"
+    }
+  },
+  "recovered_sha256": "f46820e723bf233af7b1b468783409f9bd1e6496a0bc1e255aefd5ce43676078",
+  "full_decode": {
+    "exit_code": 0,
+    "stderr": "",
+    "command": "ffmpeg -v error -i recovered-main-1058-1102.mp4 -f null -",
+    "scope": "44-second recovered sample only"
+  },
+  "retained_input_parts": [
+    {
+      "file": "init.mp4",
+      "bytes": 829,
+      "sha256": "0513d7a54b7809f585d945857140b4102240624166e28dcdc1d6d0e7e1ee2b6f"
+    },
+    {
+      "file": "s039.m4s",
+      "bytes": 2266826,
+      "sha256": "f0519c81738440171ce67f8d36c59b53b6f1120ee5c84f22438d4f709f6c3d16"
+    },
+    {
+      "file": "s040.m4s",
+      "bytes": 2262564,
+      "sha256": "0e44816446c5b80ff3d21966a6a2f210a96ab6d354e9b049983d30bbf49e9171"
+    },
+    {
+      "file": "s041.m4s",
+      "bytes": 2186106,
+      "sha256": "6cf80aefbdf596effc2502945b3672e3fc146146e705425835b08fb334eef7e9"
+    },
+    {
+      "file": "s042.m4s",
+      "bytes": 2301136,
+      "sha256": "11ce27bb63a9874690498d563fe15a00005833cd589b61ed697aacda11b954bf"
+    },
+    {
+      "file": "s043.m4s",
+      "bytes": 2185226,
+      "sha256": "08d3f907d7c1286a5523b9008f4cf5e2d73f3526640d9fd81c2b867ef8782e96"
+    },
+    {
+      "file": "s044.m4s",
+      "bytes": 2282557,
+      "sha256": "9be67d55518d9f6b7a33adf876dc55de3c4b919faad3861aa5229deb6bc4bf95"
+    },
+    {
+      "file": "s045.m4s",
+      "bytes": 2302866,
+      "sha256": "c11e4a6ef3fc7f2e8294e35bacc964834cae60c39a11ff2e823ba8acba285401"
+    },
+    {
+      "file": "s046.m4s",
+      "bytes": 2195007,
+      "sha256": "507ce1741a70b3e9f5293636e01e342c18dc14c8230a4ed2f2e2f03670fb410b"
+    },
+    {
+      "file": "s047.m4s",
+      "bytes": 2253278,
+      "sha256": "880330c44cc2a3e21be882d623a3f04ff7b314d5f8087b1f21b42b2c92bca172"
+    },
+    {
+      "file": "s048.m4s",
+      "bytes": 2252839,
+      "sha256": "7af7ed7961986522316e9180d3550e3d88218ed2795dc709a26b1e302edc30ec"
+    },
+    {
+      "file": "s049.m4s",
+      "bytes": 2262858,
+      "sha256": "7d5ababe235cd7614ff7c47ec84b7ff940049bc2f3ae7e18fe1d221e93d8a08a"
+    }
+  ],
+  "method": "Concatenate retained initialization+s039..s049; remux video copy with -avoid_negative_ts make_zero. No reencode. Originals retained.",
+  "timeline_limit": "Inherited nominal1058..1102 label from prior w55 audit. Raw PTS156.066016; remux PTS0.066016. Original playlist-to-global mapping NOT independently reconstructed this run. Local8.2 pixels exactly match the old decodable prefix; do not infer exact global frame timing from that alone."
+}

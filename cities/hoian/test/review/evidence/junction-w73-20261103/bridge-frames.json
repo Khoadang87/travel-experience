@@ -1,0 +1,47 @@
+{
+  "scope": "Source-picture analysis only; inherited main timeline labels, not rendered player approval",
+  "sources": {
+    "bridge": {
+      "sha256": "9a27081b3c35f0323143eec6310dd6aca9571ff05660a9e2afe07cc314483621",
+      "bytes": 56329945
+    },
+    "return": {
+      "sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+      "bytes": 10554227
+    }
+  },
+  "frames": [
+    {
+      "image": "bridge-local-0.jpg",
+      "local_requested_seconds": 0,
+      "inherited_nominal_main_seconds": 1102,
+      "decoded_png_sha256": "57257c45952dc93cafbcd17f73657d1eb7b03e8877923ed41628d2559d668e0e",
+      "jpeg_sha256": "e57bcbaf3782dd02354277f0cac0c1a18c89ac18f1d31dd08596a4ce51cd079a",
+      "jpeg_changes": "JPEG compression only; original full panorama dimensions retained"
+    },
+    {
+      "image": "bridge-local-2.jpg",
+      "local_requested_seconds": 2,
+      "inherited_nominal_main_seconds": 1104,
+      "decoded_png_sha256": "a7d56ac07b4573c4d4250225706d3ce65521863f595945c241c21219c5f51c81",
+      "jpeg_sha256": "75a60cb6b1f1f29d228d320c29ea630d6a16c96ea13c47888329d9871df21afb",
+      "jpeg_changes": "JPEG compression only; original full panorama dimensions retained"
+    },
+    {
+      "image": "bridge-local-4.jpg",
+      "local_requested_seconds": 4,
+      "inherited_nominal_main_seconds": 1106,
+      "decoded_png_sha256": "39c93c6e5a106ef245900e84d9c3e42ed3cd50a5ba3c2bb2fd5b19e81e6a737b",
+      "jpeg_sha256": "89364da1607931ccef2d9350b596c5f48265306d87bf4e63bc79af3ed107888e",
+      "jpeg_changes": "JPEG compression only; original full panorama dimensions retained"
+    },
+    {
+      "image": "return-local-5.jpg",
+      "local_requested_seconds": 5,
+      "inherited_nominal_main_seconds": null,
+      "decoded_png_sha256": "ba17e587d34b8a766e6a723d08da5dae12efbef658ebcaf36bdd8473c9a09261",
+      "jpeg_sha256": "912d8a27ffa703541915f645f2ef0295ad73f5543eccad77af298260cd20b4fe",
+      "jpeg_changes": "JPEG compression only; original full panorama dimensions retained"
+    }
+  ]
+}

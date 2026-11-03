@@ -1,0 +1,6 @@
+{
+  "damaged_prefix_extraction_exit": 0,
+  "damaged_prefix_extraction_stderr": "",
+  "recovered_local8_2_pixels_identical_to_decodable_damaged_prefix": true,
+  "mapping_scope": "Inherited nominal timeline1058+local; pixel comparison confirms earlier decodable prefix only. Original playlist mapping not independently reconstructed in this run."
+}
