@@ -243,7 +243,7 @@ if (params.get('places') === '0' || params.get('t')) closePlaces(); else openPla
 // grey dashes = openings nobody filmed. ----------
 const mm = $('minimap'), mctx = mm.getContext('2d'); let MP = null;
 fetch('w50/path-w51.json?v=1').then(r => r.json()).then(j => { MP = j.pts; window.__w.mapPts = MP.length; drawMap(); }).catch(e => log('map ' + e.message));
-const mpAt = t => { if (!MP) return null; let lo = 0, hi = MP.length - 1; while (lo < hi) { const m = (lo + hi) >> 1; if (MP[m][0] < t) lo = m + 1; else hi = m; } const q = MP[lo], r = MP[Math.max(0, lo - 1)]; if (!r || q[0] === r[0] || t >= q[0] || q[0] - r[0] > 1.5) return q; const f = (t - r[0]) / (q[0] - r[0]); return [t, r[1] + (q[1] - r[1]) * f, r[2] + (q[2] - r[2]) * f, q[3]]; };
+const mpAt = t => { if (!MP) return null; let lo = 0, hi = MP.length - 1; while (lo < hi) { const m = (lo + hi) >> 1; if (MP[m][0] < t) lo = m + 1; else hi = m; } const q = MP[lo], r = MP[Math.max(0, lo - 1)]; if (!r || q[0] === r[0] || t >= q[0]) return q; if (q[0] - r[0] > 1.5) return t - r[0] < q[0] - t ? r : q; /* gap between main end and riverside start */ const f = (t - r[0]) / (q[0] - r[0]); return [t, r[1] + (q[1] - r[1]) * f, r[2] + (q[2] - r[2]) * f, q[3]]; };
 function drawMap() { if (!MP) return; const W = 120; mctx.clearRect(0, 0, W, W);
   const seg = (lo, hi) => MP.filter(q => q[0] >= lo && q[0] <= hi);
   const line = (P, col, w, dash) => { mctx.setLineDash(dash || []); mctx.strokeStyle = col; mctx.lineWidth = w; mctx.lineCap = 'round'; mctx.lineJoin = 'round'; mctx.beginPath(); P.forEach(([, x, y], i) => i ? mctx.lineTo(x, y) : mctx.moveTo(x, y)); mctx.stroke(); };
