@@ -62,7 +62,7 @@ const rawH = p => { if (!HEAD) return 0; const i = Math.min(HEAD.h.length - 1, p
 const headAt = p => Math.PI / 2 - rawH(p);
 
 // ---------- video: two streams (F forward, R reversed); only the active one plays, the other is parked at the mapped time ----------
-const st = { F: { id: 'F' }, R: { id: 'R' } }; let DIR = 'F'; let RD = 0; /* reversed stream duration: R time = RD - forward time */
+const st = { F: { id: 'F' }, R: { id: 'R' } }; let DIR = 'F'; let backWant = false; let RD = 0; /* reversed stream duration: R time = RD - forward time */
 let v, tex; /* v/tex = the active stream's element/texture */
 const sync = () => { v = st[DIR].v; tex = st[DIR].tex; };
 function mkV(s) { const old = s.v, ot = s.tex; const el = document.createElement('video'); el.muted = true; el.defaultMuted = true; el.playsInline = true; el.setAttribute('playsinline', ''); el.crossOrigin = 'anonymous'; el.preload = 'auto';
@@ -129,7 +129,7 @@ addEventListener('blur', () => { joyEnd(); look.drag = null; for (const k of Obj
 const joyAng = () => Math.atan2(joy.x, -joy.y) * 180 / Math.PI; /* 0 = stick up, +-180 = pulled back */
 const joyBack = () => joy.id != null && Math.hypot(joy.x, joy.y) >= 0.22 && joy.y > 0.1 && Math.abs(joyAng()) > 100; /* w60: any downward drag past the deadzone */
 const speed = () => { if (keys.ArrowUp || keys.KeyW) return 1; if (joy.id == null) return 0;
-  const m = Math.hypot(joy.x, joy.y); if (joyBack()) return 0; /* w36: pulled back = turnaround first, then forward while held */
+  const m = Math.hypot(joy.x, joy.y); if (joyBack()) { if (!joy.backDone && REV) { joy.backDone = true; $('turn').click(); } return 0; } /* w36: pulled back = turnaround first, then forward while held */
   const u = -joy.y; if (u < 0.2) return 0; return 0.5 + 0.5 * Math.min(1, (u - 0.2) / 0.65); };
 const joyTurn = () => { if (joy.id == null || joyBack()) return 0; const x = joy.x; return Math.abs(x) < 0.3 ? 0 : Math.sign(x) * (Math.abs(x) - 0.3) / 0.7; }; /* w36: sideways = turn the view (up to 70 deg/s) */
 
@@ -147,7 +147,7 @@ function soundTick(walking, p) { if (!soundOn || !walking) { if (!audio.paused) 
 // ---------- clips, junctions, jumps ----------
 const clipAt = t => clips.find(c => t >= c.lo - 0.5 && t <= c.hi + 0.5) || clips[0];
 let jumping = false, lastJ = 0;
-async function jump(t) { jumpGen++; jumping = true; $('status').textContent = ''; clip = clipAt(t); try { while (parking) await new Promise(r => setTimeout(r, 30)); /* w30: a park of this stream finishing after our seek used to drag the walk back to the old spot */ if (DIR !== 'F') { st.R.v.pause(); DIR = 'F'; sync(); mat.map = tex; mat.needsUpdate = true; } await seekTo(t); clip = clipAt(t); hd = headAt(t); look.yaw = 0; look.pitch = 0; window.__w.lastJump = t; } finally { lastPos = pos(); jumping = false; } }
+async function jump(t) { jumpGen++; backWant = false; jumping = true; $('status').textContent = ''; clip = clipAt(t); try { while (parking) await new Promise(r => setTimeout(r, 30)); /* w30: a park of this stream finishing after our seek used to drag the walk back to the old spot */ if (DIR !== 'F') { st.R.v.pause(); DIR = 'F'; sync(); mat.map = tex; mat.needsUpdate = true; } await seekTo(t); clip = clipAt(t); hd = headAt(t); look.yaw = 0; look.pitch = 0; window.__w.lastJump = t; } finally { lastPos = pos(); jumping = false; } }
 function checkJunction(p) { if (performance.now() - lastJ < 3000) return; for (const j of junctions) { if (j.clip !== clip.id) continue; if (p >= j.at - 0.3 && p <= j.at + (j.window || 2)) { lastJ = performance.now(); log('junction ' + j.id); window.__w.lastJunction = j.id; jump(j.toTime); return; } } }
 
 const wrap = a => Math.atan2(Math.sin(a), Math.cos(a)), D2R = Math.PI / 180;
@@ -155,7 +155,7 @@ let hd = 0, rate = 0, last = performance.now(), lastPos = 0, idleT = 0, aligning
 const relYaw = () => wrap(look.yaw + hd - headAt(pos()));
 const REV = !!CFG.rev; let revOn = false; /* true once the reversed stream is attached */
 /* travel axis you are closest to: forward, or (w50c) backward along the same filmed street */
-const relPath = () => { const r = relYaw(); return revOn && clip && clip.id === 'main' && Math.abs(r) > Math.PI / 2 ? wrap(r - Math.PI) : r; };
+const relPath = () => { const r = relYaw(); return revOn && clip && clip.id === 'main' && (backWant || DIR === 'R') && Math.abs(r) > Math.PI / 2 ? wrap(r - Math.PI) : r; };
 
 // ---------- transitions: w50 = short dip; w50a = 0.5 s crossfade with the old frame rotated so both travel directions line up ----------
 const snapCv = document.createElement('canvas'); snapCv.width = 2048; snapCv.height = 1024; const snapCtx = snapCv.getContext('2d');
@@ -207,7 +207,7 @@ function placeMarkers() { if (!ready || !clip) return; const p = pos(), card = !
   UNFILMED.forEach((x, i) => put(nfEls[i], dirOf(x, p), live(x, p) && offOf(x, p) < 60 * D2R, innerHeight * (0.40 + 0.07 * i)));
   put(fwdEl, headAt(p) + (revOn && DIR === 'R' ? Math.PI : 0), !v.seeking && Math.abs(relPath()) < 50 * D2R && !(clip && p >= clip.hi - 1), innerHeight * 0.66); }
 setInterval(placeMarkers, 80);
-const exitAhead = p => EXITS.find(x => live(x, p) && offOf(x, p) < 25 * D2R && Math.abs(relYaw()) > 15 * D2R);
+let exCand = null; const exitAhead = p => { if (Math.abs(relYaw()) <= 15 * D2R) return null; let best = null, bo = 25 * D2R; for (const x of EXITS) { if (!live(x, p)) continue; const o = offOf(x, p); if (o < bo) { bo = o; best = x; } } if (!best) { exCand = null; return null; } const now = performance.now(); if (!exCand || exCand.x !== best) { exCand = { x: best, s: now }; return null; } return now - exCand.s >= 300 ? best : null; }; /* t1d: nearest exit, view must rest on it 0.3 s */
 const nfAhead = p => UNFILMED.find(x => live(x, p) && offOf(x, p) < 25 * D2R && Math.abs(relYaw()) > 20 * D2R);
 
 // ---------- cards ----------
@@ -262,7 +262,7 @@ function drawMap() { if (!MP) return; const W = 120; mctx.clearRect(0, 0, W, W);
 mm.addEventListener('pointerdown', e => { e.stopPropagation(); if (!MP || !ready) return; const r = mm.getBoundingClientRect(), x = (e.clientX - r.left) * 120 / r.width, y = (e.clientY - r.top) * 120 / r.height; let best = null, bd = 1e9; for (const q of MP) { if (q[0] < LO || (q[0] > 1435.3 && q[0] < 1437)) continue; const d = (q[1] - x) ** 2 + (q[2] - y) ** 2; if (d < bd) { bd = d; best = q; } } if (best && bd < 120) go(best[0], 'map'); });
 
 // ---------- w50c: walk back on reversed real footage ----------
-if (REV) { $('turn').hidden = false; $('turn').onclick = () => { const y0 = look.yaw, s0 = performance.now(); lastAct = 'turn back'; window.__w.turnBacks = (window.__w.turnBacks || 0) + 1; const st = () => { const k = Math.min(1, (performance.now() - s0) / 600), e = k < .5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2; look.yaw = y0 + Math.PI * e; if (k < 1) requestAnimationFrame(st); }; st(); }; }
+if (REV) { $('turn').hidden = false; $('turn').onclick = () => { const y0 = look.yaw, s0 = performance.now(); backWant = DIR === 'F'; lastAct = 'turn back'; window.__w.turnBacks = (window.__w.turnBacks || 0) + 1; const st = () => { const k = Math.min(1, (performance.now() - s0) / 600), e = k < .5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2; look.yaw = y0 + Math.PI * e; if (k < 1) requestAnimationFrame(st); }; st(); }; }
 
 // ---------- loop ----------
 const OFF = 45 * D2R; let edgeT = 0;
@@ -272,16 +272,16 @@ renderer.setAnimationLoop(() => { const now = performance.now(), dt = Math.min(0
     const p = pos(); if (clip && (p < clip.lo - 1 || p > clip.hi + 1)) clip = clipAt(p);
     { const tr = joyTurn(); if (tr) look.yaw += tr * 1.22 * dt; }
     if (want === 0) aligning = false;
-    if (want > 0 && !aligning) { const x = exitAhead(p); if (x) { if (!v.paused) v.pause(); takeExit(x); return; } const n = nfAhead(p); if (n) { if (!v.paused) v.pause(); showNF(n); return; } }
-    const rp = relPath();
-    if (want > 0 && (Math.abs(rp) >= OFF || (aligning && Math.abs(rp) > 0.17))) { aligning = true; if (!v.paused) v.pause(); soundTick(false, p);
+    if (want > 0) { const x = exitAhead(p); if (x) { if (!v.paused) v.pause(); takeExit(x); return; } let n = nfAhead(p); if (n && EXITS.some(x => (!x.clip || (clip && clip.id === x.clip)) && p >= x.t0 - 4 && p <= x.t1 && offOf(x, p) < offOf(n, p))) n = null; /* t1e: aiming closer at a junction just ahead beats a nearby closed opening */ if (n) { if (!v.paused) v.pause(); showNF(n); return; } }
+    const rp = relPath(); const aimSoon = DIR === 'F' && EXITS.concat(UNFILMED).some(x => (!x.clip || (clip && clip.id === x.clip)) && p >= x.t0 - 4 && p <= x.t1 && offOf(x, p) < 25 * D2R); /* t1c */
+    if (want > 0 && !aimSoon && (Math.abs(rp) >= OFF || (aligning && Math.abs(rp) > 0.17))) { aligning = true; if (!v.paused) v.pause(); soundTick(false, p);
       look.yaw -= Math.sign(rp) * Math.min(Math.abs(rp), 1.3 * dt); edge(true, -Math.sign(rp)); lastAct = 'off-path push';
       camera.quaternion.setFromEuler(new THREE.Euler(look.pitch, look.yaw + hd, 0, 'YXZ')); renderer.render(scene, camera); return; }
     edge(false);
-    const wd = revOn && clip.id === 'main' ? (Math.abs(relYaw()) > 100 * D2R ? 'R' : Math.abs(relYaw()) < 80 * D2R ? 'F' : DIR) : 'F';
+    const ry = Math.abs(relYaw()); if (ry < 80 * D2R) backWant = false; const wd = revOn && clip && clip.id === 'main' && backWant && ry > 100 * D2R ? 'R' : 'F'; /* t1b: forward push never reverses by itself */
     if (want > 0 && wd !== DIR) { setDir(wd, 'push'); return; }
     const atEnd = DIR === 'F' ? (clip && p >= clip.hi - 0.3) : p <= LO + 0.3;
-    if (want > 0 && atEnd) { if (!v.paused) v.pause(); if (DIR === 'F' && clip && clip.id === 'main') { const st0 = $('status'); if (!st0.querySelector('#loop-btn')) { st0.innerHTML = 'End of this filmed walk. <button id="loop-btn" class="btn pri" type="button">Round the square again</button>'; $('loop-btn').onclick = e => { e.stopPropagation(); st0.textContent = ''; const x = EXITS.find(q => q.id === 'loop-start'); window.__w.exits = (window.__w.exits || 0) + 1; log('end loop'); go(x.to, 'end loop', x.rot * -D2R); }; } } else $('status').textContent = DIR === 'F' ? 'End of the filmed street. Pick another place to keep going.' : 'Start of the walk.'; }
+    if (want > 0 && atEnd) { if (!v.paused) v.pause(); const xe = DIR === 'F' && EXITS.find(x => clip && x.clip === clip.id && live(x, p) && x.b === 0); if (xe) { takeExit(xe); return; } /* t1f: a dead end whose only way on is straight ahead: holding forward takes it */ if (DIR === 'F' && clip && clip.id === 'main') { const st0 = $('status'); if (!st0.querySelector('#loop-btn')) { st0.innerHTML = 'End of this filmed walk. <button id="loop-btn" class="btn pri" type="button">Round the square again</button>'; $('loop-btn').onclick = e => { e.stopPropagation(); st0.textContent = ''; const x = EXITS.find(q => q.id === 'loop-start'); window.__w.exits = (window.__w.exits || 0) + 1; log('end loop'); go(x.to, 'end loop', x.rot * -D2R); }; } } else $('status').textContent = DIR === 'F' ? 'End of the filmed street. Pick another place to keep going.' : 'Start of the walk.'; }
     else if (want > 0) { const r = Math.max(0.5, Math.min(1, want)); if (v.playbackRate !== r) v.playbackRate = r; if (v.paused) v.play().catch(e => log('play ' + e.name)); $('status').textContent = ''; document.body.classList.add('walked'); }
     else if (!v.paused) v.pause();
     if (want === 0) { idleT += dt; if (idleT > 0.6 && revOn && fwdAhead() > 8) park(); if (idleT > 2.5 && !$('loop-btn')) $('status').textContent = ''; } else idleT = 0;
@@ -309,4 +309,4 @@ const T0 = performance.now();
   await seekTo(t0); mat.map = tex; mat.needsUpdate = true; ready = true; document.body.classList.remove('loading'); window.__ttff = performance.now() - T0; log('ready');
   if (REV && c.rev && slowNet) log('rev skipped on slow link'); else if (REV && c.rev) { const ru = c.base + c.rev; if (await probe(ru)) { RD = c.revDuration || c.duration; attach(st.R, ru, media('R', pos())); revOn = true; log('rev attached'); } else log('rev unreachable'); }
 } catch (e) { $('error').hidden = false; $('error').textContent = e.message; log('error ' + e.message); } })();
-Object.assign(window.__w, { ver: VER, state: () => ({ pos: pos(), ready, clip: clip && clip.id, dir: DIR, revOn, relYaw: relYaw() / D2R, playing: !v.paused, fading }), go, goPlace, takeExit, showNF, setLook: (d, pt) => { look.yaw = d * D2R; if (pt != null) look.pitch = pt * D2R; }, key: (k, on) => { keys[k] = on; }, lastAct: () => lastAct, exits: 0, places: PLACES, headAt, ttff: () => window.__ttff, switches: () => switches.slice() });
+Object.assign(window.__w, { ver: VER, state: () => ({ pos: pos(), backWant, ready, clip: clip && clip.id, dir: DIR, revOn, relYaw: relYaw() / D2R, playing: !v.paused, fading }), go, goPlace, takeExit, showNF, setLook: (d, pt) => { look.yaw = d * D2R; if (pt != null) look.pitch = pt * D2R; }, key: (k, on) => { keys[k] = on; }, lastAct: () => lastAct, exits: 0, places: PLACES, headAt, ttff: () => window.__ttff, switches: () => switches.slice() });

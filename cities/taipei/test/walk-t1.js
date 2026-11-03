@@ -218,7 +218,7 @@ function placeMarkers() { if (!ready || !clip) return; const p = pos(), card = !
   UNFILMED.forEach((x, i) => put(nfEls[i], dirOf(x, p), live(x, p) && offOf(x, p) < 60 * D2R, innerHeight * (0.40 + 0.07 * i)));
   put(fwdEl, headAt(p) + (revOn && DIR === 'R' ? Math.PI : 0), !v.seeking && Math.abs(relPath()) < 50 * D2R && !(clip && p >= clip.hi - 1), innerHeight * 0.66); }
 setInterval(placeMarkers, 80);
-const exitAhead = p => EXITS.find(x => live(x, p) && offOf(x, p) < 25 * D2R && Math.abs(relYaw()) > 15 * D2R);
+const exitAhead = p => { if (Math.abs(relYaw()) <= 15 * D2R) return null; let best = null, bo = 25 * D2R; for (const x of EXITS) { if (!live(x, p)) continue; const o = offOf(x, p); if (o < bo) { bo = o; best = x; } } if (!best) { exCand = null; return null; } const now = performance.now(); if (!exCand || exCand.x !== best) { exCand = { x: best, s: now }; return null; } return now - exCand.s >= 300 ? best : null; }; let exCand = null; /* t1d: view must rest on the exit 0.3 s, so swinging past one doesn't take it; nearest exit wins when two overlap (j4b/j5b) */
 const nfAhead = p => UNFILMED.find(x => live(x, p) && offOf(x, p) < 25 * D2R && Math.abs(relYaw()) > 20 * D2R);
 
 // ---------- cards ----------
@@ -277,9 +277,9 @@ renderer.setAnimationLoop(() => { const now = performance.now(), dt = Math.min(0
     const p = pos(); if (clip && (p < clip.lo - 1 || p > clip.hi + 1)) clip = clipAt(p);
     { const tr = joyTurn(); if (tr) look.yaw += tr * 1.22 * dt; }
     if (want === 0) aligning = false;
-    if (want > 0 && !aligning) { const x = exitAhead(p); if (x) { if (!v.paused) v.pause(); takeExit(x); return; } const n = nfAhead(p); if (n) { if (!v.paused) v.pause(); showNF(n); return; } }
-    const rp = relPath();
-    if (want > 0 && (Math.abs(rp) >= OFF || (aligning && Math.abs(rp) > 0.17))) { aligning = true; if (!v.paused) v.pause(); soundTick(false, p);
+    if (want > 0) { const x = exitAhead(p); /* t1c: checked even while the view is being swung back, so steering at an exit while holding forward takes it */ if (x) { if (!v.paused) v.pause(); takeExit(x); return; } let n = nfAhead(p); if (n && EXITS.some(x => (!x.clip || (clip && clip.id === x.clip)) && p >= x.t0 - 4 && p <= x.t1 && offOf(x, p) < offOf(n, p))) n = null; /* t1e: aiming closer at a junction just ahead beats a nearby closed opening */ if (n) { if (!v.paused) v.pause(); showNF(n); return; } }
+    const rp = relPath(); const aimSoon = DIR === 'F' && EXITS.concat(UNFILMED).some(x => (!x.clip || (clip && clip.id === x.clip)) && p >= x.t0 - 4 && p <= x.t1 && offOf(x, p) < 25 * D2R); /* t1c: facing an exit/opening that is just ahead: keep walking forward toward it instead of swinging the view away */
+    if (want > 0 && !aimSoon && (Math.abs(rp) >= OFF || (aligning && Math.abs(rp) > 0.17))) { aligning = true; if (!v.paused) v.pause(); soundTick(false, p);
       look.yaw -= Math.sign(rp) * Math.min(Math.abs(rp), 1.3 * dt); edge(true, -Math.sign(rp)); lastAct = 'off-path push';
       camera.quaternion.setFromEuler(new THREE.Euler(look.pitch, look.yaw + hd, 0, 'YXZ')); renderer.render(scene, camera); return; }
     edge(false);
