@@ -2,8 +2,8 @@
   "schema_version": 1,
   "project": "hoian",
   "execution_mode": "scheduled_agent_runs_not_continuous_daemon",
-  "candidate": "w68",
-  "candidate_source_sha256": "dc7c58f088205a564c064937af9209cb22c7a71f3a5f72f06896e3f18c0e5c53",
+  "candidate": "w71",
+  "candidate_source_sha256": "063428aabe4b9ad35dea448462bf7e383087a9c4fa5543dccec9b5953d76f62e",
   "tasks": [
     {
       "id": "verify-w57-startup-failure-ui",
@@ -61,8 +61,8 @@
       "id": "media-startup-response-w65",
       "status": "partial",
       "action": "Isolate actual return-source clock/decoded-frame and projected-picture response without speculative warmup or heading-gate changes.",
-      "evidence": "w68 paint-only media callbacks and changed-only playbackRate writes; main first sampled projected-output change343.9ms while playing. Return500ms tests5->5.055787 and5.055787->5.068975 fail; repeat change636.4ms alreadypaused. Visible/focused cloud rAF idle gaps~1016ms; cause not established. No screen-paint/FPS claim. w69 independent media-only actual comparison: sameclip5->5.506664 visible1x,5.480231 visible.9497x,5.478851 obscured.9497x. Hidden presentation/fractional rate alone did not reproduce player failure; cause unproven. w70 matched nativevsactualprojector500ms comparison:baseline5.479875,projector5.47882/5.478943. Freshunchangedw68return5->5.477745->5.941922;sampledoutputchange329.7/106.9msbeforerelease. Earlierfailuresretained; intermittentnotfixed.",
-      "next": "Bounded current-player repeatability across source changes/rapid release-repress; correlate decoded-frame counters and control pause reasons. No causal CPU/hidden/rate/warmup claims."
+      "evidence": "w68 paint-only media callbacks and changed-only playbackRate writes; main first sampled projected-output change343.9ms while playing. Return500ms tests5->5.055787 and5.055787->5.068975 fail; repeat change636.4ms alreadypaused. Visible/focused cloud rAF idle gaps~1016ms; cause not established. No screen-paint/FPS claim. w69 independent media-only actual comparison: sameclip5->5.506664 visible1x,5.480231 visible.9497x,5.478851 obscured.9497x. Hidden presentation/fractional rate alone did not reproduce player failure; cause unproven. w70 matched nativevsactualprojector500ms comparison:baseline5.479875,projector5.47882/5.478943. Freshunchangedw68return5->5.477745->5.941922;sampledoutputchange329.7/106.9msbeforerelease. Earlierfailuresretained; intermittentnotfixed. w71 old rejection clearing new input deterministically reproduced; request identity/generation correction passes8new+24existingchecks. Deployment pending, actualcandidate404; renderedcheckNOTperformed. Priorw68intermittencycauseunknown.",
+      "next": "Once w71 Pages deployment completes, actual current player rapid release/repress and source-change checks; correlate decoded-frame/pause-reason logs. Do not call source race fix a proven clock-stall fix."
     }
   ],
   "run_rules": [
@@ -82,7 +82,7 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "w70 actual CPU projection alone did not reproduce return stall. Unchangedw68fresh-tab two short presses advance normally with projected changes before release; earlierw68failures establish intermittency, not fix. No currentplayer/phone/advisor approval.",
+  "last_verified_progress": "w71 corrects reproduced late-play-rejection race cancelling newer input.32checks+syntaxpass; fullsource backed up. Pages deploy pending; realplayerbrowser/phone/advisor checks not performed.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
@@ -91,11 +91,11 @@
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "2d0e74eb315f48cffd1096c2e52bde2bc8fdfde0",
-    "working_source_sha256": "dc7c58f088205a564c064937af9209cb22c7a71f3a5f72f06896e3f18c0e5c53",
+    "working_commit": "6b485d6fbb79888bdb359c8847a6a10f323f07ad",
+    "working_source_sha256": "063428aabe4b9ad35dea448462bf7e383087a9c4fa5543dccec9b5953d76f62e",
     "feedback_comment": 6590223108,
     "actual_checks_comment": 6593204567
   },
   "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
-  "evidence_commit": "2d0e74eb315f48cffd1096c2e52bde2bc8fdfde0"
+  "evidence_commit": "6b485d6fbb79888bdb359c8847a6a10f323f07ad"
 }
