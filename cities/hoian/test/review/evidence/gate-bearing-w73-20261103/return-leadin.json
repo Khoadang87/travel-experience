@@ -1,0 +1,29 @@
+{
+  "return_media_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+  "frames": [
+    {
+      "file": "return-leadin-0.png",
+      "requested_local_seconds": 0,
+      "sha256": "5bb583e2100b1ce48ed12e612cefcc4b7d31247deb0227f8ab0de0baa0d2c767"
+    },
+    {
+      "file": "return-leadin-2.png",
+      "requested_local_seconds": 2,
+      "sha256": "0b6f9c128894bbeff27627bc9f09e11a569ab78aaddeb849e671f312bd8162b0"
+    },
+    {
+      "file": "return-leadin-4.png",
+      "requested_local_seconds": 4,
+      "sha256": "abbbb30a32ba975a7422b95178bd6a1d2b9028ea4fd283d3c085f3a53ddf9680"
+    }
+  ],
+  "runtime_changed": false,
+  "new_spatial_connection_verified": false,
+  "picture_observations": [
+    "Local0,2,4 show an actual approach beside169 curved-balcony building and opposite Tran Phu shopfront, before the current route starts at5.",
+    "Building and shop appear at changing panorama positions and scale; no exact pose match to main local0 is established.",
+    "These are previously unoffered lead-in seconds in the same exact existing asset, not a newly filmed source or a verified new branch."
+  ],
+  "next": "Independent comparison of local0/2/4/5 against main junction pictures before any target/bounds change. Existing heading/movement/device acceptance cannot be inferred from still comparisons.",
+  "contact_sha256": "b464c37be3e8a37442ae4f710b52d208cd03569d7130465469bde77f94843658"
+}
