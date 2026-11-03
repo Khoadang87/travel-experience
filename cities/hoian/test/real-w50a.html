@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0d0b0a">
+<title>Hội An · 360° walk (test w50a)</title><link rel="icon" href="data:,">
+<link rel="stylesheet" href="w50/style.css?v=1">
+<script type="importmap">{"imports":{"three":"../vendor/three.module.js"}}</script>
+<script>window.W50 = {ver:'w50a',xfade:true};</script>
+</head><body class="loading">
+<div id="app"></div>
+<div id="dip"></div>
+<div id="marks"></div>
+<div id="edge" aria-live="polite"><div><b>Not filmed yet</b>Only the street ahead has real footage.</div></div>
+<div id="top">
+ <button id="where-btn" class="glass" type="button" aria-label="Choose a place"><small>Hội An · Test w50a · crossfade</small><span id="where">Canal-side square</span></button>
+ <button id="sound" class="glass" type="button" aria-label="Sound"></button>
+ <canvas id="minimap" class="glass" width="120" height="120" aria-label="Map: filmed paths solid, unfilmed streets dashed. Tap a path to go there."></canvas>
+</div>
+<div id="joy" aria-label="Walk: push up"><div id="knob"></div></div>
+<div id="hint">Push up to walk where you face · drag to look around</div>
+<button id="turn" class="glass" type="button" hidden>↶ Turn back</button>
+<div id="status" class="glass" role="status" aria-live="polite"></div>
+<section id="nf" class="sheet" hidden role="dialog" aria-labelledby="nf-title">
+ <button id="nf-x" class="x" type="button" aria-label="Close">✕</button>
+ <div class="eyebrow">Not filmed yet</div><h2 id="nf-title"></h2>
+ <p>Nobody has filmed this way in yet. We only show real footage, so it stays closed for now.</p>
+ <div class="row"><button id="nf-back" class="btn pri" type="button">Back to the street</button><button id="nf-places" class="btn sec" type="button">Other places</button></div>
+</section>
+<section id="places" class="sheet" hidden role="dialog" aria-label="Places">
+ <button id="places-x" class="x" type="button" aria-label="Close">✕</button>
+ <header><div class="eyebrow">Real 360° footage</div><h2>Where to?</h2><p>Every place is filmed. Walk on from wherever you start.</p></header>
+ <div id="grid"></div>
+</section>
+<div id="loader"><h1>Hội An</h1><div class="bar"></div><div id="load-msg">Opening the old town…</div></div>
+<div id="error" hidden></div>
+<div id="ver"></div>
+<div id="credit">Test build, non-commercial. 360° footage: <a href="https://www.youtube.com/watch?v=CErfnBokWYM" target="_blank" rel="noopener">360 Japan Tours</a>, <a href="https://www.youtube.com/watch?v=C26CAyJkt4g" target="_blank" rel="noopener">HenkWalks</a></div>
+<script src="../vendor/hls.min.js"></script>
+<script type="module" src="walk-w50.js?v=1"></script>
+</body></html>
