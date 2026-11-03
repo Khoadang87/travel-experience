@@ -1,0 +1,56 @@
+{
+  "cases": [
+    {
+      "case": "main-entry",
+      "forward_right_minus_left_median_dx": [
+        9.0,
+        8.0
+      ],
+      "opposed_right_minus_left_median_dx": [
+        -6.0,
+        -7.0
+      ]
+    },
+    {
+      "case": "main-bridge",
+      "forward_right_minus_left_median_dx": [
+        3.0,
+        4.0
+      ],
+      "opposed_right_minus_left_median_dx": [
+        -8.5,
+        -9.0
+      ]
+    },
+    {
+      "case": "return-entry",
+      "forward_right_minus_left_median_dx": [
+        6.0,
+        7.0
+      ],
+      "opposed_right_minus_left_median_dx": [
+        -7.5,
+        -9.0
+      ]
+    }
+  ],
+  "inference": "The sampled forward-view expansion/opposed-view contraction contrast is consistent with the estimated direction sign. No180-degree sign error found at these three samples. It does not validate full-route heading, exact phone pose or capture coverage elsewhere.",
+  "runtime_changed": false,
+  "gate_removed": false,
+  "iphone_checked": false,
+  "delivery_approved": false,
+  "images": [
+    {
+      "file": "heading-picture-contact.jpg",
+      "bytes": 554702,
+      "sha256": "ada4290b02d79ced0856db7ca3df28dc0156b6bf96dcc41853a04f428335fe48",
+      "git_blob_sha1": "029c311a13e74f424eeab43635755b4766595a0e"
+    },
+    {
+      "file": "heading-opposed-contact.jpg",
+      "bytes": 567354,
+      "sha256": "4bab63806137b636f5541181039db43c2aba98823c4824070810a3e6b3be2646",
+      "git_blob_sha1": "f7c78fde6079246d599a6eb3e74f7fd797d5fc6e"
+    }
+  ]
+}

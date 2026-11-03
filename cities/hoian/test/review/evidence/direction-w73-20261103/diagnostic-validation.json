@@ -1,0 +1,23 @@
+{
+  "scope": "Synthetic screen-patch tracking sanity only; not runtime/player/3D acceptance",
+  "checks": [
+    {
+      "synthetic_translation": [
+        3,
+        0
+      ],
+      "accepted_tracks": 100,
+      "exact_correct_tracks": 100,
+      "pass": true
+    },
+    {
+      "synthetic_translation": [
+        -4,
+        2
+      ],
+      "accepted_tracks": 100,
+      "exact_correct_tracks": 100,
+      "pass": true
+    }
+  ]
+}
