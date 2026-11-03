@@ -1,0 +1,188 @@
+{
+  "sequences": [
+    {
+      "sequence": 7,
+      "input_kind": "key-start",
+      "start_time": 5.521609,
+      "release_time": 6.724586,
+      "hold_ms": 1203.5999999940395,
+      "clock_delta": 1.2029770000000006,
+      "frame_callback_count_before_release": 0,
+      "frame_media_times_before_release": [],
+      "frame_processing_duration_seconds": [],
+      "start_buffered": null,
+      "release_buffered": null,
+      "release_seeking": null,
+      "pause_reasons": [
+        "idle"
+      ],
+      "seek_events": []
+    },
+    {
+      "sequence": 8,
+      "input_kind": "input-start",
+      "start_time": 6.725287,
+      "release_time": 34.021977,
+      "hold_ms": 30011.60000000894,
+      "clock_delta": 27.296689999999998,
+      "frame_callback_count_before_release": 0,
+      "frame_media_times_before_release": [],
+      "frame_processing_duration_seconds": [],
+      "start_buffered": null,
+      "release_buffered": null,
+      "release_seeking": null,
+      "pause_reasons": [
+        "input-reset"
+      ],
+      "seek_events": []
+    },
+    {
+      "sequence": 9,
+      "input_kind": "input-start",
+      "start_time": 34.022482,
+      "release_time": 34.972803,
+      "hold_ms": 1805.0999999940395,
+      "clock_delta": 0.9503210000000024,
+      "frame_callback_count_before_release": 0,
+      "frame_media_times_before_release": [],
+      "frame_processing_duration_seconds": [],
+      "start_buffered": null,
+      "release_buffered": null,
+      "release_seeking": null,
+      "pause_reasons": [
+        "blocked"
+      ],
+      "seek_events": []
+    },
+    {
+      "sequence": 10,
+      "input_kind": "input-start",
+      "start_time": 34.972803,
+      "release_time": 34.972803,
+      "hold_ms": 0.7000000029802322,
+      "clock_delta": 0.0,
+      "frame_callback_count_before_release": 0,
+      "frame_media_times_before_release": [],
+      "frame_processing_duration_seconds": [],
+      "start_buffered": null,
+      "release_buffered": null,
+      "release_seeking": null,
+      "pause_reasons": [],
+      "seek_events": [
+        "media-seeking",
+        "media-seeking",
+        "media-seeked"
+      ]
+    },
+    {
+      "sequence": 11,
+      "input_kind": "input-start",
+      "start_time": 1066.2,
+      "release_time": 1094.211937,
+      "hold_ms": 30026.40000000596,
+      "clock_delta": 28.01193699999999,
+      "frame_callback_count_before_release": 0,
+      "frame_media_times_before_release": [],
+      "frame_processing_duration_seconds": [],
+      "start_buffered": null,
+      "release_buffered": null,
+      "release_seeking": null,
+      "pause_reasons": [
+        "input-reset"
+      ],
+      "seek_events": []
+    },
+    {
+      "sequence": 12,
+      "input_kind": "input-start",
+      "start_time": 1094.212419,
+      "release_time": 1103.142609,
+      "hold_ms": 9530.70000000298,
+      "clock_delta": 8.930190000000039,
+      "frame_callback_count_before_release": 0,
+      "frame_media_times_before_release": [],
+      "frame_processing_duration_seconds": [],
+      "start_buffered": null,
+      "release_buffered": null,
+      "release_seeking": null,
+      "pause_reasons": [
+        "input-reset"
+      ],
+      "seek_events": []
+    },
+    {
+      "sequence": 13,
+      "input_kind": "input-start",
+      "start_time": 1103.143025,
+      "release_time": 1103.143025,
+      "hold_ms": 0.699999988079071,
+      "clock_delta": 0.0,
+      "frame_callback_count_before_release": 0,
+      "frame_media_times_before_release": [],
+      "frame_processing_duration_seconds": [],
+      "start_buffered": null,
+      "release_buffered": null,
+      "release_seeking": null,
+      "pause_reasons": [],
+      "seek_events": [
+        "media-seeking",
+        "media-seeked"
+      ]
+    },
+    {
+      "sequence": 14,
+      "input_kind": "key-start",
+      "start_time": 5,
+      "release_time": 5.503389,
+      "hold_ms": 504.1000000089407,
+      "clock_delta": 0.5033890000000003,
+      "frame_callback_count_before_release": 0,
+      "frame_media_times_before_release": [],
+      "frame_processing_duration_seconds": [],
+      "start_buffered": null,
+      "release_buffered": null,
+      "release_seeking": null,
+      "pause_reasons": [
+        "idle"
+      ],
+      "seek_events": []
+    },
+    {
+      "sequence": 15,
+      "input_kind": "key-start",
+      "start_time": 5.504159,
+      "release_time": 5.515735,
+      "hold_ms": 27.80000001192093,
+      "clock_delta": 0.011576000000000697,
+      "frame_callback_count_before_release": 0,
+      "frame_media_times_before_release": [],
+      "frame_processing_duration_seconds": [],
+      "start_buffered": null,
+      "release_buffered": null,
+      "release_seeking": null,
+      "pause_reasons": [
+        "idle"
+      ],
+      "seek_events": []
+    },
+    {
+      "sequence": 16,
+      "input_kind": "key-start",
+      "start_time": 5.5164,
+      "release_time": 6.021397,
+      "hold_ms": 505.20000000298023,
+      "clock_delta": 0.5049970000000004,
+      "frame_callback_count_before_release": 0,
+      "frame_media_times_before_release": [],
+      "frame_processing_duration_seconds": [],
+      "start_buffered": null,
+      "release_buffered": null,
+      "release_seeking": null,
+      "pause_reasons": [
+        "idle"
+      ],
+      "seek_events": []
+    }
+  ],
+  "limits": "Callback metadata is not projected canvas pixel change or screen compositor latency; absence of callback does not imply absent decoded frames. Instrumentation may affect timing; no causal attribution or phone acceptance."
+}

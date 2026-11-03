@@ -1,0 +1,31 @@
+{
+  "version": "w75",
+  "kind": "instrumented_player_not_movement_fix",
+  "source_hashes": {
+    "heading-return-w75.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11",
+    "navigation-w75.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "playback-request-w75.mjs": "7d6864d46bd3d1ce40d8d94cb51100b138a4d957553d2aa485d20fcc388a003a",
+    "route-network-w75.json": "9aed115167dd3b63bcc0cfafdcf2ad9fcefd9b5d405d7c26eab01cb2282c5332",
+    "route-trial-w75.html": "7c8bc94218aaf6ade51b4d57e097e459f1e444a04c8048ddde4c29cd72b19630",
+    "route-w75.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523",
+    "software-360-w75.mjs": "83c09b89d19e3c2d668bc6506a35f9920cba55c3bb84bcc2d1e1234dc4c28e88",
+    "source-session-w75.mjs": "f3bb43e4f08018f5b9fed49c2f85367e3bc1c03c0bf4a503e4a5641595791bdd",
+    "walk-w75.js": "510f4098ac2c0b45d8a0c2a7a06838e5bfd488767b3cce8d2dc88b9b0d302740"
+  },
+  "candidate_source_sha256": "061c01c3202fc415de1635911cb21912d9c23e7187e432680c7cc169dd835d30",
+  "main_commit": "cb8d52c8b1dc1e5d1e8c25e630858a41a484be08",
+  "workflow": 41675994914,
+  "source_tests_passed": 41,
+  "syntax_passed": true,
+  "actual_browser_checked": false,
+  "observed_browser": "initial404whilePagescheckoutpending",
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "real_iphone_checked": false,
+  "independent_advisor_approved": false,
+  "limits": [
+    "Priorw74shortpressFAILvalid",
+    "No causalfix/no addedcoverage",
+    "No compositorlatency/FPSorphoneinference"
+  ]
+}

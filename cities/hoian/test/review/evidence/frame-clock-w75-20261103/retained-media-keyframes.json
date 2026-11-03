@@ -1,0 +1,11 @@
+{
+  "asset_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+  "ffprobe_skip_frame_nokey_pts_seconds": [
+    0,
+    10,
+    20,
+    30
+  ],
+  "runtime_start": 5,
+  "inference": "Start5lies5secondsafterprecedingI-frame; decode preroll could increase total decoded frames without equivalent playhead progression. This is a hypothesis, not proven stall cause or presented-frame evidence."
+}
