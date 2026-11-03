@@ -1,0 +1,81 @@
+{
+  "scope": "Provisional manual pixel correspondence, NOT calibrated camera geometry or independent review",
+  "frames": [
+    {
+      "file": "main-local-8.2.png",
+      "points": [
+        [
+          2063,
+          359
+        ],
+        [
+          2373,
+          455
+        ]
+      ],
+      "crop": [
+        1800,
+        280,
+        2559,
+        800
+      ],
+      "image_size": [
+        2560,
+        1280
+      ],
+      "source_frame_sha256": "88445618d00e0c0dd53ee2ec2cba09de9fca80328f7c18e961e44c49e31280f7",
+      "manual_point_uncertainty_px": 12,
+      "provisional_angular_separation_degrees": 38.62988082182982,
+      "uncertainty_box_corner_angle_range": [
+        35.005336186695956,
+        42.33653509273561
+      ]
+    },
+    {
+      "file": "return-local-35.png",
+      "points": [
+        [
+          703,
+          325
+        ],
+        [
+          893,
+          406
+        ]
+      ],
+      "crop": [
+        500,
+        220,
+        1040,
+        740
+      ],
+      "image_size": [
+        2160,
+        1080
+      ],
+      "source_frame_sha256": "09ba86274549e0c5f00401a36d1e9c6f3997adbb464951dac41ae23e1a43e99b",
+      "manual_point_uncertainty_px": 12,
+      "provisional_angular_separation_degrees": 30.602387042500197,
+      "uncertainty_box_corner_angle_range": [
+        25.87499950939562,
+        35.43236726473584
+      ]
+    }
+  ],
+  "interpretation": "Nominal ray separations differ, but uncertainty-box ranges overlap. Cannot reject a pure rotation conclusively from these manual points. No heading/position correction is justified. Gate correspondence identities and positions require independent review.",
+  "automated_attempt": {
+    "algorithm": "masked SIFT mutual matching plus planar homography",
+    "executed_successfully": false,
+    "failure": "ModuleNotFoundError: cv2 in both available Python runtimes; no installation attempted",
+    "matches_computed": null
+  },
+  "timeline_mapping": {
+    "status": "still inherited nominal",
+    "external_manifest_attempt": "Public HLS URL not accessible through search-service open; no route/TLS/network override attempted",
+    "current_global_mapping_reverified": false
+  },
+  "runtime_changed": false,
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "image_sha256": "2d94babbc67bd299df0afcfebbeedbdb7617e3c1b0a6b9a290df7f1a1e0a2cc3"
+}
