@@ -1,0 +1,121 @@
+{
+  "sequences": [
+    {
+      "sequence": 1,
+      "input_kind": "key-start",
+      "start_time": 1066,
+      "release_time": 1066.399721,
+      "hold_ms": 506.09999999403954,
+      "clock_delta": 0.39972099999999955,
+      "frame_callback_count_before_release": 0,
+      "frame_media_times_before_release": [],
+      "frame_processing_duration_seconds": [],
+      "start_buffered": [
+        [
+          1066,
+          1078
+        ]
+      ],
+      "release_buffered": [
+        [
+          1066,
+          1078
+        ]
+      ],
+      "release_seeking": false,
+      "pause_reasons": [
+        "idle"
+      ],
+      "seek_events_during_hold": []
+    },
+    {
+      "sequence": 2,
+      "input_kind": "key-start",
+      "start_time": 5,
+      "release_time": 5.033567,
+      "hold_ms": 503.79999999701977,
+      "clock_delta": 0.03356699999999968,
+      "frame_callback_count_before_release": 0,
+      "frame_media_times_before_release": [],
+      "frame_processing_duration_seconds": [],
+      "start_buffered": [
+        [
+          0,
+          20.911
+        ]
+      ],
+      "release_buffered": [
+        [
+          0,
+          20.911
+        ]
+      ],
+      "release_seeking": false,
+      "pause_reasons": [
+        "idle"
+      ],
+      "seek_events_during_hold": []
+    },
+    {
+      "sequence": 3,
+      "input_kind": "key-start",
+      "start_time": 5.034846,
+      "release_time": 5.538894,
+      "hold_ms": 505.5,
+      "clock_delta": 0.504048,
+      "frame_callback_count_before_release": 1,
+      "frame_media_times_before_release": [
+        5.24
+      ],
+      "frame_processing_duration_seconds": [
+        0.2591
+      ],
+      "start_buffered": [
+        [
+          0,
+          20.911
+        ]
+      ],
+      "release_buffered": [
+        [
+          0,
+          20.911
+        ]
+      ],
+      "release_seeking": false,
+      "pause_reasons": [
+        "idle"
+      ],
+      "seek_events_during_hold": []
+    },
+    {
+      "sequence": 4,
+      "input_kind": "key-start",
+      "start_time": 5,
+      "release_time": 5,
+      "hold_ms": 514.0,
+      "clock_delta": 0,
+      "frame_callback_count_before_release": 0,
+      "frame_media_times_before_release": [],
+      "frame_processing_duration_seconds": [],
+      "start_buffered": [
+        [
+          0,
+          20.911
+        ]
+      ],
+      "release_buffered": [
+        [
+          0,
+          20.911
+        ]
+      ],
+      "release_seeking": false,
+      "pause_reasons": [
+        "idle"
+      ],
+      "seek_events_during_hold": []
+    }
+  ],
+  "limits": "Callback metadata is not projected canvas pixel change or screen compositor latency; absence of callback does not imply absent decoded frames. Instrumentation may affect timing; no causal attribution or phone acceptance."
+}

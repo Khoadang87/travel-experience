@@ -17,7 +17,7 @@
   "workflow": 41675994914,
   "source_tests_passed": 41,
   "syntax_passed": true,
-  "actual_browser_checked": false,
+  "actual_browser_checked": true,
   "observed_browser": "initial404whilePagescheckoutpending",
   "delivery_approved": false,
   "phone_testing_ready": false,
@@ -27,5 +27,8 @@
     "Priorw74shortpressFAILvalid",
     "No causalfix/no addedcoverage",
     "No compositorlatency/FPSorphoneinference"
-  ]
+  ],
+  "status": "rendered_short_press_failure_reproduced",
+  "pages_result": "success",
+  "actual_summary": "Main5001066\u21921066.400554;return5005\u21925.034846FAIL,next500\u21925.539506;reloadedreturn5005\u21925FAIL. Allpausedready4. Failedpressbuffer0..20.911,seekingfalse,playresolved9.3/53.8ms,onlypauseafterrelease;no freshframecallbackbeforefailedrelease."
 }

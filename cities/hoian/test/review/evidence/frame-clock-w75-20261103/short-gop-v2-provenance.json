@@ -1,0 +1,20 @@
+{
+  "path": "return-short-gop-v2-review.mp4",
+  "bytes": 12691172,
+  "sha256": "74309688675b6d6a5c4b6c603e05d8160ef0f7f6f9a98031b6b0d220637ca3e9",
+  "source_sha256": "8742afb41f2d2fad7dfebd39e8fe7e89645201b9cc2d589be6b2b2d45302e3e2",
+  "command": "ffmpeg -i original -r25 -an -c:v libx264 -preset slow -crf32 -g25 -keyint_min25 -sc_threshold0 -pix_fmt yuv420p -movflags +faststart output",
+  "frame_count": 877,
+  "all_frame_pts_match_runtime_asset": true,
+  "duration": 35.08,
+  "size": [
+    2160,
+    1080
+  ],
+  "fps": 25,
+  "runtime_adopted": false,
+  "quality_approved": false,
+  "binary_backup": "local only; recipe and hash backed on GitHub; base64 exceeds known16MiB MCP-body limit",
+  "next": "Use bounded test-only local-file source selector for exact-player A/B without new paid hosting; verify file hash/duration and paused source transaction. No codec gain claim until actual rendered comparison.",
+  "full_decode_exit": 0
+}

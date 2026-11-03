@@ -1,0 +1,31 @@
+Browser tab: 28, Title: "Hội An · recorded-route trial w75", URL: "https://khoadang87.github.io/travel-experience/cities/hoian/test/route-trial-w75.html?debug=1&timing=1".
+0 AXWebArea Hội An · recorded-route trial w75, URL: khoadang87.github.io/travel-experience/cities/hoian/test/route-trial-w75.html?debug=1&timing=1
+	1 container
+		15 container Description: 360 degree filmed view of Hội An, ID: app
+		16 text HỘI AN
+		17 text Recorded routes · internal w75
+		18 container Walk tools
+			19 button Routes, ID: routes-open
+			20 checkbox (disabled) No source sound, Value: 0, ID: sound
+		21 text Away from bridge · Trần Phú · compatibility picture
+		23 container ID: joy, Description: Walking joystick. Up follows filmed route; sideways turns view; back requests a filmed return connection.
+		10 text Push up to follow footage
+		11 text Drag the picture to look around
+		12 text Release to stop
+		24 text Paused · 0 / 30.08 s
+		14 text Real filmed routes · no sideways walking coverage
+		25 text {
+ "version": "w75",
+ "route": "street_bound",
+ "time": 5,
+ "viewYaw": 1.6500732804435634,
+ "heading": 1.6500732804435634,
+ "readyState": 4,
+ "busy": false,
+ "stick": [
+  0,
+  0
+ ]
+}
+
+The focused UI element is 0 AXWebArea Hội An · recorded-route trial w75, URL: khoadang87.github.io/travel-experience/cities/hoian/test/route-trial-w75.html?debug=1&timing=1

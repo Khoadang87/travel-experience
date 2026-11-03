@@ -1,0 +1,52 @@
+[
+  {
+    "case": "main-first-W500",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 1066.400554
+      }
+    ]
+  },
+  {
+    "case": "return-selected",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 5
+      }
+    ]
+  },
+  {
+    "case": "return-first-W500",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 5.034846
+      }
+    ]
+  },
+  {
+    "case": "return-second-W500",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 5.539506
+      }
+    ]
+  },
+  {
+    "case": "reloaded-return-first-W500",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 5
+      }
+    ]
+  }
+]
