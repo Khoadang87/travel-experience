@@ -1,0 +1,12 @@
+{
+  "total_new_short_spans": 17,
+  "consistent_sample_count": 13,
+  "needs_picture_review": [
+    "main-1110",
+    "main-1130",
+    "main-1150",
+    "main-1190"
+  ],
+  "no_full_route_pass": true,
+  "runtime_changed": false
+}

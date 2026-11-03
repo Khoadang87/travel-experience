@@ -1,0 +1,35 @@
+{
+  "samples": [
+    {
+      "local_seconds": 86,
+      "inherited_main_seconds": 1188,
+      "view_yaw": 1.4625963267948965
+    },
+    {
+      "local_seconds": 88,
+      "inherited_main_seconds": 1190,
+      "view_yaw": 1.5410963267948965
+    },
+    {
+      "local_seconds": 90,
+      "inherited_main_seconds": 1192,
+      "view_yaw": 1.6475963267948965
+    },
+    {
+      "local_seconds": 92,
+      "inherited_main_seconds": 1194,
+      "view_yaw": 1.7156963267948966
+    },
+    {
+      "local_seconds": 94,
+      "inherited_main_seconds": 1196,
+      "view_yaw": 1.7313963267948966
+    },
+    {
+      "local_seconds": 96,
+      "inherited_main_seconds": 1198,
+      "view_yaw": 1.7208963267948967
+    }
+  ],
+  "scope": "Offline source-pixel table-heading views; not exact player or independent motion proof"
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "file": "check_spans.py",
+    "bytes": 3912,
+    "sha256": "122b050cc5d3155f27968b8bc353fe2a127f7a9bece3429d77b909c91b3f9944",
+    "git_blob_sha1": "2aface2662f1bddb32a016d8b667288692311c75"
+  },
+  {
+    "file": "inspect_flags.py",
+    "bytes": 1554,
+    "sha256": "65d4981814a3cba731f86b6aa34c2dda0ad63a58592dfee82763ccce7713697f",
+    "git_blob_sha1": "fa9fa6ee5ef412fc11becdf03b408f7bbf1bef4e"
+  },
+  {
+    "file": "inspect_late.py",
+    "bytes": 1251,
+    "sha256": "df20a813f0fd8e99b2eb1c2528b8ed8b2039f41cfc813d6394c5d9423d08def4",
+    "git_blob_sha1": "8486ac440e837cd9f57449641fffedf680330fb3"
+  },
+  {
+    "file": "span-flow-report.json",
+    "bytes": 596799,
+    "sha256": "14b338287652ca1d934c5603a9383edc7d34b042aa4b410203e9222c758fe029",
+    "git_blob_sha1": "9a90a00f9366f1f58b18dcdf9215cdae6942952c"
+  },
+  {
+    "file": "span-summary.json",
+    "bytes": 225,
+    "sha256": "2789b3f33c7dfec35ff4720a45b7c9b504b57c5479cf7dc0022c40910562ca49",
+    "git_blob_sha1": "5ed2a5807ff57ec7a2ce149f8ae704e59a4d91e1"
+  },
+  {
+    "file": "late-heading-samples.json",
+    "bytes": 813,
+    "sha256": "8d5e4a040b65bba88302d62f288da209a06cd0d64b45ea092851e47d1566326f",
+    "git_blob_sha1": "d25905a7481548c539467792db38ee270e69db28"
+  },
+  {
+    "file": "HANDOFF-span-review-w73-20261103.md",
+    "bytes": 2157,
+    "sha256": "7d797ff795d335a8b837c09cc971a553ae6108defee4c7eb9813bef5236c7b70",
+    "git_blob_sha1": "b91a261112c45146ef3f2ffa461940970c1d26c1"
+  },
+  {
+    "file": "span-contact-1.jpg",
+    "bytes": 680796,
+    "sha256": "5dc57fc54d2eb57f01472971e68499d45e8516bd401d06b3f8a1a6e7866875be",
+    "git_blob_sha1": "f2bd0bebcd4aeaf878d4e035a9b5228e264439af"
+  },
+  {
+    "file": "span-contact-2.jpg",
+    "bytes": 634264,
+    "sha256": "a69c9fe3b5484ea35dca847cbd287614031a196b9f3edc402bbb78850a64f5a6",
+    "git_blob_sha1": "a102c24cddb9d483768a3e35027be803e2d659a7"
+  },
+  {
+    "file": "span-contact-3.jpg",
+    "bytes": 515603,
+    "sha256": "84368a8d9bb2cce8f115db8a438338521bc673954d92933229d3b9205baa6c9d",
+    "git_blob_sha1": "9f971132dede86ee7a7fca8fa9006fe6d0f77190"
+  },
+  {
+    "file": "flagged-spans-contact.jpg",
+    "bytes": 689167,
+    "sha256": "042406fce23bde02c845e6d68d1666c6185c2004ab2d8e4675afbc5af61f1391",
+    "git_blob_sha1": "6492730b7c46d3cd4873e9ce16986340246128c3"
+  },
+  {
+    "file": "late-heading-contact.jpg",
+    "bytes": 326980,
+    "sha256": "fae13d6f2c62896116a352ce83eccd9e1da0a3d412847eff7a11c4a33842df35",
+    "git_blob_sha1": "d282176dc6b1ec51a91447aab4db1ee5dd56e792"
+  }
+]
