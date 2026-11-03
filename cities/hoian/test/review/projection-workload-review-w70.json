@@ -1,0 +1,85 @@
+{
+  "version": "w70",
+  "artifact_kind": "controlled_media_projection_diagnostic",
+  "diagnostic_main_commit": "adc098bcf6728fd42f1ab162a8d273daa7592907",
+  "diagnostic_sha256": "60954377c8a69aa19896a2d5959830dd29a8ff2b8bbe03b7505f11483c92a54b",
+  "deployment": {
+    "id": 41573148220,
+    "status": "success"
+  },
+  "player_candidate": "w68",
+  "player_source_sha256": "dc7c58f088205a564c064937af9209cb22c7a71f3a5f72f06896e3f18c0e5c53",
+  "renderer_sha256": "d734c31bb98b6201951f93146302bafd61b6737aac785da1fea625905f8c5f75",
+  "return_media_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+  "syntax_passed": true,
+  "observations": {
+    "diagnostic": {
+      "common": "Same obscured2px/.01opacity/negative-z native media, fractional rate.949704142, start5pausedready4, actual500ms button hold. Exact w68 CPU source2048x1024/output768x527 when enabled. Camera quaternion identity rather than map heading.",
+      "baseline_no_projection": {
+        "landed": 5.479875,
+        "release_ms": 505.7
+      },
+      "projection_trial_1": {
+        "landed": 5.47882,
+        "release_ms": 504.1
+      },
+      "projection_trial_2": {
+        "landed": 5.478943,
+        "release_ms": 504.5
+      },
+      "projection_cost": {
+        "samples": 10,
+        "median_ms": 67.1,
+        "max_ms": 97.1,
+        "meaning": "Projection cost, not FPS or screen latency."
+      },
+      "ignored_attempt": "Repeat button was clicked while reset disabled it; no input sequence recorded. Only repeat after readiness is counted."
+    },
+    "unchanged_w68_fresh_tab": {
+      "first500ms": {
+        "start": 5,
+        "landed": 5.477745,
+        "projected_change_ms": 329.7,
+        "release_ms": 503.5,
+        "projected_change_while_playing": true
+      },
+      "second500ms": {
+        "start": 5.477745,
+        "landed": 5.941922,
+        "projected_change_ms": 106.9,
+        "release_ms": 506,
+        "projected_change_while_playing": true
+      },
+      "both_landings": "paused ready4",
+      "interpretation": "Fresh observations pass limited advancement/change-before-release checks. Earlier exact-source failures remain valid. Intermittency established; cause or fix not established."
+    }
+  },
+  "limits": [
+    "Diagnostic isolates projection with simplified media controls; not exact map heading, full control policy or transitions.",
+    "One baseline and two projection trials do not prove projection irrelevant in all states.",
+    "Fresh w68 tests are two observations, not repeatability distribution, sustained FPS, quality or responsiveness approval.",
+    "Sampled output fingerprint is not compositor/screen-paint measurement.",
+    "w68 physical joins/current junction regressions, WebGL, independent strict advisor and real iPhone Safari evidence remain missing.",
+    "Original w42 iPhone failure unresolved. Broad all-direction/sideways/midstreet-return/15-minute coverage incomplete."
+  ],
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "evidence": [
+    {
+      "path": "cities/hoian/test/review/evidence/w70/hoian-w70-workload-20261103.json",
+      "sha256": "aa7564c317f55951f196c4dc3f21672ba6fffc97aa2e2a6e5f223ce55094ee63"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w70/hoian-w70-workload-20261103.jpg",
+      "sha256": "4ca0a887b1bac824fa64b91b20c38b723569a1ede2cf5e3273acf3b054b9bc30"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w70/hoian-w68-fresh-recheck-20261103.json",
+      "sha256": "c3c65633aa9648a5f150567e49735bd4167b526c764a5e582ffc263e19778229"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w70/hoian-w68-fresh-recheck-20261103.jpg",
+      "sha256": "44a7b4abd5225cdf4713d12f500ba897e1bc7797fdd16976a3cf4f2bc01b5b3d"
+    }
+  ]
+}

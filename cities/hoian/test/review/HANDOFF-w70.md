@@ -1,0 +1,9 @@
+# w70 controlled workload and unchanged w68 recheck
+
+Read projection-workload-review-w70.json and raw evidence before new work. Main adds one isolated diagnostic file only atadc098bcf6728fd42f1ab162a8d273daa7592907. Deploy41573148220success. Existing w68 player source and all media unchanged; defaultw42/livew27 preserved. No laptop, paid resources, deletion, source acquisition or reconstruction.
+
+Actual cloud CUA: same obscured real return clip rate.9497, start5pausedready4, 500ms hold. Projection off lands5.479875; exactw68CPUprojection on lands5.47882 then5.478943. Exactprojector output768x527,source2048x1024; visible decoded projected real shop/street picture. Samplecostmedian67.1ms/max97.1 over10renders, notFPS. Projectionalone did not reproduce w68returnfailure in these trials. One click while seek reset disabled the button was ignored and not counted.
+
+Closed diagnostic, opened unchanged exactw68 fresh tab. Returnsource5pausedready4;500ms push lands5.477745, projectedoutputsamplechange329.7ms before release503.5. Next500ms lands5.941922, outputchange106.9ms before release506. Bothpausedready4. Earlierw68failed5->5.055787/5.068975 are notinvalidated. These limited positive trials establish intermittency, not cause or codefix. Sparsefingerprint still notscreenpaint timestamp. Physicaljunctions,currentfullregression, realSafari/device andstrictadvisorapproval absent. Delivery/phonereadyfalse.
+
+No substantive Grok acknowledgement observed at run start. Next: bounded exact-player repeatability across source changes and rapid release/repress; instrument decoded-frame counters and control-policy pause reasons, correlate rather than assume CPU cause. Use exact hashes and actual picture evidence. Do not remove captured-heading gates, replace with seeks/yaw, add fake geometry, poll workers or relabel this diagnostic a walk. Preserve all prior evidence and files. No unapproved final/preview.

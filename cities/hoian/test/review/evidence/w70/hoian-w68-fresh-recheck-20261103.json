@@ -1,0 +1,331 @@
+{
+  "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/route-trial-w68.html?timing=1",
+  "input": [
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"media-seeking\",\"sequence\":0,\"at\":841.5,\"sinceInputMs\":null,\"visibility\":\"visible\",\"focused\":true,\"time\":1066,\"paused\":true,\"readyState\":1,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+      "timestamp": "2026-11-03T03:38:39.126Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"media-seeking\",\"sequence\":0,\"at\":852.3000000007451,\"sinceInputMs\":null,\"visibility\":\"visible\",\"focused\":true,\"time\":1066,\"paused\":true,\"readyState\":1,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+      "timestamp": "2026-11-03T03:38:39.134Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"media-seeked\",\"sequence\":0,\"at\":958.1000000014901,\"sinceInputMs\":null,\"visibility\":\"visible\",\"focused\":true,\"time\":1066,\"paused\":true,\"readyState\":4,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+      "timestamp": "2026-11-03T03:38:39.239Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"media-stalled\",\"sequence\":0,\"at\":4674.900000002235,\"sinceInputMs\":null,\"visibility\":\"visible\",\"focused\":true,\"time\":1066,\"paused\":true,\"readyState\":4,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+      "timestamp": "2026-11-03T03:38:42.956Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"media-seeking\",\"sequence\":0,\"at\":8360.10000000149,\"sinceInputMs\":null,\"visibility\":\"visible\",\"focused\":true,\"time\":5,\"paused\":true,\"readyState\":1,\"route\":\"Away from bridge · Trần Phú\"}",
+      "timestamp": "2026-11-03T03:38:46.640Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"media-seeked\",\"sequence\":0,\"at\":8717.10000000149,\"sinceInputMs\":null,\"visibility\":\"visible\",\"focused\":true,\"time\":5,\"paused\":true,\"readyState\":4,\"route\":\"Away from bridge · Trần Phú\"}",
+      "timestamp": "2026-11-03T03:38:47.001Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"input-start\",\"sequence\":1,\"at\":17564.900000002235,\"sinceInputMs\":0,\"visibility\":\"visible\",\"focused\":true,\"time\":5,\"paused\":true,\"readyState\":4}",
+      "timestamp": "2026-11-03T03:38:55.845Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"rate-change\",\"sequence\":1,\"at\":17565.400000002235,\"sinceInputMs\":0.5,\"visibility\":\"visible\",\"focused\":true,\"time\":5,\"paused\":true,\"readyState\":4,\"previous\":1,\"next\":0.9497041420118342}",
+      "timestamp": "2026-11-03T03:38:55.845Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"play-request\",\"sequence\":1,\"at\":17565.699999999255,\"sinceInputMs\":0.7999999970197678,\"visibility\":\"visible\",\"focused\":true,\"time\":5,\"paused\":true,\"readyState\":4}",
+      "timestamp": "2026-11-03T03:38:55.845Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"media-play\",\"sequence\":1,\"at\":17617,\"sinceInputMs\":52.099999997764826,\"visibility\":\"visible\",\"focused\":true,\"time\":5.048206,\"paused\":false,\"readyState\":4,\"route\":\"Away from bridge · Trần Phú\"}",
+      "timestamp": "2026-11-03T03:38:55.903Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"media-playing\",\"sequence\":1,\"at\":17617.300000000745,\"sinceInputMs\":52.399999998509884,\"visibility\":\"visible\",\"focused\":true,\"time\":5.048568,\"paused\":false,\"readyState\":4,\"route\":\"Away from bridge · Trần Phú\"}",
+      "timestamp": "2026-11-03T03:38:55.903Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"play-resolved\",\"sequence\":1,\"at\":17673.699999999255,\"sinceInputMs\":108.79999999701977,\"visibility\":\"visible\",\"focused\":true,\"time\":5.102154,\"paused\":false,\"readyState\":4}",
+      "timestamp": "2026-11-03T03:38:55.954Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input picture {\"version\":\"w68\",\"sequence\":1,\"sinceInputMs\":329.69999999925494,\"time\":5.251292,\"paused\":false,\"pixelsChanged\":true,\"projectedFingerprint\":2737128631}",
+      "timestamp": "2026-11-03T03:38:56.178Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/software-360-w68.mjs"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"input-release\",\"sequence\":1,\"at\":18068.400000002235,\"sinceInputMs\":503.5,\"visibility\":\"visible\",\"focused\":true,\"time\":5.477043,\"paused\":false,\"readyState\":4}",
+      "timestamp": "2026-11-03T03:38:56.349Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"media-pause\",\"sequence\":1,\"at\":18172.60000000149,\"sinceInputMs\":607.6999999992549,\"visibility\":\"visible\",\"focused\":true,\"time\":5.477745,\"paused\":true,\"readyState\":4,\"route\":\"Away from bridge · Trần Phú\"}",
+      "timestamp": "2026-11-03T03:38:56.453Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"input-start\",\"sequence\":2,\"at\":24429.5,\"sinceInputMs\":0,\"visibility\":\"visible\",\"focused\":true,\"time\":5.477745,\"paused\":true,\"readyState\":4}",
+      "timestamp": "2026-11-03T03:39:02.709Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"play-request\",\"sequence\":2,\"at\":24429.699999999255,\"sinceInputMs\":0.19999999925494194,\"visibility\":\"visible\",\"focused\":true,\"time\":5.477745,\"paused\":true,\"readyState\":4}",
+      "timestamp": "2026-11-03T03:39:02.713Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"media-play\",\"sequence\":2,\"at\":24481.199999999255,\"sinceInputMs\":51.69999999925494,\"visibility\":\"visible\",\"focused\":true,\"time\":5.509929,\"paused\":false,\"readyState\":4,\"route\":\"Away from bridge · Trần Phú\"}",
+      "timestamp": "2026-11-03T03:39:02.762Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"media-playing\",\"sequence\":2,\"at\":24481.5,\"sinceInputMs\":52,\"visibility\":\"visible\",\"focused\":true,\"time\":5.510284,\"paused\":false,\"readyState\":4,\"route\":\"Away from bridge · Trần Phú\"}",
+      "timestamp": "2026-11-03T03:39:02.762Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input picture {\"version\":\"w68\",\"sequence\":2,\"sinceInputMs\":106.90000000223517,\"time\":5.51038,\"paused\":false,\"pixelsChanged\":true,\"projectedFingerprint\":2008814458}",
+      "timestamp": "2026-11-03T03:39:02.817Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/software-360-w68.mjs"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"play-resolved\",\"sequence\":2,\"at\":24536.699999999255,\"sinceInputMs\":107.19999999925494,\"visibility\":\"visible\",\"focused\":true,\"time\":5.562746,\"paused\":false,\"readyState\":4}",
+      "timestamp": "2026-11-03T03:39:02.817Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"media-waiting\",\"sequence\":2,\"at\":24537.300000000745,\"sinceInputMs\":107.80000000074506,\"visibility\":\"visible\",\"focused\":true,\"time\":5.563256,\"paused\":false,\"readyState\":4,\"route\":\"Away from bridge · Trần Phú\"}",
+      "timestamp": "2026-11-03T03:39:02.821Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"media-playing\",\"sequence\":2,\"at\":24537.400000002235,\"sinceInputMs\":107.90000000223517,\"visibility\":\"visible\",\"focused\":true,\"time\":5.563383,\"paused\":false,\"readyState\":4,\"route\":\"Away from bridge · Trần Phú\"}",
+      "timestamp": "2026-11-03T03:39:02.821Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"input-release\",\"sequence\":2,\"at\":24935.5,\"sinceInputMs\":506,\"visibility\":\"visible\",\"focused\":true,\"time\":5.941472,\"paused\":false,\"readyState\":4}",
+      "timestamp": "2026-11-03T03:39:03.217Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian input media {\"version\":\"w68\",\"kind\":\"media-pause\",\"sequence\":2,\"at\":25048.60000000149,\"sinceInputMs\":619.1000000014901,\"visibility\":\"visible\",\"focused\":true,\"time\":5.941922,\"paused\":true,\"readyState\":4,\"route\":\"Away from bridge · Trần Phú\"}",
+      "timestamp": "2026-11-03T03:39:03.329Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    }
+  ],
+  "animationGaps": [
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1011.0999999977648,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:40.369Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1014.3000000007451,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:41.380Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1015.3000000007451,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:42.395Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1017.8999999985099,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:43.415Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1016.2999999970198,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:48.144Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1016.1000000014901,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:49.160Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1016.1000000014901,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:50.176Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":512.1999999992549,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:50.691Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1016.3000000007451,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:51.780Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1015.3000000007451,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:52.795Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1016.3999999985099,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:53.810Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1016.1000000014901,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:54.827Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1015.6999999992549,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:55.843Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":700.6999999992549,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:56.547Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1016.3999999985099,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:57.626Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1016.4000000022352,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:58.642Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1015.5,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:38:59.660Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1016.4000000022352,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:39:00.675Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1015.8000000007451,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:39:01.691Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1016.1999999992549,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:39:02.707Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":703.9000000022352,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:39:03.415Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1016.9000000022352,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:39:04.490Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1016.1999999992549,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:39:05.508Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1015.9000000022352,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:39:06.525Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1016.5999999977648,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:39:07.540Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1016.3000000007451,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:39:08.563Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1010.8000000007451,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:39:09.573Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1015.6999999992549,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:39:10.589Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    },
+    {
+      "level": "info",
+      "message": "Hoian animation gap {\"version\":\"w68\",\"gapMs\":1016.1999999992549,\"visibility\":\"visible\",\"focused\":true}",
+      "timestamp": "2026-11-03T03:39:11.605Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w68.js"
+    }
+  ]
+}

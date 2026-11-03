@@ -1,0 +1,259 @@
+{
+  "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html",
+  "logs": [
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"decoded-frame-callback\",\"sequence\":0,\"ms\":null,\"time\":0,\"paused\":true,\"ready\":1,\"rate\":1,\"mode\":\"visible\",\"projection\":false,\"visibility\":\"visible\",\"focused\":true,\"frames\":1,\"dropped\":0,\"mediaTime\":0,\"presentedFrames\":1}",
+      "timestamp": "2026-11-03T03:37:43.912Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"seeked\",\"sequence\":0,\"ms\":null,\"time\":5,\"paused\":true,\"ready\":4,\"rate\":1,\"mode\":\"visible\",\"projection\":false,\"visibility\":\"visible\",\"focused\":true,\"frames\":133,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:37:44.303Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"decoded-frame-callback\",\"sequence\":0,\"ms\":null,\"time\":5,\"paused\":true,\"ready\":4,\"rate\":1,\"mode\":\"visible\",\"projection\":false,\"visibility\":\"visible\",\"focused\":true,\"frames\":133,\"dropped\":0,\"mediaTime\":5,\"presentedFrames\":2}",
+      "timestamp": "2026-11-03T03:37:44.308Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"reset-settled\",\"sequence\":0,\"ms\":null,\"time\":5,\"paused\":true,\"ready\":4,\"rate\":1,\"mode\":\"visible\",\"projection\":false,\"visibility\":\"visible\",\"focused\":true,\"frames\":133,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:37:44.328Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"presentation-change\",\"sequence\":0,\"ms\":null,\"time\":5,\"paused\":true,\"ready\":4,\"rate\":1,\"mode\":\"obscured\",\"projection\":false,\"visibility\":\"visible\",\"focused\":true,\"frames\":133,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:37:50.080Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"rate-selected\",\"sequence\":0,\"ms\":null,\"time\":5,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":false,\"visibility\":\"visible\",\"focused\":true,\"frames\":133,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:37:50.087Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"ratechange\",\"sequence\":0,\"ms\":null,\"time\":5,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":false,\"visibility\":\"visible\",\"focused\":true,\"frames\":133,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:37:50.087Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"press\",\"sequence\":1,\"ms\":0,\"time\":5,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":false,\"visibility\":\"visible\",\"focused\":true,\"frames\":133,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:37:55.178Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"playing\",\"sequence\":1,\"ms\":13.5,\"time\":5.012016,\"paused\":false,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":false,\"visibility\":\"visible\",\"focused\":true,\"frames\":133,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:37:55.192Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"play-resolved\",\"sequence\":1,\"ms\":22.099999997764826,\"time\":5.02024,\"paused\":false,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":false,\"visibility\":\"visible\",\"focused\":true,\"frames\":133,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:37:55.201Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"decoded-frame-callback\",\"sequence\":1,\"ms\":44.399999998509884,\"time\":5.041415,\"paused\":false,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":false,\"visibility\":\"visible\",\"focused\":true,\"frames\":134,\"dropped\":0,\"mediaTime\":5.04,\"presentedFrames\":3}",
+      "timestamp": "2026-11-03T03:37:55.225Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"release\",\"sequence\":1,\"ms\":505.69999999925494,\"time\":5.479477,\"paused\":false,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":false,\"visibility\":\"visible\",\"focused\":true,\"frames\":145,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:37:55.685Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"pause\",\"sequence\":1,\"ms\":586.0999999977648,\"time\":5.479875,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":false,\"visibility\":\"visible\",\"focused\":true,\"frames\":145,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:37:55.765Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"settled-after-release\",\"sequence\":1,\"ms\":692.3000000007451,\"time\":5.479875,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":false,\"visibility\":\"visible\",\"focused\":true,\"frames\":145,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:37:55.879Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"decoded-frame-callback\",\"sequence\":1,\"ms\":782.5,\"time\":5.479875,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":false,\"visibility\":\"visible\",\"focused\":true,\"frames\":145,\"dropped\":0,\"mediaTime\":5.48,\"presentedFrames\":14}",
+      "timestamp": "2026-11-03T03:37:55.967Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"projection-toggle\",\"sequence\":1,\"ms\":4361.39999999851,\"time\":5.479875,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":145,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:37:59.541Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"seeked\",\"sequence\":1,\"ms\":null,\"time\":5,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":274,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:00.024Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"reset-settled\",\"sequence\":1,\"ms\":null,\"time\":5,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":274,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:00.035Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"decoded-frame-callback\",\"sequence\":1,\"ms\":null,\"time\":5,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":274,\"dropped\":0,\"mediaTime\":5,\"presentedFrames\":15}",
+      "timestamp": "2026-11-03T03:38:00.157Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"press\",\"sequence\":2,\"ms\":0,\"time\":5,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":274,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:04.971Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"playing\",\"sequence\":2,\"ms\":83.10000000149012,\"time\":5.078413,\"paused\":false,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":276,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:05.055Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"play-resolved\",\"sequence\":2,\"ms\":89.10000000149012,\"time\":5.08413,\"paused\":false,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":276,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:05.060Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"decoded-frame-callback\",\"sequence\":2,\"ms\":99,\"time\":5.093639,\"paused\":false,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":277,\"dropped\":0,\"mediaTime\":5.08,\"presentedFrames\":17}",
+      "timestamp": "2026-11-03T03:38:05.076Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"decoded-frame-callback\",\"sequence\":2,\"ms\":132.69999999925494,\"time\":5.125624,\"paused\":false,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":277,\"dropped\":0,\"mediaTime\":5.12,\"presentedFrames\":18}",
+      "timestamp": "2026-11-03T03:38:05.103Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"decoded-frame-callback\",\"sequence\":2,\"ms\":200.69999999925494,\"time\":5.19013,\"paused\":false,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":279,\"dropped\":0,\"mediaTime\":5.2,\"presentedFrames\":20}",
+      "timestamp": "2026-11-03T03:38:05.173Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"release\",\"sequence\":2,\"ms\":504.1000000014901,\"time\":5.478219,\"paused\":false,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":286,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:05.475Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"pause\",\"sequence\":2,\"ms\":633.3000000007451,\"time\":5.47882,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":286,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:05.604Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"settled-after-release\",\"sequence\":2,\"ms\":664.5,\"time\":5.47882,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":286,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:05.665Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"decoded-frame-callback\",\"sequence\":2,\"ms\":763.1999999992549,\"time\":5.47882,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":286,\"dropped\":0,\"mediaTime\":5.48,\"presentedFrames\":27}",
+      "timestamp": "2026-11-03T03:38:05.734Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"seeked\",\"sequence\":2,\"ms\":null,\"time\":5,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":415,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:11.531Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"reset-settled\",\"sequence\":2,\"ms\":null,\"time\":5,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":415,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:11.535Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"decoded-frame-callback\",\"sequence\":2,\"ms\":null,\"time\":5,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":415,\"dropped\":0,\"mediaTime\":5,\"presentedFrames\":28}",
+      "timestamp": "2026-11-03T03:38:12.163Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"press\",\"sequence\":3,\"ms\":0,\"time\":5,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":415,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:23.488Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"playing\",\"sequence\":3,\"ms\":69.60000000149012,\"time\":5.065417,\"paused\":false,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":417,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:23.558Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"play-resolved\",\"sequence\":3,\"ms\":74.69999999925494,\"time\":5.070253,\"paused\":false,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":417,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:23.562Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"decoded-frame-callback\",\"sequence\":3,\"ms\":77.69999999925494,\"time\":5.073086,\"paused\":false,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":417,\"dropped\":0,\"mediaTime\":5.08,\"presentedFrames\":30}",
+      "timestamp": "2026-11-03T03:38:23.565Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"decoded-frame-callback\",\"sequence\":3,\"ms\":164.80000000074506,\"time\":5.155784,\"paused\":false,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":419,\"dropped\":0,\"mediaTime\":5.16,\"presentedFrames\":32}",
+      "timestamp": "2026-11-03T03:38:23.654Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"release\",\"sequence\":3,\"ms\":504.5,\"time\":5.478461,\"paused\":false,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":427,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:23.997Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"pause\",\"sequence\":3,\"ms\":632,\"time\":5.478943,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":427,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:24.120Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"settled-after-release\",\"sequence\":3,\"ms\":665,\"time\":5.478943,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":427,\"dropped\":0}",
+      "timestamp": "2026-11-03T03:38:24.182Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    },
+    {
+      "level": "info",
+      "message": "Hoian scheduling w70 {\"kind\":\"decoded-frame-callback\",\"sequence\":3,\"ms\":734.3000000007451,\"time\":5.478943,\"paused\":true,\"ready\":4,\"rate\":0.9497041420118342,\"mode\":\"obscured\",\"projection\":true,\"visibility\":\"visible\",\"focused\":true,\"frames\":427,\"dropped\":0,\"mediaTime\":5.48,\"presentedFrames\":40}",
+      "timestamp": "2026-11-03T03:38:24.225Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/media-scheduling-w70.html"
+    }
+  ],
+  "renderCost": [
+    {
+      "level": "info",
+      "message": "Hoian software picture {\"version\":\"w68\",\"width\":768,\"height\":527,\"sourceWidth\":2048,\"renderSamples\":10,\"medianRenderMs\":67.10000000149012,\"maxRenderMs\":97.09999999776483}",
+      "timestamp": "2026-11-03T03:38:23.811Z",
+      "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/software-360-w68.mjs"
+    }
+  ]
+}
