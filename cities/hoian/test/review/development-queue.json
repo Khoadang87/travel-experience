@@ -97,10 +97,18 @@
     },
     {
       "id": "bridge-departure-alley-coverage",
-      "status": "ready",
+      "status": "reviewed_unconnected",
       "action": "Verify retained Henk bridge-departure562 clip integrity, decode genuine motion and compare its landmarks/route with main bridge-exit/narrow-alley pictures. Determine actual matching coverage or record mismatch, no similar-building shortcut.",
       "requires": "Keep local/source timing provenance explicit. No third unapproved edited junction, fake movement or automatic runtime alignment.",
-      "next_if_unusable": "Record exact invalid/missing file and choose a genuinely distinct available public capture research path; do not repeatedly probe the same blocked manifest."
+      "next_if_unusable": "Record exact invalid/missing file and choose a genuinely distinct available public capture research path; do not repeatedly probe the same blocked manifest.",
+      "evidence": "Retained15s2160x1080/50fps sample fully decodes, source hash recorded. Black source interval0..0.44s confirmed; local7/14 show waterfront/quay, no verified alley-return endpoint. Kept out of runtime, not declared all footage unavailable.",
+      "next": "Only reconsider after actual landmark/trajectory matching and reviewed trim; ordinary public capture scouting may seek genuinely opposing alley/exit coverage without restricted access or new cost."
+    },
+    {
+      "id": "public-alley-opposing-source-scout",
+      "status": "ready",
+      "action": "Use ordinary permitted public footage research/site interaction to identify real opposing bridge-exit/alley traversal or document absent coverage. Use existing nonpremium source where suitable. No access-control/network/TLS bypass, laptop access or paid provider. Do not rediscover/retest unchanged known failed candidate.",
+      "acceptance": "Actual captured moving viewpoint, matched local landmarks, explicit provenance and continuous visible source interval. No independent/phone approval inferred."
     }
   ],
   "run_rules": [
@@ -120,7 +128,7 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "17 distinct short offline source-heading spans triaged;13 consistent by heuristic,4 explicitly inconclusive and visually inspected. Extra actual frames show a narrow-alley turn. Evidence backed/shared; w73 unchanged and no rendered/device/independent approval.",
+  "last_verified_progress": "17 new short heading samples:13 heuristic-consistent,4 inconclusive and inspected. Actual alley turn visible in source. Separate departure clip fully decodes but has0.44s black lead-in and no verified alley return, so not integrated. w73/gate unchanged; no phone/advisor approval.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
@@ -129,7 +137,7 @@
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "f080687c7d96134dfb011fad19710e8d7f0c5603",
+    "working_commit": "237b3953244db62cc84684a220fd8b7a20bc35a3",
     "working_source_sha256": "61d436c2547b75637ab4c4763da12d878b8ce1c7cf4d5b6f7e5990115a75eac3",
     "feedback_comment": 6590223108,
     "actual_checks_comment": 6593204567,
@@ -140,8 +148,9 @@
     "leadin_review_comment": 6601404297,
     "riverside_review_comment": 6602865431,
     "direction_contrast_comment": 6604065067,
-    "heading_span_review_comment": 6605180513
+    "heading_span_review_comment": 6605180513,
+    "departure_review_comment": 6605266112
   },
   "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
-  "evidence_commit": "f080687c7d96134dfb011fad19710e8d7f0c5603"
+  "evidence_commit": "237b3953244db62cc84684a220fd8b7a20bc35a3"
 }
