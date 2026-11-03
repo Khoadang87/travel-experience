@@ -1,0 +1,22 @@
+[
+  {
+    "case": "second-return-switch-W500-release",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 5.504159
+      }
+    ]
+  },
+  {
+    "case": "return20ms-release-repress500",
+    "media": [
+      {
+        "paused": true,
+        "readyState": 4,
+        "time": 6.021786
+      }
+    ]
+  }
+]

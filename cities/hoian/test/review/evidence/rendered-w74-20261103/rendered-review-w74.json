@@ -205,6 +205,30 @@
   "visual_drag": "Right150px moved landmarks right; media stayed6.725287 pausedready4",
   "junctions": "Return34.972803 backward input shows assembly notice; explicit confirmation landsmain1066.2pausedready4. Main ordinary traversalto1103.143025 backward input shows bridge notice; confirmationlandsreturn5pausedready4. No physical join/quality approval.",
   "hud_limit": "AX/screenshot HUD can lag media state; media readbacks and input trace retained separately. No compositor timing/FPS inference.",
-  "screenshot_count": 9,
-  "missing_expected_screenshot": "04-return-input-release.jpg not present after synchronization; not counted or replaced with fabricated capture"
+  "screenshot_count": 10,
+  "missing_expected_screenshot": "04-return-input-release.jpg not present after synchronization; not counted or replaced with fabricated capture",
+  "additional_bounded_checks": [
+    {
+      "case": "second-return-switch-W500-release",
+      "media": [
+        {
+          "paused": true,
+          "readyState": 4,
+          "time": 5.504159
+        }
+      ]
+    },
+    {
+      "case": "return20ms-release-repress500",
+      "media": [
+        {
+          "paused": true,
+          "readyState": 4,
+          "time": 6.021786
+        }
+      ]
+    }
+  ],
+  "short_press_followup": "After second actual bridge\u2192return source switch: firstW5005\u21925.504159pausedready4, then20msrelease+500msrepress\u21926.021786pausedready4. Earlier5\u21925.046057FAIL remains valid; intermittency/cause unresolved.",
+  "trace_correlation": "FailedfirstreturnW:playrequested0.4ms,resolved52.4ms,notstale;keyrelease504.3msat5.045199,onlypause_request504.8msreasonidle,pausedmedia617msat5.046057. No intervening recorded policy pause/rejection/seek; decodedFrames129\u2192258 does not establish presented-frame progress or cause."
 }

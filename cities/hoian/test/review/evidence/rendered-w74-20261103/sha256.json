@@ -3,6 +3,14 @@
     "bytes": 121320,
     "sha256": "e27bec4a96930ff867ec787c4888cb94c44c2e77d55d38ca33ea5c001b34e86e"
   },
+  "11-repeat-check-paused.jpg": {
+    "bytes": 105081,
+    "sha256": "b00636854603545f072de3e1a1ad24588a0804437244a803da23bdb12555b52c"
+  },
+  "input-trace-final.json": {
+    "bytes": 47670,
+    "sha256": "6ec60f91d95bb77c567e03ceb90ef46caf1855e82935c3666ddcbb3331ca6d35"
+  },
   "03-return-start.jpg": {
     "bytes": 107300,
     "sha256": "37e94909af14b7bbf0895048f5d3b5796183da6e536662d1c4e881e11028f92e"
@@ -14,6 +22,10 @@
   "observed-media.json": {
     "bytes": 2493,
     "sha256": "47975a44ccbef820e5a5eea471e52b741e9bc97f1f0db8db4897780bb52b50fb"
+  },
+  "observed-media-repeat-check.json": {
+    "bytes": 336,
+    "sha256": "2023c3cdc2fe018db8fa1f81308f0e687ec74b3d655b012bcda0f350dc7a522b"
   },
   "final-ax.txt": {
     "bytes": 1460,
@@ -28,8 +40,8 @@
     "sha256": "09f29b39f6ebf436487b9045e54ee5f12fa1920778a44f844ca2db3cd205f78a"
   },
   "rendered-review-w74.json": {
-    "bytes": 5459,
-    "sha256": "93d3e5f41cfdb218777fdbb5770df0cbd93f2e13b45d90af38dcba6b78a3e5f9"
+    "bytes": 6434,
+    "sha256": "d9a6dacc757e219fadefc41bdfb47ab4db9fa1471b37d49c154b86827de74d14"
   },
   "input-trace.json": {
     "bytes": 65045,
