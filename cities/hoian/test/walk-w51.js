@@ -76,7 +76,7 @@ async function probe(url) { for (let k = 0; k < 3; k++) { try { const r = await 
 function attach(s, url, t) { s.url = url; if (s.hls) { s.hls.destroy(); s.hls = null; }
   if (s.id === DIR) { mat.map = s.tex; mat.needsUpdate = true; } /* box WebKit only completes a seek when the video's frames are being consumed by a texture */
   const el = s.v;
-  if (!el.canPlayType('application/vnd.apple.mpegurl') && window.Hls && Hls.isSupported()) { /* native HLS where the browser has it (iPhone Safari), hls.js elsewhere */ const h = s.hls = new Hls({ startLevel: 0, startPosition: t, abrEwmaDefaultEstimate: 3e6, maxBufferLength: s.id === DIR ? 12 : 4, maxMaxBufferLength: 24, backBufferLength: 8, startFragPrefetch: true, enableWorker: true }); h.loadSource(url); h.attachMedia(el);
+  if (!el.canPlayType('application/vnd.apple.mpegurl') && window.Hls && Hls.isSupported()) { /* native HLS where the browser has it (iPhone Safari), hls.js elsewhere */ const h = s.hls = new Hls({ startLevel: 0, startPosition: t, abrEwmaDefaultEstimate: 3e6, maxBufferLength: s.id === DIR ? 12 : 4, maxMaxBufferLength: 24, backBufferLength: 8, startFragPrefetch: true, enableWorker: true }); h.on(Hls.Events.FRAG_LOADING, () => { netBusy++; }); for (const e of [Hls.Events.FRAG_LOADED, Hls.Events.FRAG_LOAD_EMERGENCY_ABORTED]) h.on(e, () => { netBusy = Math.max(0, netBusy - 1); }); h.on(Hls.Events.ERROR, (_, d) => { if (d.details && /frag/i.test(d.details)) netBusy = Math.max(0, netBusy - 1); }); h.loadSource(url); h.attachMedia(el);
     h.on(Hls.Events.ERROR, (_, d) => { if (!d.fatal) return; log('hls fatal ' + s.id + ' ' + d.type + ' ' + d.details); if (d.type === Hls.ErrorTypes.MEDIA_ERROR) h.recoverMediaError(); else if (d.type === Hls.ErrorTypes.NETWORK_ERROR) h.startLoad(); }); }
   else { el.src = url + '#t=' + t; }
 }
@@ -84,11 +84,14 @@ const media = (id, t) => id === 'F' ? t : RD - t; /* forward time -> that stream
 const pos = () => DIR === 'F' ? st.F.v.currentTime : RD - st.R.v.currentTime; /* always FORWARD time */
 let seeking = null;
 const once = (el, ev, ms) => new Promise(res => { const f = () => { clearTimeout(to); el.removeEventListener(ev, f); res(true); }; const to = setTimeout(() => { el.removeEventListener(ev, f); res(false); }, ms); el.addEventListener(ev, f); });
+let netBusy = 0, slowNet = false;
+/* w51: wait for ev, but keep waiting (up to cap) while bytes are still arriving, so a slow link is not mistaken for a stuck seek */
+const onceP = (el, ev, ms, cap) => new Promise(res => { let last = Date.now(); const t0 = last, pg = () => { last = Date.now(); }, f = () => { done(true); }, done = r => { clearInterval(iv); el.removeEventListener(ev, f); el.removeEventListener('progress', pg); res(r); }; const iv = setInterval(() => { const n = Date.now(); if (netBusy > 0) last = n; if (n - last > ms || n - t0 > cap) done(false); }, 250); el.addEventListener(ev, f); el.addEventListener('progress', pg); });
 /* seek stream s to ITS OWN media time m (with the w27 WebKit retry/re-attach logic) */
 async function seekS(s, m) { const el0 = s.v; el0.pause(); m = Math.max(0, Math.min((s.id === 'F' ? D : RD) - 0.2, m)); log('seek ' + s.id + ' ' + m.toFixed(1));
-  if (s.v.readyState < 2) await once(s.v, 'loadeddata', 8000); /* WebKit leaves a seek issued before the first decoded data pending forever */
+  if (s.v.readyState < 2) await onceP(s.v, 'loadeddata', 8000, 40000); /* WebKit leaves a seek issued before the first decoded data pending forever */
   if (Math.abs(s.v.currentTime - m) < 0.04 && !s.v.seeking) return true;
-  for (let k = 0; k < 5; k++) { const el = s.v, p = once(el, 'seeked', 3000); el.currentTime = m + k * 0.1; /* step off a part boundary on retries */ if (await p) return true; log('seek stuck ' + s.id + ', retry ' + (k + 1) + ' rs' + el.readyState);
+  for (let k = 0; k < 5; k++) { const el = s.v, p = onceP(el, 'seeked', 3000, 30000); el.currentTime = m + k * 0.1; /* step off a part boundary on retries */ if (await p) return true; log('seek stuck ' + s.id + ', retry ' + (k + 1) + ' rs' + el.readyState);
     if (el.readyState < 2 && k >= 1) { log('new video element ' + s.id + ' at ' + m.toFixed(1)); mkV(s); attach(s, s.url, m); await once(s.v, 'loadeddata', 10000); if (Math.abs(s.v.currentTime - m) < 0.6 && !s.v.seeking) return true; continue; } else { s.hls ? s.hls.recoverMediaError() : el.load(); } }
   return false; }
 async function seekTo(t) { t = Math.max(0, Math.min(D - 0.2, t)); seeking = t; try { await seekS(st[DIR], media(DIR, t)); } finally { seeking = null; } }
@@ -107,6 +110,8 @@ async function setDir(to, why) { if (to === DIR || swapping) return; const g = j
 
 // ---------- input: stick + drag look ----------
 const joyEl = $('joy'), knob = $('knob'); const joy = { id: null, y: 0, x: 0, cx: 0, cy: 0 };
+let stallMsg = false;
+const fwdAhead = () => { const b = v.buffered, t = v.currentTime; for (let i = 0; i < b.length; i++) if (b.start(i) <= t + 0.1 && b.end(i) > t) return b.end(i) - t; return 0; };
 const keys = {}; addEventListener('keydown', e => { keys[e.code] = true; if (e.code === 'Escape') closeCards(); }); addEventListener('keyup', e => { keys[e.code] = false; });
 const look = { yaw: 0, pitch: 0, drag: null };
 function joyStart(e) { if (joy.id != null) return; joyEl.setPointerCapture?.(e.pointerId); const r = joyEl.getBoundingClientRect(); joy.id = e.pointerId; joy.cx = r.left + r.width / 2; joy.cy = r.top + r.height / 2; joyMove(e); }
@@ -193,7 +198,8 @@ const live = (x, p) => (!x.clip || (clip && clip.id === x.clip)) && p >= x.t0 &&
 const mkMarker = (x, cls, txt, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'mk ' + cls; b.innerHTML = txt; b.hidden = true; b.onclick = fn; $('marks').appendChild(b); return b; };
 const exEls = EXITS.map(x => mkMarker(x, 'filmed', '<i>↗</i><span>' + x.label + '</span>', () => takeExit(x)));
 const nfEls = UNFILMED.map(x => mkMarker(x, 'unfilmed', '<i></i><span>' + x.label + '<small>Not accessible right now, coming soon</small></span>', () => showNF(x)));
-const fwdEl = mkMarker({}, 'ahead', '<i>↑</i>', () => {}); fwdEl.tabIndex = -1; fwdEl.setAttribute('aria-hidden', 'true');
+const fwdEl = mkMarker({}, 'ahead', '<i>↑</i>', () => {}); fwdEl.tabIndex = -1; fwdEl.setAttribute('aria-label', 'Hold to walk forward'); fwdEl.style.touchAction = 'none';
+{ const on = e => { e.preventDefault(); e.stopPropagation(); keys.ArrowUp = true; try { fwdEl.setPointerCapture(e.pointerId); } catch (_) {} }, off = () => { keys.ArrowUp = false; }; fwdEl.addEventListener('pointerdown', on); for (const n of ['pointerup', 'pointercancel', 'lostpointercapture']) fwdEl.addEventListener(n, off); }
 function takeExit(x) { if (fading) return; window.__w.exits = (window.__w.exits || 0) + 1; log('exit ' + x.id); go(x.to, 'exit ' + x.id, x.rot != null ? -x.rot * D2R : null); }
 function placeMarkers() { if (!ready || !clip) return; const p = pos(), card = !$('nf').hidden || !$('places').hidden;
   const put = (el, a, show, y) => { const s = scr(a); show = show && s.on && !card; el.hidden = !show; if (show) { el.style.left = Math.max(70, Math.min(innerWidth - 70, s.x)) + 'px'; el.style.top = y + 'px'; } };
@@ -262,7 +268,7 @@ if (REV) { $('turn').hidden = false; $('turn').onclick = () => { const y0 = look
 const OFF = 45 * D2R; let edgeT = 0;
 const edge = (on, side) => { const el = $('edge'); if (on) { edgeT = performance.now(); el.classList.toggle('left', side < 0); el.classList.add('on'); } else if (performance.now() - edgeT > 1200) el.classList.remove('on'); };
 renderer.setAnimationLoop(() => { const now = performance.now(), dt = Math.min(0.1, (now - last) / 1000); last = now;
-  if (ready && !jumping && !swapping && !fading) { const want = $('nf').hidden && $('places').hidden ? speed() : 0; rate += (want - rate) * Math.min(1, dt * 8);
+  if (ready && !jumping && !swapping && !fading) { const want = $('nf').hidden && $('places').hidden ? speed() : 0; rate += (want - rate) * Math.min(1, dt * 8); if (want > 0 && v.readyState < 3 && !v.paused) { $('status').textContent = 'Loading the next stretch…'; stallMsg = true; } else if (stallMsg) { stallMsg = false; if (!$('loop-btn')) $('status').textContent = ''; }
     const p = pos(); if (clip && (p < clip.lo - 1 || p > clip.hi + 1)) clip = clipAt(p);
     { const tr = joyTurn(); if (tr) look.yaw += tr * 1.22 * dt; }
     if (want === 0) aligning = false;
@@ -278,7 +284,7 @@ renderer.setAnimationLoop(() => { const now = performance.now(), dt = Math.min(0
     if (want > 0 && atEnd) { if (!v.paused) v.pause(); if (DIR === 'F' && clip && clip.id === 'main') { const st0 = $('status'); if (!st0.querySelector('#loop-btn')) { st0.innerHTML = 'End of this filmed walk. <button id="loop-btn" class="btn pri" type="button">Round the square again</button>'; $('loop-btn').onclick = e => { e.stopPropagation(); st0.textContent = ''; const x = EXITS.find(q => q.id === 'loop-start'); window.__w.exits = (window.__w.exits || 0) + 1; log('end loop'); go(x.to, 'end loop', x.rot * -D2R); }; } } else $('status').textContent = DIR === 'F' ? 'End of the filmed street. Pick another place to keep going.' : 'Start of the walk.'; }
     else if (want > 0) { const r = Math.max(0.5, Math.min(1, want)); if (v.playbackRate !== r) v.playbackRate = r; if (v.paused) v.play().catch(e => log('play ' + e.name)); $('status').textContent = ''; document.body.classList.add('walked'); }
     else if (!v.paused) v.pause();
-    if (want === 0) { idleT += dt; if (idleT > 0.6 && revOn) park(); if (idleT > 2.5 && !$('loop-btn')) $('status').textContent = ''; } else idleT = 0;
+    if (want === 0) { idleT += dt; if (idleT > 0.6 && revOn && fwdAhead() > 8) park(); if (idleT > 2.5 && !$('loop-btn')) $('status').textContent = ''; } else idleT = 0;
     soundTick(want > 0 && !v.paused && DIR === 'F', p);
     const h = headAt(p), d = wrap(h - hd); if (!v.paused) hd += Math.max(-0.35 * dt, Math.min(0.35 * dt, d * Math.min(1, dt * 0.8)));
     if (now - (window.__mmT || 0) > 150) { window.__mmT = now; drawMap(); } }
@@ -289,7 +295,9 @@ renderer.setAnimationLoop(() => { const now = performance.now(), dt = Math.min(0
 const T0 = performance.now();
 (async () => { try {
   const j = await (await fetch(A + 'walk.json', { cache: 'no-cache' })).json(); const c = j.cdn;
-  const url = c.base + (isIOS ? (params.get('q') === '4k' ? c.hlsIOS : c.hlsIOS.replace('f3840', 'f2560')) : c.hls);
+  let url = c.base + (isIOS ? (params.get('q') === '4k' ? c.hlsIOS : c.hlsIOS.replace('f3840', 'f2560')) : c.hls);
+  /* w51: native iPhone HLS gets one fixed level; time a 400 KB slice first and drop to f1280 (1.8 Mbps) on a slow link, since f2560 (6 Mbps) cannot keep up there */
+  if (isIOS && url.includes('f2560') && params.get('q') !== 'hi') { try { const pl = await (await fetch(url)).text(), seg = new URL(pl.split('\n').find(l => /\.m4s/.test(l) && !/^#/.test(l)).trim(), url).href, t0 = performance.now(), rb = await (await fetch(seg, { headers: { Range: 'bytes=0-399999' } })).arrayBuffer(), mbps = rb.byteLength * 8 / ((performance.now() - t0) * 1000); log('probe ' + mbps.toFixed(1) + ' Mbps'); if (mbps < 7 || params.get('q') === 'lo') { url = url.replace('f2560', 'f1280'); slowNet = true; } } catch (e) { log('probe failed'); } }
   const r = await (await fetch(ROOT + 'routes.json', { cache: 'no-cache' })).json(); clips = r.routes[0].clips; clip = clips[0];
   fetch(A + 'heading_foe.json').then(x => x.json()).then(h => { HEAD = h; hd = headAt(Math.max(pos(), c.lo || 0)); drawMap(); }).catch(() => {});
   audio.src = c.audio;
@@ -299,6 +307,6 @@ const T0 = performance.now();
   $('load-msg').textContent = 'Loading real 360° footage…';
   await new Promise((res, rej) => { const to = setTimeout(() => rej(new Error('The video took too long to load.')), 45000); st.F.v.addEventListener('loadedmetadata', () => { clearTimeout(to); res(); }, { once: true }); });
   await seekTo(t0); mat.map = tex; mat.needsUpdate = true; ready = true; document.body.classList.remove('loading'); window.__ttff = performance.now() - T0; log('ready');
-  if (REV && c.rev) { const ru = c.base + c.rev; if (await probe(ru)) { RD = c.revDuration || c.duration; attach(st.R, ru, media('R', pos())); revOn = true; log('rev attached'); } else log('rev unreachable'); }
+  if (REV && c.rev && slowNet) log('rev skipped on slow link'); else if (REV && c.rev) { const ru = c.base + c.rev; if (await probe(ru)) { RD = c.revDuration || c.duration; attach(st.R, ru, media('R', pos())); revOn = true; log('rev attached'); } else log('rev unreachable'); }
 } catch (e) { $('error').hidden = false; $('error').textContent = e.message; log('error ' + e.message); } })();
 Object.assign(window.__w, { ver: VER, state: () => ({ pos: pos(), ready, clip: clip && clip.id, dir: DIR, revOn, relYaw: relYaw() / D2R, playing: !v.paused, fading }), go, goPlace, takeExit, showNF, setLook: (d, pt) => { look.yaw = d * D2R; if (pt != null) look.pitch = pt * D2R; }, key: (k, on) => { keys[k] = on; }, lastAct: () => lastAct, exits: 0, places: PLACES, headAt, ttff: () => window.__ttff, switches: () => switches.slice() });
