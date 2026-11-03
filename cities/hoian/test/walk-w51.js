@@ -165,7 +165,7 @@ async function go(t, why, shift) { if (fading || !ready) return; fading = true; 
     /* heading match: keep your angle to the direction of travel */
     if (shift != null) { look.yaw = wrap(r0 + h0 + shift - h1); hd = h1; if (snapped) snap.rotation.y = shift; } /* w51: same place filmed twice, keep landmarks where they were */
     else { look.yaw = r0; hd = h1; if (snapped) snap.rotation.y = h1 - h0; }
-    window.__w.lastGo = { t, why, landed: pos(), snapped }; if (!why.startsWith('place')) { const q = PLACES.filter(x => x.t != null).sort((a, b) => Math.abs(a.t - t) - Math.abs(b.t - t))[0]; $('where').textContent = q && Math.abs(q.t - t) < 40 ? 'Near ' + q.name : t < 40 || (t > 1405 && t < 1436) ? 'Near Canal-side square' : t >= 1436 ? 'Riverside' : 'Old-town streets'; }
+    window.__w.lastGo = { t, why, landed: pos(), snapped }; if (!why.startsWith('place')) { const q = PLACES.filter(x => x.t != null).sort((a, b) => Math.abs(a.t - t) - Math.abs(b.t - t))[0]; $('where').textContent = t < 40 || (t > 1405 && t < 1436) ? 'Near Canal-side square' : t >= 1380 && t <= 1405 ? 'Near Japanese Covered Bridge' : q && Math.abs(q.t - t) < 40 ? 'Near ' + q.name : t >= 1436 ? 'Riverside' : 'Old-town streets'; }
     if (snapped) { await new Promise(r => setTimeout(r, 60)); const T = 500, s0 = performance.now(); await new Promise(res => { const st = () => { const k = Math.min(1, (performance.now() - s0) / T); snap.material.opacity = 1 - k * k * (3 - 2 * k); k < 1 ? requestAnimationFrame(st) : res(); }; st(); }); snap.visible = false; }
     else dip.classList.remove('on');
   } finally { fading = false; } }
@@ -275,10 +275,10 @@ renderer.setAnimationLoop(() => { const now = performance.now(), dt = Math.min(0
     const wd = revOn && clip.id === 'main' ? (Math.abs(relYaw()) > 100 * D2R ? 'R' : Math.abs(relYaw()) < 80 * D2R ? 'F' : DIR) : 'F';
     if (want > 0 && wd !== DIR) { setDir(wd, 'push'); return; }
     const atEnd = DIR === 'F' ? (clip && p >= clip.hi - 0.3) : p <= LO + 0.3;
-    if (want > 0 && atEnd) { if (!v.paused) v.pause(); $('status').textContent = DIR === 'F' ? 'End of the filmed street. Pick another place to keep going.' : 'Start of the walk.'; }
+    if (want > 0 && atEnd) { if (!v.paused) v.pause(); if (DIR === 'F' && clip && clip.id === 'main') { const st0 = $('status'); if (!st0.querySelector('#loop-btn')) { st0.innerHTML = 'End of this filmed walk. <button id="loop-btn" class="btn pri" type="button">Round the square again</button>'; $('loop-btn').onclick = e => { e.stopPropagation(); st0.textContent = ''; const x = EXITS.find(q => q.id === 'loop-start'); window.__w.exits = (window.__w.exits || 0) + 1; log('end loop'); go(x.to, 'end loop', x.rot * -D2R); }; } } else $('status').textContent = DIR === 'F' ? 'End of the filmed street. Pick another place to keep going.' : 'Start of the walk.'; }
     else if (want > 0) { const r = Math.max(0.5, Math.min(1, want)); if (v.playbackRate !== r) v.playbackRate = r; if (v.paused) v.play().catch(e => log('play ' + e.name)); $('status').textContent = ''; document.body.classList.add('walked'); }
     else if (!v.paused) v.pause();
-    if (want === 0) { idleT += dt; if (idleT > 0.6 && revOn) park(); if (idleT > 2.5) $('status').textContent = ''; } else idleT = 0;
+    if (want === 0) { idleT += dt; if (idleT > 0.6 && revOn) park(); if (idleT > 2.5 && !$('loop-btn')) $('status').textContent = ''; } else idleT = 0;
     soundTick(want > 0 && !v.paused && DIR === 'F', p);
     const h = headAt(p), d = wrap(h - hd); if (!v.paused) hd += Math.max(-0.35 * dt, Math.min(0.35 * dt, d * Math.min(1, dt * 0.8)));
     if (now - (window.__mmT || 0) > 150) { window.__mmT = now; drawMap(); } }
