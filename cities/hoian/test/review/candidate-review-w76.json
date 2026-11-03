@@ -16,10 +16,15 @@
   "source_tests": 43,
   "main_commit": "51d6bce442d739779c10b9ce22ccfdbeea4f069f",
   "pages_workflow": 41695642910,
-  "status": "awaiting_internal_browser_codec_comparison",
-  "actual_browser_checked": false,
+  "status": "actual_ui_partial_codec_comparison_blocked_filechooser_tool_timeout",
+  "actual_browser_checked": true,
   "delivery_approved": false,
   "phone_testing_ready": false,
   "independent_advisor_approved": false,
-  "real_iphone_checked": false
+  "real_iphone_checked": false,
+  "actual_scenery_picture_saved": false,
+  "actual_codec_comparison_completed": false,
+  "actual_input_movement_checked": false,
+  "pages_deployment_result": "success",
+  "file_selection_result": "unknown; CUA tool timed out and tab unavailable on recovery"
 }
