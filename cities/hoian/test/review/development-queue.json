@@ -119,6 +119,15 @@
       "evidence": "w74mainb5e04f464869a5a16e060f3f9708d930535cdc43 Pages41666032132success,9newisolatedtestfiles only. Actualmainfresh/heldkey/release/modalreset+freshpress,returnselection/joystick,acceptedrightdragandbothdisclosedmanualeditscheckedpausedready4. Source41checks pass. DirectOSrepeatgeneration notobserved. FirstreturnW5005→5.046057FAILretained;secondsource-switch5→5.504159and20msrelease+500repress6.021786pause. Intermittency/phonecauseunproven.",
       "source_lock": "d82831fa7e6a50b3d6f7f58f2da7d5cd6bba824b8c8d3cea3e9b3ce6fc52e063",
       "next": "Do not repeat completed functional checks as acceptance. Investigate current short-press clock/frame presentation/lifecycle evidence and direct observed post-reset OSrepeat when a supported path exists. Physical junction/heading independent review and actual iPhone Safari acceptance remain absent."
+    },
+    {
+      "id": "w75-frame-clock-correlation",
+      "status": "waiting_transient_pages_deployment",
+      "source_lock": "061c01c3202fc415de1635911cb21912d9c23e7187e432680c7cc169dd835d30",
+      "main_commit": "cb8d52c8b1dc1e5d1e8c25e630858a41a484be08",
+      "action": "After Pages41675994914 deployment completes, inspect actualw75firstreturn500ms input and bounded repeats; capture frame-callback mediaTime/processingDuration,seeking/buffered state alongside clock and release. Do not repeat oldnative/worker/CSS loops or changewarmup/gate speculatively.",
+      "evidence": "w75onlyaddsboundedtiming=1metadata+versionreferences; movement/media/route/heading/dragpoliciesunchanged.41sourcechecks+syntaxpass;9newtestfiles,oldblobsunchanged,nodeletions. InitialactualCUA404whilebuildpending;no currentrenderedclaim.",
+      "next": "Actualsource-switchframe/clockcomparisonandindependentphysicaljunctionreview; keepw74FAIL/realSafari/strictadvisor/broadcoveragegates."
     }
   ],
   "run_rules": [
@@ -138,7 +147,7 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "Actualw74isolatedPagesdeploymentandcloudfunctionalchecks completed;maininput/modalreset,freshpress,returnselection,accepteddrag,twoexplicitjunctionspausedlandingschecked. FirstreturnshortpressFAILretained;laterboundedrepeatpasses. Source41checks,10screenshots/rawlogs/hashesbacked;directOSrepeat/browserdeviceapprovalmissing.",
+  "last_verified_progress": "Prepared/published isolatedw75timing-onlyinstrumentation;41sourcechecks+syntaxpass. Retainedreturnkeyframes0/10/20/30 verified; runtime5requirespossiblepreroll,notprovenstallcause. Pages41675994914uploadpending;initialactualCUA404, no w75renderedpass.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
@@ -147,7 +156,7 @@
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "c9aecd5e347229025217c22a4aea6ba569e1fa03",
+    "working_commit": "4652912ea79fa0e19c147cf600adbe14d3d586cc",
     "working_source_sha256": "d82831fa7e6a50b3d6f7f58f2da7d5cd6bba824b8c8d3cea3e9b3ce6fc52e063",
     "feedback_comment": 6590223108,
     "actual_checks_comment": 6593204567,
@@ -161,11 +170,12 @@
     "heading_span_review_comment": 6605180513,
     "departure_review_comment": 6605266112,
     "w74_source_review_comment": 6606916198,
-    "w74_rendered_review_comment": 6608409013
+    "w74_rendered_review_comment": 6608409013,
+    "w75_instrumentation_comment": 6609842621
   },
   "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
-  "evidence_commit": "c9aecd5e347229025217c22a4aea6ba569e1fa03",
-  "prepared_candidate": "w74",
-  "prepared_candidate_source_sha256": "d82831fa7e6a50b3d6f7f58f2da7d5cd6bba824b8c8d3cea3e9b3ce6fc52e063",
-  "prepared_candidate_status": "served_isolated_test_only"
+  "evidence_commit": "4652912ea79fa0e19c147cf600adbe14d3d586cc",
+  "prepared_candidate": "w75",
+  "prepared_candidate_source_sha256": "061c01c3202fc415de1635911cb21912d9c23e7187e432680c7cc169dd835d30",
+  "prepared_candidate_status": "published_build_pending"
 }
