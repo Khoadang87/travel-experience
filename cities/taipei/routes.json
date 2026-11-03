@@ -1,0 +1,28 @@
+{
+ "defaultRoute": "ximending",
+ "routes": [
+  {
+   "id": "ximending",
+   "name": "Ximending night walks",
+   "manifest": "assets/walk/walk.json",
+   "duration": 3348,
+   "clips": [
+    {
+     "id": "ftn",
+     "lo": 0,
+     "hi": 1799.5
+    },
+    {
+     "id": "o3w",
+     "lo": 1800,
+     "hi": 3085.5
+    },
+    {
+     "id": "vwb",
+     "lo": 3086,
+     "hi": 3347.5
+    }
+   ]
+  }
+ ]
+}

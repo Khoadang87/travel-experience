@@ -1,0 +1,19 @@
+{
+ "name": "Taipei Ximending: three real night walks (360°)",
+ "sources": [
+  "https://www.youtube.com/watch?v=FtN_VvhNF98",
+  "https://www.youtube.com/watch?v=o3wUcCNhf5k",
+  "https://www.youtube.com/watch?v=VwBoXlPEPxI"
+ ],
+ "cdn": {
+  "base": "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/taipei/t1/",
+  "hls": "f.m3u8",
+  "hlsIOS": "f2560/index.m3u8",
+  "rev": "r1600/index.m3u8",
+  "duration": 3348,
+  "revDuration": 3348,
+  "lo": 0.5,
+  "hi": 3347.5,
+  "audio": "https://pub-ea3274d70651434b8581144229d8b102.r2.dev/taipei/t1/ambience.m4a"
+ }
+}
