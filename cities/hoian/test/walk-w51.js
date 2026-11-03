@@ -192,7 +192,7 @@ const scr = a => { _v3.set(-Math.sin(a), 0, -Math.cos(a)).project(camera); const
 const live = (x, p) => (!x.clip || (clip && clip.id === x.clip)) && p >= x.t0 && p <= x.t1;
 const mkMarker = (x, cls, txt, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'mk ' + cls; b.innerHTML = txt; b.hidden = true; b.onclick = fn; $('marks').appendChild(b); return b; };
 const exEls = EXITS.map(x => mkMarker(x, 'filmed', '<i>↗</i><span>' + x.label + '</span>', () => takeExit(x)));
-const nfEls = UNFILMED.map(x => mkMarker(x, 'unfilmed', '<i></i><span>' + x.label + '<small>Not filmed yet</small></span>', () => showNF(x)));
+const nfEls = UNFILMED.map(x => mkMarker(x, 'unfilmed', '<i></i><span>' + x.label + '<small>Not accessible right now, coming soon</small></span>', () => showNF(x)));
 const fwdEl = mkMarker({}, 'ahead', '<i>↑</i>', () => {}); fwdEl.tabIndex = -1; fwdEl.setAttribute('aria-hidden', 'true');
 function takeExit(x) { if (fading) return; window.__w.exits = (window.__w.exits || 0) + 1; log('exit ' + x.id); go(x.to, 'exit ' + x.id, x.rot != null ? -x.rot * D2R : null); }
 function placeMarkers() { if (!ready || !clip) return; const p = pos(), card = !$('nf').hidden || !$('places').hidden;
