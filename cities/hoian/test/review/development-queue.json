@@ -2,8 +2,8 @@
   "schema_version": 1,
   "project": "hoian",
   "execution_mode": "scheduled_agent_runs_not_continuous_daemon",
-  "candidate": "w73",
-  "candidate_source_sha256": "61d436c2547b75637ab4c4763da12d878b8ce1c7cf4d5b6f7e5990115a75eac3",
+  "candidate": "w74",
+  "candidate_source_sha256": "d82831fa7e6a50b3d6f7f58f2da7d5cd6bba824b8c8d3cea3e9b3ce6fc52e063",
   "tasks": [
     {
       "id": "verify-w57-startup-failure-ui",
@@ -62,8 +62,8 @@
       "id": "media-startup-response-w65",
       "status": "partial",
       "action": "Isolate actual return-source clock/decoded-frame and projected-picture response without speculative warmup or heading-gate changes.",
-      "evidence": "w68 paint-only media callbacks and changed-only playbackRate writes; main first sampled projected-output change343.9ms while playing. Return500ms tests5->5.055787 and5.055787->5.068975 fail; repeat change636.4ms alreadypaused. Visible/focused cloud rAF idle gaps~1016ms; cause not established. No screen-paint/FPS claim. w69 independent media-only actual comparison: sameclip5->5.506664 visible1x,5.480231 visible.9497x,5.478851 obscured.9497x. Hidden presentation/fractional rate alone did not reproduce player failure; cause unproven. w70 matched nativevsactualprojector500ms comparison:baseline5.479875,projector5.47882/5.478943. Freshunchangedw68return5->5.477745->5.941922;sampledoutputchange329.7/106.9msbeforerelease. Earlierfailuresretained; intermittentnotfixed. w71 old rejection clearing new input deterministically reproduced; request identity/generation correction passes8new+24existingchecks. Deployment pending, actualcandidate404; renderedcheckNOTperformed. Priorw68intermittencycauseunknown.",
-      "next": "Once w71 Pages deployment completes, actual current player rapid release/repress and source-change checks; correlate decoded-frame/pause-reason logs. Do not call source race fix a proven clock-stall fix."
+      "evidence": "w68 paint-only media callbacks and changed-only playbackRate writes; main first sampled projected-output change343.9ms while playing. Return500ms tests5->5.055787 and5.055787->5.068975 fail; repeat change636.4ms alreadypaused. Visible/focused cloud rAF idle gaps~1016ms; cause not established. No screen-paint/FPS claim. w69 independent media-only actual comparison: sameclip5->5.506664 visible1x,5.480231 visible.9497x,5.478851 obscured.9497x. Hidden presentation/fractional rate alone did not reproduce player failure; cause unproven. w70 matched nativevsactualprojector500ms comparison:baseline5.479875,projector5.47882/5.478943. Freshunchangedw68return5->5.477745->5.941922;sampledoutputchange329.7/106.9msbeforerelease. Earlierfailuresretained; intermittentnotfixed. w71 old rejection clearing new input deterministically reproduced; request identity/generation correction passes8new+24existingchecks. Deployment pending, actualcandidate404; renderedcheckNOTperformed. Priorw68intermittencycauseunknown. Actualw74firstreturnW5005→5.046057FAIL,laterswitchW5005→5.504159andrelease/repress6.021786paused. Currentplayresolvednormally52.4ms,nointerveningrecordedpause/rejection/seek;causeunproven.",
+      "next": "Currentw74failedpress:playresolved52.4ms,keyrelease504.3msat5.045199,onlypause_request504.8msidle;nointerveningrecordedseek/rejection/policypause. Correlate actualpresenteddecodedmediaTime andbuffered/seeking/source lifecycle before any fix. No speculativewarmup/rate/gate change. LatercurrentrepeatpassesdoNOTinvalidateFAIL."
     },
     {
       "id": "physical-junction-picture-review-w73",
@@ -114,11 +114,11 @@
     },
     {
       "id": "w74-fresh-keyboard-intent-regression",
-      "status": "ready_for_internal_render",
+      "status": "partial_rendered_os_repeat_unproven",
       "action": "Test prepared w74 guard in actual rendered candidate after isolated versioned test publication; keep defaultw42/livew27 untouched and no user draft link.",
-      "evidence": "Registered actual w73keydown/reset functions reproduce post-reset repeat rearming movement;3of4new cases fail. New repeat-on-unheld-key guard passes41source checks+syntax. Review branch ONLY, not served. No OS/browser-repeat reproduction/phone/advisor pass yet.",
+      "evidence": "w74mainb5e04f464869a5a16e060f3f9708d930535cdc43 Pages41666032132success,9newisolatedtestfiles only. Actualmainfresh/heldkey/release/modalreset+freshpress,returnselection/joystick,acceptedrightdragandbothdisclosedmanualeditscheckedpausedready4. Source41checks pass. DirectOSrepeatgeneration notobserved. FirstreturnW5005→5.046057FAILretained;secondsource-switch5→5.504159and20msrelease+500repress6.021786pause. Intermittency/phonecauseunproven.",
       "source_lock": "d82831fa7e6a50b3d6f7f58f2da7d5cd6bba824b8c8d3cea3e9b3ce6fc52e063",
-      "next": "Publish only isolated new w74test runtime files if no version collision, verify exact source lock, then freshpress/heldrepeat/reset/modal/sourcechange behavior and joystick/pausedlandings. Do not call this original phone or joystick-stall fix."
+      "next": "Do not repeat completed functional checks as acceptance. Investigate current short-press clock/frame presentation/lifecycle evidence and direct observed post-reset OSrepeat when a supported path exists. Physical junction/heading independent review and actual iPhone Safari acceptance remain absent."
     }
   ],
   "run_rules": [
@@ -138,7 +138,7 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "Public source scout acquired no verified usable media. Independently reproduced keyboard repeat rearming canceled intent; prepared isolated w74guard,41source checks+syntax pass. Review-only; servedw73 unchanged. Browser/device/strict approval missing.",
+  "last_verified_progress": "Actualw74isolatedPagesdeploymentandcloudfunctionalchecks completed;maininput/modalreset,freshpress,returnselection,accepteddrag,twoexplicitjunctionspausedlandingschecked. FirstreturnshortpressFAILretained;laterboundedrepeatpasses. Source41checks,10screenshots/rawlogs/hashesbacked;directOSrepeat/browserdeviceapprovalmissing.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
@@ -147,8 +147,8 @@
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "674ff0cd0fa5a0655e1fedc033d82d77aa5c65a3",
-    "working_source_sha256": "61d436c2547b75637ab4c4763da12d878b8ce1c7cf4d5b6f7e5990115a75eac3",
+    "working_commit": "c9aecd5e347229025217c22a4aea6ba569e1fa03",
+    "working_source_sha256": "d82831fa7e6a50b3d6f7f58f2da7d5cd6bba824b8c8d3cea3e9b3ce6fc52e063",
     "feedback_comment": 6590223108,
     "actual_checks_comment": 6593204567,
     "grok_reply_comment": 6598831602,
@@ -160,10 +160,12 @@
     "direction_contrast_comment": 6604065067,
     "heading_span_review_comment": 6605180513,
     "departure_review_comment": 6605266112,
-    "w74_source_review_comment": 6606916198
+    "w74_source_review_comment": 6606916198,
+    "w74_rendered_review_comment": 6608409013
   },
   "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
-  "evidence_commit": "674ff0cd0fa5a0655e1fedc033d82d77aa5c65a3",
+  "evidence_commit": "c9aecd5e347229025217c22a4aea6ba569e1fa03",
   "prepared_candidate": "w74",
-  "prepared_candidate_source_sha256": "d82831fa7e6a50b3d6f7f58f2da7d5cd6bba824b8c8d3cea3e9b3ce6fc52e063"
+  "prepared_candidate_source_sha256": "d82831fa7e6a50b3d6f7f58f2da7d5cd6bba824b8c8d3cea3e9b3ce6fc52e063",
+  "prepared_candidate_status": "served_isolated_test_only"
 }
