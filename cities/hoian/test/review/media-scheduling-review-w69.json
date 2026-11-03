@@ -1,0 +1,73 @@
+{
+  "version": "w69",
+  "artifact_kind": "native_media_scheduling_diagnostic",
+  "player_candidate": "w68",
+  "runtime_commit": "2699208ce160a7809fb8bb126074197e87811ae5",
+  "source_sha256": "0ddee3a8a9c860f7221fb836e6de8646ed6381ff0e6ebb888966b8773608eafd",
+  "return_media_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+  "purpose": "Compare same-source short input with visible native video versus original obscured source presentation, and rates1/.95. Not player or movement acceptance.",
+  "syntax_passed": true,
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "independent_advisor_approved": false,
+  "real_iphone_checked": false,
+  "deployment": {
+    "id": 41567184544,
+    "status": "success"
+  },
+  "actual_browser_scope": "Exact native media-only cloud Chrome comparison; not exact player or Safari acceptance.",
+  "trials": [
+    {
+      "sequence": 1,
+      "presentation": "visible",
+      "rate": 1,
+      "start": 5,
+      "settled": 5.506664,
+      "release_ms": 507.5,
+      "playing_ms": 14.1,
+      "frames_start": 133,
+      "frames_release": 146
+    },
+    {
+      "sequence": 2,
+      "presentation": "visible",
+      "rate": 0.9497041420118342,
+      "start": 5,
+      "settled": 5.480231,
+      "release_ms": 506,
+      "playing_ms": 53.1,
+      "frames_start": 275,
+      "frames_release": 287
+    },
+    {
+      "sequence": 3,
+      "presentation": "obscured",
+      "rate": 0.9497041420118342,
+      "start": 5,
+      "settled": 5.478851,
+      "release_ms": 504.4,
+      "playing_ms": 18.3,
+      "frames_start": 416,
+      "frames_release": 428
+    }
+  ],
+  "conclusion": "All three comparisons advance roughly with held time at selected rate. Fractional rate and original obscured source presentation alone did not reproduce w68 return failure. Not enough to establish CPU projection, event loop, control or decoder cause.",
+  "limits": [
+    "One trial per condition; no repeatability distribution.",
+    "Same media but simplified page; no actual map projection or route policy.",
+    "w68 player failure remains unresolved.",
+    "No new footage or movement coverage; broad all-direction/15-minute scope incomplete.",
+    "No real iPhone Safari or independent exact-player advisor approval.",
+    "Existing w42 phone failure remains FAIL."
+  ],
+  "evidence": [
+    {
+      "path": "cities/hoian/test/review/evidence/w69/hoian-w69-scheduling-20261103.json",
+      "sha256": "a30704d408718167ee7df6620a37ddf33a9fe829a46bc228188e6210177e3887"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w69/hoian-w69-scheduling-20261103.jpg",
+      "sha256": "cd781760d9cf3e4370b9c8807dffe128442251196d7679a575a086067e1793b8"
+    }
+  ]
+}
