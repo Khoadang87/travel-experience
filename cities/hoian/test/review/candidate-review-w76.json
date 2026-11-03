@@ -1,0 +1,25 @@
+{
+  "version": "w76",
+  "source_hashes": {
+    "walk-w76.js": "fc9d2fb5029d3d1c3e171945d445363f825350c4edd4d1d4982ece3607b99442",
+    "software-360-w76.mjs": "bfe3d9559e93f462b8258b7d8eff6450e4e3533763c0fe9480cc873c7193a0e3",
+    "playback-request-w76.mjs": "7d6864d46bd3d1ce40d8d94cb51100b138a4d957553d2aa485d20fcc388a003a",
+    "heading-return-w76.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11",
+    "source-session-w76.mjs": "632c9544f230a24ce0ae71fb6af90591b1816edeef7ad2f4dd6cdf61902d7faf",
+    "route-trial-w76.html": "bc028dd8ebefb5232cccfc2c58840cca895735aed5d3cd1f6e27b84a337ac27c",
+    "codec-file-w76.mjs": "bb1463991771a5e20a1b19e91a9994c5c7702ef21f05e6c9cde274c930e0a6b3",
+    "route-network-w76.json": "b51b58b20cc9aaf0becf6b59db37cbc03de80daff534b0a9e78ad2057b129507",
+    "navigation-w76.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "route-w76.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523"
+  },
+  "candidate_source_sha256": "93b4e03b31835035aec4d294bcc0605526e29659c2db35220a81b185ce2349b4",
+  "source_tests": 43,
+  "main_commit": "51d6bce442d739779c10b9ce22ccfdbeea4f069f",
+  "pages_workflow": 41695642910,
+  "status": "awaiting_internal_browser_codec_comparison",
+  "actual_browser_checked": false,
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "independent_advisor_approved": false,
+  "real_iphone_checked": false
+}
