@@ -1,0 +1,49 @@
+{
+  "source_sha256": "6c59480a6fc1843457314fbe1977eef0bc8549e33502e82fb0f3853dba2fee5a",
+  "full_decode_exit": 0,
+  "full_decode_stderr": "",
+  "duration_probe_seconds": 15,
+  "source_name": "henk-bridge-departure-562.mp4",
+  "original_global_time_mapping_reverified": false,
+  "frames": [
+    {
+      "file": "departure-local-0.png",
+      "local_requested_seconds": 0,
+      "sha256": "c4908e033d3cdad864430cf65a9bcde90fcdc617a16e7626b0c3d9b79c563138"
+    },
+    {
+      "file": "departure-local-7.png",
+      "local_requested_seconds": 7,
+      "sha256": "b0d1b3a30ffecb2563ebe8111abe9c3c0d357cf690abc56a55371c0757bb991d"
+    },
+    {
+      "file": "departure-local-14.png",
+      "local_requested_seconds": 14,
+      "sha256": "d6522744d39d85c7c3bd875df47c5aee0a89864b544d7be688b6563be52c4387"
+    }
+  ],
+  "blackdetect": {
+    "exit": 0,
+    "parameters": {
+      "d": 0.02,
+      "pix_th": 0.1
+    },
+    "interval_lines": [
+      "[blackdetect @ 0x7f7888001a00] black_start:0 black_end:0.44 black_duration:0.44"
+    ]
+  },
+  "assessment": {
+    "local0": "Decoded black source picture, not a browser/loading error",
+    "local7_and14": "Actual waterfront/quay scene, not the narrow alley interior reviewed in main local86..96",
+    "alley_return_connection_verified": false,
+    "accepted_as_return_source": false,
+    "notes": "The filename is a nominal original source time, not a reverified global mapping. Do not infer a bridge/alley connection from the filename. No clip inserted or trimmed into runtime."
+  },
+  "runtime_changed": false,
+  "delivery_approved": false,
+  "image": {
+    "file": "departure-contact.jpg",
+    "bytes": 128715,
+    "sha256": "d907474ea8d2a91c0efaca8c8316d4f436592258d29250eb2757f2d7f86a2b74"
+  }
+}
