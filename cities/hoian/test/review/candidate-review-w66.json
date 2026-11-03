@@ -1,0 +1,46 @@
+{
+  "version": "w66",
+  "main_commit": "87a3e8d31b9d88493e27bd81cd0f595a60792b6e",
+  "source_hashes": {
+    "route-trial-w66.html": "5e1bdaf6cdbfa50d312f6c97f568deb118957948d8d92cf5e11cff48ea1dc6ce",
+    "route-w66.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523",
+    "walk-w66.js": "08d6572fde2758d5c33a207c7c9bc884c55a37aa4dda6e3813af622e8d067c0c",
+    "navigation-w66.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "source-session-w66.mjs": "44ed97911951a9343c7564c09a1040cb3cc239ec1291805f98338165f3638f1c",
+    "route-network-w66.json": "f94901fd2c964b5a4922b2044ed6c837de71405ed926444cd1cd0019abdade02",
+    "heading-return-w66.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11",
+    "software-360-w66.mjs": "1557702e7888bf0d1b5c7102d2ca5ece5755b5c4ee38db666dae8982d8435714"
+  },
+  "candidate_source_sha256": "dd4c186849726cf13d92e02eb8159f4c85376d858145290a3c01ea9fb43346a8",
+  "checks": {
+    "source_tests_passed": 23,
+    "syntax_passed": true,
+    "actual_browser_checked": true,
+    "real_iphone_checked": false,
+    "independent_advisor_approved": false
+  },
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "actual_observations": {
+    "environment": "ActualcloudChromeCPU;timing=1 diagnostics",
+    "main500ms": {
+      "play_request_ms": 0.6,
+      "playing_ms": 53.3,
+      "play_resolved_ms": 53.6,
+      "release_ms": 508.3,
+      "landed": 1066.482062,
+      "projection_after_clock_advance_ms": 875.4,
+      "projection_paused": true
+    },
+    "return500ms": {
+      "play_request_ms": 0.4,
+      "playing_ms": 52.7,
+      "play_resolved_ms": 52.7,
+      "release_ms": 506.9,
+      "landed": 5.481305,
+      "projection_after_clock_advance_ms": 775.3,
+      "projection_paused": true
+    },
+    "limit": "w66 picture timing is a projection after media-clock advance, NOT independently verified pixel change. Earlier w65 smalladvance failure not reproduced here; no confirmed decoder warmup cause. Source keyframes0,10,20,30 do not establish latencycause."
+  }
+}

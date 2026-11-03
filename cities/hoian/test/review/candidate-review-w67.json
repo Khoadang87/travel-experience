@@ -1,0 +1,89 @@
+{
+  "version": "w67",
+  "main_commit": "b35f7d100af7ff9cb360db25a53e915e2b55358e",
+  "source_hashes": {
+    "route-trial-w67.html": "fc4a723a258b9ed0a85690b73177578a2e24f78012e28e300625ccf07791eb2d",
+    "route-w67.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523",
+    "walk-w67.js": "c9bdf4a3e751bbd229e3c3ddce35c709c1ef4882942293fb8269f1acfe1d153f",
+    "navigation-w67.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "source-session-w67.mjs": "1d809555bde1975b591d92e9af09f9f91d3c4e7e6c01b23d5991cfa25fe3419c",
+    "route-network-w67.json": "00706643ed179fd5986aba3c978c4ff0467ea206943f37fc9d96e2ada0ffa342",
+    "heading-return-w67.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11",
+    "software-360-w67.mjs": "47bfbddd709380926f603654d126478581a77139838af02c30934daa14d3a851"
+  },
+  "candidate_source_sha256": "4daf267db4bde2e24982262020ce05f8824deacbc091d5aec330ed5ffb800a98",
+  "checks": {
+    "source_tests_passed": 23,
+    "syntax_passed": true,
+    "actual_browser_checked": true,
+    "real_iphone_checked": false,
+    "independent_advisor_approved": false
+  },
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "change": "Software active-source playing/timeupdate/seeked events call shared frame tick in addition to rAF. Direction/edit policy unchanged. First changed-picture diagnostic now requires sampled source-pixel fingerprint difference and media-time advance; sample fingerprint is not cryptographic or full-image quality evidence.",
+  "actual_observations": {
+    "environment": "ActualcloudChromeCPUtiming=1; no phone/GPU evidence",
+    "main500ms": {
+      "playing_ms": 53.1,
+      "release_ms": 505,
+      "landed": 1066.385324,
+      "paused": true,
+      "first_projection_with_changed_sampled_source_ms": 625.5,
+      "projected_while_paused": true,
+      "result": "responsivenessnotaccepted"
+    },
+    "return500ms": {
+      "playing_ms": 54.5,
+      "play_resolved_ms": 55.4,
+      "release_ms": 507.4,
+      "landed": 5,
+      "paused": true,
+      "changed_picture_logged": false,
+      "result": "FAIL:noadvanceinthistrial"
+    },
+    "return1500ms": {
+      "landed": 6.096082,
+      "paused": true,
+      "first_projection_with_changed_sampled_source_ms": 594.8,
+      "projected_while_paused": false
+    },
+    "junction_checks": {
+      "return_end": 34.899069,
+      "assembly_confirm_landed": 1066.2,
+      "bridge_proposal_time": 1103.165198,
+      "bridge_confirm_landed": 5,
+      "all_landings_paused_ready4": true,
+      "automatic_switch_seen": false,
+      "scope": "ActualUIrequestsandmanualconfirmation, notphysicalalignmentorqualityapproval"
+    },
+    "limits": [
+      "Sparse source-pixel fingerprint differs, not full rendered-view hash or screen-presentation timestamp",
+      "Media-event redraw didnotfixallshort-input/picturetimingfailures",
+      "Earlierw65warmupfailurecauseunconfirmed; playbackclockadvancemustnotbecountedasspatialquality",
+      "No realSafari/independentadvisor/broadcaptureapproval"
+    ]
+  },
+  "evidence": [
+    {
+      "name": "hoian-w66-input-timing-20261102.json",
+      "sha256": "23d2ced44723f82c456a20e1a888799ebaccb25cba7f857cd5d600ee7eb9fdf9"
+    },
+    {
+      "name": "hoian-w67-input-timing-20261102.json",
+      "sha256": "79c8ff29338cf10de741029cbfe544e33506d12cb5ead9c1a9df6244e9b2c6ed"
+    },
+    {
+      "name": "hoian-w66-timing-return-20261102.jpg",
+      "sha256": "8a1a52647ca711ad9d7b579540e58407271ada11a8892189f065a35e92b452bb"
+    },
+    {
+      "name": "hoian-w67-bridge-edit-notice-20261102.jpg",
+      "sha256": "a9658a4a4aeb7f5d2c904cc5d1c6aad785fc1114b81dab5fe2d7e0d68c69e4b8"
+    },
+    {
+      "name": "hoian-w67-bridge-edit-landed-20261102.jpg",
+      "sha256": "51e12a350bcc614898e8a7568f167aca8b9a08a7b537ab384b20a68b013ab410"
+    }
+  ]
+}

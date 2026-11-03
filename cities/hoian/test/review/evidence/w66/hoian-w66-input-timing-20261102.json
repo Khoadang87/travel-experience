@@ -1,0 +1,164 @@
+[
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-seeking\",\"sequence\":0,\"at\":1205.300000000745,\"sinceInputMs\":null,\"time\":1066,\"paused\":true,\"readyState\":1,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+    "timestamp": "2026-11-03T00:38:32.404Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-seeking\",\"sequence\":0,\"at\":1220.1000000014901,\"sinceInputMs\":null,\"time\":1066,\"paused\":true,\"readyState\":1,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+    "timestamp": "2026-11-03T00:38:32.421Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-seeked\",\"sequence\":0,\"at\":1317,\"sinceInputMs\":null,\"time\":1066,\"paused\":true,\"readyState\":4,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+    "timestamp": "2026-11-03T00:38:32.520Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-stalled\",\"sequence\":0,\"at\":4897.199999999255,\"sinceInputMs\":null,\"time\":1066,\"paused\":true,\"readyState\":4,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+    "timestamp": "2026-11-03T00:38:36.096Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-stalled\",\"sequence\":0,\"at\":11725.300000000745,\"sinceInputMs\":null,\"time\":1066,\"paused\":true,\"readyState\":4,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+    "timestamp": "2026-11-03T00:38:42.924Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"input-start\",\"sequence\":1,\"at\":12628.5,\"sinceInputMs\":0.09999999776482582,\"time\":1066,\"paused\":true,\"readyState\":4}",
+    "timestamp": "2026-11-03T00:38:43.827Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"play-request\",\"sequence\":1,\"at\":12629,\"sinceInputMs\":0.5999999977648258,\"time\":1066,\"paused\":true,\"readyState\":4}",
+    "timestamp": "2026-11-03T00:38:43.828Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-play\",\"sequence\":1,\"at\":12681.5,\"sinceInputMs\":53.099999997764826,\"time\":1066.049123,\"paused\":false,\"readyState\":4,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+    "timestamp": "2026-11-03T00:38:43.880Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-playing\",\"sequence\":1,\"at\":12681.699999999255,\"sinceInputMs\":53.29999999701977,\"time\":1066.049553,\"paused\":false,\"readyState\":4,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+    "timestamp": "2026-11-03T00:38:43.880Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"play-resolved\",\"sequence\":1,\"at\":12682,\"sinceInputMs\":53.599999997764826,\"time\":1066.049805,\"paused\":false,\"readyState\":4}",
+    "timestamp": "2026-11-03T00:38:43.881Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"input-release\",\"sequence\":1,\"at\":13136.699999999255,\"sinceInputMs\":508.29999999701977,\"time\":1066.4816,\"paused\":false,\"readyState\":4}",
+    "timestamp": "2026-11-03T00:38:44.335Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-pause\",\"sequence\":1,\"at\":13188.300000000745,\"sinceInputMs\":559.8999999985099,\"time\":1066.482062,\"paused\":true,\"readyState\":4,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+    "timestamp": "2026-11-03T00:38:44.387Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input picture {\"version\":\"w66\",\"sequence\":1,\"sinceInputMs\":875.3999999985099,\"time\":1066.482062,\"paused\":true}",
+    "timestamp": "2026-11-03T00:38:44.703Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/software-360-w66.mjs"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-stalled\",\"sequence\":1,\"at\":16069.199999999255,\"sinceInputMs\":3440.7999999970198,\"time\":1066.482062,\"paused\":true,\"readyState\":4,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+    "timestamp": "2026-11-03T00:38:47.268Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-stalled\",\"sequence\":1,\"at\":23256.60000000149,\"sinceInputMs\":10628.199999999255,\"time\":1066.482062,\"paused\":true,\"readyState\":4,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+    "timestamp": "2026-11-03T00:38:54.455Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-stalled\",\"sequence\":1,\"at\":29725.199999999255,\"sinceInputMs\":17096.79999999702,\"time\":1066.482062,\"paused\":true,\"readyState\":4,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+    "timestamp": "2026-11-03T00:39:00.924Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-stalled\",\"sequence\":1,\"at\":36194,\"sinceInputMs\":23565.599999997765,\"time\":1066.482062,\"paused\":true,\"readyState\":4,\"route\":\"Assembly hall area → Japanese Bridge\"}",
+    "timestamp": "2026-11-03T00:39:07.393Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-seeking\",\"sequence\":1,\"at\":40059,\"sinceInputMs\":27430.599999997765,\"time\":5,\"paused\":true,\"readyState\":1,\"route\":\"Away from bridge · Trần Phú\"}",
+    "timestamp": "2026-11-03T00:39:11.260Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-seeked\",\"sequence\":1,\"at\":40629.400000002235,\"sinceInputMs\":28001,\"time\":5,\"paused\":true,\"readyState\":4,\"route\":\"Away from bridge · Trần Phú\"}",
+    "timestamp": "2026-11-03T00:39:11.841Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"input-start\",\"sequence\":2,\"at\":52984.699999999255,\"sinceInputMs\":0,\"time\":5,\"paused\":true,\"readyState\":4}",
+    "timestamp": "2026-11-03T00:39:24.183Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"play-request\",\"sequence\":2,\"at\":52985.10000000149,\"sinceInputMs\":0.4000000022351742,\"time\":5,\"paused\":true,\"readyState\":4}",
+    "timestamp": "2026-11-03T00:39:24.183Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-play\",\"sequence\":2,\"at\":53037.10000000149,\"sinceInputMs\":52.400000002235174,\"time\":5.048983,\"paused\":false,\"readyState\":4,\"route\":\"Away from bridge · Trần Phú\"}",
+    "timestamp": "2026-11-03T00:39:24.235Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-playing\",\"sequence\":2,\"at\":53037.400000002235,\"sinceInputMs\":52.70000000298023,\"time\":5.049601,\"paused\":false,\"readyState\":4,\"route\":\"Away from bridge · Trần Phú\"}",
+    "timestamp": "2026-11-03T00:39:24.236Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"play-resolved\",\"sequence\":2,\"at\":53037.400000002235,\"sinceInputMs\":52.70000000298023,\"time\":5.049657,\"paused\":false,\"readyState\":4}",
+    "timestamp": "2026-11-03T00:39:24.236Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"input-release\",\"sequence\":2,\"at\":53491.60000000149,\"sinceInputMs\":506.9000000022352,\"time\":5.480996,\"paused\":false,\"readyState\":4}",
+    "timestamp": "2026-11-03T00:39:24.693Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input media {\"version\":\"w66\",\"kind\":\"media-pause\",\"sequence\":2,\"at\":53543.10000000149,\"sinceInputMs\":558.4000000022352,\"time\":5.481305,\"paused\":true,\"readyState\":4,\"route\":\"Away from bridge · Trần Phú\"}",
+    "timestamp": "2026-11-03T00:39:24.741Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/walk-w66.js"
+  },
+  {
+    "level": "info",
+    "message": "Hoian input picture {\"version\":\"w66\",\"sequence\":2,\"sinceInputMs\":775.3000000007451,\"time\":5.481305,\"paused\":true}",
+    "timestamp": "2026-11-03T00:39:24.960Z",
+    "url": "https://khoadang87.github.io/travel-experience/cities/hoian/test/software-360-w66.mjs"
+  }
+]
