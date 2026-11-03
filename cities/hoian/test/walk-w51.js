@@ -295,7 +295,7 @@ const T0 = performance.now();
   audio.src = c.audio;
   $('load-msg').textContent = 'Connecting to the street…';
   if (!(await probe(url))) throw new Error('The video stream is not reachable. Check the connection and reload.');
-  D = c.duration; LO = c.lo || 0; const t0 = +(params.get('t') || LO); attach(st.F, url, t0);
+  D = c.duration; LO = Math.max(c.lo || 0, CFG.lo || 0); /* w51: start at 11 s, past the man walking close to the operator-removal patch (qa/w51/melt) */ const t0 = +(params.get('t') || LO); attach(st.F, url, t0);
   $('load-msg').textContent = 'Loading real 360° footage…';
   await new Promise((res, rej) => { const to = setTimeout(() => rej(new Error('The video took too long to load.')), 45000); st.F.v.addEventListener('loadedmetadata', () => { clearTimeout(to); res(); }, { once: true }); });
   await seekTo(t0); mat.map = tex; mat.needsUpdate = true; ready = true; document.body.classList.remove('loading'); window.__ttff = performance.now() - T0; log('ready');
