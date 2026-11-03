@@ -1,0 +1,24 @@
+{
+  "version": "w72",
+  "source_hashes": {
+    "heading-return-w72.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11",
+    "navigation-w72.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "playback-request-w72.mjs": "7d6864d46bd3d1ce40d8d94cb51100b138a4d957553d2aa485d20fcc388a003a",
+    "route-network-w72.json": "4da1c2ebdd2b8df83ae660b6933ee5654bf0b7acad34b95a25e45875a0919c49",
+    "route-trial-w72.html": "3c69a80ca476d7890388d84cb0c2d5756c4edfa5ac35925c092367e94a45999e",
+    "route-w72.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523",
+    "software-360-w72.mjs": "f8dbfdfdc3f1a08e3ae0e1e6feb37c46875b40bf6fe21b00955b127de9ad0ae6",
+    "source-session-w72.mjs": "c053c4a6bc4b972b18b78e79af2142364684632923e27b67c7db9dbffb99b488",
+    "walk-w72.js": "25be1649a97d7cf0c6121c96e5c2dd8967be25eeb65f8acbf18c3bd4e12ca1e2"
+  },
+  "candidate_source_sha256": "c14efcf036108025d720be419e827983212660aafd34f9bbe15d1765d33e4e3f",
+  "source_tests_passed": 34,
+  "syntax_passed": true,
+  "actual_browser_checked": false,
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "change": "Only semantic runtime change from w71: actual35.08s return media endpoint and disclosed edit window endpoint replace rounded35.00. No seek, added footage or reverse.",
+  "failed_source_case": "rendered-review-w71.json native endpoint35.08 blocks disclosed return at oldroute35",
+  "tests": "34pass; first test run33pass1fail due old expected35.01outside, updated to actual outside35.081; failure retained in run record.",
+  "media_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda"
+}

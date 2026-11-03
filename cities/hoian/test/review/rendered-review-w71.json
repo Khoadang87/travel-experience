@@ -1,0 +1,73 @@
+{
+  "candidate": "w71",
+  "source_sha256": "063428aabe4b9ad35dea448462bf7e383087a9c4fa5543dccec9b5953d76f62e",
+  "runtime_commit": "32e92e1050b8475bc99f22063365100c5126e9a4",
+  "served_by": {
+    "commit": "21792b8b5df46a14da201a2c40ffe1e2312cd57c",
+    "deployment": 41579969470,
+    "status": "success",
+    "original_deployment": 41579220079,
+    "original_status": "cancelled"
+  },
+  "actual_cloud_browser_checked": true,
+  "short_press_observations": {
+    "main500ms": {
+      "start": 1066,
+      "landed": 1066.478739,
+      "sampled_projected_change_ms": 385.4,
+      "release_ms": 505.6
+    },
+    "main20ms_then500ms": {
+      "short_release_ms": 24.3,
+      "stale_resolution_ms": 138.2,
+      "new_press_landed": 1066.956966
+    },
+    "return500ms": {
+      "start": 5,
+      "landed": 5.480431,
+      "sampled_projected_change_ms": 372.4,
+      "release_ms": 506.8,
+      "decoded_frames_start": 133,
+      "decoded_frames_release": 144
+    },
+    "return20ms_then500ms": {
+      "short_release_ms": 34.1,
+      "stale_resolution_ms": 141,
+      "new_press_start": 5.496724,
+      "new_press_landed": 5.975618
+    },
+    "scope": "All landedpausedready4. Stale completions observed AFTER release BEFORE subsequentinput, not after newerinput; actual stale-rejection case not reproduced in browser, only deterministic unit tests."
+  },
+  "endpoint_failure": {
+    "actual_time": 35.08,
+    "native_duration": 35.08,
+    "ended": true,
+    "route_end": 35,
+    "edit_window_end": 35,
+    "return_proposal": "blocked Outside this recorded route",
+    "reproduction": "30sec normal positive-timeholdfrom5.975618lands34.487587,then1.2sec normalholdreachesnativeend; backward500ms fails to offer disclosed edit. No seek or reverse."
+  },
+  "limits": [
+    "Endpoint regression FAIL blocks candidate acceptance.",
+    "Limited fresh short-press successes do not establish intermittent failure fixed.",
+    "Both full junction regressions/physical joins/WebGL/realiPhoneSafari/strictadvisor absent.",
+    "Sparse output fingerprint not screen compositor timing.",
+    "OriginalphoneFAIL,broadall-direction15mincoverage unresolved."
+  ],
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "evidence": [
+    {
+      "path": "cities/hoian/test/review/evidence/w71/hoian-w71-return-input-20261103.jpg",
+      "sha256": "d065a2945b51c4318acc755775dc7fad8c7890adf057182680f8cfce54fa58a9"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w71/hoian-w71-endpoint-fail-20261103.jpg",
+      "sha256": "4a9a2a460cf971f0696e14fd49d84d039f8fbfddacb4e8e4896badcdd2b265fd"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w71/hoian-w71-rendered-20261103.json",
+      "sha256": "cd1b56f4f2c8879b0f3da704111ed5c31bef56c7b2a1c93e04eccdeb87ecac43"
+    }
+  ]
+}
