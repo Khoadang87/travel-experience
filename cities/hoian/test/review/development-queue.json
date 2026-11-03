@@ -2,8 +2,8 @@
   "schema_version": 1,
   "project": "hoian",
   "execution_mode": "scheduled_agent_runs_not_continuous_daemon",
-  "candidate": "w65",
-  "candidate_source_sha256": "26ff4737a2b4d02dc25787202e1f0aa1a033dcea7e244cf97ebe83027464d5e0",
+  "candidate": "w67",
+  "candidate_source_sha256": "4daf267db4bde2e24982262020ce05f8824deacbc091d5aec330ed5ffb800a98",
   "tasks": [
     {
       "id": "verify-w57-startup-failure-ui",
@@ -21,7 +21,7 @@
       "id": "render-current-candidate",
       "status": "partial",
       "action": "Inspect exact w61 rendered routes and both explicit edits via supported cloud CUA. CPU fallback now permits actual scenery inspection without WebGL; default WebGL path still lacks GPU environment.",
-      "evidence": "w65realmain/returnpicture,main500ms1066->1066.483905pausedready4,13secplayto1079.499129paused,return5->5.046007after500msand6.030981after1500ms,pauseddragchecked. Bothw65joinsnotretested.",
+      "evidence": "Exactw67bothmanualeditslandpausedready4, returnendstops; main500ms625.5msprojectionafterrelease, return500msnoadvance. No overallacceptance.",
       "next": "w63bothjunctionregression, measuredquality/performance and realGPU/Safari/device checks remain."
     },
     {
@@ -59,8 +59,10 @@
     },
     {
       "id": "media-startup-response-w65",
-      "status": "ready",
-      "action": "Investigate actualreturn startup delay:500mspressadvancedonly.046sec, warmed1500ms.985sec. Preservepositive-timeboundedpolicy; useinput/mediaevent evidence, do not assume latencycause orremoveheading/coveragegates."
+      "status": "partial",
+      "action": "Investigate actualreturn startup delay:500mspressadvancedonly.046sec, warmed1500ms.985sec. Preservepositive-timeboundedpolicy; useinput/mediaevent evidence, do not assume latencycause orremoveheading/coveragegates.",
+      "evidence": "w66playing~53ms,bothprojections775/875msafterinput; earlier smallreturnadvance not reproducedw66. w67return500msnoadvance, warm1500msadvance1.096. Warmupcauseunconfirmed.",
+      "next": "Investigate media-event/control reentrancy, ratewrites, actual projected-pixel/frame scheduling and visibility with bounded actual evidence; do not claim screenlatency from clock/sourcehash."
     }
   ],
   "run_rules": [
@@ -80,7 +82,7 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "Actualmatchingw63/w64/w65main1066pictures showlessblockysoftwareview. W64largeroutputprojectioncost106.4..126.8ms;w65smaller768output59.8..61ms,max87.6. NotactualFPS/smoothness/devicepass. Returnshortpressstartupremainsweak.",
+  "last_verified_progress": "Measured playing~53ms but lateCPUprojections; w67media-event redraw didnotfixshort-inputfailures. Currentbothdisclosedjunctionsfunctionallycheckedwithpausedlandings; physicalalignment/phone/advisorabsent.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
@@ -89,11 +91,11 @@
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "d0c4a82bf1dc24b9375a89fb5fe26ef895c35454",
-    "working_source_sha256": "26ff4737a2b4d02dc25787202e1f0aa1a033dcea7e244cf97ebe83027464d5e0",
+    "working_commit": "84152cdfe772586ce545ab19a2764a8432dc03c2",
+    "working_source_sha256": "4daf267db4bde2e24982262020ce05f8824deacbc091d5aec330ed5ffb800a98",
     "feedback_comment": 6590223108,
-    "actual_checks_comment": 6591355956
+    "actual_checks_comment": 6592411245
   },
   "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
-  "evidence_commit": "d0c4a82bf1dc24b9375a89fb5fe26ef895c35454"
+  "evidence_commit": "84152cdfe772586ce545ab19a2764a8432dc03c2"
 }
