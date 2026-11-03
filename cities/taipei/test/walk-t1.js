@@ -1,4 +1,4 @@
-/* t1 (Taipei Ximending): w51 engine/design on 3 real night walks, 20 frame-matched links (evidence qa/taipei/ev_*.jpg).
+/* t1 (Taipei Ximending): w51 engine/design on 2 real night walks (walk 2 cut at 2132 s; the Mac encode stopped there), 10 frame-matched links (evidence qa/taipei/ev_*.jpg).
    w51 = w50 design + w50a crossfade + w50c walk-back, plus: 3 more real junctions found by frame matching inside hls13
    (covered bridge visited twice, walk end returns to the start square), landmark-aligned crossfade on those, and a mini-map
    dead-reckoned from camera yaw + optical-flow heading, loop-closed at the real junctions (approximate, not GPS).
@@ -183,42 +183,22 @@ const EXITS = [
   { id: 'j0b', clip: 'o3w', t0: 2082, t1: 2090, rot: 19.7, label: "Toward Pedestrian street (walk 1)", to: 854 },
   { id: 'j1a', clip: 'ftn', t0: 784, t1: 792, rot: -83.0, label: "Other filmed street (walk 2)", to: 2030 },
   { id: 'j1b', clip: 'o3w', t0: 2026, t1: 2034, rot: 83.0, label: "Toward Pedestrian street (walk 1)", to: 788 },
-  { id: 'j2a', clip: 'ftn', t0: 1112, t1: 1120, rot: 136.5, label: "Other filmed street (walk 2)", to: 2714 },
-  { id: 'j2b', clip: 'o3w', t0: 2710, t1: 2718, rot: -136.5, label: "Toward Street-food stalls (walk 1)", to: 1116 },
-  { id: 'j3a', clip: 'ftn', t0: 634, t1: 642, rot: 172.6, label: "Other filmed street (walk 2)", to: 2718 },
-  { id: 'j3b', clip: 'o3w', t0: 2714, t1: 2722, rot: -172.6, label: "Other filmed street (walk 1)", to: 638 },
-  { id: 'j4a', clip: 'ftn', t0: 1374, t1: 1382, rot: 14.6, label: "Other filmed street (walk 2)", to: 2736 },
-  { id: 'j4b', clip: 'o3w', t0: 2732, t1: 2740, rot: -14.6, label: "Other filmed street (walk 1)", to: 1378 },
-  { id: 'j5a', clip: 'ftn', t0: 294, t1: 302, rot: -52.1, label: "Other filmed street (walk 2)", to: 2992 },
-  { id: 'j5b', clip: 'o3w', t0: 2988, t1: 2996, rot: 52.1, label: "Toward Covered mural arcade (walk 1)", to: 298 },
-  { id: 'j6a', clip: 'ftn', t0: 544, t1: 552, rot: -11.3, label: "Toward Street of lights (walk 2)", to: 1874 },
-  { id: 'j6b', clip: 'o3w', t0: 1870, t1: 1878, rot: 11.3, label: "Toward Big-brand corner (walk 1)", to: 548 },
-  { id: 'j7a', clip: 'ftn', t0: 1350, t1: 1358, rot: -152.2, label: "Toward Street of lights (walk 2)", to: 1874 },
-  { id: 'j7b', clip: 'o3w', t0: 1870, t1: 1878, rot: 152.2, label: "Other filmed street (walk 1)", to: 1354 },
-  { id: 'j8a', clip: 'ftn', t0: 1516, t1: 1524, rot: 78.0, label: "Toward Street of lights (walk 2)", to: 1972 },
-  { id: 'j8b', clip: 'o3w', t0: 1968, t1: 1976, rot: -78.0, label: "Toward Tree-lined walking street (walk 1)", to: 1520 },
-  { id: 'j9a', clip: 'ftn', t0: 1062, t1: 1070, rot: -30.1, label: "Toward Street of lights (walk 2)", to: 1974 },
-  { id: 'j9b', clip: 'o3w', t0: 1970, t1: 1978, rot: 30.1, label: "Toward Shop-lined arcade (walk 1)", to: 1066 },
-  { id: 'j10a', clip: 'ftn', t0: 1428, t1: 1436, rot: 37.8, label: "Toward Big-screen junction (walk 3)", to: 3102 },
-  { id: 'j10b', clip: 'vwb', t0: 3098, t1: 3106, rot: -37.8, label: "Other filmed street (walk 1)", to: 1432 },
-  { id: 'j11a', clip: 'ftn', t0: 460, t1: 468, rot: -87.3, label: "Toward Big-screen junction (walk 2)", to: 3076 },
-  { id: 'j11b', clip: 'o3w', t0: 3072, t1: 3080, rot: 87.3, label: "Toward Rainbow crosswalk (walk 1)", to: 464 },
-  { id: 'j12a', clip: 'ftn', t0: 1590, t1: 1598, rot: -90.3, label: "Other filmed street (walk 2)", to: 2654 },
-  { id: 'j12b', clip: 'o3w', t0: 2650, t1: 2658, rot: 90.3, label: "Toward Tree-lined walking street (walk 1)", to: 1594 },
-  { id: 'j13a', clip: 'ftn', t0: 726, t1: 734, rot: 140.2, label: "Other filmed street (walk 2)", to: 2656 },
-  { id: 'j13b', clip: 'o3w', t0: 2652, t1: 2660, rot: -140.2, label: "Other filmed street (walk 1)", to: 730 },
-  { id: 'j14a', clip: 'ftn', t0: 524, t1: 532, rot: 146.9, label: "Toward Shoe-store street (walk 3)", to: 3244 },
-  { id: 'j14b', clip: 'vwb', t0: 3240, t1: 3248, rot: -146.9, label: "Toward Big-brand corner (walk 1)", to: 528 },
-  { id: 'j15a', clip: 'ftn', t0: 1276, t1: 1284, rot: -126.1, label: "Toward Street of lights (walk 2)", to: 1822 },
-  { id: 'j15b', clip: 'o3w', t0: 1818, t1: 1826, rot: 126.1, label: "Other filmed street (walk 1)", to: 1280 },
-  { id: 'j16a', clip: 'ftn', t0: 814, t1: 822, rot: -61.7, label: "Toward Sports-store corner (walk 2)", to: 2588 },
-  { id: 'j16b', clip: 'o3w', t0: 2584, t1: 2592, rot: 61.7, label: "Toward Pedestrian street (walk 1)", to: 818 },
-  { id: 'j17a', clip: 'ftn', t0: 634, t1: 642, rot: 20.5, label: "Toward Street-food stalls (walk 1)", to: 1118 },
-  { id: 'j17b', clip: 'ftn', t0: 1114, t1: 1122, rot: -20.5, label: "Other filmed street (walk 1)", to: 638 },
-  { id: 'j18a', clip: 'ftn', t0: 544, t1: 552, rot: 143.0, label: "Other filmed street (walk 1)", to: 1354 },
-  { id: 'j18b', clip: 'ftn', t0: 1350, t1: 1358, rot: -143.0, label: "Toward Big-brand corner (walk 1)", to: 548 },
-  { id: 'j19a', clip: 'ftn', t0: 1062, t1: 1070, rot: -126.7, label: "Toward Tree-lined walking street (walk 1)", to: 1518 },
-  { id: 'j19b', clip: 'ftn', t0: 1514, t1: 1522, rot: 126.7, label: "Toward Shop-lined arcade (walk 1)", to: 1066 } ];
+  { id: 'j2a', clip: 'ftn', t0: 544, t1: 552, rot: -11.3, label: "Toward Street of lights (walk 2)", to: 1874 },
+  { id: 'j2b', clip: 'o3w', t0: 1870, t1: 1878, rot: 11.3, label: "Toward Big-brand corner (walk 1)", to: 548 },
+  { id: 'j3a', clip: 'ftn', t0: 1350, t1: 1358, rot: -152.2, label: "Toward Street of lights (walk 2)", to: 1874 },
+  { id: 'j3b', clip: 'o3w', t0: 1870, t1: 1878, rot: 152.2, label: "Other filmed street (walk 1)", to: 1354 },
+  { id: 'j4a', clip: 'ftn', t0: 1516, t1: 1524, rot: 78.0, label: "Toward Street of lights (walk 2)", to: 1972 },
+  { id: 'j4b', clip: 'o3w', t0: 1968, t1: 1976, rot: -78.0, label: "Toward Tree-lined walking street (walk 1)", to: 1520 },
+  { id: 'j5a', clip: 'ftn', t0: 1062, t1: 1070, rot: -30.1, label: "Toward Street of lights (walk 2)", to: 1974 },
+  { id: 'j5b', clip: 'o3w', t0: 1970, t1: 1978, rot: 30.1, label: "Toward Shop-lined arcade (walk 1)", to: 1066 },
+  { id: 'j6a', clip: 'ftn', t0: 1276, t1: 1284, rot: -126.1, label: "Toward Street of lights (walk 2)", to: 1822 },
+  { id: 'j6b', clip: 'o3w', t0: 1818, t1: 1826, rot: 126.1, label: "Other filmed street (walk 1)", to: 1280 },
+  { id: 'j7a', clip: 'ftn', t0: 634, t1: 642, rot: 20.5, label: "Toward Street-food stalls (walk 1)", to: 1118 },
+  { id: 'j7b', clip: 'ftn', t0: 1114, t1: 1122, rot: -20.5, label: "Other filmed street (walk 1)", to: 638 },
+  { id: 'j8a', clip: 'ftn', t0: 544, t1: 552, rot: 143.0, label: "Other filmed street (walk 1)", to: 1354 },
+  { id: 'j8b', clip: 'ftn', t0: 1350, t1: 1358, rot: -143.0, label: "Toward Big-brand corner (walk 1)", to: 548 },
+  { id: 'j9a', clip: 'ftn', t0: 1062, t1: 1070, rot: -126.7, label: "Toward Tree-lined walking street (walk 1)", to: 1518 },
+  { id: 'j9b', clip: 'ftn', t0: 1514, t1: 1522, rot: 126.7, label: "Toward Shop-lined arcade (walk 1)", to: 1066 } ];
 /* Openings beside the walk that nobody filmed going in (bearings measured on rendered frames for w42i). */
 const UNFILMED = []; /* t1: no side openings marked yet; pushing off a filmed path shows the edge notice */
 const bAt = (b, p) => { if (typeof b === 'number') return b; if (p <= b[0][0]) return b[0][1]; for (let k = 1; k < b.length; k++) if (p <= b[k][0]) { const [t0, d0] = b[k - 1], [t1, d1] = b[k]; return d0 + (d1 - d0) * (p - t0) / (t1 - t0); } return b[b.length - 1][1]; };
@@ -258,11 +238,7 @@ const PLACES = [
   { id: 'shoparcade', name: "Shop-lined arcade", area: "Pink shopfronts", t: 1066, fwd: 1 },
   { id: 'food', name: "Street-food stalls", area: "Busy junction", t: 1116, fwd: 1 },
   { id: 'trees', name: "Tree-lined walking street", area: "Second loop", t: 1594, fwd: 1 },
-  { id: 'lights', name: "Street of lights", area: "Second walker", t: 1900, fwd: 1 },
-  { id: 'backst', name: "Quiet back street", area: "Away from the crowds", t: 2200, fwd: 1 },
-  { id: 'corner', name: "Sports-store corner", area: "Wide junction", t: 2500, fwd: 1 },
-  { id: 'screens', name: "Big-screen junction", area: "Third walker", t: 3102, fwd: 1 },
-  { id: 'shoes', name: "Shoe-store street", area: "Neon signs", t: 3244, fwd: 1 } ];
+  { id: 'lights', name: "Street of lights", area: "Second walker", t: 1900, fwd: 1 } ];
 let placeBusy = false, here = 'start';
 async function goPlace(id) { const pl = PLACES.find(x => x.id === id); if (!pl || placeBusy) return; placeBusy = true; closePlaces(); while (!ready) await new Promise(r => setTimeout(r, 100));
   try { const t = pl.t == null ? LO : pl.t; await go(t, 'place ' + id); if (pl.u != null) look.yaw = wrap(2 * Math.PI * (0.75 - pl.u) - hd); else look.yaw = 0; look.pitch = 0; here = id; $('where').textContent = pl.name; window.__w.place = { id, t, at: pos() }; } finally { placeBusy = false; } }
@@ -283,7 +259,7 @@ function drawMap() { if (!MP) return; const W = 120; mctx.clearRect(0, 0, W, W);
   const seg = (lo, hi) => MP.filter(q => q[0] >= lo && q[0] <= hi);
   const line = (P, col, w, dash) => { mctx.setLineDash(dash || []); mctx.strokeStyle = col; mctx.lineWidth = w; mctx.lineCap = 'round'; mctx.lineJoin = 'round'; mctx.beginPath(); P.forEach(([, x, y], i) => i ? mctx.lineTo(x, y) : mctx.moveTo(x, y)); mctx.stroke(); };
   for (const u of UNFILMED) { const m = (u.t0 + u.t1) / 2, c = mpAt(m); if (!c) continue; const d = c[3] - bAt(u.b, m) * D2R; line([[0, c[1], c[2]], [0, c[1] + Math.sin(d) * 10, c[2] - Math.cos(d) * 10]], 'rgba(200,200,200,.6)', 2, [2, 3]); }
-  line(seg(0, 1799.5), 'rgba(244,236,223,.9)', 2); line(seg(1800, 3085.5), 'rgba(224,165,38,.95)', 2); line(seg(3086, 3348), 'rgba(120,200,255,.95)', 2);
+  line(seg(0, 1799.5), 'rgba(244,236,223,.9)', 2); line(seg(1800, 2131.5), 'rgba(224,165,38,.95)', 2);
   for (const x of EXITS) { const c = mpAt(x.to); if (!c) continue; mctx.setLineDash([]); mctx.strokeStyle = '#5fd18a'; mctx.lineWidth = 1.6; mctx.beginPath(); mctx.arc(c[1], c[2], 3.6, 0, 7); mctx.stroke(); }
   if (!ready) return; const p = pos(), c = mpAt(p); if (!c) return;
   const va = c[3] - relYaw(); mctx.setLineDash([]); mctx.fillStyle = 'rgba(184,50,42,.3)'; mctx.beginPath(); mctx.moveTo(c[1], c[2]); mctx.arc(c[1], c[2], 16, va - Math.PI / 2 - 0.6, va - Math.PI / 2 + 0.6); mctx.fill();
@@ -329,7 +305,7 @@ const T0 = performance.now();
   if (isIOS && url.includes('f2560') && params.get('q') !== 'hi') { try { const pl = await (await fetch(url)).text(), seg = new URL(pl.split('\n').find(l => /\.m4s/.test(l) && !/^#/.test(l)).trim(), url).href, t0 = performance.now(), rb = await (await fetch(seg, { headers: { Range: 'bytes=0-399999' } })).arrayBuffer(), mbps = rb.byteLength * 8 / ((performance.now() - t0) * 1000); log('probe ' + mbps.toFixed(1) + ' Mbps'); if (mbps < 7 || params.get('q') === 'lo') { url = url.replace('f2560', 'f1280'); slowNet = true; } } catch (e) { log('probe failed'); } }
   const r = await (await fetch(ROOT + 'routes.json', { cache: 'no-cache' })).json(); clips = r.routes[0].clips; clip = clips[0];
   fetch(A + 'heading_foe.json').then(x => x.json()).then(h => { HEAD = h; hd = headAt(Math.max(pos(), c.lo || 0)); drawMap(); }).catch(() => {});
-  audio.src = c.audio;
+  if (c.audio) audio.src = c.audio; else $('sound').hidden = true; /* t1: no ambience track yet */
   $('load-msg').textContent = 'Connecting to the street…';
   if (!(await probe(url))) throw new Error('The video stream is not reachable. Check the connection and reload.');
   D = c.duration; LO = Math.max(c.lo || 0, CFG.lo || 0); /* w51: start at 11 s, past the man walking close to the operator-removal patch (qa/w51/melt) */ const t0 = +(params.get('t') || LO); attach(st.F, url, t0);

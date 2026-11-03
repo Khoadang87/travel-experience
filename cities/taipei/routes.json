@@ -5,7 +5,7 @@
    "id": "ximending",
    "name": "Ximending night walks",
    "manifest": "assets/walk/walk.json",
-   "duration": 3348,
+   "duration": 2132,
    "clips": [
     {
      "id": "ftn",
@@ -15,12 +15,7 @@
     {
      "id": "o3w",
      "lo": 1800,
-     "hi": 3085.5
-    },
-    {
-     "id": "vwb",
-     "lo": 3086,
-     "hi": 3347.5
+     "hi": 2131.5
     }
    ]
   }
