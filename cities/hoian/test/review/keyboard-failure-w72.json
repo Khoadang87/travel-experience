@@ -1,0 +1,51 @@
+{
+  "version": "w72",
+  "source_sha256": "c14efcf036108025d720be419e827983212660aafd34f9bbe15d1765d33e4e3f",
+  "actual_cloud_check": "Ordinary native W-key held500ms then released. No scene replacement, hidden state changes or seek.",
+  "main": {
+    "start": 1066,
+    "first_observation_after_release": {
+      "time": 1066.720468,
+      "paused": false,
+      "readyState": 4
+    },
+    "later_observation": {
+      "time": 1066.798798,
+      "paused": true,
+      "readyState": 4
+    }
+  },
+  "return": {
+    "start": 5,
+    "first_observation_after_release": {
+      "time": 5.682391,
+      "paused": false,
+      "readyState": 4
+    },
+    "later_observation": {
+      "time": 5.706802,
+      "paused": true,
+      "readyState": 4
+    }
+  },
+  "verdict": "FAIL: footage continues after actual keyboard release in both observations.",
+  "limits": [
+    "w72 lacks keyboard start/release timestamps, so these observations do not quantify exact release-to-pause latency.",
+    "Screenshot is later than first failed DOM observation; raw logs and explicit DOM observations carry actual state evidence.",
+    "No implication that keyboard bug caused original iPhone failure or intermittent joystick failures."
+  ],
+  "evidence": [
+    {
+      "path": "cities/hoian/test/review/evidence/w72-keyboard/hoian-w72-key-release-fail-20261103.jpg",
+      "sha256": "7e29639bd9f812e8b594725730f1b82d96d91033b6a4b3204937945b0cbc9a6e"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w72-keyboard/hoian-w72-key-release-fail-20261103.json",
+      "sha256": "aa02139748ff9f1dd2594c81ed5f75a1eb16b11c3dec7e25e453f744411870f4"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w72-keyboard/hoian-w72-key-release-return-20261103.json",
+      "sha256": "0c749a6a1194cf9a06bcac04da354b9c55651d7f09ae2feaf4787f03740a1d17"
+    }
+  ]
+}

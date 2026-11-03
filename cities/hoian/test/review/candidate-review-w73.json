@@ -1,0 +1,79 @@
+{
+  "version": "w73",
+  "source_hashes": {
+    "heading-return-w73.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11",
+    "navigation-w73.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "playback-request-w73.mjs": "7d6864d46bd3d1ce40d8d94cb51100b138a4d957553d2aa485d20fcc388a003a",
+    "route-network-w73.json": "99e2f2b4e5bea9c9b841e39be7301126f42c8254abf7e6c4d4c513e668bb9626",
+    "route-trial-w73.html": "163ae3413a8135f34adb73c91a94e14c16c574cbd57782f9bfa4addcf5222650",
+    "route-w73.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523",
+    "software-360-w73.mjs": "7700f570df3cd7bd10683b724858911f9dd796e0f236b9a2a33676716b8fe764",
+    "source-session-w73.mjs": "929ac91bbda55542359ae1bd107572a5bcb13c10d243a5744ff1086b6eb1519f",
+    "walk-w73.js": "8d03d1d8e8298f6632e3919829834b6d9e18fb9dfc04c6b14292c1b28515306f"
+  },
+  "candidate_source_sha256": "61d436c2547b75637ab4c4763da12d878b8ce1c7cf4d5b6f7e5990115a75eac3",
+  "source_tests_passed": 37,
+  "syntax_passed": true,
+  "actual_browser_checked": true,
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "real_iphone_checked": false,
+  "independent_advisor_approved": false,
+  "main_commit": "5d34cec2032a4190be4bf071dbf8c0a04825f68d",
+  "deployment": {
+    "id": 41597353957,
+    "status": "success"
+  },
+  "return_media_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+  "actual_browser_scope": "Limited cloudCPU actualW/ArrowUp release onmain/return,one returnjoystick regression. Notfullplayer/Safari/quality acceptance.",
+  "observations": {
+    "main_w": {
+      "start": 1066,
+      "landed": 1066.510752,
+      "release_ms": 511.1,
+      "pause_request_ms": 511.8,
+      "sampled_output_change_ms": 323.1
+    },
+    "main_arrowup": {
+      "start": 1066.510752,
+      "landed": 1067.013891,
+      "release_ms": 503.4,
+      "pause_request_ms": 503.8
+    },
+    "return_w": {
+      "start": 5,
+      "landed": 5.504162,
+      "release_ms": 503,
+      "pause_request_ms": 504,
+      "sampled_output_change_ms": 342.4
+    },
+    "return_arrowup": {
+      "start": 5.504162,
+      "landed": 5.998566,
+      "release_ms": 510.1,
+      "pause_request_ms": 510.5
+    },
+    "return_joystick500ms": {
+      "start": 5.998566,
+      "landed": 6.478383
+    },
+    "all_final_states": "pausedready4"
+  },
+  "limits": [
+    "Pause-request0.4..1ms afterkeyup is callback/control timing, not screen-compositor latency orFPS; media-pause event dispatch occurred later.",
+    "One observation per key/source; not distribution or complete responsiveness acceptance.",
+    "w73 currentjunction/endpoint/drag fullregressions not yet performed; w72 checks historical only.",
+    "No realiPhoneSafari/WebGL/strictindependentadvisor/physicaljoin/fullimmutabledependency acceptance.",
+    "OriginalphoneFAIL/priorjoystickintermittency/broadall-direction15mincoverage unresolved."
+  ],
+  "evidence": [
+    {
+      "path": "cities/hoian/test/review/evidence/w73/hoian-w73-keyboard-20261103.jpg",
+      "sha256": "18799be680f5335e7b7e72566426b2a6a05a921b2f6aa067daa229a4e53cc405"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w73/hoian-w73-keyboard-20261103.json",
+      "sha256": "d9b160c8e1ebeb0e024b63207b0dfb2e1582e829e8d08ab14705f83f1d4d4634"
+    }
+  ]
+}
