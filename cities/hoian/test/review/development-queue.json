@@ -2,8 +2,8 @@
   "schema_version": 1,
   "project": "hoian",
   "execution_mode": "scheduled_agent_runs_not_continuous_daemon",
-  "candidate": "w72",
-  "candidate_source_sha256": "c14efcf036108025d720be419e827983212660aafd34f9bbe15d1765d33e4e3f",
+  "candidate": "w73",
+  "candidate_source_sha256": "61d436c2547b75637ab4c4763da12d878b8ce1c7cf4d5b6f7e5990115a75eac3",
   "tasks": [
     {
       "id": "verify-w57-startup-failure-ui",
@@ -21,14 +21,14 @@
       "id": "render-current-candidate",
       "status": "partial",
       "action": "Inspect exact current player through supported cloud CUA; preserve real filmed scenery, manual disclosed edits and paused target landings. GPU/Safari path still needs appropriate environment/device.",
-      "evidence": "Exactw72actualcloudCPU:ordinaryreturn5->33.080696->35.002806stops;backoffersdisclosedassemblyedit/manualconfirmlandsmain1066.2pausedready4. Ordinarymain->1103.227451,backdisclosedbridgeedit/manualconfirmlandsreturn5pausedready4. Acceptedrightpicture-dragmoveslandmarksrighttimeheld5. NOTnativeended35.08test/physicalalignment/phoneapproval.",
-      "next": "Actual current keyboardkeyup pause timing; current source-switch/rapidpress repeatability and strict independent physicaljunction/heading review. No need repeatcompletednative/media-only/worker checks."
+      "evidence": "w73limitedactualkeyboardW/ArrowUpreleasebothsources+returnjoystickpassed. w72currentbothmanualedits/dragchecksnowhistoricalonly.",
+      "next": "w73currentendpoint+bothdisclosedmanualedit/dragregression; independentphysicaljunction/headingreview. No repeatnative-onlydiagnostics/workerpolls."
     },
     {
       "id": "correct-observed-player-failures",
       "status": "partial",
       "action": "Fix observed loading/movement/control failures under a new test version; retain prior files and repeat affected checks.",
-      "evidence": "w63event-driven sharedmovementpolicypassedbounded500msresponsechecks. w62negativepreserved; no blanketnavigationfix."
+      "evidence": "w73correctsobservedkeyboardkeyupfailureonbothsources;37checks+syntaxpass.ActualW/ArrowUp500msbothsourceslandpausedready4;pause-request0.4..1msafterkeyup(controlnotcompositorlatency)."
     },
     {
       "id": "independent-review",
@@ -82,7 +82,7 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "Currentw72actualbrowserendpointbeyondold35boundary andbothmanualsourcechangeslandpaused;accepteddragpreserved. No runtimechangesinthisrun. Quality/physicaljoins/currentphone/advisor/broadgoal stillunapproved.",
+  "last_verified_progress": "Observedw72keyboardreleasecontinuedplaybothsources;w73synchronouskeyupcontrolcorrection37tests andlimitedactualbeforeafterchecks pass. Currentfullregression/quality/realiPhone/strictadvisor missing.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
@@ -91,11 +91,11 @@
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "dd1ec169ee95f2ad683b0c55898ecdfbedd6fe99",
-    "working_source_sha256": "c14efcf036108025d720be419e827983212660aafd34f9bbe15d1765d33e4e3f",
+    "working_commit": "1e3d9b62a07859d4fb58b8a60fc8e5bc4fa1eabf",
+    "working_source_sha256": "61d436c2547b75637ab4c4763da12d878b8ce1c7cf4d5b6f7e5990115a75eac3",
     "feedback_comment": 6590223108,
     "actual_checks_comment": 6593204567
   },
   "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
-  "evidence_commit": "dd1ec169ee95f2ad683b0c55898ecdfbedd6fe99"
+  "evidence_commit": "1e3d9b62a07859d4fb58b8a60fc8e5bc4fa1eabf"
 }
