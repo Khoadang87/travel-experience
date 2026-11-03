@@ -256,7 +256,7 @@ renderer.setAnimationLoop(() => { const now = performance.now(), dt = Math.min(0
     const p = pos(); if (clip && (p < clip.lo - 1 || p > clip.hi + 1)) clip = clipAt(p);
     { const tr = joyTurn(); if (tr) look.yaw += tr * 1.22 * dt; }
     if (want === 0) aligning = false;
-    if (want > 0) { const x = exitAhead(p); if (x) { if (!v.paused) v.pause(); takeExit(x); return; } const n = nfAhead(p); if (n) { if (!v.paused) v.pause(); showNF(n); return; } }
+    if (want > 0 && !aligning) { const x = exitAhead(p); if (x) { if (!v.paused) v.pause(); takeExit(x); return; } const n = nfAhead(p); if (n) { if (!v.paused) v.pause(); showNF(n); return; } }
     const rp = relPath();
     if (want > 0 && (Math.abs(rp) >= OFF || (aligning && Math.abs(rp) > 0.17))) { aligning = true; if (!v.paused) v.pause(); soundTick(false, p);
       look.yaw -= Math.sign(rp) * Math.min(Math.abs(rp), 1.3 * dt); edge(true, -Math.sign(rp)); lastAct = 'off-path push';
