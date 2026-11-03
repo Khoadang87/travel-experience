@@ -1,0 +1,95 @@
+{
+  "version": "w73",
+  "main_source_commit": "5d34cec2032a4190be4bf071dbf8c0a04825f68d",
+  "observed_main_head": "296b5d8b18f0b83df8954ca409398e6d92a085d3",
+  "source_comparison": "Only hybrid-gateway-h1.html/js differ from candidate source commit; w73 source files unchanged. Hybrid experiment not adopted.",
+  "candidate_source_sha256": "61d436c2547b75637ab4c4763da12d878b8ce1c7cf4d5b6f7e5990115a75eac3",
+  "media_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+  "observations": {
+    "return_start": {
+      "time": 5,
+      "duration": 35.08,
+      "paused": true,
+      "readyState": 4
+    },
+    "ordinary_return_traversal": {
+      "after30000ms": 33.495967,
+      "after3000ms": 35.08,
+      "native_ended": true,
+      "paused": true,
+      "readyState": 4
+    },
+    "assembly_connection": {
+      "backward500ms": "Disclosed edited junction notice; no automatic jump",
+      "manual_confirmation_landing": {
+        "time": 1066.2,
+        "route": "bridge_bound",
+        "paused": true,
+        "readyState": 4
+      }
+    },
+    "main_traversal": {
+      "after30000ms": 1094.720919,
+      "after9000ms": 1103.256035
+    },
+    "bridge_connection": {
+      "backward500ms": "Disclosed edited junction notice; no automatic jump",
+      "manual_confirmation_landing": {
+        "time": 5,
+        "route": "street_bound",
+        "paused": true,
+        "readyState": 4
+      }
+    },
+    "accepted_drag": {
+      "dx": 150,
+      "landmarks_moved": "right",
+      "time_before": 5,
+      "time_after": 5,
+      "paused": true,
+      "readyState": 4
+    }
+  },
+  "scope": "Actual cloud CUA CPU-rendered functional checks using ordinary UI controls. No seek/reverse/blur to simulate walking.",
+  "limitations": [
+    "Functional connections do not establish physical camera alignment, headings, seamless stepping or professional visual quality.",
+    "Not sustained FPS, latency distribution, WebGL or real iPhone Safari acceptance.",
+    "Original w42 iPhone failure and earlier joystick intermittency remain unresolved.",
+    "No strict independent exact-player advisor approval or immutable full HLS/CDN lock.",
+    "Broad all-direction/sideways/midstreet return and 15-minute captured coverage incomplete."
+  ],
+  "collaboration": {
+    "grok_reply": 6598831602,
+    "chatgpt_reply": 6599037293,
+    "status": "Grok replied with questions; response sent and independent physical junction review requested. No independent verdict yet.",
+    "version_coordination": "w48\u2013w73 already occupied; requested distinct EAN-prefixed entry/branch to avoid overwrites."
+  },
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "evidence": [
+    {
+      "path": "cities/hoian/test/review/evidence/w73-regression/hoian-w73-native-end-notice-20261103.jpg",
+      "sha256": "d82039ff35925bfeb53a77f91de204e1aa05a33fa6bf7f1e7a2cfbf5712a7de9"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w73-regression/hoian-w73-assembly-landed-20261103.jpg",
+      "sha256": "a030ac789bc1579d24a311afe9b5017b3244f543819d032f50ed8bc0e24b676a"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w73-regression/hoian-w73-bridge-notice-20261103.jpg",
+      "sha256": "819650975e370bd85b79ca5d95a71ac3c9cd4d360cf727c7421cdc12ad95c2dc"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w73-regression/hoian-w73-regression-before-drag-20261103.jpg",
+      "sha256": "f1b1464e03930af00de72fbd78772189577364ae29ab806dc5e934731bd91a7c"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w73-regression/hoian-w73-regression-after-drag-20261103.jpg",
+      "sha256": "e6845217f1e7620d86bd4ab4ca29bf6b2b38dee570c0b69ee84edc0314c8140c"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w73-regression/hoian-w73-regression-20261103.json",
+      "sha256": "3b32df6e3aa838fac0994696ab9c981d7322d17187db2524ba8ece096ccc3a17"
+    }
+  ]
+}

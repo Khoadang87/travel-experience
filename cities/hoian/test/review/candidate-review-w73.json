@@ -62,9 +62,9 @@
   "limits": [
     "Pause-request0.4..1ms afterkeyup is callback/control timing, not screen-compositor latency orFPS; media-pause event dispatch occurred later.",
     "One observation per key/source; not distribution or complete responsiveness acceptance.",
-    "w73 currentjunction/endpoint/drag fullregressions not yet performed; w72 checks historical only.",
     "No realiPhoneSafari/WebGL/strictindependentadvisor/physicaljoin/fullimmutabledependency acceptance.",
-    "OriginalphoneFAIL/priorjoystickintermittency/broadall-direction15mincoverage unresolved."
+    "OriginalphoneFAIL/priorjoystickintermittency/broadall-direction15mincoverage unresolved.",
+    "See rendered-regression-w73.json for completed current CPU route checks and remaining physical/device/advisor limits."
   ],
   "evidence": [
     {
@@ -75,5 +75,6 @@
       "path": "cities/hoian/test/review/evidence/w73/hoian-w73-keyboard-20261103.json",
       "sha256": "d9b160c8e1ebeb0e024b63207b0dfb2e1582e829e8d08ab14705f83f1d4d4634"
     }
-  ]
+  ],
+  "current_route_regression": "rendered-regression-w73.json: actual native35.08 endpoint, both manual changes and accepted drag checked; functional scope only"
 }
