@@ -1,0 +1,112 @@
+{
+  "version": "w68",
+  "main_commit": "f594a90abc352f9ca189d792f73721f2499cbe5a",
+  "source_hashes": {
+    "route-trial-w68.html": "24b6eb6fbfb49b69b5cdccda1fbbce1def3bfbee6cf73c780d999587b5a67150",
+    "route-w68.css": "2c92d22bf937138c1e3fdf19d2efb97fe7a615ce21f7379fedde596bd9120523",
+    "walk-w68.js": "8f187907a67f3e4005afad3bd8df009f4fab151b1ae9a9d78d39a2b29739b5a9",
+    "navigation-w68.mjs": "5f5d17151651e362ba040974d10e5c200450c015930a141391dc24c0585f25af",
+    "source-session-w68.mjs": "9bf528310a2bfb9f068c803249031c2e2818539127f5e2dd511b025f092d64f5",
+    "route-network-w68.json": "7cdc644477aab9dfde0badea261a9308997fdabee6e6ce462ce5f2363e20b1f3",
+    "heading-return-w68.json": "218295ffc6660ad4f316962cf623bf2652f50909da982fb552fde5e5185f1e11",
+    "software-360-w68.mjs": "d734c31bb98b6201951f93146302bafd61b6737aac785da1fea625905f8c5f75"
+  },
+  "candidate_source_sha256": "dc7c58f088205a564c064937af9209cb22c7a71f3a5f72f06896e3f18c0e5c53",
+  "change": "Media callbacks paint only without reentering movement policy; playbackRate is assigned only when changed; opt-in timing samples projected-output changes and records visibility and animation gaps.",
+  "checks": {
+    "source_tests_passed": 24,
+    "syntax_passed": true,
+    "actual_browser_checked": true,
+    "real_iphone_checked": false,
+    "independent_advisor_approved": false,
+    "actual_browser_scope": "Limited cloud Chrome CPU-path input, source selection and paused drag checks; not Safari, WebGL, quality, physical joins or final acceptance."
+  },
+  "delivery_approved": false,
+  "phone_testing_ready": false,
+  "deployment": {
+    "id": 41560796733,
+    "status": "success"
+  },
+  "media_sha256": "e802da59e406706acd71e03a8319b104a67a147698f5da7eb0a1215a5ac47cda",
+  "observations": {
+    "environment": {
+      "document_visibility": "visible",
+      "document_focused": true,
+      "idle_animation_gaps_ms": [
+        1016.7,
+        1015.9,
+        1015.7
+      ],
+      "scope": "Observed cloud session only; no Safari inference."
+    },
+    "main_500ms": {
+      "start": 1066,
+      "landed": 1066.479588,
+      "playing_event_ms": 53.3,
+      "first_sampled_projected_change_ms": 343.9,
+      "projected_change_while_playing": true,
+      "release_ms": 505.9,
+      "paused_after": true,
+      "readyState_after": 4
+    },
+    "return_500ms_first": {
+      "start": 5,
+      "landed": 5.055787,
+      "playing_event_ms": 52,
+      "release_ms": 503.5,
+      "sampled_projected_change_recorded": false,
+      "paused_after": true,
+      "readyState_after": 4,
+      "verdict": "FAIL: insufficient advancement; no changed-picture marker during press."
+    },
+    "return_500ms_repeat": {
+      "start": 5.055787,
+      "landed": 5.068975,
+      "playing_event_ms": 52.2,
+      "release_ms": 504.2,
+      "first_sampled_projected_change_ms": 636.4,
+      "projected_change_while_playing": false,
+      "paused_after": true,
+      "readyState_after": 4,
+      "verdict": "FAIL: changed picture after release and very little advancement."
+    },
+    "paused_right_drag": {
+      "time_before": 5.068975,
+      "time_after": 5.068975,
+      "paused": true,
+      "readyState": 4,
+      "landmarks_moved": "right",
+      "observed": "Lantern shop, pedestrian and road vanishing point shifted right in paired screenshots."
+    },
+    "playback_rate_writes": {
+      "sequence_1": 1,
+      "sequence_2": 1,
+      "sequence_3": 0,
+      "meaning": "Guard avoids unchanged writes in these trials; does not prove previous writes caused the failure."
+    }
+  },
+  "evidence": [
+    {
+      "path": "cities/hoian/test/review/evidence/w68/hoian-w68-input-timing-20261103.json",
+      "sha256": "61c2935bfef1cac9310bdf4a3d6eb333a76867a04c3e8aa43cc163d44897a3f1"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w68/hoian-w68-return-before-drag-20261103.jpg",
+      "sha256": "57e6bce8057bc85ba0f9953b6a7fc761038c2e4094ff1b39e612fde3d3946df9"
+    },
+    {
+      "path": "cities/hoian/test/review/evidence/w68/hoian-w68-return-after-drag-20261103.jpg",
+      "sha256": "f6af427567480c5ca3058fb701c2b2b9103648a6ee8c189b8b15c1096e8d7f70"
+    }
+  ],
+  "limitations": [
+    "Sparse projected-output fingerprint is not full-image analysis or compositor/screen-paint timing.",
+    "Main improvement is one limited trial, not responsiveness distribution, sustained FPS or smoothness acceptance.",
+    "Return-source responsiveness remains failed; decoder warmup or browser scheduling cause not established.",
+    "Both w68 junctions not retested; w67 observations do not approve w68.",
+    "WebGL and real iPhone Safari acceptance absent; strict independent exact-player approval absent.",
+    "Full main HLS/CDN immutable dependency lock absent.",
+    "Broad all-direction/sideways/midstreet return and 15-minute captured coverage incomplete.",
+    "Original w42 iPhone failure remains unresolved."
+  ]
+}
