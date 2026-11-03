@@ -61,8 +61,8 @@
       "id": "media-startup-response-w65",
       "status": "partial",
       "action": "Isolate actual return-source clock/decoded-frame and projected-picture response without speculative warmup or heading-gate changes.",
-      "evidence": "w68 paint-only media callbacks and changed-only playbackRate writes; main first sampled projected-output change343.9ms while playing. Return500ms tests5->5.055787 and5.055787->5.068975 fail; repeat change636.4ms alreadypaused. Visible/focused cloud rAF idle gaps~1016ms; cause not established. No screen-paint/FPS claim.",
-      "next": "Compare media clock and decoded-frame events under ordinary presentation/scheduling; independent code review of play/release lifecycle. Do not infer screen latency from source hashes or sparse pixel marker."
+      "evidence": "w68 paint-only media callbacks and changed-only playbackRate writes; main first sampled projected-output change343.9ms while playing. Return500ms tests5->5.055787 and5.055787->5.068975 fail; repeat change636.4ms alreadypaused. Visible/focused cloud rAF idle gaps~1016ms; cause not established. No screen-paint/FPS claim. w69 independent media-only actual comparison: sameclip5->5.506664 visible1x,5.480231 visible.9497x,5.478851 obscured.9497x. Hidden presentation/fractional rate alone did not reproduce player failure; cause unproven.",
+      "next": "Controlled actual software projection workload versus native baseline; inspect decoded-frame, clock and play/release lifecycle. No decoder-warmup or presentation-cause claim."
     }
   ],
   "run_rules": [
@@ -82,7 +82,7 @@
     ],
     "deliverable_gate": "Exact-player advisor plus rendered movement and real iPhone Safari evidence required before test link delivery"
   },
-  "last_verified_progress": "w68 isolates media painting from movement policy and avoids unchanged playbackRate writes; 24 tests+syntax pass. Actual main projected output changed before half-second release, but return failed twice. Original phone FAIL remains unresolved; current junction/phone/advisor evidence missing. No approved delivery.",
+  "last_verified_progress": "w69 media-only comparison narrows investigation: native return clip advanced normally at1x/.9497x and original obscured presentation. w68 actual player return failure remains unresolved; no new player approval.",
   "collaboration": {
     "thread": "https://github.com/Khoadang87/travel-experience/issues/1",
     "request_comment": 6589522032,
@@ -91,11 +91,11 @@
     "chatgpt_scope": "actual-video CPU rendering and input responsiveness",
     "grok_requested_scope": "independent rendered route/heading/junction critique, exact evidence; isolated branch",
     "working_branch": "review/hoian-cpu-w62-2026-11-02",
-    "working_commit": "edcab46539da3e6adde6b09a1e9af18a7f05ee33",
+    "working_commit": "abd4f7209e0eb3d6e9e21bb59d03260a4afdacd9",
     "working_source_sha256": "dc7c58f088205a564c064937af9209cb22c7a71f3a5f72f06896e3f18c0e5c53",
     "feedback_comment": 6590223108,
     "actual_checks_comment": 6593204567
   },
   "evidence_branch": "review/hoian-cpu-w62-2026-11-02",
-  "evidence_commit": "edcab46539da3e6adde6b09a1e9af18a7f05ee33"
+  "evidence_commit": "abd4f7209e0eb3d6e9e21bb59d03260a4afdacd9"
 }
