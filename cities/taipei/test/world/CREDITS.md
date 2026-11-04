@@ -44,3 +44,10 @@ The Quaternius mannequin (`people.glb`, CC0) is no longer loaded from w2a on; it
 - `tp/elder.glb`, `tp/young.glb`, `tp/tourist.glb`: generated Nov 4, 2026 with the Tripo API (image-to-3D, PBR texture, Tripo auto-rig) from AI-generated reference photos (Grok Bot image generation). Walk and idle motions: Tripo preset retarget (`preset:walk`, `preset:idle`) made on `young` and shared by all three (same Tripo skeleton). Commercial terms per Tripo's API terms for the paying account (not separately confirmed).
 - `tp/burner.glb`: Tripo text-to-3D bronze censer (two on the offering table).
 - Compressed with gltf-transform (simplify, 1024px WebP textures, meshopt).
+
+## world-ls3 (build s3b) — AI video backdrops, ambient sound, smoke, denser crowd
+- `vid/roofs.mp4`, `vid/street.mp4`, `vid/street2.mp4`: AI-generated clips (Grok Imagine text-to-video, Nov 4, 2026), re-encoded 1280x720 H.264, crossfade-looped, no audio.
+- `aud/chant.m4a`: "20260602 145937 Dingjue Om mani padme hum.ogg" by Saimmx, CC0, Wikimedia Commons.
+- `aud/gong.m4a`: "Gong or bell vibrant.ogg" by stephan, public domain, Wikimedia Commons.
+- `aud/street.m4a`: "Karlova 0001.ogg" by Juan de Vojníkov, public domain, Wikimedia Commons (40 s excerpt).
+- `aud/crowd.m4a`: "Shopping mall less crowded.ogg" by natalie, public domain, Wikimedia Commons.

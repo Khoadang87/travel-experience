@@ -15,7 +15,7 @@ async def main():
     if MODE=='local':
       async def serve(route):
         u=route.request.url.split('?')[0]
-        try: await route.fulfill(body=open(os.path.join(LOCAL,u[len(BASE):]),'rb').read(),content_type={'js':'application/javascript','html':'text/html','css':'text/css'}.get(u.rsplit('.',1)[-1],'application/octet-stream'),headers={'cache-control':'no-store'})
+        try: await route.fulfill(body=open(os.path.join(LOCAL,u[len(BASE):]),'rb').read(),content_type={'js':'application/javascript','html':'text/html','css':'text/css','mp4':'video/mp4','mp3':'audio/mpeg','ogg':'audio/ogg','m4a':'audio/mp4'}.get(u.rsplit('.',1)[-1],'application/octet-stream'),headers={'cache-control':'no-store'})
         except FileNotFoundError: await route.fulfill(status=404,body='')
       await pg.route(BASE+'**',serve)
     await pg.goto(BASE+'taipei/test/'+os.environ.get('PAGE','world-ls.html')+'?cb='+str(random.random()))
@@ -76,8 +76,16 @@ async def main():
     moved=sum(1 for p,q in zip(a['sample'],b2['sample']) if abs(p['x']-q['x'])+abs(p['z']-q['z'])>0.05 or p['clip']!=q['clip'])
     rec('people_move_while_idle',changed>0.002 and abs(b2['x']-a['x'])<1e-6,{'pixels_changed_pct':round(changed*100,2),'sampled_people_moved':moved,'clips':b2['clips']})
     s=await st(); rec('fps_estimate',True,{'fps_swiftshader_cpu':round(s['fps'],1),'note':'software GPU on the box; not an iPhone measurement'})
-    for i,c in enumerate([[0,60,45,0,-5],[14,11,34,0,0],[-6,1.7,6,0,-14],[10,1.7,-2,0,4],[24,1.7,10,24,-20],[0,1.7,34,0,20]]):
-      await E(f'window.__w.cam={json.dumps(c)}'); await pg.wait_for_timeout(1800); await pg.screenshot(path=OUT+f'/1{i}_view.png')
+    bg=await E('window.__w.bgv?window.__w.bgv():null')
+    if bg is not None and len(bg)>0:
+      t0=[v['t'] for v in bg]; await pg.wait_for_timeout(1500); bg2=await E('window.__w.bgv()')
+      rec('bg_videos_playing',all(not v['paused'] and v['ready']>=2 for v in bg2) and any(b['t']!=a for b,a in zip(bg2,t0)),{'videos':bg2})
+    au=await E('window.__aud?window.__aud():null')
+    if au is not None:
+      await pg.wait_for_timeout(1500); au=await E('window.__aud()')
+      rec('ambient_sound_after_tap',au['started'] and au['ctx']=='running' and au['playing'].get('chant') and au['playing'].get('street'),{'audio':au})
+    for i,c in enumerate([[0,60,45,0,-5],[14,11,34,0,0],[-6,1.7,6,0,-14],[10,1.7,-2,0,4],[24,1.7,10,24,-20],[0,1.7,34,0,20],[0,1.7,24,0,60,6],[0,1.7,-34,0,-64,12],[0,7,8,62,0,9]]):
+      await E(f'window.__w.cam={json.dumps(c)}'); await pg.wait_for_timeout(1800); await pg.screenshot(path=OUT+f'/{10+i}_view.png')
     await E('window.__w.cam=null')
     await ctx.close(); await b.close()
     json.dump(rows,open(OUT+'/results.json','w'),indent=1)
