@@ -64,7 +64,9 @@ async def main():
           except Exception: pass
         await fwd(f'live {lid}: push UP facing {nm} -> fades back, walks forward',yaw)
     # ---- loop wrap seam: loop must keep playing past 10 s ----
-    await go(242); await pg.wait_for_timeout(14000); l=await L(); rec('live loop keeps playing past the 10 s seam',l['on'] and l['playing'] and l['frames']>150,{'live':l})
+    await go(242); ts=[]
+    for _ in range(28): await pg.wait_for_timeout(500); ts.append((await L())['t'] or 0)
+    l=await L(); wraps=sum(1 for a,b in zip(ts,ts[1:]) if b<a-5); rec('live loop wraps at the 10 s seam and keeps playing',l['on'] and l['playing'] and wraps>=1 and max(ts)>9,{'live':l,'wraps':wraps,'maxT':max(ts)})
     await hold(True); await pg.wait_for_timeout(600); await hold(False)
     # ---- spot hunt: look at each target ----
     await E("localStorage.removeItem('tePassport');localStorage.removeItem('huntLongshan')"); await pg.reload(); await pg.wait_for_function('window.__w.state().ready',timeout=120000)
