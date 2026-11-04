@@ -18,6 +18,9 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid #333;backgroun
 .opts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.opts button{background:#222;color:#eee;border:1px solid #444;border-radius:10px;padding:8px 12px;font-size:15px}
 .opts button.on{border-color:#e8b04a;color:#e8b04a}#msg{color:#9c9;min-height:22px}small,.note{color:#888;font-size:13px}
 a{color:#9cf}
+#pass{background:#141418;border:1px solid #2a2a30;border-radius:16px;padding:14px 16px;margin:14px 0}#pass h2{margin:0 0 4px}
+.stamps{display:flex;flex-wrap:wrap;gap:12px;padding:10px 0 4px}.stamp{width:120px;height:120px;border-radius:50%;border:3px double #b8322a;color:#b8322a;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transform:rotate(-8deg);background:#f4ecdf;padding:6px}.stamp b{font:700 15px Georgia,serif}.stamp small{font-size:11px;color:#7a1f17}
+.stamp.empty{text-decoration:none;border-style:dashed;border-color:#555;background:none;color:#777;transform:none}.stamp.empty small{color:#777}
 </style></head><body><main>
 <div class="k">Real 360° walks · test preview</div>
 <h1>Walk into Taipei's Longshan Temple from your phone.</h1>
@@ -30,10 +33,11 @@ a{color:#9cf}
 <div class="card"><img src="home/ximending.jpg" alt="Ximending street at night, real 360 footage"><div>
 <h3>Ximending at night</h3><p>Neon, street food and crowds in Taipei's busiest walking district, with turn-offs at real junctions.</p>
 <a class="btn" href="cities/taipei/test/real-t1.html">Try free</a></div></div>
+<section id="pass" aria-labelledby="pass-h"><h2 id="pass-h">My passport</h2><p class="sub" id="pass-sub">Stamps you collect on the walks, saved in this browser.</p><div class="stamps" id="stamps"></div></section>
 <p class="note">Best with headphones on Wi-Fi. <a href="cities/">All cities</a></p>
 
 <h2>Coming next</h2>
-<ul><li>Spot hunts and passport stamps for every place you visit</li><li>Living moments: the scene keeps moving when you stop</li><li>Short stories from the locals who live there</li><li>Walk the same street with a friend</li></ul>
+<ul><li>Spot hunts and passport stamps for more places</li><li>Living moments: the scene keeps moving when you stop</li><li>Short stories from the locals who live there</li><li>Walk the same street with a friend</li></ul>
 
 <p class="note">Free to try. Future extras may come later; the walks above stay free.</p>
 
@@ -45,6 +49,11 @@ a{color:#9cf}
 <small>Test version: your answer is only saved in this browser for now, nothing is sent anywhere yet.</small>
 </main>
 <script>
+(()=>{const W=[{id:'taipei-longshan',name:'Longshan Temple',city:'Taipei',href:'cities/taipei/test/longshan-1.html'},{id:'taipei-ximending',name:'Ximending',city:'Taipei',href:'cities/taipei/test/real-t1.html'}];
+let P={stamps:{}};try{P=JSON.parse(localStorage.getItem('tePassport'))||P}catch(e){}const S=P.stamps||{},esc=x=>String(x).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';');
+const ids=[...W.map(w=>w.id),...Object.keys(S).filter(k=>!W.some(w=>w.id===k))],n=Object.keys(S).length;
+document.getElementById('stamps').innerHTML=ids.map(id=>{const s=S[id],w=W.find(x=>x.id===id)||{name:s.name,city:s.city};return s?`<div class="stamp" data-stamp="${esc(id)}"><b>${esc(s.name)}</b><small>${esc(s.city)} · ${new Date(s.at).toLocaleDateString()}</small></div>`:`<a class="stamp empty" data-empty="${esc(id)}" href="${w.href}"><b>${esc(w.name)}</b><small>Not yet: find everything on the hunt list</small></a>`}).join('');
+document.getElementById('pass-sub').textContent=n?`${n} of ${ids.length} stamps collected, saved in this browser.`:'No stamps yet. Find everything on a walk\u2019s hunt list, or walk to its end, to earn one. Saved in this browser.';})();
 
 document.getElementById('go').onclick=()=>{const n=nm.value.trim(),e=em.value.trim(),m=document.getElementById('msg');
 if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){m.style.color='#e99';m.textContent='Please enter a valid email.';return}
