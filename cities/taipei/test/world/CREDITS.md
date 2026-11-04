@@ -39,3 +39,8 @@ The Quaternius mannequin (`people.glb`, CC0) is no longer loaded from w2a on; it
 - Both Poly Haven models use 1k glTF downsized to 512 px and meshopt-compressed.
 - Golden-hour lighting, bloom, colour grade, vignette and glowing lanterns are made in code with three.js r160 post-processing (MIT).
 - Not used: Quaternius Universal Base Characters (CC0, free Standard zip). The free tier has only Superhero-proportion bodies in underwear and no clothing, which doesn't suit a temple crowd. Sketchfab dragon columns, ridge dragons and burner scans were also not used, because Sketchfab downloads need a signed-in account.
+
+## world-ls3 (build s3a) — Tripo AI people test
+- `tp/elder.glb`, `tp/young.glb`, `tp/tourist.glb`: generated Nov 4, 2026 with the Tripo API (image-to-3D, PBR texture, Tripo auto-rig) from AI-generated reference photos (Grok Bot image generation). Walk and idle motions: Tripo preset retarget (`preset:walk`, `preset:idle`) made on `young` and shared by all three (same Tripo skeleton). Commercial terms per Tripo's API terms for the paying account (not separately confirmed).
+- `tp/burner.glb`: Tripo text-to-3D bronze censer (two on the offering table).
+- Compressed with gltf-transform (simplify, 1024px WebP textures, meshopt).
