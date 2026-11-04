@@ -14,11 +14,11 @@ const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platfor
 const ROOT = window.WALK_ROOT ?? '../', A = ROOT + 'assets/walk/';
 const evlog = []; const log = s => { evlog.push((performance.now() / 1000).toFixed(1) + ' ' + s); if (evlog.length > 60) evlog.shift(); };
 window.__evlog = evlog;
-const BUILD = 'ls1a-2026-11-03'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
+const BUILD = 'ls1b-2026-11-03'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
 fetch('ls1/build.json?cb=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(b => { if (b.build && b.build !== BUILD && !sessionStorage.getItem('ls1reload')) { sessionStorage.setItem('ls1reload', '1'); location.replace(location.pathname + '?b=' + b.build + location.hash); } }).catch(() => {}); addEventListener('pageshow', e => { if (e.persisted) location.reload(); }); /* t1g: an old tab or cached page reloads itself onto the current build */
 
 // ---------- scene ----------
-const renderer = new THREE.WebGLRenderer({ antialias: false }); renderer.setPixelRatio(Math.min(2, devicePixelRatio)); renderer.setSize(innerWidth, innerHeight);
+const renderer = new THREE.WebGLRenderer({ antialias: false }); renderer.setPixelRatio(Math.min(3, devicePixelRatio)) /* blur fix: full DPR 3 on iPhone, was capped at 2 */; renderer.setSize(innerWidth, innerHeight);
 $('app').appendChild(renderer.domElement); const cv = renderer.domElement;
 const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 200);
 const geo = new THREE.SphereGeometry(50, 128, 64); geo.scale(-1, 1, 1);
@@ -281,8 +281,8 @@ const T0 = performance.now();
   const qPick = params.get('q') || localStorage.getItem('t1q') || 'auto';
   if (qPick === 'lo') { url = c.base + 'f1280/index.m3u8'; slowNet = isIOS; }
   else if (qPick === 'hi' || qPick === '4k') { if (!isIOS) url = c.base + 'f2560/index.m3u8'; }
-  else if (isIOS) { try { const pl = await (await fetch(url)).text(), seg = new URL(pl.split('\n').find(l => /\.m4s/.test(l) && !/^#/.test(l)).trim(), url).href; let best = 0; for (const rg of ['bytes=0-399999', 'bytes=400000-799999']) { const r0 = await fetch(seg, { headers: { Range: rg }, cache: 'no-store' }), t0 = performance.now(), rb = await r0.arrayBuffer(); best = Math.max(best, rb.byteLength * 8 / (Math.max(1, performance.now() - t0) * 1000)); } log('probe ' + best.toFixed(1) + ' Mbps'); if (best < 3) { url = url.replace('f2560', 'f1280'); slowNet = true; } } catch (e) { log('probe failed'); } }
-  window.__w && (window.__w.level = /f1280/.test(url) ? 'SD' : 'HD'); $('hd').textContent = /f1280/.test(url) ? 'SD' : 'HD'; $('hd').hidden = false;
+  else if (isIOS) { const UHD = /f3840/.test(c.hlsIOS) && !!document.createElement('video').canPlayType('video/mp4; codecs="hvc1.1.6.L153.B0"'); try { const pl = await (await fetch(url)).text(), seg = new URL(pl.split('\n').find(l => /\.m4s/.test(l) && !/^#/.test(l)).trim(), url).href; let best = 0; for (const rg of ['bytes=0-399999', 'bytes=400000-799999']) { const r0 = await fetch(seg, { headers: { Range: rg }, cache: 'no-store' }), t0 = performance.now(), rb = await r0.arrayBuffer(); best = Math.max(best, rb.byteLength * 8 / (Math.max(1, performance.now() - t0) * 1000)); } log('probe ' + best.toFixed(1) + ' Mbps'); if (best < 3) { url = url.replace('f2560', 'f1280'); slowNet = true; } else if (best >= 14 && UHD) { url = url.replace('f2560', 'f3840'); } /* blur fix: 3840 HEVC (~9 Mbps) is the sharpest level; use it on iPhone when the link clearly carries it */ } catch (e) { log('probe failed'); } }
+  window.__w && (window.__w.level = /f1280/.test(url) ? 'SD' : /f3840/.test(url) ? '4K' : 'HD'); $('hd').textContent = /f1280/.test(url) ? 'SD' : 'HD'; $('hd').hidden = false;
   const r = await (await fetch(ROOT + 'routes.json', { cache: 'no-cache' })).json(); clips = r.routes[0].clips; clip = clips[0];
   const headP = fetch(A + 'heading_foe.json?v=' + BUILD).then(x => x.json()).then(h => { HEAD = h; if (ready) { hd = headAt(pos()); look.yaw = 0; } drawMap(); }).catch(() => {});
   if (c.audio) audio.src = c.audio; else $('sound').hidden = true; /* t1: no ambience track yet */
