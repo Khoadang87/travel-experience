@@ -19,6 +19,7 @@ ENGINE=os.environ.get('ENGINE','chromium')
 ONLY=os.environ.get('ONLY','')  # 'start' = only fresh-load/place-card/random-yaw cases
 OUT=sys.argv[3] if len(sys.argv)>3 else f'/tmp/realuser_{PAGE}.json'
 CFG={'t1':('taipei/test/real-t1.html','taipei/test/walk-t1.js','taipei/test/t1/path-t1.json'),
+     'ls1':('taipei/test/longshan-1.html','taipei/test/walk-ls1.js','taipei/test/ls1/path-ls1.json'),
      'w51':('hoian/test/real-w51.html','hoian/test/walk-w51.js','hoian/test/w50/path-w51.json')}[PAGE]
 src=fetch(BASE+CFG[1]+'?cb=1').decode()
 def arr(name):
@@ -100,7 +101,8 @@ async def main():
         rec(tag,ok,{'from':round(s0['pos'],2),'to':round(s1['pos'],2),'neverBack':mn_ok,'dirs':sorted(dirs),'junctionJumps':jumps,'dotMove':round(math.dist(d0,d1),2)})
     # ---- start / place cards / random yaw: never placed where you can't walk forward; UP always advances on the forward stream ----
     import random; random.seed(7)
-    clipsR=json.loads(fetch(BASE+CFG[0].split('/test/')[0]+'/routes.json'))['routes'][0]['clips']
+    clipsR=json.loads(fetch(BASE+(CFG[2].rsplit('/',1)[0]+'/routes.json' if PAGE=='ls1' else CFG[0].split('/test/')[0]+'/routes.json')))['routes'][0]['clips']
+    DUR=max(c['hi'] for c in clipsR)
     async def landing_ok(tag):
         s=await S(); c=next(c for c in clipsR if c['lo']-0.5<=s['pos']<=c['hi']+0.5); ahead=c['hi']-s['pos']
         q0,q1=dot(s['pos']),dot(s['pos']+8)
@@ -121,7 +123,7 @@ async def main():
         await pg.wait_for_function(f'window.__w.place&&window.__w.place.id=="{pid}"&&!window.__w.state().fading',timeout=60000); await pg.wait_for_timeout(1200)
         await landing_ok(f'{PAGE} place card {pid}')
         await up5(f'{PAGE} place card {pid}: hold UP 5 s')
-        y=random.uniform(-180,180); await go(1800 if abs((await S())['pos']-1800)>100 else 600)  # leave, then open the card again
+        y=random.uniform(-180,180); p0=(await S())['pos']; await go((1800 if abs(p0-1800)>100 else 600) if DUR>1900 else (DUR*0.8 if p0<DUR/2 else DUR*0.2))  # leave, then open the card again
         await E('window.__w.place=null'); await pg.click('#where-btn'); await pg.wait_for_timeout(400); await pg.click(f'[data-place="{pid}"]')
         await pg.wait_for_function(f'window.__w.place&&window.__w.place.id=="{pid}"&&!window.__w.state().fading',timeout=60000); await pg.wait_for_timeout(1200)
         await up5(f'{PAGE} place card {pid}, random yaw {y:.0f}: hold UP 5 s',y)
@@ -169,6 +171,17 @@ async def main():
         await hold(False); s1=await S()
         rec(tag,shown and mn>=s0['pos']-0.3 and s1['dir']=='F',{'cardShown':shown,'from':round(s0['pos'],2),'min':round(mn,2),'end':round(s1['pos'],2),'dir':s1['dir']})
         if shown and await pg.locator('#nf-back').is_visible(): await pg.click('#nf-back')
+    # whole walk: hold forward from the default start to the end, turning the view to every direction on the way; never backwards
+    if ONLY!='start' and PAGE=='ls1':
+        await go(76); s0=await S(); prev=s0['pos']; mono=True; dirs=set(); yaws=[]; k=0; await hold(True)
+        while True:
+            if k%30==0: y=random.choice([0,45,-45,90,-90,135,-135,180]); yaws.append(y); await E(f'window.__w.setLook({y},0)')
+            await pg.wait_for_timeout(200); s=await S(); dirs.add(s['dir']); k+=1
+            if not s['fading'] and s['pos']<prev-0.3: mono=False
+            prev=max(prev,s['pos'])
+            if s['pos']>=clipsR[-1]['hi']-1 or k>3500: break
+        await hold(False); s1=await S()
+        rec(f'{PAGE} whole walk: hold UP from start to the end, looking every direction',mono and dirs=={'F'} and s1['pos']>=clipsR[-1]['hi']-1.5,{'from':round(s0['pos'],1),'end':round(s1['pos'],1),'neverBack':mono,'dirs':sorted(dirs),'yaws':sorted(set(yaws)),'seconds':round(k*0.2)})
     # end of each filmed clip: holding forward must stop there, never reverse
     for c in ([] if ONLY=='start' else clipsR):
         tag=f"{PAGE} end of clip {c['id']}"; await go(c['hi']-4); s0=await S(); mn=s0['pos']; dirs=set(); ex0=await E('window.__w.exits||0'); jumped=False; await hold(True)
