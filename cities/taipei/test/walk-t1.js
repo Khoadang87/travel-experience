@@ -7,7 +7,7 @@
    No zoom, no look-inside. Flags via window.W50: xfade (w50a: 0.5 s heading-matched crossfade), rev (w50c: walk back on time-reversed real footage).
    Engine (video, seek, stick, sound) copied from w42k. */
 import * as THREE from 'three';
-import { initHunt } from './hunt-kit.js?v=t1k';
+import { initHunt } from './hunt-kit.js?v=t1l';
 window.__w = {};
 const CFG = window.W50 || {}; const VER = CFG.ver || 't1';
 const $ = id => document.getElementById(id), params = new URLSearchParams(location.search);
@@ -15,7 +15,7 @@ const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platfor
 const ROOT = window.WALK_ROOT ?? '../', A = ROOT + 'assets/walk/';
 const evlog = []; const log = s => { evlog.push((performance.now() / 1000).toFixed(1) + ' ' + s); if (evlog.length > 60) evlog.shift(); };
 window.__evlog = evlog;
-const BUILD = 't1k-2026-11-04'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
+const BUILD = 't1l-2026-11-04'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
 fetch('build.json?cb=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(b => { if (b.build && b.build !== BUILD && !sessionStorage.getItem('t1reload')) { sessionStorage.setItem('t1reload', '1'); location.replace(location.pathname + '?b=' + b.build + location.hash); } }).catch(() => {}); addEventListener('pageshow', e => { if (e.persisted) location.reload(); }); /* t1g: an old tab or cached page reloads itself onto the current build */
 
 // ---------- scene ----------
@@ -210,7 +210,7 @@ const _v3 = new THREE.Vector3();
 const scr = a => { _v3.set(-Math.sin(a), 0, -Math.cos(a)).project(camera); const behind = _v3.z > 1; return { x: (_v3.x + 1) / 2 * innerWidth, on: !behind && Math.abs(_v3.x) < 0.85, side: behind ? -Math.sign(_v3.x || 1) : Math.sign(_v3.x) }; };
 const live = (x, p) => (!x.clip || (clip && clip.id === x.clip)) && p >= x.t0 && p <= x.t1;
 const mkMarker = (x, cls, txt, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'mk ' + cls; b.innerHTML = txt; b.hidden = true; b.onclick = fn; $('marks').appendChild(b); return b; };
-const exEls = EXITS.map(x => mkMarker(x, 'filmed', '<i>↗</i><span>' + x.label + '</span>', () => takeExit(x)));
+const exEls = EXITS.map(x => mkMarker(x, 'filmed', '<i>↗</i><span><b>Side path</b><small>' + x.label + '</small></span>', () => takeExit(x)));
 const nfEls = UNFILMED.map(x => mkMarker(x, 'unfilmed', '<i></i><span>' + x.label + '<small>Not accessible right now, coming soon</small></span>', () => showNF(x)));
 const fwdEl = mkMarker({}, 'ahead', '<i>↑</i>', () => {}); fwdEl.tabIndex = -1; fwdEl.setAttribute('aria-label', 'Hold to walk forward'); fwdEl.style.touchAction = 'none';
 { const on = e => { e.preventDefault(); e.stopPropagation(); keys.ArrowUp = true; try { fwdEl.setPointerCapture(e.pointerId); } catch (_) {} }, off = () => { keys.ArrowUp = false; }; fwdEl.addEventListener('pointerdown', on); for (const n of ['pointerup', 'pointercancel', 'lostpointercapture']) fwdEl.addEventListener(n, off); }
@@ -269,7 +269,7 @@ $('grid').addEventListener('click', e => { const b = e.target.closest('[data-pla
 function openPlaces() { closeCards(); joyEnd(); $('places').hidden = false; document.body.classList.add('picking'); }
 function closePlaces() { $('places').hidden = true; document.body.classList.remove('picking'); }
 $('where-btn').onclick = openPlaces; $('places-x').onclick = closePlaces;
-if (params.get('places') === '0' || params.get('t')) closePlaces(); else openPlaces();
+if (params.get('places') === '1' && !params.get('t')) openPlaces(); else closePlaces(); /* ls4d/t1l: footage first; places via the place card */
 
 // ---------- mini-map (w51): shape from w50/path-w51.json = camera yaw (frame-to-frame phase correlation) + optical-flow heading,
 // integrated and loop-closed at the real junctions. Approximate (dead reckoning, no GPS). Solid = filmed, green rings = real junctions,

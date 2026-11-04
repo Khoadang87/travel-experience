@@ -52,6 +52,16 @@ html body #nf,html body #passport{padding:0 18px 18px}html body #passport .stamp
 html body .card{background:rgba(255,255,255,.07)}html body .card b{font:600 14px/1.2 system-ui}
 html body .btn.pri{background:#fbf6ee}
 /* fade non-essential UI while walking (still tappable) */
-html body.xwalk #where-btn,html body.xwalk #hunt,html body.xwalk #sound,html body.xwalk #hd{opacity:.35}
-html body.xwalk #minimap{opacity:.55}html body.xwalk #credit,html body.xwalk #ver{opacity:0}html body.xwalk #xc{opacity:.75}
+html body.xwalk #where-btn,html body.xwalk #hunt,html body.xwalk #sound,html body.xwalk #hd,html body.xwalk #turn,html body.xwalk #hint{opacity:.06}
+html body.xwalk #minimap{opacity:.18}html body.xwalk .mk.spot{opacity:.35}html body.xwalk #credit,html body.xwalk #ver{opacity:0}html body.xwalk #xc{opacity:.4}
 @media (max-height:500px){html body #minimap{width:76px;height:76px}html body #hint{display:none}}
+
+/* ls4d/t1l: junction = two tall path cards (Main walk = the forward marker, Side path = the filmed link), big targets */
+html body .mk.filmed,html body.xjunc .mk.ahead{flex-direction:column;justify-content:center;gap:4px;min-width:124px;min-height:96px;padding:12px 14px;border-radius:18px;background:var(--xg);color:#fbf6ee;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);text-align:center;opacity:1!important}
+html body .mk.filmed{border:1.5px solid var(--acc)}html body.xjunc .mk.ahead{border:1.5px solid rgba(255,255,255,.55)}
+html body .mk.filmed i,html body.xjunc .mk.ahead i{background:none!important;border:0!important;color:var(--acc);font-size:26px;width:auto;height:auto;animation:none!important}
+html body.xjunc .mk.ahead i{color:#fbf6ee}
+html body .mk.filmed span,html body.xjunc .mk.ahead span{display:flex;flex-direction:column;align-items:center;gap:2px}
+html body .mk.filmed b,html body.xjunc .mk.ahead b{font:600 15px system-ui}html body .mk.filmed small,html body.xjunc .mk.ahead small{font:500 12px system-ui;text-transform:none;letter-spacing:0;color:var(--mut);white-space:normal;max-width:120px}
+html body #xj{position:fixed;z-index:16;left:50%;transform:translateX(-50%);top:calc(var(--sa-t) + 158px);border-radius:999px;padding:7px 14px;font:600 13px system-ui;color:#7fe0a0;pointer-events:none;white-space:nowrap}
+html body #where::after{content:" ▾";color:var(--acc);font-size:12px}

@@ -8,7 +8,12 @@
   const knob = document.getElementById('knob'); let keyUp = false;
   addEventListener('keydown', e => { if (e.key === 'ArrowUp') keyUp = true; }); addEventListener('keyup', e => { if (e.key === 'ArrowUp') keyUp = false; });
   const ring = (n, t) => { const c = 2 * Math.PI * 14, f = t ? n / t : 0; return `<svg class="ring" viewBox="0 0 34 34"><circle cx="17" cy="17" r="14" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="3"/><circle cx="17" cy="17" r="14" fill="none" stroke="#e8b55a" stroke-width="3" stroke-linecap="round" stroke-dasharray="${c * f} ${c}" transform="rotate(-90 17 17)"/></svg>`; };
-  function tick() {
+  const xj = document.createElement('div'); xj.id = 'xj'; xj.className = 'glass'; xj.hidden = true; xj.textContent = '● Junction · pick a path'; document.body.appendChild(xj);
+  let fwd = null, plain = null;
+  function junc() { const side = [...document.querySelectorAll('.mk.filmed')].some(e => !e.hidden); fwd = fwd || document.querySelector('.mk.ahead');
+    if (fwd && plain == null) plain = fwd.innerHTML; document.body.classList.toggle('xjunc', side); xj.hidden = !side || document.body.classList.contains('xwalk');
+    if (fwd) { const want = side ? '<i>↑</i><span><b>Main walk</b><small>Keep going straight</small></span>' : plain; if (fwd.innerHTML !== want) fwd.innerHTML = want; } }
+  function tick() { junc();
     const w = W(); if (w.relYaw) { const r = -w.relYaw() * 180 / Math.PI; /* look right = positive */ for (const s of sp) { const x = (+s.dataset.d - r) * PX; s.style.left = x + 'px'; s.style.display = Math.abs(x) < 130 ? '' : 'none'; } }
     const walking = (knob && knob.style.transform && knob.style.transform !== 'none') || keyUp; document.body.classList.toggle('xwalk', !!walking);
     const ht = document.getElementById('hunt-t'); if (ht && w.huntState && !ht.querySelector('.ring')) { const h = w.huntState(); ht.insertAdjacentHTML('afterbegin', ring(h.found.length, h.total)); }
