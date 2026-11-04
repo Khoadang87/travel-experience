@@ -14,7 +14,7 @@ const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platfor
 const ROOT = window.WALK_ROOT ?? '../', A = ROOT + 'assets/walk/';
 const evlog = []; const log = s => { evlog.push((performance.now() / 1000).toFixed(1) + ' ' + s); if (evlog.length > 60) evlog.shift(); };
 window.__evlog = evlog;
-const BUILD = 'ls3a-2026-11-03'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
+const BUILD = 'ls4c-2026-11-04'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
 fetch('ls1/build.json?cb=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(b => { if (b.build && b.build !== BUILD && !sessionStorage.getItem('ls2reload')) { sessionStorage.setItem('ls2reload', '1'); location.replace(location.pathname + '?b=' + b.build + location.hash); } }).catch(() => {}); addEventListener('pageshow', e => { if (e.persisted) location.reload(); }); /* t1g: an old tab or cached page reloads itself onto the current build */
 
 // ---------- scene ----------
@@ -155,6 +155,7 @@ function checkJunction(p) { if (performance.now() - lastJ < 3000) return; for (c
 const wrap = a => Math.atan2(Math.sin(a), Math.cos(a)), D2R = Math.PI / 180;
 let hd = 0, rate = 0, last = performance.now(), lastPos = 0, idleT = 0, aligning = false, fading = false, lastAct = '-';
 const relYaw = () => wrap(look.yaw + hd - headAt(pos()));
+window.__w.relYaw = relYaw;
 const REV = !!CFG.rev; let revOn = false; /* true once the reversed stream is attached */
 /* travel axis you are closest to: forward, or (w50c) backward along the same filmed street */
 const relPath = () => { const r = relYaw(); return revOn && clip && (backWant || DIR === 'R') && Math.abs(r) > Math.PI / 2 ? wrap(r - Math.PI) : r; }; /* t1b: without Turn back, 'behind' counts as off the path, so a forward push swings the view back to where the footage goes */
@@ -276,7 +277,7 @@ const found = new Set((() => { try { return JSON.parse(localStorage.getItem(HK))
 const huntEl = document.createElement('div'); huntEl.id = 'hunt'; huntEl.className = 'glass'; document.body.appendChild(huntEl);
 const passEl = document.createElement('section'); passEl.id = 'passport'; passEl.className = 'sheet'; passEl.hidden = true; passEl.setAttribute('role', 'dialog'); passEl.setAttribute('aria-label', 'Passport'); document.body.appendChild(passEl);
 let huntOpen = false;
-function drawHunt() { const st = pp().stamps[STAMP.id]; huntEl.innerHTML = `<button type="button" id="hunt-t">🔎 Find ${found.size}/${HUNT.length}${st ? ' · 🏮 stamped' : ''}</button>` + (huntOpen ? '<ul>' + HUNT.map(h => `<li class="${found.has(h.id) ? 'ok' : ''}">${found.has(h.id) ? '✓' : '○'} Find ${h.label}</li>`).join('') + '</ul><button type="button" id="pass-b">Passport</button>' : '');
+function drawHunt() { const st = pp().stamps[STAMP.id]; huntEl.innerHTML = `<button type="button" id="hunt-t">Find ${found.size}/${HUNT.length}${st ? ' · 🏮 stamped' : ''}</button>` + (huntOpen ? '<ul>' + HUNT.map(h => `<li class="${found.has(h.id) ? 'ok' : ''}">${found.has(h.id) ? '✓' : '○'} Find ${h.label}</li>`).join('') + '</ul><button type="button" id="pass-b">Passport</button>' : '');
   $('hunt-t').onclick = e => { e.stopPropagation(); huntOpen = !huntOpen; drawHunt(); }; if (huntOpen) $('pass-b').onclick = e => { e.stopPropagation(); openPass(); }; }
 function openPass() { const S = Object.entries(pp().stamps); passEl.innerHTML = `<button class="x" type="button" aria-label="Close">✕</button><header><div class="eyebrow">Travel passport</div><h2>Your stamps</h2></header><div class="stamps">${S.length ? S.map(([id, x]) => `<div class="stamp" data-stamp="${id}"><b>${x.name}</b><small>${x.city} · ${new Date(x.at).toLocaleDateString()}</small></div>`).join('') : '<p>No stamps yet. Find everything on the hunt list, or walk to the end, to earn this one.</p>'}</div>`; passEl.querySelector('.x').onclick = () => { passEl.hidden = true; }; passEl.hidden = false; joyEnd(); }
 function award(why) { const P = pp(); if (P.stamps[STAMP.id]) return; P.stamps[STAMP.id] = { name: STAMP.name, city: STAMP.city, at: Date.now(), why }; try { localStorage.setItem(PK, JSON.stringify(P)); } catch (e) {} window.__w.stamp = why; log('stamp ' + why);

@@ -7,7 +7,7 @@
    No zoom, no look-inside. Flags via window.W50: xfade (w50a: 0.5 s heading-matched crossfade), rev (w50c: walk back on time-reversed real footage).
    Engine (video, seek, stick, sound) copied from w42k. */
 import * as THREE from 'three';
-import { initHunt } from './hunt-kit.js?v=t1j';
+import { initHunt } from './hunt-kit.js?v=t1k';
 window.__w = {};
 const CFG = window.W50 || {}; const VER = CFG.ver || 't1';
 const $ = id => document.getElementById(id), params = new URLSearchParams(location.search);
@@ -15,7 +15,7 @@ const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platfor
 const ROOT = window.WALK_ROOT ?? '../', A = ROOT + 'assets/walk/';
 const evlog = []; const log = s => { evlog.push((performance.now() / 1000).toFixed(1) + ' ' + s); if (evlog.length > 60) evlog.shift(); };
 window.__evlog = evlog;
-const BUILD = 't1j-2026-11-03'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
+const BUILD = 't1k-2026-11-04'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
 fetch('build.json?cb=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(b => { if (b.build && b.build !== BUILD && !sessionStorage.getItem('t1reload')) { sessionStorage.setItem('t1reload', '1'); location.replace(location.pathname + '?b=' + b.build + location.hash); } }).catch(() => {}); addEventListener('pageshow', e => { if (e.persisted) location.reload(); }); /* t1g: an old tab or cached page reloads itself onto the current build */
 
 // ---------- scene ----------
@@ -156,6 +156,7 @@ function checkJunction(p) { if (performance.now() - lastJ < 3000) return; for (c
 const wrap = a => Math.atan2(Math.sin(a), Math.cos(a)), D2R = Math.PI / 180;
 let hd = 0, rate = 0, last = performance.now(), lastPos = 0, idleT = 0, aligning = false, fading = false, lastAct = '-';
 const relYaw = () => wrap(look.yaw + hd - headAt(pos()));
+window.__w.relYaw = relYaw;
 const REV = !!CFG.rev; let revOn = false; /* true once the reversed stream is attached */
 /* travel axis you are closest to: forward, or (w50c) backward along the same filmed street */
 const relPath = () => { const r = relYaw(); return revOn && clip && (backWant || DIR === 'R') && Math.abs(r) > Math.PI / 2 ? wrap(r - Math.PI) : r; }; /* t1b: without Turn back, 'behind' counts as off the path, so a forward push swings the view back to where the footage goes */

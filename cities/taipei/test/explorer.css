@@ -1,0 +1,57 @@
+/* Direction C "explorer" HUD (ls4c / t1k). Restyles the existing walk UI (same ids, same behaviour): heading tape on top, place card left,
+   hunt ring right, minimap bottom-left, stick bottom-right, in-scene path cards. One glass style; non-essential UI fades while walking. */
+:root{--xg:rgba(22,18,14,.42);--xl:rgba(255,255,255,.18);--acc:#e8b55a;--mut:rgba(251,246,238,.62)}
+html body .glass,html body .sheet,html body #hunt,html body #fact{background:var(--xg);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);border:.5px solid var(--xl);box-shadow:0 8px 30px rgba(0,0,0,.25)}
+html body #xc{position:fixed;z-index:16;top:calc(var(--sa-t) + 6px);left:50%;transform:translateX(-50%);width:230px;height:34px;border-radius:999px;overflow:hidden;pointer-events:none;transition:opacity .4s}
+html body #xc .tape{position:absolute;top:0;left:50%;height:34px;width:0}
+html body #xc .tape span{position:absolute;top:0;line-height:34px;transform:translateX(-50%);font:600 12px system-ui;color:var(--mut);white-space:nowrap}
+html body #xc .tape span.a{color:var(--acc);font-size:13px}
+html body #xc::after{content:"";position:absolute;left:50%;bottom:0;margin-left:-5px;border:5px solid transparent;border-bottom-color:#fbf6ee}
+html body #top{top:calc(var(--sa-t) + 48px);align-items:flex-start}
+html body #where-btn{border-radius:16px;padding:7px 14px;max-width:calc(100vw - 200px);transition:opacity .4s}
+html body #where-btn small{white-space:nowrap;font:600 10px/1.2 system-ui;letter-spacing:.12em;color:var(--mut)}
+html body #where{font:600 15px/1.25 system-ui;margin-top:2px}
+html body #sound,html body #hd{transition:opacity .4s}
+html body #minimap{position:fixed;left:calc(var(--sa-l) + 16px);bottom:calc(var(--sa-b) + 36px);top:auto;margin:0;width:104px;height:104px;border-radius:24px;transition:opacity .4s}
+html body #joy{left:auto;right:calc(var(--sa-r) + 18px);bottom:calc(var(--sa-b) + 36px);width:124px;height:124px;background:var(--xg);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:.5px solid var(--xl)}
+html body #joy::after{content:"WALK";position:absolute;left:0;right:0;top:22px;text-align:center;font:600 10px system-ui;letter-spacing:.1em;color:var(--mut);pointer-events:none}
+html body #knob{background:rgba(251,246,238,.92)}
+html body #hint{left:calc(var(--sa-l) + 128px);right:calc(var(--sa-r) + 146px);bottom:calc(var(--sa-b) + 60px);font-size:11px;text-align:center}
+html body #turn{right:calc(var(--sa-r) + 18px);bottom:calc(var(--sa-b) + 160px);border-radius:999px}
+html body #status{top:calc(var(--sa-t) + 158px);border-radius:999px;font:600 13px system-ui}
+html body #hunt{left:auto;right:calc(var(--sa-r) + 12px);top:calc(var(--sa-t) + 100px);border-radius:16px;max-width:230px;transition:opacity .4s}
+html body #hunt #hunt-t{min-height:44px;display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px}
+html body #hunt .ring{width:34px;height:34px;flex:none}
+html body #hunt ul{padding:0 12px 6px}html body #hunt li{padding:6px 0;font-size:14px}
+html body #hunt #pass-b{text-decoration:none;min-height:44px;width:100%;text-align:left;padding:0 12px;color:var(--acc)}
+html body #credit{left:10px;right:10px;bottom:calc(var(--sa-b) + 2px);max-width:none;text-align:center;font-size:8px;line-height:1.25;opacity:.45;transition:opacity .4s}
+html body #ver{left:0;right:0;text-align:center;bottom:calc(var(--sa-b) + 168px);opacity:.3;pointer-events:none}
+/* in-scene path cards (junction links / filmed exits) */
+html body .mk.filmed{flex-direction:column;gap:2px;padding:10px 14px;min-width:110px;min-height:64px;border-radius:18px;background:var(--xg);color:#fbf6ee;border:1.5px solid var(--acc);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);text-align:center}
+html body .mk.filmed i{background:none;color:var(--acc);font-size:22px;width:auto;height:auto}
+html body .mk.filmed span{align-items:center}
+html body .mk.unfilmed{border-radius:18px;padding:8px 14px}
+html body .mk.spot{background:none;padding:0;gap:6px}
+html body .mk.spot i{width:32px;height:32px;background:var(--xg);color:#fbf6ee;border:.5px solid var(--xl);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+html body .mk.spot span{font:600 13px system-ui;padding:6px 11px;border-radius:999px;background:var(--xg);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+/* fact card: compact, centred low so the scene ahead stays visible */
+html body #fact{top:auto;bottom:calc(var(--sa-b) + 168px);max-width:320px;max-height:42vh;overflow:auto;border-radius:22px;padding:0 44px 14px 18px;overflow:hidden}
+html body #fact::before{content:"";display:block;height:5px;margin:0 -44px 12px -18px;background:linear-gradient(90deg,#e8b55a,#b8322a)}
+html body #fact small{color:var(--mut)}html body #fact b{font:700 18px/1.25 system-ui}html body #fact p{color:rgba(251,246,238,.85)}
+html body #fact a{display:inline-flex;align-items:center;min-height:44px;color:var(--acc)}
+html body #fact .x{width:44px;height:44px;top:5px;right:0}
+/* not accessible */
+html body #edge div{border:1px dashed rgba(255,255,255,.5);border-radius:18px;padding:12px 16px;background:var(--xg);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);max-width:170px;text-align:center}
+html body #edge b{font:600 15px system-ui}
+/* sheets */
+html body .sheet{left:0;right:0;bottom:0;border-radius:28px 28px 0 0;background:rgba(22,18,14,.78);padding-bottom:var(--sa-b)}
+html body .sheet::before{content:"";display:block;width:38px;height:5px;border-radius:3px;background:rgba(255,255,255,.35);margin:10px auto 6px}
+html body h2{font:700 21px/1.2 system-ui}html body .eyebrow{font:600 11px system-ui;letter-spacing:.12em;color:var(--mut)}
+html body #places{top:calc(var(--sa-t) + 90px);padding-top:0}
+html body #nf,html body #passport{padding:0 18px 18px}html body #passport .stamps{justify-content:center}
+html body .card{background:rgba(255,255,255,.07)}html body .card b{font:600 14px/1.2 system-ui}
+html body .btn.pri{background:#fbf6ee}
+/* fade non-essential UI while walking (still tappable) */
+html body.xwalk #where-btn,html body.xwalk #hunt,html body.xwalk #sound,html body.xwalk #hd{opacity:.35}
+html body.xwalk #minimap{opacity:.55}html body.xwalk #credit,html body.xwalk #ver{opacity:0}html body.xwalk #xc{opacity:.75}
+@media (max-height:500px){html body #minimap{width:76px;height:76px}html body #hint{display:none}}
