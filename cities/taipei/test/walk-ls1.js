@@ -270,7 +270,7 @@ const HUNT = [
   { id: 'censer', t0: 135, t1: 145, u: [[136, 0.68], [140, 0.637], [143, 0.577], [144, 0.56]], v: -0.08, /* ls4e: yaw+pitch measured from the live frames (qa/ui/built-C/live3/measure) */ label: 'the big incense burner' },
   { id: 'tower', t0: 239, t1: 248, u: [[240, 0.242], [248, 0.242]], v: 0.41, pmax: 0.8, label: 'a tower with a pagoda roof' },
   { id: 'dragon', t0: 258, t1: 266, u: [[260, 0.18], [264, 0.31]], v: 0.1, label: 'a coiled-dragon column' },
-  { id: 'lantern', t0: 434, t1: 447, u: [[435, 0.496], [440, 0.514], [445, 0.381], [446, 0.36]], v: 0.5, pmax: 0.9, label: 'a painted lantern' } ];
+  { id: 'lantern', t0: 434, t1: 447, u: [[435, 0.523], [440, 0.541], [445, 0.408], [446, 0.387]], v: 0.45, pmax: 0.9, label: 'a painted lantern' } ];
 const STAMP = { id: 'taipei-longshan', name: 'Longshan Temple', city: 'Taipei' };
 const PK = 'tePassport', HK = 'huntLongshan';
 const pp = () => { try { return JSON.parse(localStorage.getItem(PK)) || { v: 1, stamps: {} }; } catch (e) { return { v: 1, stamps: {} }; } };
