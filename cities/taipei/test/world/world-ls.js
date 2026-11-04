@@ -1,10 +1,10 @@
-// Longshan Temple courtyard — game-style walk-around prototype (build w1a).
+// Longshan Temple courtyard — game-style walk-around prototype (build w1b).
 // All geometry and textures are procedural (code in this file). People: Quaternius Universal Animation Library mannequin (CC0).
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
-const BUILD='w1a'; window.__build=BUILD;
+const BUILD='w1b'; window.__build=BUILD;
 const Q=new URLSearchParams(location.search);
 // ---------- seeded RNG ----------
 function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296;};}
@@ -281,7 +281,7 @@ new GLTFLoader().load('world/people.glb?v='+BUILD,gltf=>{
  ready=true;document.getElementById('load').style.opacity=0;setTimeout(()=>document.getElementById('load').remove(),700);
 },undefined,e=>{document.getElementById('load').textContent='Could not load people: '+e;});
 const clock=new THREE.Clock();let lastNow=performance.now();
-renderer.setAnimationLoop(()=>{const dt=Math.min(0.05,clock.getDelta());simT+=dt;frames++;
+renderer.setAnimationLoop(()=>{const dt=Math.min(0.1,clock.getDelta());simT+=dt;frames++;
  const now=performance.now();fpsHist.push(Math.max(1e-3,(now-lastNow)/1000));lastNow=now;if(fpsHist.length>60)fpsHist.shift();fpsAvg=fpsHist.length/fpsHist.reduce((a,b)=>a+b,0);
  updatePlayer(dt);stepSmoke(dt,simT);
  for(let i=0;i<people.length;i++){const p=people[i];updatePerson(p,dt,simT);const d=Math.hypot(p.x-P.x,p.z-P.z);
