@@ -31,3 +31,11 @@ No photos of Longshan Temple are used as textures. Layout is a simplified approx
 - https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky (1k .hdr) → `tex/sky_1k.hdr`, used as background and image-based lighting.
 
 The Quaternius mannequin (`people.glb`, CC0) is no longer loaded from w2a on; it stays in the repo for the older build.
+
+## Build s1a — semi-realistic stylized look (`world-ls2.html`, Nov 2026)
+- People: the same Microsoft Rocketbox avatars and mocap (MIT, see `rb2/LICENSE-Microsoft-Rocketbox-MIT.md`), re-encoded as `rb2/*.glb` (textures 512 px WebP). They get a soft painterly ramp and a warm rim light in code (`world-ls2.js`), replacing the plastic PBR skin.
+- `ph/chinese_console_table.glb` (carved offering tables): Poly Haven, CC0, https://polyhaven.com/a/chinese_console_table
+- `ph/chinese_chandelier.glb` (hanging lanterns under the main-hall porch): Poly Haven, CC0, https://polyhaven.com/a/chinese_chandelier
+- Both Poly Haven models use 1k glTF downsized to 512 px and meshopt-compressed.
+- Golden-hour lighting, bloom, colour grade, vignette and glowing lanterns are made in code with three.js r160 post-processing (MIT).
+- Not used: Quaternius Universal Base Characters (CC0, free Standard zip). The free tier has only Superhero-proportion bodies in underwear and no clothing, which doesn't suit a temple crowd. Sketchfab dragon columns, ridge dragons and burner scans were also not used, because Sketchfab downloads need a signed-in account.

@@ -18,7 +18,7 @@ async def main():
         try: await route.fulfill(body=open(os.path.join(LOCAL,u[len(BASE):]),'rb').read(),content_type={'js':'application/javascript','html':'text/html','css':'text/css'}.get(u.rsplit('.',1)[-1],'application/octet-stream'),headers={'cache-control':'no-store'})
         except FileNotFoundError: await route.fulfill(status=404,body='')
       await pg.route(BASE+'**',serve)
-    await pg.goto(BASE+'taipei/test/world-ls.html?cb='+str(random.random()))
+    await pg.goto(BASE+'taipei/test/'+os.environ.get('PAGE','world-ls.html')+'?cb='+str(random.random()))
     await pg.wait_for_function('window.__w&&window.__w.state().ready',timeout=180000)
     await pg.wait_for_timeout(3000)
     st=lambda: E('window.__w.state()')
@@ -45,12 +45,22 @@ async def main():
     rec('drag_look',abs(b2['yaw']-a['yaw'])>0.3,{'yaw_change_rad':round(b2['yaw']-a['yaw'],2)})
     # collision: walk into main hall core (front face z=-8.5), into burner, into west corridor wall, into front-hall wall
     for name,(x,z,yaw,check) in {'main_hall':(-4,-1,0,'z>-8.5'),'main_hall_side_porch_ok':(-8.6,-4,0,'z<-8.5'),'burner':(0,9,0,'z>4+2.3'),'west_wall':(-18,0,-math.pi/2,'x>-26'),'front_hall_wall':(-7,25,0,'z>20.5')}.items():
-      await E(f'window.__w.set({x},{z},{yaw})'); await pg.wait_for_timeout(300); await hold(0,-1,4000); s=await st()
+      await E(f'window.__w.set({x},{z},{yaw})'); await pg.wait_for_timeout(300)
+      if name.endswith('_ok'):  # passable: keep walking until through (slow emulators run sim < real time)
+        for _ in range(8):
+          await hold(0,-1,2500); s=await st()
+          if s['z']<-8.5: break
+      else:
+        await hold(0,-1,4000); s=await st()
       ok=eval(check,{},{'x':s['x'],'z':s['z']}) and not s['blocked']
       rec('collide_'+name,ok,{'pos':[round(s['x'],2),round(s['z'],2)],'rule':check})
       if name=='main_hall': await pg.screenshot(path=OUT+'/03_collide_hall.png')
     # walk through the open central doorway of the front hall (should pass)
-    await E('window.__w.set(0,23.5,0)'); await hold(0,-1,6000); s=await st(); rec('front_door_passable',s['z']<19.5,{'z':round(s['z'],2)})
+    await E('window.__w.set(0,23.5,0)')
+    for _ in range(6):
+      await hold(0,-1,2500); s=await st()
+      if s['z']<19.5: break
+    rec('front_door_passable',s['z']<19.5,{'z':round(s['z'],2)})
     # never stuck: 30 random stick pushes from random places
     random.seed(4); worst=0; bad=0
     for i in range(30):
