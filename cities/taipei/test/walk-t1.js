@@ -7,6 +7,7 @@
    No zoom, no look-inside. Flags via window.W50: xfade (w50a: 0.5 s heading-matched crossfade), rev (w50c: walk back on time-reversed real footage).
    Engine (video, seek, stick, sound) copied from w42k. */
 import * as THREE from 'three';
+import { initHunt } from './hunt-kit.js?v=t1j';
 window.__w = {};
 const CFG = window.W50 || {}; const VER = CFG.ver || 't1';
 const $ = id => document.getElementById(id), params = new URLSearchParams(location.search);
@@ -14,7 +15,7 @@ const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platfor
 const ROOT = window.WALK_ROOT ?? '../', A = ROOT + 'assets/walk/';
 const evlog = []; const log = s => { evlog.push((performance.now() / 1000).toFixed(1) + ' ' + s); if (evlog.length > 60) evlog.shift(); };
 window.__evlog = evlog;
-const BUILD = 't1i-2026-11-03'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
+const BUILD = 't1j-2026-11-03'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
 fetch('build.json?cb=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(b => { if (b.build && b.build !== BUILD && !sessionStorage.getItem('t1reload')) { sessionStorage.setItem('t1reload', '1'); location.replace(location.pathname + '?b=' + b.build + location.hash); } }).catch(() => {}); addEventListener('pageshow', e => { if (e.persisted) location.reload(); }); /* t1g: an old tab or cached page reloads itself onto the current build */
 
 // ---------- scene ----------
@@ -221,6 +222,25 @@ function placeMarkers() { if (!ready || !clip) return; const p = pos(), card = !
 setInterval(placeMarkers, 80);
 const exitAhead = p => { if (Math.abs(relYaw()) <= 15 * D2R) return null; let best = null, bo = 25 * D2R; for (const x of EXITS) { if (!live(x, p)) continue; const o = offOf(x, p); if (o < bo) { bo = o; best = x; } } if (!best) { exCand = null; return null; } const now = performance.now(); if (!exCand || exCand.x !== best) { exCand = { x: best, s: now }; return null; } return now - exCand.s >= 300 ? best : null; }; let exCand = null; /* t1d: view must rest on the exit 0.3 s, so swinging past one doesn't take it; nearest exit wins when two overlap (j4b/j5b) */
 const nfAhead = p => UNFILMED.find(x => live(x, p) && offOf(x, p) < 25 * D2R && Math.abs(relYaw()) > 20 * D2R);
+
+// ---------- t1j: things to spot + spot hunt + 'Ximending' passport stamp (shared kit hunt-kit.js, same passport as Longshan). u = image position in the walk
+// frame at walk time t, read off the 1 fps frames (qa/taipei/fr/FtN_VvhNF98). Facts are cited; nothing here stops the walk or covers the stick. ----------
+initHunt({ $, D2R, wrap, scr, mkMarker, headAt, log, joyEnd, cv, pos: () => pos(), clip: () => clip, ready: () => ready, card: () => !$('nf').hidden || !$('places').hidden,
+  camYaw: () => look.yaw + hd, pitch: () => look.pitch, fov: () => camera.fov, act: s => { lastAct = s; } }, {
+  clip: 'ftn', key: 'huntXimending', endAt: 1780,
+  stamp: { id: 'taipei-ximending', name: 'Ximending', city: 'Taipei', icon: '🌈' },
+  src: { dca: ['Taipei City Dept. of Cultural Affairs', 'https://english.culture.gov.taipei/News_Content.aspx?n=546DBBFFD75F4602&s=9ABC4DE19753711E'],
+    tt: ['Taipei Times, 6 Jul 2016', 'https://www.taipeitimes.com/News/lang/archives/2016/07/06/2003650422'],
+    tp: ['Taipei Travel (Taipei City Government)', 'https://travel.taipei/en/attraction/details/2358'] },
+  spots: [
+    { id: 'redhouse', t0: 232, t1: 247, u: [[235, 0.6], [245, 0.5]], label: 'Red House', title: 'The Red House, 1908', body: 'This red-brick octagon was built in 1908 as the Xinqi Street Market, designed by architect Kondo Juro with an octagonal entrance and a cruciform main hall. It later became a storytelling hall and a theatre, and was named a Taipei City historic site in 1997.', src: 'dca' },
+    { id: 'market', t0: 250, t1: 258, u: [[251, 0.56], [257, 0.58]], label: 'Old market', title: 'Dry goods in the octagon', body: 'The market opened on 20 December 1908. The octagon sold dry goods such as sweets, toys, cosmetics, shoes and umbrellas; the cross-shaped hall behind it was the wet market for meat and produce.', src: 'tt' },
+    { id: 'rainbow', t0: 450, t1: 462, u: [[452, 0.28], [456, 0.3], [460, 0.45]], label: 'Rainbow Six', title: 'Rainbow Six crossing', body: 'Painted by Exit 6 of Ximen MRT station on 25 September 2019, after Taiwan became the first country in Asia to legalise same-sex marriage (17 May 2019).', src: 'tp' } ],
+  hunt: [
+    { id: 'redhouse', t0: 232, t1: 247, u: [[235, 0.6], [245, 0.5]], label: 'the red-brick Red House' },
+    { id: 'livesign', t0: 251, t1: 258, u: [[252, 0.57], [257, 0.58]], label: 'the big blue banner on the Red House' },
+    { id: 'rainbow', t0: 450, t1: 462, u: [[452, 0.28], [456, 0.3], [460, 0.45]], pmin: -1.2, label: 'the rainbow crossing' },
+    { id: 'stall', t0: 1104, t1: 1116, u: [[1106, 0.74], [1114, 0.74]], label: 'a lit-up street-food stall' } ] });
 
 // ---------- cards ----------
 function showNF(x) { joyEnd(); if (!v.paused) v.pause(); $('nf-title').textContent = x.label; $('nf').hidden = false; window.__w.nfShown = x.id; lastAct = 'not filmed ' + x.id; }

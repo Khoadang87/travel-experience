@@ -8,7 +8,12 @@
 <link rel="stylesheet" href="../../hoian/test/w50/style.css?v=2">
 <script type="importmap">{"imports":{"three":"../../hoian/vendor/three.module.js"}}</script>
 <script>window.W50 = {ver:'t1',rev:true,xfade:true,lo:48};</script>
-<style>#status:has(#loop-btn){pointer-events:auto}.mk.ahead{pointer-events:auto;cursor:pointer}#loop-btn{display:block;margin:8px auto 2px;padding:0 18px;min-height:40px;flex:none}</style>
+<style>#status:has(#loop-btn){pointer-events:auto}.mk.ahead{pointer-events:auto;cursor:pointer}#loop-btn{display:block;margin:8px auto 2px;padding:0 18px;min-height:40px;flex:none}
+.mk.spot i{background:#f4ecdf;color:#7a1f17;font:700 13px Georgia,serif;font-style:italic}.mk.spot span{font-size:12px}
+#fact{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top) + 150px);max-width:420px;margin:0 auto;padding:12px 40px 12px 14px;z-index:30;border-radius:14px;color:#f4ecdf;font:14px/1.4 system-ui}#fact small{display:block;opacity:.7;font-size:11px;text-transform:uppercase;letter-spacing:.06em}#fact b{display:block;font-size:16px;margin:2px 0 4px}#fact p{margin:0 0 6px}#fact a{color:#e8c27a;font-size:12px}#fact .x{position:absolute;right:6px;top:6px;width:32px;height:32px;border:0;background:none;color:inherit;font-size:16px}
+#hunt{position:fixed;left:10px;top:calc(env(safe-area-inset-top) + 76px);z-index:20;border-radius:12px;padding:0;color:#f4ecdf;font:13px system-ui;max-width:250px}#hunt button{background:none;border:0;color:inherit;font:600 13px system-ui;padding:8px 10px;min-height:34px}#hunt ul{list-style:none;margin:0;padding:0 10px 4px}#hunt li{padding:3px 0;opacity:.85}#hunt li.ok{color:#8fe0a8}#hunt #pass-b{text-decoration:underline}#hunt.pop{animation:hp .6s}@keyframes hp{40%{transform:scale(1.12)}}
+#passport .stamps{display:flex;flex-wrap:wrap;gap:12px;padding:8px 0}.stamp{width:130px;height:130px;border-radius:50%;border:3px double #b8322a;color:#b8322a;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transform:rotate(-8deg);background:#f4ecdf}.stamp b{font:700 15px Georgia,serif}.stamp small{font-size:11px}
+#stamp-toast{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:40;background:#f4ecdf;color:#7a1f17;border:3px double #b8322a;border-radius:14px;padding:12px 18px;text-align:center;font:14px system-ui;cursor:pointer}#stamp-toast b{display:block;font:700 18px Georgia,serif}</style>
 </head><body class="loading">
 <div id="app"></div>
 <div id="dip"></div>
@@ -32,7 +37,7 @@
 </section>
 <section id="places" class="sheet" hidden role="dialog" aria-label="Places">
  <button id="places-x" class="x" type="button" aria-label="Close">✕</button>
- <header><div class="eyebrow">Real 360° footage</div><h2>Where to?</h2><p>Two real night walks through Ximending, linked where they cross. Walk on from wherever you start.</p></header>
+ <header><div class="eyebrow">Real 360° footage</div><h2>Where to?</h2><p>Two real night walks through Ximending, linked where they cross. Walk on from wherever you start. Tap the <i>i</i> markers to learn what you are looking at, and find the things on the hunt list (look at them or tap them) to earn a Ximending passport stamp.</p></header>
  <div id="grid"></div>
 </section>
 <div id="loader"><h1>Ximending</h1><div class="bar"></div><div id="load-msg">Opening Ximending, Taipei…</div></div>
@@ -40,5 +45,5 @@
 <div id="ver"></div>
 <div id="credit">Test build, personal and non-commercial. 360° footage: <a href="https://www.youtube.com/watch?v=FtN_VvhNF98" target="_blank" rel="noopener">MyProGuide</a>, <a href="https://www.youtube.com/watch?v=o3wUcCNhf5k" target="_blank" rel="noopener">MyProGuide</a></div>
 <script src="../../hoian/vendor/hls.min.js"></script>
-<script type="module" src="walk-t1.js?v=t1i-2026-11-03"></script>
+<script type="module" src="walk-t1.js?v=t1j-2026-11-03"></script>
 </body></html>
