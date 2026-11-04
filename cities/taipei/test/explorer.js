@@ -19,11 +19,11 @@
       s0.style.translate = ((lr ? mid - 72 : mid + 72) - sx) + 'px ' + (y - sy) + 'px'; fwd.style.translate = ((lr ? mid + 72 : mid - 72) - fx) + 'px ' + (y - fy) + 'px'; }
     if (fwd) { const want = side ? '<span><b>Main walk</b><small>Keep going straight</small></span>' : plain; if (fwd.innerHTML !== want) fwd.innerHTML = want; } }
   /* hunt hint: a soft pulsing ring on each not-yet-found target while it is in view (x anchored on the item, height at eye level / ground) */
-  const rings = {};
+  const rings = {}; const vAt = (q, p) => { if (!Array.isArray(q)) return q ?? 0; if (p <= q[0][0]) return q[0][1]; for (let k = 1; k < q.length; k++) if (p <= q[k][0]) { const [a, x] = q[k - 1], [b, y] = q[k]; return x + (y - x) * (p - a) / (b - a); } return q[q.length - 1][1]; };
   function hunts() { const w = W(); if (!w.hunts || !w.spotDir || !w.proj || !w.state || !w.huntState) return; let st; try { st = w.state(); } catch (e) { return; } const p = st.pos, got = new Set(w.huntState().found);
     for (const h of w.hunts) { let r = rings[h.id]; if (!r) { r = rings[h.id] = document.createElement('div'); r.className = 'xring'; r.dataset.hunt = h.id; r.hidden = true; document.body.appendChild(r); }
       let show = !got.has(h.id) && p >= h.t0 && p <= h.t1 && !document.body.classList.contains('picking');
-      if (show) { const q = w.proj(w.spotDir(h.id, p), h.v ?? 0); show = q.on; if (show) { const top = 150, bot = innerHeight - 250, x = Math.max(50, Math.min(innerWidth - 50, q.x)), y = Math.max(top, Math.min(bot, q.y)); r.style.left = x + 'px'; r.style.top = y + 'px'; r.classList.toggle('clamped', y !== q.y); } /* kept clear of the top bar and the bottom controls */ }
+      if (show) { const q = w.proj(w.spotDir(h.id, p), vAt(h.v, p)); show = q.on; if (show) { const top = 150, bot = innerHeight - 250, x = Math.max(50, Math.min(innerWidth - 50, q.x)), y = Math.max(top, Math.min(bot, q.y)); r.style.left = x + 'px'; r.style.top = y + 'px'; r.classList.toggle('clamped', y !== q.y); } /* kept clear of the top bar and the bottom controls */ }
       r.hidden = !show; } }
   function tick() { junc(); hunts();
     const w = W(); if (w.relYaw) { const r = -w.relYaw() * 180 / Math.PI; /* look right = positive */ for (const s of sp) { const x = (+s.dataset.d - r) * PX; s.style.left = x + 'px'; s.style.display = Math.abs(x) < 130 ? '' : 'none'; } }
