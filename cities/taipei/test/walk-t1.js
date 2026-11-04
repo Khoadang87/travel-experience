@@ -14,7 +14,8 @@ const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platfor
 const ROOT = window.WALK_ROOT ?? '../', A = ROOT + 'assets/walk/';
 const evlog = []; const log = s => { evlog.push((performance.now() / 1000).toFixed(1) + ' ' + s); if (evlog.length > 60) evlog.shift(); };
 window.__evlog = evlog;
-$('ver').textContent = VER;
+const BUILD = 't1g-2026-11-03'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
+fetch('build.json?cb=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(b => { if (b.build && b.build !== BUILD && !sessionStorage.getItem('t1reload')) { sessionStorage.setItem('t1reload', '1'); location.replace(location.pathname + '?b=' + b.build + location.hash); } }).catch(() => {}); addEventListener('pageshow', e => { if (e.persisted) location.reload(); }); /* t1g: an old tab or cached page reloads itself onto the current build */
 
 // ---------- scene ----------
 const renderer = new THREE.WebGLRenderer({ antialias: false }); renderer.setPixelRatio(Math.min(2, devicePixelRatio)); renderer.setSize(innerWidth, innerHeight);
@@ -115,7 +116,7 @@ let stallMsg = false;
 const fwdAhead = () => { const b = v.buffered, t = v.currentTime; for (let i = 0; i < b.length; i++) if (b.start(i) <= t + 0.1 && b.end(i) > t) return b.end(i) - t; return 0; };
 const keys = {}; addEventListener('keydown', e => { keys[e.code] = true; if (e.code === 'Escape') closeCards(); }); addEventListener('keyup', e => { keys[e.code] = false; });
 const look = { yaw: 0, pitch: 0, drag: null };
-function joyStart(e) { if (joy.id != null) return; joyEl.setPointerCapture?.(e.pointerId); const r = joyEl.getBoundingClientRect(); joy.id = e.pointerId; joy.cx = r.left + r.width / 2; joy.cy = r.top + r.height / 2; joyMove(e); }
+function joyStart(e) { if (joy.id != null) return; try { joyEl.setPointerCapture?.(e.pointerId); } catch (_) {} const r = joyEl.getBoundingClientRect(); joy.id = e.pointerId; joy.cx = r.left + r.width / 2; joy.cy = r.top + r.height / 2; joyMove(e); }
 function joyMove(e) { const R = joyEl.offsetWidth / 2 || 60; let dx = (e.clientX - joy.cx) / R, dy = (e.clientY - joy.cy) / R; const m = Math.hypot(dx, dy); if (m > 1) { dx /= m; dy /= m; } joy.x = dx; joy.y = dy; knob.style.transform = `translate(${dx * R * 0.6}px,${dy * R * 0.6}px)`; }
 function joyEnd() { joy.nextBack = 0; if (joy.id != null && joyEl.hasPointerCapture?.(joy.id)) joyEl.releasePointerCapture(joy.id); joy.id = null; joy.backDone = false; joy.x = joy.y = 0; knob.style.transform = ''; }
 const inJoy = e => { const r = joyEl.getBoundingClientRect(); return e.clientX >= r.left - 16 && e.clientX <= r.right + 16 && e.clientY >= r.top - 16 && e.clientY <= r.bottom + 16; };
@@ -229,10 +230,10 @@ $('nf-back').onclick = faceStreet; $('nf-x').onclick = closeCards; $('nf-places'
 
 // ---------- places ----------
 const PLACES = [
-  { id: 'start', name: "Bronze-statue plaza", area: "Start of the night walk", t: 5, fwd: 1 },
+  { id: 'start', name: "Bronze-statue plaza", area: "Start of the night walk", t: 48, fwd: 1 } /* t1g: 0-45 s the walker stands at the lights; start where he walks */,
   { id: 'terrace', name: "Caf\u00e9 terrace", area: "Lanterns and umbrellas", t: 200, fwd: 1 },
   { id: 'arcade', name: "Covered mural arcade", area: "Under cover", t: 298, fwd: 1 },
-  { id: 'rainbow', name: "Rainbow crosswalk", area: "Ximending landmark", t: 464, fwd: 1 },
+  { id: 'rainbow', name: "Rainbow crosswalk", area: "Ximending landmark", t: 468, fwd: 1 },
   { id: 'plaza', name: "Big-brand corner", area: "Wide pedestrian plaza", t: 548, fwd: 1 },
   { id: 'walkst', name: "Pedestrian street", area: "Lights and crowds", t: 854, fwd: 1 },
   { id: 'shoparcade', name: "Shop-lined arcade", area: "Pink shopfronts", t: 1066, fwd: 1 },
@@ -253,7 +254,7 @@ if (params.get('places') === '0' || params.get('t')) closePlaces(); else openPla
 // integrated and loop-closed at the real junctions. Approximate (dead reckoning, no GPS). Solid = filmed, green rings = real junctions,
 // grey dashes = openings nobody filmed. ----------
 const mm = $('minimap'), mctx = mm.getContext('2d'); let MP = null;
-fetch('t1/path-t1.json?v=2').then(r => r.json()).then(j => { MP = j.pts; window.__w.mapPts = MP.length; drawMap(); }).catch(e => log('map ' + e.message));
+fetch('t1/path-t1.json?v=' + BUILD).then(r => r.json()).then(j => { MP = j.pts; window.__w.mapPts = MP.length; drawMap(); }).catch(e => log('map ' + e.message));
 const mpAt = t => { if (!MP) return null; let lo = 0, hi = MP.length - 1; while (lo < hi) { const m = (lo + hi) >> 1; if (MP[m][0] < t) lo = m + 1; else hi = m; } const q = MP[lo], r = MP[Math.max(0, lo - 1)]; if (!r || q[0] === r[0] || t >= q[0]) return q; if (q[0] - r[0] > 1.5 || clips.some(c => r[0] <= c.hi && q[0] >= c.hi)) return t - r[0] < q[0] - t ? r : q; /* gap between main end and riverside start */ const f = (t - r[0]) / (q[0] - r[0]); return [t, r[1] + (q[1] - r[1]) * f, r[2] + (q[2] - r[2]) * f, q[3]]; };
 function drawMap() { if (!MP) return; const W = 120; mctx.clearRect(0, 0, W, W);
   const seg = (lo, hi) => MP.filter(q => q[0] >= lo && q[0] <= hi);
@@ -279,12 +280,11 @@ renderer.setAnimationLoop(() => { const now = performance.now(), dt = Math.min(0
     if (want === 0) aligning = false;
     if (want > 0) { const x = exitAhead(p); /* t1c: checked even while the view is being swung back, so steering at an exit while holding forward takes it */ if (x) { if (!v.paused) v.pause(); takeExit(x); return; } let n = nfAhead(p); if (n && EXITS.some(x => (!x.clip || (clip && clip.id === x.clip)) && p >= x.t0 - 4 && p <= x.t1 && offOf(x, p) < offOf(n, p))) n = null; /* t1e: aiming closer at a junction just ahead beats a nearby closed opening */ if (n) { if (!v.paused) v.pause(); showNF(n); return; } }
     const rp = relPath(); const aimSoon = DIR === 'F' && EXITS.concat(UNFILMED).some(x => (!x.clip || (clip && clip.id === x.clip)) && p >= x.t0 - 4 && p <= x.t1 && offOf(x, p) < 25 * D2R); /* t1c: facing an exit/opening that is just ahead: keep walking forward toward it instead of swinging the view away */
-    if (want > 0 && !aimSoon && (Math.abs(rp) >= OFF || (aligning && Math.abs(rp) > 0.17))) { aligning = true; if (!v.paused) v.pause(); soundTick(false, p);
-      look.yaw -= Math.sign(rp) * Math.min(Math.abs(rp), 1.3 * dt); edge(true, -Math.sign(rp)); lastAct = 'off-path push';
-      camera.quaternion.setFromEuler(new THREE.Euler(look.pitch, look.yaw + hd, 0, 'YXZ')); renderer.render(scene, camera); return; }
+    if (want > 0 && !aimSoon && (Math.abs(rp) >= OFF || (aligning && Math.abs(rp) > 0.17))) { aligning = true; /* t1g: keep walking FORWARD while the view eases back toward the street; never stop or reverse on an up push */
+      look.yaw -= Math.sign(rp) * Math.min(Math.abs(rp), 1.3 * dt); edge(true, -Math.sign(rp)); lastAct = 'off-path push'; } else
     edge(false);
     const ry = Math.abs(relYaw()); if (ry < 80 * D2R) backWant = false; /* t1b: a forward push never reverses the footage by itself; only Turn back / pulling the stick down arms reverse */
-    const wd = revOn && clip && backWant && ry > 100 * D2R ? 'R' : 'F';
+    const wd = revOn && clip && backWant && ry > 100 * D2R ? 'R' : 'F'; /* t1g rule: stick UP = forward stream; reverse only after Turn back / stick DOWN (backWant), and only while still facing back */
     if (want > 0 && wd !== DIR) { setDir(wd, 'push'); return; }
     const atEnd = DIR === 'F' ? (clip && p >= clip.hi - 0.3) : (clip && p <= clip.lo + 0.3);
     if (want > 0 && atEnd) { if (!v.paused) v.pause(); if (false) { const st0 = $('status'); if (!st0.querySelector('#loop-btn')) { st0.innerHTML = 'End of this filmed walk. <button id="loop-btn" class="btn pri" type="button">Round the square again</button>'; $('loop-btn').onclick = e => { e.stopPropagation(); st0.textContent = ''; const x = EXITS.find(q => q.id === 'loop-start'); window.__w.exits = (window.__w.exits || 0) + 1; log('end loop'); go(x.to, 'end loop', x.rot * -D2R); }; } } else $('status').textContent = DIR === 'F' ? 'End of the filmed street. Pick another place to keep going.' : 'Start of this filmed walk. Pick another place to keep going.'; }
@@ -305,14 +305,14 @@ const T0 = performance.now();
   /* w51: native iPhone HLS gets one fixed level; time a 400 KB slice first and drop to f1280 (1.8 Mbps) on a slow link, since f2560 (6 Mbps) cannot keep up there */
   if (isIOS && url.includes('f2560') && params.get('q') !== 'hi') { try { const pl = await (await fetch(url)).text(), seg = new URL(pl.split('\n').find(l => /\.m4s/.test(l) && !/^#/.test(l)).trim(), url).href, t0 = performance.now(), rb = await (await fetch(seg, { headers: { Range: 'bytes=0-399999' } })).arrayBuffer(), mbps = rb.byteLength * 8 / ((performance.now() - t0) * 1000); log('probe ' + mbps.toFixed(1) + ' Mbps'); if (mbps < 7 || params.get('q') === 'lo') { url = url.replace('f2560', 'f1280'); slowNet = true; } } catch (e) { log('probe failed'); } }
   const r = await (await fetch(ROOT + 'routes.json', { cache: 'no-cache' })).json(); clips = r.routes[0].clips; clip = clips[0];
-  fetch(A + 'heading_foe.json?v=2').then(x => x.json()).then(h => { HEAD = h; hd = headAt(Math.max(pos(), c.lo || 0)); drawMap(); }).catch(() => {});
+  const headP = fetch(A + 'heading_foe.json?v=' + BUILD).then(x => x.json()).then(h => { HEAD = h; if (ready) { hd = headAt(pos()); look.yaw = 0; } drawMap(); }).catch(() => {});
   if (c.audio) audio.src = c.audio; else $('sound').hidden = true; /* t1: no ambience track yet */
   $('load-msg').textContent = 'Connecting to the street…';
   if (!(await probe(url))) throw new Error('The video stream is not reachable. Check the connection and reload.');
   D = c.duration; LO = Math.max(c.lo || 0, CFG.lo || 0); /* w51: start at 11 s, past the man walking close to the operator-removal patch (qa/w51/melt) */ const t0 = +(params.get('t') || LO); attach(st.F, url, t0);
   $('load-msg').textContent = 'Loading real 360° footage…';
   await new Promise((res, rej) => { const to = setTimeout(() => rej(new Error('The video took too long to load.')), 45000); st.F.v.addEventListener('loadedmetadata', () => { clearTimeout(to); res(); }, { once: true }); });
-  await seekTo(t0); mat.map = tex; mat.needsUpdate = true; ready = true; document.body.classList.remove('loading'); window.__ttff = performance.now() - T0; log('ready');
+  await seekTo(t0); await headP; hd = headAt(pos()); look.yaw = 0; look.pitch = 0; /* t1g ROOT CAUSE FIX: face the walking direction AT THE START SPOT. hd used to be computed when the heading file arrived, before the seek, i.e. at t=0 where the walker stands still and the heading points backwards, so the view started ~160 deg from the walk */ mat.map = tex; mat.needsUpdate = true; ready = true; document.body.classList.remove('loading'); window.__ttff = performance.now() - T0; log('ready');
   if (REV && c.rev && slowNet) log('rev skipped on slow link'); else if (REV && c.rev) { const ru = c.base + c.rev; if (await probe(ru)) { RD = c.revDuration || c.duration; attach(st.R, ru, media('R', pos())); revOn = true; log('rev attached'); } else log('rev unreachable'); }
 } catch (e) { $('error').hidden = false; $('error').textContent = e.message; log('error ' + e.message); } })();
 Object.assign(window.__w, { ver: VER, state: () => ({ pos: pos(), backWant, hd, ready, clip: clip && clip.id, dir: DIR, revOn, relYaw: relYaw() / D2R, playing: !v.paused, fading }), go, goPlace, takeExit, showNF, setLook: (d, pt) => { look.yaw = d * D2R; if (pt != null) look.pitch = pt * D2R; }, key: (k, on) => { keys[k] = on; }, lastAct: () => lastAct, exits: 0, places: PLACES, headAt, ttff: () => window.__ttff, switches: () => switches.slice() });
