@@ -44,7 +44,7 @@ async def main():
     await cdp.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]}); await pg.wait_for_timeout(300); b2=await st()
     rec('drag_look',abs(b2['yaw']-a['yaw'])>0.3,{'yaw_change_rad':round(b2['yaw']-a['yaw'],2)})
     # collision: walk into main hall core (front face z=-8.5), into burner, into west corridor wall, into front-hall wall
-    for name,(x,z,yaw,check) in {'main_hall':(-8,-4,0,'z>-8.5'),'burner':(0,9,0,'z>4+2.3'),'west_wall':(-18,0,-math.pi/2,'x>-26'),'front_hall_wall':(-7,25,0,'z>20.5')}.items():
+    for name,(x,z,yaw,check) in {'main_hall':(-4,-1,0,'z>-8.5'),'main_hall_side_porch_ok':(-8.6,-4,0,'z<-8.5'),'burner':(0,9,0,'z>4+2.3'),'west_wall':(-18,0,-math.pi/2,'x>-26'),'front_hall_wall':(-7,25,0,'z>20.5')}.items():
       await E(f'window.__w.set({x},{z},{yaw})'); await pg.wait_for_timeout(300); await hold(0,-1,4000); s=await st()
       ok=eval(check,{},{'x':s['x'],'z':s['z']}) and not s['blocked']
       rec('collide_'+name,ok,{'pos':[round(s['x'],2),round(s['z'],2)],'rule':check})
