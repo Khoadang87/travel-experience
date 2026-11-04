@@ -1,62 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Walk Taipei from your phone: real 360° street walks</title><link rel="icon" href="data:,">
-<meta name="description" content="Walk real streets and temples in 360°, filmed with real people. Try Longshan Temple and Ximending free.">
-<style>
-*{box-sizing:border-box}body{margin:0;background:#0d0d0f;color:#eee;font:16px/1.5 system-ui,-apple-system,sans-serif}
-main{max-width:560px;margin:0 auto;padding:28px 18px 60px}
-h1{font-size:30px;line-height:1.15;margin:8px 0 10px}h2{font-size:20px;margin:36px 0 12px}
-.k{color:#e8b04a;letter-spacing:.12em;font-size:12px;text-transform:uppercase}.sub{color:#bbb}
-.card{background:#18181c;border:1px solid #2a2a30;border-radius:16px;overflow:hidden;margin:14px 0}
-.card img{width:100%;height:220px;object-fit:cover;display:block}.card div{padding:14px 16px}
-.card h3{margin:0 0 4px;font-size:18px}.card p{margin:0 0 12px;color:#bbb;font-size:15px}
-.btn{display:inline-block;background:#e8b04a;color:#111;font-weight:700;padding:12px 18px;border-radius:12px;text-decoration:none;border:0;font-size:16px;cursor:pointer}
-.btn2{background:#2a2a30;color:#eee}ul{padding-left:20px;color:#ccc}
-.tiers{display:grid;gap:12px}.tier{border:1px solid #2a2a30;border-radius:14px;padding:14px 16px;background:#141418}
-.tier b{font-size:18px}.soon{display:inline-block;font-size:12px;background:#33302a;color:#e8b04a;border-radius:8px;padding:2px 8px;margin-left:6px}
-input{width:100%;padding:12px;border-radius:10px;border:1px solid #333;background:#111;color:#eee;font-size:16px;margin:6px 0}
-.opts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.opts button{background:#222;color:#eee;border:1px solid #444;border-radius:10px;padding:8px 12px;font-size:15px}
-.opts button.on{border-color:#e8b04a;color:#e8b04a}#msg{color:#9c9;min-height:22px}small,.note{color:#888;font-size:13px}
-a{color:#9cf}
-#pass{background:#141418;border:1px solid #2a2a30;border-radius:16px;padding:14px 16px;margin:14px 0}#pass h2{margin:0 0 4px}
-.stamps{display:flex;flex-wrap:wrap;gap:12px;padding:10px 0 4px}.stamp{width:120px;height:120px;border-radius:50%;border:3px double #b8322a;color:#b8322a;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transform:rotate(-8deg);background:#f4ecdf;padding:6px}.stamp b{font:700 15px Georgia,serif}.stamp small{font-size:11px;color:#7a1f17}
-.stamp.empty{text-decoration:none;border-style:dashed;border-color:#555;background:none;color:#777;transform:none}.stamp.empty small{color:#777}
-</style></head><body><main>
-<div class="k">Real 360° walks · test preview</div>
-<h1>Walk into Taipei's Longshan Temple from your phone.</h1>
-<p class="sub">Real footage with real people and real sound. Push forward to walk, drag to look in every direction. No 3D, no AI scenery.</p>
-
-<div class="card"><img src="home/longshan.jpg" alt="Inside Longshan Temple, real 360 footage"><div>
-<h3>Longshan Temple walk-in</h3><p>From the plaza, through the gate, into the courtyard and main hall, plus a side path to an open courtyard.</p>
-<a class="btn" href="cities/taipei/test/longshan-1.html">Try free</a></div></div>
-
-<div class="card"><img src="home/ximending.jpg" alt="Ximending street at night, real 360 footage"><div>
-<h3>Ximending at night</h3><p>Neon, street food and crowds in Taipei's busiest walking district, with turn-offs at real junctions.</p>
-<a class="btn" href="cities/taipei/test/real-t1.html">Try free</a></div></div>
-<section id="pass" aria-labelledby="pass-h"><h2 id="pass-h">My passport</h2><p class="sub" id="pass-sub">Stamps you collect on the walks, saved in this browser.</p><div class="stamps" id="stamps"></div></section>
-<p class="note">Best with headphones on Wi-Fi. <a href="cities/">All cities</a></p>
-
-<h2>Coming next</h2>
-<ul><li>Spot hunts and passport stamps for more places</li><li>Living moments: the scene keeps moving when you stop</li><li>Short stories from the locals who live there</li><li>Walk the same street with a friend</li></ul>
-
-<p class="note">Free to try. Future extras may come later; the walks above stay free.</p>
-
-<h2>Get early access</h2>
-<p class="sub">Get told when spot hunts, passport stamps and new walks go live.</p>
-<input id="nm" placeholder="Name" autocomplete="name"><input id="em" type="email" placeholder="Email" autocomplete="email">
-<button class="btn" id="go">I'm interested</button>
-<p id="msg"></p>
-<small>Test version: your answer is only saved in this browser for now, nothing is sent anywhere yet.</small>
-</main>
-<script>
-(()=>{const W=[{id:'taipei-longshan',name:'Longshan Temple',city:'Taipei',href:'cities/taipei/test/longshan-1.html'},{id:'taipei-ximending',name:'Ximending',city:'Taipei',href:'cities/taipei/test/real-t1.html'}];
-let P={stamps:{}};try{P=JSON.parse(localStorage.getItem('tePassport'))||P}catch(e){}const S=P.stamps||{},esc=x=>String(x).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';');
-const ids=[...W.map(w=>w.id),...Object.keys(S).filter(k=>!W.some(w=>w.id===k))],n=Object.keys(S).length;
-document.getElementById('stamps').innerHTML=ids.map(id=>{const s=S[id],w=W.find(x=>x.id===id)||{name:s.name,city:s.city};return s?`<div class="stamp" data-stamp="${esc(id)}"><b>${esc(s.name)}</b><small>${esc(s.city)} · ${new Date(s.at).toLocaleDateString()}</small></div>`:`<a class="stamp empty" data-empty="${esc(id)}" href="${w.href}"><b>${esc(w.name)}</b><small>Not yet: find everything on the hunt list</small></a>`}).join('');
-document.getElementById('pass-sub').textContent=n?`${n} of ${ids.length} stamps collected, saved in this browser.`:'No stamps yet. Find everything on a walk\u2019s hunt list, or walk to its end, to earn one. Saved in this browser.';})();
-
-document.getElementById('go').onclick=()=>{const n=nm.value.trim(),e=em.value.trim(),m=document.getElementById('msg');
-if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){m.style.color='#e99';m.textContent='Please enter a valid email.';return}
-const l=JSON.parse(localStorage.getItem('interest')||'[]');l.push({n,e,t:Date.now()});localStorage.setItem('interest',JSON.stringify(l));
-m.style.color='#9c9';m.textContent='Thanks'+(n?', '+n:'')+'! You\u2019re on the early list.'};
-</script></body></html>
+<title>Travel Experience: 3D world preview</title><link rel="icon" href="data:,">
+<style>body{margin:0;background:#0d0d0f;color:#eee;font:16px/1.5 system-ui,-apple-system,sans-serif}main{max-width:560px;margin:0 auto;padding:40px 18px}h1{font-size:28px;line-height:1.2}.btn{display:inline-block;background:#e8b04a;color:#111;font-weight:700;padding:12px 18px;border-radius:12px;text-decoration:none}p{color:#bbb}</style>
+</head><body><main>
+<h1>Walk around Longshan Temple, in 3D</h1>
+<p>An early prototype: move freely in every direction while people go about their day around you.</p>
+<a class="btn" href="cities/taipei/test/world-ls.html">Try the 3D courtyard</a>
+</main></body></html>

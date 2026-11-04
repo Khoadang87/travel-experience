@@ -1,1 +1,0 @@
-{"defaultRoute": "longshan", "routes": [{"id": "longshan", "name": "Longshan Temple walk-in", "manifest": "assets/walk/walk.json", "duration": 1001.4, "clips": [{"id": "ls", "lo": 0, "hi": 547.5}, {"id": "kb", "lo": 548.7, "hi": 1000.9}]}]}
