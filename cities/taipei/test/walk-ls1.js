@@ -14,7 +14,7 @@ const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platfor
 const ROOT = window.WALK_ROOT ?? '../', A = ROOT + 'assets/walk/';
 const evlog = []; const log = s => { evlog.push((performance.now() / 1000).toFixed(1) + ' ' + s); if (evlog.length > 60) evlog.shift(); };
 window.__evlog = evlog;
-const BUILD = 'ls2a-2026-11-03'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
+const BUILD = 'ls3a-2026-11-03'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
 fetch('ls1/build.json?cb=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(b => { if (b.build && b.build !== BUILD && !sessionStorage.getItem('ls2reload')) { sessionStorage.setItem('ls2reload', '1'); location.replace(location.pathname + '?b=' + b.build + location.hash); } }).catch(() => {}); addEventListener('pageshow', e => { if (e.persisted) location.reload(); }); /* t1g: an old tab or cached page reloads itself onto the current build */
 
 // ---------- scene ----------
@@ -120,7 +120,7 @@ function joyStart(e) { if (joy.id != null) return; try { joyEl.setPointerCapture
 function joyMove(e) { const R = joyEl.offsetWidth / 2 || 60; let dx = (e.clientX - joy.cx) / R, dy = (e.clientY - joy.cy) / R; const m = Math.hypot(dx, dy); if (m > 1) { dx /= m; dy /= m; } joy.x = dx; joy.y = dy; knob.style.transform = `translate(${dx * R * 0.6}px,${dy * R * 0.6}px)`; }
 function joyEnd() { joy.nextBack = 0; if (joy.id != null && joyEl.hasPointerCapture?.(joy.id)) joyEl.releasePointerCapture(joy.id); joy.id = null; joy.backDone = false; joy.x = joy.y = 0; knob.style.transform = ''; }
 const inJoy = e => { const r = joyEl.getBoundingClientRect(); return e.clientX >= r.left - 16 && e.clientX <= r.right + 16 && e.clientY >= r.top - 16 && e.clientY <= r.bottom + 16; };
-addEventListener('pointerdown', e => { if (e.target.closest && e.target.closest('button,a,#explore,#places,#minimap,input')) return; if (joy.id == null && inJoy(e)) { joyStart(e); e.preventDefault(); return; } if (look.drag == null) look.drag = { id: e.pointerId, x: e.clientX, y: e.clientY }; }, { capture: true, passive: false });
+addEventListener('pointerdown', e => { if (e.target.closest && e.target.closest('button,a,#explore,#places,#minimap,input,#fact,#hunt,#passport,#stamp-toast')) return; if (joy.id == null && inJoy(e)) { joyStart(e); e.preventDefault(); return; } if (look.drag == null) look.drag = { id: e.pointerId, x: e.clientX, y: e.clientY }; }, { capture: true, passive: false });
 addEventListener('pointermove', e => { if (e.pointerId === joy.id) { joyMove(e); return; } const d = look.drag; if (d && d.id === e.pointerId) { const k = 1.6 * (camera.fov * Math.PI / 180) / innerHeight; look.yaw += (e.clientX - d.x) * k; look.pitch = Math.max(-1.55, Math.min(1.55, look.pitch + (e.clientY - d.y) * k)); d.x = e.clientX; d.y = e.clientY; } }, { capture: true });
 const up = e => { if (e.pointerId === joy.id) joyEnd(); if (look.drag && look.drag.id === e.pointerId) look.drag = null; };
 addEventListener('pointerup', up, true); addEventListener('pointercancel', up, true);
@@ -143,13 +143,13 @@ const sndUI = () => { $('sound').innerHTML = soundOn ? '<svg viewBox="0 0 24 24"
 sndUI();
 const unlock = () => { if (unlocked) return; unlocked = true; audio.muted = true; const pr = audio.play(); if (pr) pr.then(() => { audio.pause(); audio.muted = false; }).catch(() => { audio.muted = false; unlocked = false; }); else { audio.pause(); audio.muted = false; } };
 addEventListener('pointerdown', unlock, { capture: true }); addEventListener('touchend', unlock, { capture: true }); addEventListener('keydown', unlock, { capture: true });
-$('sound').onclick = () => { soundOn = !soundOn; try { localStorage.setItem(SK, soundOn ? 'on' : 'off'); } catch (e) {} sndUI(); if (!soundOn) { audio.pause(); audio.volume = 0; } };
+$('sound').onclick = () => { soundOn = !soundOn; try { localStorage.setItem(SK, soundOn ? 'on' : 'off'); } catch (e) {} sndUI(); if (!soundOn) { audio.pause(); audio.volume = 0; } if (LV.el) LV.el.muted = !soundOn; };
 function soundTick(walking, p) { if (!soundOn || !walking) { if (!audio.paused) audio.pause(); return; } audio.volume = 0.85; if (Math.abs(audio.currentTime - p) > 1.5 && DIR === 'F') audio.currentTime = p; audio.playbackRate = Math.max(0.5, Math.min(1, v.playbackRate)); if (audio.paused) audio.play().catch(() => {}); }
 
 // ---------- clips, junctions, jumps ----------
 const clipAt = t => clips.find(c => t >= c.lo - 0.5 && t <= c.hi + 0.5) || clips[0];
 let jumping = false, lastJ = 0;
-async function jump(t) { jumpGen++; backWant = false; jumping = true; $('status').textContent = ''; clip = clipAt(t); try { while (parking) await new Promise(r => setTimeout(r, 30)); /* w30: a park of this stream finishing after our seek used to drag the walk back to the old spot */ if (DIR !== 'F') { st.R.v.pause(); DIR = 'F'; sync(); mat.map = tex; mat.needsUpdate = true; } await seekTo(t); clip = clipAt(t); hd = headAt(t); look.yaw = 0; look.pitch = 0; window.__w.lastJump = t; } finally { lastPos = pos(); jumping = false; } }
+async function jump(t) { jumpGen++; if (LV.on) liveStop('jump'); backWant = false; jumping = true; $('status').textContent = ''; clip = clipAt(t); try { while (parking) await new Promise(r => setTimeout(r, 30)); /* w30: a park of this stream finishing after our seek used to drag the walk back to the old spot */ if (DIR !== 'F') { st.R.v.pause(); DIR = 'F'; sync(); mat.map = tex; mat.needsUpdate = true; } await seekTo(t); clip = clipAt(t); hd = headAt(t); look.yaw = 0; look.pitch = 0; window.__w.lastJump = t; } finally { lastPos = pos(); jumping = false; } }
 function checkJunction(p) { if (performance.now() - lastJ < 3000) return; for (const j of junctions) { if (j.clip !== clip.id) continue; if (p >= j.at - 0.3 && p <= j.at + (j.window || 2)) { lastJ = performance.now(); log('junction ' + j.id); window.__w.lastJunction = j.id; jump(j.toTime); return; } } }
 
 const wrap = a => Math.atan2(Math.sin(a), Math.cos(a)), D2R = Math.PI / 180;
@@ -172,7 +172,7 @@ async function go(t, why, shift) { if (fading || !ready) return; fading = true; 
     /* heading match: keep your angle to the direction of travel */
     if (shift != null) { look.yaw = wrap(r0 + h0 + shift - h1); hd = h1; if (snapped) snap.rotation.y = shift; } /* w51: same place filmed twice, keep landmarks where they were */
     else { look.yaw = r0; hd = h1; if (snapped) snap.rotation.y = h1 - h0; }
-    window.__w.lastGo = { t, why, landed: pos(), snapped }; if (!why.startsWith('place')) { const q = PLACES.slice().sort((a, b) => Math.abs(a.t - t) - Math.abs(b.t - t))[0]; $('where').textContent = q && Math.abs(q.t - t) < 60 ? 'Near ' + q.name : 'Ximending streets'; }
+    window.__w.lastGo = { t, why, landed: pos(), snapped }; if (!why.startsWith('place')) { const q = PLACES.slice().sort((a, b) => Math.abs(a.t - t) - Math.abs(b.t - t))[0]; $('where').textContent = q && Math.abs(q.t - t) < 60 ? 'Near ' + q.name : 'Longshan Temple'; }
     if (snapped) { await new Promise(r => setTimeout(r, 60)); const T = 500, s0 = performance.now(); await new Promise(res => { const st = () => { const k = Math.min(1, (performance.now() - s0) / T); snap.material.opacity = 1 - k * k * (3 - 2 * k); k < 1 ? requestAnimationFrame(st) : res(); }; st(); }); snap.visible = false; }
     else dip.classList.remove('on');
   } finally { fading = false; } }
@@ -208,6 +208,91 @@ function placeMarkers() { if (!ready || !clip) return; const p = pos(), card = !
 setInterval(placeMarkers, 80);
 const exitAhead = p => { if (Math.abs(relYaw()) <= 15 * D2R) return null; let best = null, bo = 25 * D2R; for (const x of EXITS) { if (!live(x, p)) continue; const o = offOf(x, p); if (o < bo) { bo = o; best = x; } } if (!best) { exCand = null; return null; } const now = performance.now(); if (!exCand || exCand.x !== best) { exCand = { x: best, s: now }; return null; } return now - exCand.s >= 300 ? best : null; }; let exCand = null; /* t1d: view must rest on the exit 0.3 s, so swinging past one doesn't take it; nearest exit wins when two overlap (j4b/j5b) */
 const nfAhead = p => UNFILMED.find(x => live(x, p) && offOf(x, p) < 25 * D2R && Math.abs(relYaw()) > 20 * D2R);
+
+// ---------- ls3: living moments. Stop near a spot that Itou filmed from a fixed tripod (free 8K 360, itouvrvlog terms: free use, edits allowed)
+// and after ~1.5 s the view crossfades into that real looping 360 shot, so people and incense keep moving while you stand. Push up: it fades
+// back and the walk resumes forward at once. rot = yaw (deg) that lines the tripod shot up with the walk frame (SIFT matches, qa/taipei/temple/live). ----------
+const LB = 'https://pub-ea3274d70651434b8581144229d8b102.r2.dev/taipei/longshan/live/';
+const LIVE = [
+  { id: 'hall', clip: 'ls', t0: 238, t1: 249, rot: 161, name: 'Main hall courtyard' },
+  { id: 'plaza', clip: 'ls', t0: 523, t1: 537, rot: -75, name: 'Temple plaza' } ];
+const liveGeo = new THREE.SphereGeometry(46, 128, 64); liveGeo.scale(-1, 1, 1);
+const liveMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthTest: false, depthWrite: false }); liveMat.precision = 'highp';
+const liveMesh = new THREE.Mesh(liveGeo, liveMat); liveMesh.renderOrder = 6; liveMesh.visible = false; liveMesh.frustumCulled = false; scene.add(liveMesh);
+const LV = { el: null, tex: null, id: null, on: false, busy: false, frames: 0, shown: 0 };
+const liveUHD = isIOS && !!document.createElement('video').canPlayType('video/mp4; codecs="hvc1.1.6.L153.B0"');
+const liveSrc = x => LB + x.id + (liveUHD && !slowNet ? '_3840.mp4' : '_2560.mp4');
+const liveNear = p => DIR === 'F' && clip && LIVE.find(x => x.clip === clip.id && p >= x.t0 && p <= x.t1);
+function livePrep(x) { if (LV.id === x.id && LV.el) return; liveDrop(); const el = document.createElement('video'); el.muted = true; el.playsInline = true; el.setAttribute('playsinline', ''); el.loop = true; el.crossOrigin = 'anonymous'; el.preload = 'auto';
+  el.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none;z-index:-1'; document.body.appendChild(el); el.src = liveSrc(x);
+  const fr = () => { if (el !== LV.el) return; LV.frames++; el.requestVideoFrameCallback(fr); }; if (el.requestVideoFrameCallback) el.requestVideoFrameCallback(fr);
+  LV.el = el; LV.id = x.id; LV.frames = 0; LV.tex = new THREE.VideoTexture(el); LV.tex.colorSpace = THREE.SRGBColorSpace; LV.tex.minFilter = LV.tex.magFilter = THREE.LinearFilter; LV.tex.generateMipmaps = false; log('live prep ' + x.id); }
+function liveDrop() { if (!LV.el) return; LV.el.pause(); LV.el.removeAttribute('src'); LV.el.load(); LV.el.remove(); LV.tex && LV.tex.dispose(); LV.el = LV.tex = null; LV.id = null; liveMesh.visible = false; liveMat.opacity = 0; LV.on = false; }
+let fadeGen = 0; const fadeTo = (o, T) => new Promise(res => { const g = ++fadeGen, a = liveMat.opacity, s0 = performance.now(); const st = () => { if (g !== fadeGen) return res(); const k = Math.min(1, (performance.now() - s0) / T); liveMat.opacity = a + (o - a) * k * k * (3 - 2 * k); k < 1 ? requestAnimationFrame(st) : res(); }; st(); });
+async function liveStart(x) { if (LV.busy || LV.on) return; LV.busy = true; LV.cancel = false; try { livePrep(x); const el = LV.el; el.muted = !soundOn; const f0 = LV.frames;
+    await Promise.race([el.play().catch(e => { log('live play ' + e.name); el.muted = true; return el.play().catch(() => {}); }), new Promise(r => setTimeout(r, 2500))]);
+    for (let k = 0; k < 150 && LV.frames <= f0 && el.readyState < 3; k++) await new Promise(r => setTimeout(r, 20));
+    if (el.readyState < 2 || speed() > 0 || LV.cancel || el !== LV.el) { el.pause(); log('live not ready ' + x.id); return; }
+    liveMat.map = LV.tex; liveMat.needsUpdate = true; liveMesh.rotation.y = -x.rot * D2R; liveMesh.visible = true; LV.on = true; LV.shown++; window.__w.live = { id: x.id, on: true, at: pos(), n: LV.shown };
+    $('status').innerHTML = '<span class="live-dot"></span> Live here · ' + x.name + ' · push up to walk on'; log('live on ' + x.id); await fadeTo(1, 900);
+  } finally { LV.busy = false; } }
+async function liveStop(why) { LV.cancel = true; if (!LV.on) return; LV.on = false; window.__w.live = Object.assign(window.__w.live || {}, { on: false, stoppedBy: why }); log('live off ' + why); if (/Live here/.test($('status').textContent)) $('status').textContent = ''; await fadeTo(0, 450); if (!LV.on) { liveMesh.visible = false; LV.el && LV.el.pause(); } }
+window.__w.liveState = () => ({ on: LV.on, id: LV.id, opacity: +liveMat.opacity.toFixed(2), playing: !!(LV.el && !LV.el.paused), t: LV.el ? +LV.el.currentTime.toFixed(2) : null, frames: LV.frames, src: LV.el && LV.el.currentSrc });
+
+// ---------- ls3: things to spot. Tap markers on real things in the footage; each opens a short fact card with its source.
+// Markers sit at the middle of the screen (never over the stick) and the card does not stop the walk. u = image position (0..1) in the walk frame;
+// fwd: true = the building straight ahead. ----------
+const SRC = { moc: ['Ministry of Culture, Taiwan', 'https://www.moc.gov.tw/en/News_Content2.aspx?n=507&s=18447'], loc: ['Library of Congress (World Digital Library)', 'https://hdl.loc.gov/loc.wdl/wdl.2879'] };
+const SPOTS = [
+  { id: 'gate', t0: 77, t1: 84, u: [[78, 0.74], [82, 0.72]], label: 'Front gate', title: 'Built by Fujian settlers, 1738', body: 'Longshan Temple was founded in 1738. Immigrants from Jinjiang, Nan\'an and Hui\'an, three cities in Fujian, paid for it to house a Guanyin statue brought from Fujian.', src: 'moc' },
+  { id: 'fronthall', t0: 86, t1: 93, u: [[86, 0.83], [90, 0.86]], label: 'Front hall', title: 'Rebuilt by Wang Yishun', body: 'After an 1815 earthquake, an 1867 rainstorm and termite damage, the temple was restored from 1919. Master builder Wang Yishun gave it today\'s palace-style look, including the octagonal ceiling above the front hall.', src: 'moc' },
+  { id: 'mainhall', t0: 249, t1: 257, fwd: true, label: 'Main hall', title: 'The statue that survived', body: 'In 1945 air raids destroyed the main hall, but the Guanyin statue on its lotus stand survived. Worshippers took that as a sign of her power.', src: 'moc' },
+  { id: 'dragons', t0: 259, t1: 265, u: [[260, 0.18], [264, 0.31]], label: 'Dragon column', title: 'Coiled-dragon columns', body: 'Dragons coil around the temple\'s columns. The pair in the front hall is cast in bronze, part of the mix of craft from different periods that the temple keeps.', src: 'moc' },
+  { id: 'backhalls', t0: 330, t1: 337, u: [[330, 0.93], [336, 0.95]], label: 'Rear shrines', title: 'Many gods under one roof', body: 'Besides Guanyin, the temple honours the sea goddess Matsu, Guan Yu, Wenchang (god of literature) and Yue Lao (the matchmaker), mixing Buddhist, Taoist and folk faith.', src: 'moc' },
+  { id: 'plaza', t0: 517, t1: 532, fwd: false, u: [[520, 0.62], [530, 0.6]], label: 'Monga', title: 'Where Taipei began', body: 'The temple stands in Monga (Wanhua), Taipei\'s oldest district. In the Sino-French War of 1884-85 it was a rallying point for the defence of Taiwan.', src: 'loc' } ];
+const uAt = (q, p) => { if (p <= q[0][0]) return q[0][1]; for (let k = 1; k < q.length; k++) if (p <= q[k][0]) { const [a, x] = q[k - 1], [b, y] = q[k]; return x + (y - x) * (p - a) / (b - a); } return q[q.length - 1][1]; };
+const spotDir = (x, p) => x.fwd ? headAt(p) : Math.PI / 2 - (uAt(x.u, p) - 0.5) * 2 * Math.PI;
+const factEl = document.createElement('section'); factEl.id = 'fact'; factEl.className = 'glass'; factEl.hidden = true; factEl.setAttribute('role', 'dialog'); factEl.setAttribute('aria-live', 'polite'); document.body.appendChild(factEl);
+function showFact(x) { const [sn, su] = SRC[x.src]; factEl.innerHTML = `<button class="x" type="button" aria-label="Close">✕</button><small>${x.label}</small><b>${x.title}</b><p>${x.body}</p><a href="${su}" target="_blank" rel="noopener">Source: ${sn}</a>`; factEl.querySelector('.x').onclick = e => { e.stopPropagation(); factEl.hidden = true; }; factEl.hidden = false; factEl.dataset.id = x.id; factEl.dataset.t = pos(); window.__w.fact = x.id; lastAct = 'fact ' + x.id; }
+const spEls = SPOTS.map(x => mkMarker(x, 'spot', '<i>i</i><span>' + x.label + '</span>', e => { e && e.stopPropagation(); showFact(x); }));
+window.__w.spots = () => SPOTS.map((x, i) => ({ id: x.id, shown: !spEls[i].hidden }));
+function placeSpots() { if (!ready || !clip) return; const p = pos(), card = !$('nf').hidden || !$('places').hidden;
+  SPOTS.forEach((x, i) => { const el = spEls[i], on = clip.id === 'ls' && p >= x.t0 && p <= x.t1 && !card; if (!on) { el.hidden = true; return; } const s = scr(spotDir(x, p)); el.hidden = !s.on; if (s.on) { el.style.left = Math.max(70, Math.min(innerWidth - 70, s.x)) + 'px'; el.style.top = innerHeight * 0.36 + 'px'; } });
+  if (!factEl.hidden && Math.abs(pos() - +factEl.dataset.t) > 25) factEl.hidden = true; }
+setInterval(placeSpots, 80);
+
+// ---------- ls3: spot hunt + passport stamp. Targets are real things in the walk footage (image position u at walk time t, read off the frames).
+// Found when you hold it near the middle of the view (within 10 deg) for 0.4 s, or tap it. All found, or reaching the end of the walk = 'Longshan Temple' stamp.
+// Passport is shared by all cities: localStorage 'tePassport' = { v: 1, stamps: { id: { name, city, at } } }. ----------
+const HUNT = [
+  { id: 'censer', t0: 135, t1: 145, u: [[136, 0.63], [144, 0.63]], label: 'the big incense burner' },
+  { id: 'tower', t0: 239, t1: 248, u: [[240, 0.27], [248, 0.27]], label: 'a tower with a pagoda roof' },
+  { id: 'dragon', t0: 258, t1: 266, u: [[260, 0.18], [264, 0.31]], label: 'a coiled-dragon column' },
+  { id: 'lantern', t0: 434, t1: 447, u: [[436, 0.47], [442, 0.45], [446, 0.33]], label: 'a painted lantern' } ];
+const STAMP = { id: 'taipei-longshan', name: 'Longshan Temple', city: 'Taipei' };
+const PK = 'tePassport', HK = 'huntLongshan';
+const pp = () => { try { return JSON.parse(localStorage.getItem(PK)) || { v: 1, stamps: {} }; } catch (e) { return { v: 1, stamps: {} }; } };
+const found = new Set((() => { try { return JSON.parse(localStorage.getItem(HK)) || []; } catch (e) { return []; } })());
+const huntEl = document.createElement('div'); huntEl.id = 'hunt'; huntEl.className = 'glass'; document.body.appendChild(huntEl);
+const passEl = document.createElement('section'); passEl.id = 'passport'; passEl.className = 'sheet'; passEl.hidden = true; passEl.setAttribute('role', 'dialog'); passEl.setAttribute('aria-label', 'Passport'); document.body.appendChild(passEl);
+let huntOpen = false;
+function drawHunt() { const st = pp().stamps[STAMP.id]; huntEl.innerHTML = `<button type="button" id="hunt-t">🔎 Find ${found.size}/${HUNT.length}${st ? ' · 🏮 stamped' : ''}</button>` + (huntOpen ? '<ul>' + HUNT.map(h => `<li class="${found.has(h.id) ? 'ok' : ''}">${found.has(h.id) ? '✓' : '○'} Find ${h.label}</li>`).join('') + '</ul><button type="button" id="pass-b">Passport</button>' : '');
+  $('hunt-t').onclick = e => { e.stopPropagation(); huntOpen = !huntOpen; drawHunt(); }; if (huntOpen) $('pass-b').onclick = e => { e.stopPropagation(); openPass(); }; }
+function openPass() { const S = Object.entries(pp().stamps); passEl.innerHTML = `<button class="x" type="button" aria-label="Close">✕</button><header><div class="eyebrow">Travel passport</div><h2>Your stamps</h2></header><div class="stamps">${S.length ? S.map(([id, x]) => `<div class="stamp" data-stamp="${id}"><b>${x.name}</b><small>${x.city} · ${new Date(x.at).toLocaleDateString()}</small></div>`).join('') : '<p>No stamps yet. Find everything on the hunt list, or walk to the end, to earn this one.</p>'}</div>`; passEl.querySelector('.x').onclick = () => { passEl.hidden = true; }; passEl.hidden = false; joyEnd(); }
+function award(why) { const P = pp(); if (P.stamps[STAMP.id]) return; P.stamps[STAMP.id] = { name: STAMP.name, city: STAMP.city, at: Date.now(), why }; try { localStorage.setItem(PK, JSON.stringify(P)); } catch (e) {} window.__w.stamp = why; log('stamp ' + why);
+  const t = document.createElement('div'); t.id = 'stamp-toast'; t.innerHTML = '<b>🏮 Longshan Temple</b><small>Stamp added to your passport</small>'; t.onclick = () => { t.remove(); openPass(); }; document.body.appendChild(t); setTimeout(() => t.remove(), 4500); drawHunt(); }
+function markFound(h, how) { if (found.has(h.id)) return; found.add(h.id); try { localStorage.setItem(HK, JSON.stringify([...found])); } catch (e) {} window.__w.hunt = { last: h.id, how, n: found.size }; log('found ' + h.id + ' ' + how);
+  huntEl.classList.remove('pop'); void huntEl.offsetWidth; huntEl.classList.add('pop'); $('status').textContent = '✓ Found ' + h.label + ' (' + found.size + '/' + HUNT.length + ')'; setTimeout(() => { if (/Found /.test($('status').textContent)) $('status').textContent = ''; }, 2500); drawHunt(); if (found.size === HUNT.length) award('hunt'); }
+const huntLive = p => clip && clip.id === 'ls' ? HUNT.filter(h => !found.has(h.id) && p >= h.t0 && p <= h.t1) : [];
+let aimH = null;
+setInterval(() => { if (!ready || !clip) return; const p = pos(), cy = look.yaw + hd; let hit = null;
+  for (const h of huntLive(p)) if (Math.abs(wrap(cy - spotDir(h, p))) < 10 * D2R && Math.abs(look.pitch) < 0.45) hit = h;
+  if (hit) { if (!aimH || aimH.h !== hit) aimH = { h: hit, s: performance.now() }; else if (performance.now() - aimH.s > 400) { markFound(hit, 'look'); aimH = null; } } else aimH = null;
+  if (clip.id === 'ls' && p >= clip.hi - 20) award('visit'); }, 100);
+{ let dn = null; cv.addEventListener('pointerdown', e => { dn = { x: e.clientX, y: e.clientY, t: performance.now() }; }); cv.addEventListener('pointerup', e => { if (!dn || Math.hypot(e.clientX - dn.x, e.clientY - dn.y) > 10 || performance.now() - dn.t > 500) return; dn = null; if (!ready) return; const f = innerHeight / 2 / Math.tan(camera.fov * D2R / 2), a = look.yaw + hd - Math.atan((e.clientX - innerWidth / 2) / f), p = pos(); for (const h of huntLive(p)) if (Math.abs(wrap(a - spotDir(h, p))) < 12 * D2R) { markFound(h, 'tap'); break; } }); }
+drawHunt();
+window.__w.huntState = () => ({ found: [...found], total: HUNT.length, stamp: !!pp().stamps[STAMP.id], passport: pp() });
+window.__w.hunts = HUNT; window.__w.spotDir = (id, p) => spotDir(HUNT.concat(SPOTS).find(x => x.id === id), p);
 
 // ---------- cards ----------
 function showNF(x) { joyEnd(); if (!v.paused) v.pause(); $('nf-title').textContent = x.label; $('nf').hidden = false; window.__w.nfShown = x.id; lastAct = 'not filmed ' + x.id; }
@@ -273,7 +358,8 @@ renderer.setAnimationLoop(() => { const now = performance.now(), dt = Math.min(0
     if (want > 0 && atEnd) { if (!v.paused) v.pause(); if (false) { const st0 = $('status'); if (!st0.querySelector('#loop-btn')) { st0.innerHTML = 'End of this filmed walk. <button id="loop-btn" class="btn pri" type="button">Round the square again</button>'; $('loop-btn').onclick = e => { e.stopPropagation(); st0.textContent = ''; const x = EXITS.find(q => q.id === 'loop-start'); window.__w.exits = (window.__w.exits || 0) + 1; log('end loop'); go(x.to, 'end loop', x.rot * -D2R); }; } } else $('status').textContent = DIR === 'F' ? 'End of the filmed street. Pick another place to keep going.' : 'Start of this filmed walk. Pick another place to keep going.'; }
     else if (want > 0) { const r = Math.max(0.5, Math.min(1, want)); if (v.playbackRate !== r) v.playbackRate = r; if (v.paused) v.play().catch(e => log('play ' + e.name)); $('status').textContent = ''; document.body.classList.add('walked'); }
     else if (!v.paused) v.pause();
-    if (want === 0) { idleT += dt; if (idleT > 0.6 && revOn && fwdAhead() > 8) park(); if (idleT > 2.5 && !$('loop-btn')) $('status').textContent = ''; } else idleT = 0;
+    { const lx = liveNear(p); if (want > 0 && (LV.on || LV.busy)) liveStop('push'); else if (want === 0 && lx && idleT > 1.5 && !LV.on && !LV.busy && $('nf').hidden && $('places').hidden) liveStart(lx); else if (!LV.busy && !LV.on) { const lp = DIR === 'F' && clip && LIVE.find(x => x.clip === clip.id && p >= x.t0 - 12 && p <= x.t1); if (lp && LV.id !== lp.id) livePrep(lp); } else if (LV.on && !lx) liveStop('moved'); }
+    if (want === 0) { idleT += dt; if (idleT > 0.6 && revOn && fwdAhead() > 8) park(); if (idleT > 2.5 && !$('loop-btn') && !LV.on && !LV.busy) $('status').textContent = ''; } else idleT = 0;
     soundTick(want > 0 && !v.paused && DIR === 'F', p);
     const h = headAt(p), d = wrap(h - hd); if (!v.paused) hd += Math.max(-0.35 * dt, Math.min(0.35 * dt, d * Math.min(1, dt * 0.8)));
     if (now - (window.__mmT || 0) > 150) { window.__mmT = now; drawMap(); } }
