@@ -57,7 +57,7 @@ html body.xwalk #minimap{opacity:.18}html body.xwalk .mk.spot{opacity:.35}html b
 @media (max-height:500px){html body #minimap{width:76px;height:76px}html body #hint{display:none}}
 
 /* ls4d/t1l: junction = two tall path cards (Main walk = the forward marker, Side path = the filmed link), big targets */
-html body .mk.filmed,html body.xjunc .mk.ahead{flex-direction:column;justify-content:center;gap:4px;min-width:124px;min-height:96px;padding:12px 14px;border-radius:18px;background:var(--xg);color:#fbf6ee;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);text-align:center;opacity:1!important}
+html body .mk.filmed,html body.xjunc .mk.ahead{flex-direction:column;justify-content:center;gap:4px;width:136px;min-height:96px;padding:10px 10px;border-radius:18px;background:var(--xg);color:#fbf6ee;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);text-align:center;opacity:1!important}
 html body .mk.filmed{border:1.5px solid var(--acc)}html body.xjunc .mk.ahead{border:1.5px solid rgba(255,255,255,.55)}
 html body .mk.filmed i,html body.xjunc .mk.ahead i{background:none!important;border:0!important;color:var(--acc);font-size:26px;width:auto;height:auto;animation:none!important}
 html body.xjunc .mk.ahead i{color:#fbf6ee}

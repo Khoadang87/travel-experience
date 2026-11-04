@@ -12,6 +12,11 @@
   let fwd = null, plain = null;
   function junc() { const side = [...document.querySelectorAll('.mk.filmed')].some(e => !e.hidden); fwd = fwd || document.querySelector('.mk.ahead');
     if (fwd && plain == null) plain = fwd.innerHTML; document.body.classList.toggle('xjunc', side); xj.hidden = !side || document.body.classList.contains('xwalk');
+    const sv = [...document.querySelectorAll('.mk.filmed')].filter(e => !e.hidden);
+    if (fwd) { fwd.style.translate = ''; sv.forEach(e => e.style.translate = ''); }
+    if (fwd && side && !fwd.hidden && sv.length) { /* keep the two cards side by side on one row, never overlapping */ const s0 = sv[0], fx = parseFloat(fwd.style.left), sx = parseFloat(s0.style.left), fy = parseFloat(fwd.style.top), sy = parseFloat(s0.style.top);
+      const lr = sx < fx || (sx === fx && 1), mid = Math.max(140, Math.min(innerWidth - 140, (fx + sx) / 2)), y = Math.min(fy, sy);
+      s0.style.translate = ((lr ? mid - 72 : mid + 72) - sx) + 'px ' + (y - sy) + 'px'; fwd.style.translate = ((lr ? mid + 72 : mid - 72) - fx) + 'px ' + (y - fy) + 'px'; }
     if (fwd) { const want = side ? '<i>↑</i><span><b>Main walk</b><small>Keep going straight</small></span>' : plain; if (fwd.innerHTML !== want) fwd.innerHTML = want; } }
   function tick() { junc();
     const w = W(); if (w.relYaw) { const r = -w.relYaw() * 180 / Math.PI; /* look right = positive */ for (const s of sp) { const x = (+s.dataset.d - r) * PX; s.style.left = x + 'px'; s.style.display = Math.abs(x) < 130 ? '' : 'none'; } }
