@@ -65,3 +65,11 @@ html body .mk.filmed span,html body.xjunc .mk.ahead span{display:flex;flex-direc
 html body .mk.filmed b,html body.xjunc .mk.ahead b{font:600 15px system-ui}html body .mk.filmed small,html body.xjunc .mk.ahead small{font:500 12px system-ui;text-transform:none;letter-spacing:0;color:var(--mut);white-space:normal;max-width:120px}
 html body #xj{position:fixed;z-index:16;left:50%;transform:translateX(-50%);top:calc(var(--sa-t) + 158px);border-radius:999px;padding:7px 14px;font:600 13px system-ui;color:#7fe0a0;pointer-events:none;white-space:nowrap}
 html body #where::after{content:" ▾";color:var(--acc);font-size:12px}
+
+/* no in-scene arrows: the forward marker only appears as the "Main walk" card at a junction */
+html body:not(.xjunc) .mk.ahead{opacity:0!important;pointer-events:none!important}
+html body .mk.filmed i,html body.xjunc .mk.ahead i{display:none}
+/* hunt hint ring */
+html body .xring{position:fixed;z-index:10;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;border:2px solid rgba(232,181,90,.75);box-shadow:0 0 18px rgba(232,181,90,.45),inset 0 0 14px rgba(232,181,90,.25);pointer-events:none;animation:xrp 2s ease-in-out infinite}
+@keyframes xrp{0%,100%{transform:scale(.85);opacity:.45}50%{transform:scale(1.05);opacity:1}}
+html body.xwalk .xring{opacity:.5}

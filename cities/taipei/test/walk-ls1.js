@@ -193,10 +193,11 @@ const UNFILMED = []; /* t1: no side openings marked yet; pushing off a filmed pa
 const bAt = (b, p) => { if (typeof b === 'number') return b; if (p <= b[0][0]) return b[0][1]; for (let k = 1; k < b.length; k++) if (p <= b[k][0]) { const [t0, d0] = b[k - 1], [t1, d1] = b[k]; return d0 + (d1 - d0) * (p - t0) / (t1 - t0); } return b[b.length - 1][1]; };
 const dirOf = (x, p) => x.rot != null ? headAt(x.to) + x.rot * D2R : headAt(p) + bAt(x.b, p) * D2R; /* rot exits: the target walk's forward direction, seen in this frame */ const offOf = (x, p) => Math.abs(wrap(look.yaw + hd - dirOf(x, p)));
 const _v3 = new THREE.Vector3();
+window.__w.proj = (a, el) => { _v3.set(-Math.sin(a) * Math.cos(el), Math.sin(el), -Math.cos(a) * Math.cos(el)).project(camera); return { x: (_v3.x + 1) / 2 * innerWidth, y: (1 - _v3.y) / 2 * innerHeight, on: _v3.z < 1 && Math.abs(_v3.x) < 0.9 && Math.abs(_v3.y) < 0.9 }; }; /* ls4d/t1l: hunt hint rings */
 const scr = a => { _v3.set(-Math.sin(a), 0, -Math.cos(a)).project(camera); const behind = _v3.z > 1; return { x: (_v3.x + 1) / 2 * innerWidth, on: !behind && Math.abs(_v3.x) < 0.85, side: behind ? -Math.sign(_v3.x || 1) : Math.sign(_v3.x) }; };
 const live = (x, p) => (!x.clip || (clip && clip.id === x.clip)) && p >= x.t0 && p <= x.t1;
 const mkMarker = (x, cls, txt, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'mk ' + cls; b.innerHTML = txt; b.hidden = true; b.onclick = fn; $('marks').appendChild(b); return b; };
-const exEls = EXITS.map(x => mkMarker(x, 'filmed', '<i>↗</i><span><b>Side path</b><small>' + x.label + '</small></span>', () => takeExit(x)));
+const exEls = EXITS.map(x => mkMarker(x, 'filmed', '<span><b>Side path</b><small>' + x.label + '</small></span>', () => takeExit(x)));
 const nfEls = UNFILMED.map(x => mkMarker(x, 'unfilmed', '<i></i><span>' + x.label + '<small>Not accessible right now, coming soon</small></span>', () => showNF(x)));
 const fwdEl = mkMarker({}, 'ahead', '<i>↑</i>', () => {}); fwdEl.tabIndex = -1; fwdEl.setAttribute('aria-label', 'Hold to walk forward'); fwdEl.style.touchAction = 'none';
 { const on = e => { e.preventDefault(); e.stopPropagation(); keys.ArrowUp = true; try { fwdEl.setPointerCapture(e.pointerId); } catch (_) {} }, off = () => { keys.ArrowUp = false; }; fwdEl.addEventListener('pointerdown', on); for (const n of ['pointerup', 'pointercancel', 'lostpointercapture']) fwdEl.addEventListener(n, off); }
