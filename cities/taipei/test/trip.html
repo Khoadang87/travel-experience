@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f1420">
+<title>Your trip to Taipei</title><link rel="icon" href="data:,">
+<style>
+:root{--acc:#e8b55a;--ink:#0f1420;--card:#fbf6ee;--mut:rgba(251,246,238,.62);--sa-t:env(safe-area-inset-top,0px);--sa-b:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(120% 80% at 50% 0%,#24324f 0%,#0f1420 60%);color:#fbf6ee;font:16px/1.45 system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
+main{max-width:480px;margin:0 auto;padding:calc(var(--sa-t) + 22px) 18px calc(var(--sa-b) + 40px)}
+h1{font:700 28px/1.15 system-ui;margin:6px 0 4px}h2{font:700 18px system-ui;margin:26px 0 10px}
+.k{font:600 11px system-ui;letter-spacing:.14em;color:var(--mut);text-transform:uppercase}
+p{color:#d6d0c6;margin:6px 0}
+.glass{background:rgba(255,255,255,.07);border:.5px solid rgba(255,255,255,.16);border-radius:20px;padding:16px;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+.opts{display:grid;gap:8px}.opt{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);cursor:pointer}
+.opt.on{border-color:var(--acc);background:rgba(232,181,90,.14)}.opt b{flex:1}
+input[type=text]{width:100%;font:600 18px system-ui;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.25);color:#fff;outline:none}
+.btn{display:block;width:100%;text-align:center;border:0;border-radius:16px;padding:16px;font:700 17px system-ui;background:var(--acc);color:#1b1408;margin-top:16px;cursor:pointer;text-decoration:none}
+.btn.sec{background:rgba(255,255,255,.1);color:#fbf6ee}.btn:disabled{opacity:.4}
+#passImg{width:100%;border-radius:20px;display:block;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.cd{display:flex;justify-content:space-between;text-align:center;margin:8px 0}.cd div{flex:1}.cd b{display:block;font:700 40px/1 ui-rounded,system-ui;font-variant-numeric:tabular-nums}.cd small{color:var(--mut);font-size:11px;letter-spacing:.1em}
+.bar{height:6px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#e8b55a,#f6d58e);width:0}
+.teaser{display:flex;gap:12px;align-items:center;padding:14px;border-radius:18px;background:rgba(255,255,255,.06);margin-bottom:10px;border:1px solid rgba(255,255,255,.08)}
+.teaser .ic{font-size:30px;width:44px;text-align:center}.teaser.locked{opacity:.55}.teaser.locked .body{filter:blur(5px)}
+.teaser .body{flex:1}.teaser button{border:0;border-radius:12px;background:var(--acc);padding:8px 12px;font:700 13px system-ui}
+.teaser img{width:100%;border-radius:12px;margin-top:8px;display:block}
+.bag{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.bag .opt{flex-direction:column;gap:4px;text-align:center;font-size:13px}.bag .opt span{font-size:30px}
+.hide{display:none!important}
+#album{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}#album img{width:100%;border-radius:10px}
+.pop{animation:pop .5s ease}@keyframes pop{0%{transform:scale(.9);opacity:0}100%{transform:none;opacity:1}}
+</style></head><body><main>
+<section id="book">
+ <div class="k">Travel Experience</div><h1>Where are we going?</h1><p>Book a trip, count down, then fly into the Longshan Temple courtyard.</p>
+ <h2>Destination</h2>
+ <div class="opts" id="dest"><div class="opt on" data-v="TPE"><span style="font-size:28px">🏮</span><b>Taipei, Taiwan<br><small class="k">TPE · Longshan Temple</small></b>✓</div></div>
+ <h2>Departure</h2>
+ <div class="opts" id="when">
+  <div class="opt" data-v="60"><b>In 1 minute</b><small class="k">test flight</small></div>
+  <div class="opt on" data-v="tomorrow"><b>Tomorrow morning</b><small class="k">08:40</small></div>
+  <div class="opt" data-v="3d"><b>In 3 days</b><small class="k">08:40</small></div>
+ </div>
+ <h2>Passenger first name</h2>
+ <input id="name" type="text" maxlength="16" placeholder="First name" autocomplete="given-name">
+ <button class="btn" id="bookBtn" disabled>Get my boarding pass</button>
+</section>
+<section id="trip" class="hide">
+ <div class="k" id="hello">Bon voyage</div><h1 id="cdTitle">Taipei is getting closer</h1>
+ <img id="passImg" alt="Boarding pass" class="pop">
+ <div style="display:flex;gap:8px"><a class="btn sec" id="dl" download="boarding-pass-TPE.png">Save pass</a><button class="btn sec" id="share">Share</button></div>
+ <div class="glass" style="margin-top:18px">
+  <div class="k">Boarding in</div>
+  <div class="cd"><div><b id="cdD">0</b><small>DAYS</small></div><div><b id="cdH">00</b><small>HRS</small></div><div><b id="cdM">00</b><small>MIN</small></div><div><b id="cdS">00</b><small>SEC</small></div></div>
+  <div class="bar"><i id="prog"></i></div>
+  <a class="btn hide" id="boardBtn" href="depart.html">✈︎ Board now</a>
+ </div>
+ <h2>Unlocks as you get closer</h2><div id="teasers"></div>
+ <h2>Pack your bag</h2><p style="font-size:14px">What comes with you shows up in Taipei.</p>
+ <div class="bag" id="bag"></div>
+ <button class="btn sec" id="notif">🔔 Remind me at boarding time</button><p id="notifNote" class="k" style="margin-top:8px"></p>
+ <div id="albumWrap" class="hide"><h2>Trip album</h2><div id="album"></div></div>
+ <div id="stampWrap" class="hide"><h2>Passport</h2><div id="stamps"></div></div>
+ <button class="btn sec" id="reset" style="margin-top:30px;font-size:14px">Book a different trip</button>
+</section>
+</main>
+<script src="trip/trip.js?v=tr1a"></script>
+</body></html>

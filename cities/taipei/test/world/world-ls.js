@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
-const BUILD='w1b'; window.__build=BUILD;
+const BUILD='w1c'; window.__build=BUILD;
 const Q=new URLSearchParams(location.search);
 // ---------- seeded RNG ----------
 function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296;};}
@@ -237,6 +237,7 @@ function updatePerson(p,dt,t){
 const angDiff=(a,b)=>{let d=a-b;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;return d;};
 // ---------- player ----------
 const P={x:0,z:15.5,yaw:0,pitch:-0.02,vx:0,vz:0,r:0.35,eye:1.62};
+if(Q.get('arrive')){P.x=0;P.z=35;P.yaw=0;}
 if(Q.get('x'))P.x=+Q.get('x');if(Q.get('z'))P.z=+Q.get('z');
 const joy={x:0,y:0,id:null};const keys={};
 const J=document.getElementById('joy'),K=document.getElementById('knob');
@@ -288,8 +289,36 @@ renderer.setAnimationLoop(()=>{const dt=Math.min(0.1,clock.getDelta());simT+=dt;
   // LOD: far people animate at a lower rate
   const every=d>30?4:d>16?2:1;p.acc=(p.acc||0)+dt;if((frames+i)%every===0){p.mixer.update(p.acc);p.acc=0;}}
  if(window.__w&&window.__w.cam){const c=window.__w.cam;camera.position.set(c[0],c[1],c[2]);camera.lookAt(c[3],0,c[4]);}
- renderer.render(scene,camera);});
+ renderer.render(scene,camera);if(snapReq){snapReq=false;takeSnap();}});
 window.__w={state:()=>({ready,build:BUILD,x:P.x,z:P.z,yaw:P.yaw,fps:fpsAvg,frames,people:people.length,maxStuck,blocked:blocked(P.x,P.z,0.01),
  sample:people.slice(0,6).map(p=>({x:+p.x.toFixed(3),z:+p.z.toFixed(3),clip:p.clip,state:p.state})),clips:people.reduce((m,p)=>{m[p.clip]=(m[p.clip]||0)+1;return m;},{}),
  calls:renderer.info.render.calls,tris:renderer.info.render.triangles}),
  cam:null,set:(x,z,yaw)=>{P.x=x;P.z=z;if(yaw!==undefined)P.yaw=yaw;P.vx=P.vz=0;}};
+
+// ---------- trip: passport stamp on arrival + camera photo mode (trip album) ----------
+const LSg=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
+const TRIP=LSg('teTrip');let snapReq=false;
+function stampCanvas(){const c=document.createElement('canvas');c.width=c.height=360;const x=c.getContext('2d');x.translate(180,180);x.rotate(-0.18);x.strokeStyle=x.fillStyle='#b3221a';
+ x.lineWidth=10;x.beginPath();x.arc(0,0,160,0,7);x.stroke();x.lineWidth=4;x.beginPath();x.arc(0,0,136,0,7);x.stroke();
+ x.textAlign='center';x.font='900 66px serif';x.fillText('龍山寺',0,-18);x.font='800 26px system-ui';x.fillText('LONGSHAN TEMPLE',0,26);
+ x.font='700 22px system-ui';x.fillText('TAIPEI · TPE',0,62);x.font='700 20px ui-monospace,monospace';x.fillText(new Date().toLocaleDateString([], {year:'numeric',month:'short',day:'numeric'}).toUpperCase(),0,100);
+ for(let i=0;i<14;i++){const a=i/14*Math.PI*2;x.fillRect(Math.cos(a)*148-3,Math.sin(a)*148-3,6,6);}return c;}
+function showStamp(){const pp=LSg('tePassport')||[];if(!pp.some(s=>s.place==='Longshan Temple'))pp.push({place:'Longshan Temple',city:'Taipei',at:Date.now(),flight:TRIP&&TRIP.flight});localStorage.setItem('tePassport',JSON.stringify(pp));
+ const d=document.createElement('div');d.id='stamp';d.style.cssText='position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(15,12,8,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:opacity .6s';
+ const im=new Image();im.src=stampCanvas().toDataURL();im.style.cssText='width:220px;height:220px;transform:scale(2.4) rotate(-12deg);opacity:0;transition:transform .35s cubic-bezier(.3,1.6,.5,1),opacity .2s';
+ const t=document.createElement('div');t.style.cssText='margin-top:18px;text-align:center;font:700 20px system-ui;color:#fbf6ee';t.innerHTML=`Welcome to Taipei${TRIP?', '+TRIP.name.replace(/[<>&]/g,''):''}<br><small style="font:600 12px system-ui;letter-spacing:.12em;color:#e8b55a">PASSPORT STAMPED · TAP TO EXPLORE</small>`;
+ d.append(im,t);document.body.append(d);setTimeout(()=>{im.style.transform='scale(1) rotate(-12deg)';im.style.opacity=1;try{navigator.vibrate&&navigator.vibrate(30)}catch(e){}},500);
+ const close=()=>{d.style.opacity=0;setTimeout(()=>d.remove(),600);};d.onclick=close;setTimeout(close,5000);window.__stamped=true;}
+function takeSnap(){const c=renderer.domElement;const w=480,h=Math.round(w*c.height/c.width);const o=document.createElement('canvas');o.width=w;o.height=h;const x=o.getContext('2d');x.drawImage(c,0,0,w,h);
+ x.fillStyle='rgba(0,0,0,.35)';x.fillRect(0,h-34,w,34);x.fillStyle='#fbf6ee';x.font='600 15px system-ui';x.fillText('Longshan Temple · Taipei · '+new Date().toLocaleDateString(),12,h-12);
+ const img=o.toDataURL('image/jpeg',0.72);const al=LSg('teAlbum')||[];al.unshift({img,at:Date.now(),place:'Longshan Temple'});while(al.length>12)al.pop();
+ try{localStorage.setItem('teAlbum',JSON.stringify(al));}catch(e){al.pop();try{localStorage.setItem('teAlbum',JSON.stringify(al));}catch(e2){}}
+ const f=document.createElement('div');f.style.cssText='position:fixed;inset:0;z-index:19;background:#fff;opacity:.85;transition:opacity .4s;pointer-events:none';document.body.append(f);requestAnimationFrame(()=>requestAnimationFrame(()=>f.style.opacity=0));setTimeout(()=>f.remove(),500);
+ const th=document.getElementById('thumb');th.src=img;th.style.display='block';document.getElementById('albumN').textContent=al.length;window.__photos=al.length;}
+if(TRIP&&TRIP.bag&&TRIP.bag.includes('camera')){const b=document.createElement('button');b.id='photo';b.setAttribute('aria-label','Take photo');
+ b.style.cssText='position:fixed;z-index:7;right:calc(var(--sa-r) + 48px);bottom:calc(var(--sa-b) + 178px);width:58px;height:58px;border-radius:50%;border:3px solid rgba(251,246,238,.9);background:rgba(22,18,14,.42);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);font-size:24px;color:#fff';b.textContent='📷';
+ b.onclick=e=>{e.stopPropagation();snapReq=true;};document.body.append(b);
+ const th=document.createElement('a');th.href='trip.html#album';th.style.cssText='position:fixed;z-index:7;right:calc(var(--sa-r) + 116px);bottom:calc(var(--sa-b) + 186px);text-decoration:none;color:#fff;font:700 11px system-ui;text-align:center';
+ th.innerHTML='<img id="thumb" style="display:none;width:44px;height:44px;object-fit:cover;border-radius:10px;border:2px solid #fbf6ee"><span id="albumN"></span>';document.body.append(th);}
+if(Q.get('arrive')){const wait=()=>ready?showStamp():setTimeout(wait,200);wait();}
+if(TRIP){const a=document.createElement('a');a.href='trip.html';a.textContent='My trip';a.className='glass';a.style.cssText='position:fixed;z-index:6;top:calc(var(--sa-t) + 10px);right:calc(var(--sa-r) + 12px);border-radius:999px;padding:8px 14px;color:#fbf6ee;text-decoration:none;font:600 13px system-ui';document.body.append(a);}
