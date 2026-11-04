@@ -14,7 +14,7 @@ const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platfor
 const ROOT = window.WALK_ROOT ?? '../', A = ROOT + 'assets/walk/';
 const evlog = []; const log = s => { evlog.push((performance.now() / 1000).toFixed(1) + ' ' + s); if (evlog.length > 60) evlog.shift(); };
 window.__evlog = evlog;
-const BUILD = 't1g-2026-11-03'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
+const BUILD = 't1h-2026-11-03'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
 fetch('build.json?cb=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(b => { if (b.build && b.build !== BUILD && !sessionStorage.getItem('t1reload')) { sessionStorage.setItem('t1reload', '1'); location.replace(location.pathname + '?b=' + b.build + location.hash); } }).catch(() => {}); addEventListener('pageshow', e => { if (e.persisted) location.reload(); }); /* t1g: an old tab or cached page reloads itself onto the current build */
 
 // ---------- scene ----------
@@ -303,7 +303,12 @@ const T0 = performance.now();
   const j = await (await fetch(A + 'walk.json', { cache: 'no-cache' })).json(); const c = j.cdn;
   let url = c.base + (isIOS ? (params.get('q') === '4k' ? c.hlsIOS : c.hlsIOS.replace('f3840', 'f2560')) : c.hls);
   /* w51: native iPhone HLS gets one fixed level; time a 400 KB slice first and drop to f1280 (1.8 Mbps) on a slow link, since f2560 (6 Mbps) cannot keep up there */
-  if (isIOS && url.includes('f2560') && params.get('q') !== 'hi') { try { const pl = await (await fetch(url)).text(), seg = new URL(pl.split('\n').find(l => /\.m4s/.test(l) && !/^#/.test(l)).trim(), url).href, t0 = performance.now(), rb = await (await fetch(seg, { headers: { Range: 'bytes=0-399999' } })).arrayBuffer(), mbps = rb.byteLength * 8 / ((performance.now() - t0) * 1000); log('probe ' + mbps.toFixed(1) + ' Mbps'); if (mbps < 7 || params.get('q') === 'lo') { url = url.replace('f2560', 'f1280'); slowNet = true; } } catch (e) { log('probe failed'); } }
+  /* t1h: prefer HD (f2560, ~3.5 Mbps avg) everywhere. Saved HD/SD choice or ?q= wins; otherwise time two 400 KB slices (after the first byte, best of two) and fall back to SD (f1280) only below 3 Mbps */
+  const qPick = params.get('q') || localStorage.getItem('t1q') || 'auto';
+  if (qPick === 'lo') { url = c.base + 'f1280/index.m3u8'; slowNet = isIOS; }
+  else if (qPick === 'hi' || qPick === '4k') { if (!isIOS) url = c.base + 'f2560/index.m3u8'; }
+  else if (isIOS) { try { const pl = await (await fetch(url)).text(), seg = new URL(pl.split('\n').find(l => /\.m4s/.test(l) && !/^#/.test(l)).trim(), url).href; let best = 0; for (const rg of ['bytes=0-399999', 'bytes=400000-799999']) { const r0 = await fetch(seg, { headers: { Range: rg }, cache: 'no-store' }), t0 = performance.now(), rb = await r0.arrayBuffer(); best = Math.max(best, rb.byteLength * 8 / (Math.max(1, performance.now() - t0) * 1000)); } log('probe ' + best.toFixed(1) + ' Mbps'); if (best < 3) { url = url.replace('f2560', 'f1280'); slowNet = true; } } catch (e) { log('probe failed'); } }
+  window.__w && (window.__w.level = /f1280/.test(url) ? 'SD' : 'HD'); $('hd').textContent = /f1280/.test(url) ? 'SD' : 'HD'; $('hd').hidden = false;
   const r = await (await fetch(ROOT + 'routes.json', { cache: 'no-cache' })).json(); clips = r.routes[0].clips; clip = clips[0];
   const headP = fetch(A + 'heading_foe.json?v=' + BUILD).then(x => x.json()).then(h => { HEAD = h; if (ready) { hd = headAt(pos()); look.yaw = 0; } drawMap(); }).catch(() => {});
   if (c.audio) audio.src = c.audio; else $('sound').hidden = true; /* t1: no ambience track yet */
@@ -316,3 +321,6 @@ const T0 = performance.now();
   if (REV && c.rev && slowNet) log('rev skipped on slow link'); else if (REV && c.rev) { const ru = c.base + c.rev; if (await probe(ru)) { RD = c.revDuration || c.duration; attach(st.R, ru, media('R', pos())); revOn = true; log('rev attached'); } else log('rev unreachable'); }
 } catch (e) { $('error').hidden = false; $('error').textContent = e.message; log('error ' + e.message); } })();
 Object.assign(window.__w, { ver: VER, state: () => ({ pos: pos(), backWant, hd, ready, clip: clip && clip.id, dir: DIR, revOn, relYaw: relYaw() / D2R, playing: !v.paused, fading }), go, goPlace, takeExit, showNF, setLook: (d, pt) => { look.yaw = d * D2R; if (pt != null) look.pitch = pt * D2R; }, key: (k, on) => { keys[k] = on; }, lastAct: () => lastAct, exits: 0, places: PLACES, headAt, ttff: () => window.__ttff, switches: () => switches.slice() });
+
+/* t1h: HD/SD toggle; reloads at the current spot so the native iPhone player picks the new level */
+$('hd').addEventListener('click', e => { e.stopPropagation(); const nq = $('hd').textContent === 'HD' ? 'lo' : 'hi'; localStorage.setItem('t1q', nq); const u = new URL(location.href); u.searchParams.delete('q'); if (ready) u.searchParams.set('t', pos().toFixed(1)); location.replace(u.href); });
