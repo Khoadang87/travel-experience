@@ -14,8 +14,8 @@ const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platfor
 const ROOT = window.WALK_ROOT ?? '../', A = ROOT + 'assets/walk/';
 const evlog = []; const log = s => { evlog.push((performance.now() / 1000).toFixed(1) + ' ' + s); if (evlog.length > 60) evlog.shift(); };
 window.__evlog = evlog;
-const BUILD = 'ls1b-2026-11-03'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
-fetch('ls1/build.json?cb=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(b => { if (b.build && b.build !== BUILD && !sessionStorage.getItem('ls1reload')) { sessionStorage.setItem('ls1reload', '1'); location.replace(location.pathname + '?b=' + b.build + location.hash); } }).catch(() => {}); addEventListener('pageshow', e => { if (e.persisted) location.reload(); }); /* t1g: an old tab or cached page reloads itself onto the current build */
+const BUILD = 'ls2a-2026-11-03'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
+fetch('ls1/build.json?cb=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(b => { if (b.build && b.build !== BUILD && !sessionStorage.getItem('ls2reload')) { sessionStorage.setItem('ls2reload', '1'); location.replace(location.pathname + '?b=' + b.build + location.hash); } }).catch(() => {}); addEventListener('pageshow', e => { if (e.persisted) location.reload(); }); /* t1g: an old tab or cached page reloads itself onto the current build */
 
 // ---------- scene ----------
 const renderer = new THREE.WebGLRenderer({ antialias: false }); renderer.setPixelRatio(Math.min(3, devicePixelRatio)) /* blur fix: full DPR 3 on iPhone, was capped at 2 */; renderer.setSize(innerWidth, innerHeight);
@@ -179,7 +179,15 @@ async function go(t, why, shift) { if (fading || !ready) return; fading = true; 
 
 // ---------- filmed graph ----------
 /* Filmed exits (real footage on both sides): forward along the walk, the riverside branch, and its rejoin point. w51 adds three same-place revisits found by frame matching. */
-const EXITS = []; /* ls1: one walk so far; the Koby walk will add junctions */
+const EXITS = [ /* ls2: frame-matched junctions between the 360street walk (clip ls, 0-548 s) and Koby Nakamura's walk (clip kb, +548.17 s); rot = yaw offset measured from SIFT matches (qa/taipei/temple/ls2_*) */
+  { id: 'ja', clip: 'ls', t0: 444, t1: 452, rot: -74.9, label: "Open courtyard (2nd walk)", to: 864.2 },
+  { id: 'jb', clip: 'kb', t0: 860.2, t1: 868.2, rot: 74.9, label: "Under the canopy (1st walk)", to: 448 },
+  { id: 'jc', clip: 'kb', t0: 935.2, t1: 943.2, rot: 35.4, label: "Main hall side (1st walk)", to: 235 },
+  { id: 'jd', clip: 'ls', t0: 231, t1: 239, rot: -35.4, label: "Open courtyard (2nd walk)", to: 939.2 },
+  { id: 'je', clip: 'ls', t0: 362, t1: 370, rot: -12.7, label: "Offering-table aisle (2nd walk)", to: 730.2 },
+  { id: 'jf', clip: 'kb', t0: 726.2, t1: 734.2, rot: 12.7, label: "Back halls (1st walk)", to: 366 },
+  { id: 'jg', clip: 'kb', t0: 766.2, t1: 774.2, rot: 43.0, label: "Back halls (1st walk)", to: 424 },
+  { id: 'jh', clip: 'ls', t0: 420, t1: 428, rot: -43.0, label: "Offering-table aisle (2nd walk)", to: 770.2 } ];
 const UNFILMED = []; /* t1: no side openings marked yet; pushing off a filmed path shows the edge notice */
 const bAt = (b, p) => { if (typeof b === 'number') return b; if (p <= b[0][0]) return b[0][1]; for (let k = 1; k < b.length; k++) if (p <= b[k][0]) { const [t0, d0] = b[k - 1], [t1, d1] = b[k]; return d0 + (d1 - d0) * (p - t0) / (t1 - t0); } return b[b.length - 1][1]; };
 const dirOf = (x, p) => x.rot != null ? headAt(x.to) + x.rot * D2R : headAt(p) + bAt(x.b, p) * D2R; /* rot exits: the target walk's forward direction, seen in this frame */ const offOf = (x, p) => Math.abs(wrap(look.yaw + hd - dirOf(x, p)));
@@ -213,7 +221,8 @@ const PLACES = [
   { id: 'gate', name: "Front gate", area: "Through the entrance hall", t: 81, fwd: 1 },
   { id: 'courtyard', name: "Front courtyard", area: "Incense and lanterns", t: 133, fwd: 1 },
   { id: 'mainhall', name: "Main hall", area: "Guanyin hall, carved pillars", t: 259, fwd: 1 },
-  { id: 'backhalls', name: "Back halls", area: "Rear shrines and corridors", t: 330, fwd: 1 } ];
+  { id: 'backhalls', name: "Back halls", area: "Rear shrines and corridors", t: 330, fwd: 1 },
+  { id: 'opencourt', name: "Open courtyard", area: "Bronze censer and offering tables · 2nd walk", t: 878.2, fwd: 1 } /* ls2: Koby Nakamura walk, kb 330 s */ ];
 let placeBusy = false, here = 'start';
 async function goPlace(id) { const pl = PLACES.find(x => x.id === id); if (!pl || placeBusy) return; placeBusy = true; closePlaces(); while (!ready) await new Promise(r => setTimeout(r, 100));
   try { const t = pl.t == null ? LO : pl.t; await go(t, 'place ' + id); if (pl.u != null) look.yaw = wrap(2 * Math.PI * (0.75 - pl.u) - hd); else look.yaw = 0; look.pitch = 0; here = id; $('where').textContent = pl.name; window.__w.place = { id, t, at: pos() }; } finally { placeBusy = false; } }
@@ -234,7 +243,7 @@ function drawMap() { if (!MP) return; const W = 120; mctx.clearRect(0, 0, W, W);
   const seg = (lo, hi) => MP.filter(q => q[0] >= lo && q[0] <= hi);
   const line = (P, col, w, dash) => { mctx.setLineDash(dash || []); mctx.strokeStyle = col; mctx.lineWidth = w; mctx.lineCap = 'round'; mctx.lineJoin = 'round'; mctx.beginPath(); P.forEach(([, x, y], i) => i ? mctx.lineTo(x, y) : mctx.moveTo(x, y)); mctx.stroke(); };
   for (const u of UNFILMED) { const m = (u.t0 + u.t1) / 2, c = mpAt(m); if (!c) continue; const d = c[3] - bAt(u.b, m) * D2R; line([[0, c[1], c[2]], [0, c[1] + Math.sin(d) * 10, c[2] - Math.cos(d) * 10]], 'rgba(200,200,200,.6)', 2, [2, 3]); }
-  line(seg(0, 1799.5), 'rgba(244,236,223,.9)', 2); line(seg(1800, 2131.5), 'rgba(224,165,38,.95)', 2);
+  line(seg(0, 548), 'rgba(244,236,223,.9)', 2); line(seg(548.5, 1002), 'rgba(224,165,38,.95)', 2);
   for (const x of EXITS) { const c = mpAt(x.to); if (!c) continue; mctx.setLineDash([]); mctx.strokeStyle = '#5fd18a'; mctx.lineWidth = 1.6; mctx.beginPath(); mctx.arc(c[1], c[2], 3.6, 0, 7); mctx.stroke(); }
   if (!ready) return; const p = pos(), c = mpAt(p); if (!c) return;
   const va = c[3] - relYaw(); mctx.setLineDash([]); mctx.fillStyle = 'rgba(184,50,42,.3)'; mctx.beginPath(); mctx.moveTo(c[1], c[2]); mctx.arc(c[1], c[2], 16, va - Math.PI / 2 - 0.6, va - Math.PI / 2 + 0.6); mctx.fill();
