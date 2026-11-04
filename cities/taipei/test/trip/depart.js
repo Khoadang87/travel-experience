@@ -1,7 +1,7 @@
 // Departure-day sequence (build dp1a): gate -> jet bridge -> window seat takeoff -> clouds -> landing in Taipei -> world-ls.html?arrive=1
 // All geometry/textures procedural; sound via WebAudio + speechSynthesis (no assets).
 import * as THREE from 'three';
-const BUILD='dp1c';window.__build=BUILD;
+const BUILD='dp1d';window.__build=BUILD;
 const T=(()=>{try{return JSON.parse(localStorage.getItem('teTrip'))}catch(e){return null}})()||{name:'Traveller',flight:'TE 287',gate:'B4',seat:'23A',bag:[]};
 document.getElementById('stTitle').textContent=`${T.flight} to Taipei`;document.getElementById('stSub').textContent=`${T.name} · Gate ${T.gate} · Seat ${T.seat}`;
 const DEST='world-ls.html?arrive=1';
@@ -90,7 +90,7 @@ const cabin=new THREE.Group();camera.add(cabin);cabin.visible=false;
  const ring=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:0.08,bevelEnabled:false,curveSegments:24}),new THREE.MeshBasicMaterial({color:0xc9c3b8,side:THREE.DoubleSide}));ring.scale.set(1.08,1.08,1);ring.position.z=-0.7;cabin.add(ring);
  const shade=new THREE.Mesh(new THREE.PlaneGeometry(0.8,0.6),new THREE.MeshBasicMaterial({color:0xd8d3c8}));shade.position.set(0,0.72,-0.63);cabin.add(shade);
  const seat=new THREE.Mesh(new THREE.BoxGeometry(0.9,1.2,0.2),new THREE.MeshBasicMaterial({color:0x1d3a5a}));seat.position.set(0.85,-0.75,-0.5);cabin.add(seat);
- cabin.userData.wall=wall;}
+ cabin.userData.wall=wall;cabin.position.z=-0.95;cabin.position.y=0.08;}
 // ---------- sound ----------
 let AC,eng,engG,mur;
 function audioStart(){try{AC=new (window.AudioContext||window.webkitAudioContext)();const nb=AC.createBuffer(1,AC.sampleRate*4,AC.sampleRate),d=nb.getChannelData(0);let b=0;for(let i=0;i<d.length;i++){b=0.98*b+0.02*(Math.random()*2-1);d[i]=b*6;}
