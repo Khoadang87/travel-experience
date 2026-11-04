@@ -35,25 +35,19 @@ a{color:#9cf}
 <h2>Coming next</h2>
 <ul><li>Spot hunts and passport stamps for every place you visit</li><li>Living moments: the scene keeps moving when you stop</li><li>Short stories from the locals who live there</li><li>Walk the same street with a friend</li></ul>
 
-<h2>Pricing preview <span class="soon">Coming soon</span></h2>
-<div class="tiers">
-<div class="tier"><b>Free</b><br><span class="sub">One featured walk, spot hunts and stamps.</span></div>
-<div class="tier"><b>Explorer, about $3–5/month</b><span class="soon">Coming soon</span><br><span class="sub">All cities and full walks, 4K where available, walking with friends.</span></div>
-</div>
-<p class="note">No payments are taken. Prices are a preview and may change.</p>
+<p class="note">Free to try. Future extras may come later; the walks above stay free.</p>
 
 <h2>Get early access</h2>
-<p class="sub">Tell us you're interested and what you'd pay.</p>
+<p class="sub">Get told when spot hunts, passport stamps and new walks go live.</p>
 <input id="nm" placeholder="Name" autocomplete="name"><input id="em" type="email" placeholder="Email" autocomplete="email">
-<div class="opts" id="opts"><button data-v="0">Free only</button><button data-v="3">$3/mo</button><button data-v="5">$5/mo</button><button data-v="8">$8+/mo</button></div>
 <button class="btn" id="go">I'm interested</button>
 <p id="msg"></p>
 <small>Test version: your answer is only saved in this browser for now, nothing is sent anywhere yet.</small>
 </main>
 <script>
-let pay=null;document.querySelectorAll('#opts button').forEach(b=>b.onclick=()=>{pay=b.dataset.v;document.querySelectorAll('#opts button').forEach(x=>x.classList.toggle('on',x===b))});
+
 document.getElementById('go').onclick=()=>{const n=nm.value.trim(),e=em.value.trim(),m=document.getElementById('msg');
 if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){m.style.color='#e99';m.textContent='Please enter a valid email.';return}
-const l=JSON.parse(localStorage.getItem('interest')||'[]');l.push({n,e,pay,t:Date.now()});localStorage.setItem('interest',JSON.stringify(l));
+const l=JSON.parse(localStorage.getItem('interest')||'[]');l.push({n,e,t:Date.now()});localStorage.setItem('interest',JSON.stringify(l));
 m.style.color='#9c9';m.textContent='Thanks'+(n?', '+n:'')+'! You\u2019re on the early list.'};
 </script></body></html>
