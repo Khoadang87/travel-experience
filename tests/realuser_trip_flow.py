@@ -42,7 +42,7 @@ async def main():
     u2=await E("document.querySelectorAll('.teaser[data-open=\"1\"]').length")
     rec('countdown_and_teasers_unlock',u0<u1<=u2==5,{'unlocked_at_start':u0,'at_32s':u1,'at_board':u2,'timer_at_32s':cd,'board_button_after_s':round(t_ready,1)})
     await pg.screenshot(path=OUT+'/05_board_now.png',full_page=True)
-    await pg.click('#boardBtn'); await pg.wait_for_selector('#go'); await pg.screenshot(path=OUT+'/06_tap_to_board.png')
+    await pg.click('#boardBtn'); await pg.wait_for_selector('#go:not([disabled])',timeout=60000); await pg.screenshot(path=OUT+'/06_tap_to_board.png')
     await pg.click('#go'); t0=time.time(); segs=[]
     for i,at in enumerate([4,10,16,24,30,34,40,44,50,56,61]):
       await pg.wait_for_timeout(max(0,at-(time.time()-t0))*1000)

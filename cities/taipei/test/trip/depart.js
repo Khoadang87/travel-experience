@@ -1,7 +1,7 @@
 // Departure-day sequence (build dp1a): gate -> jet bridge -> window seat takeoff -> clouds -> landing in Taipei -> world-ls.html?arrive=1
 // All geometry/textures procedural; sound via WebAudio + speechSynthesis (no assets).
 import * as THREE from 'three';
-const BUILD='dp1b';window.__build=BUILD;
+const BUILD='dp1c';window.__build=BUILD;
 const T=(()=>{try{return JSON.parse(localStorage.getItem('teTrip'))}catch(e){return null}})()||{name:'Traveller',flight:'TE 287',gate:'B4',seat:'23A',bag:[]};
 document.getElementById('stTitle').textContent=`${T.flight} to Taipei`;document.getElementById('stSub').textContent=`${T.name} · Gate ${T.gate} · Seat ${T.seat}`;
 const DEST='world-ls.html?arrive=1';
@@ -131,6 +131,7 @@ function frame(t){let seg=SEG.find(s=>t>=s[1]&&t<s[2])||SEG[SEG.length-1];window
  if(t>=DUR&&!done){done=true;go();}}
 function go(){done=true;try{const tr=JSON.parse(localStorage.getItem('teTrip'));if(tr){tr.flown=Date.now();localStorage.setItem('teTrip',JSON.stringify(tr));}}catch(e){}location.href=DEST;}
 document.getElementById('skip').onclick=go;
+{const g=document.getElementById('go');g.disabled=false;g.style.opacity=1;g.textContent='Tap to board';}
 document.getElementById('go').onclick=()=>{audioStart();document.getElementById('start').remove();t0=performance.now();};
 if(new URLSearchParams(location.search).get('auto')){document.getElementById('start').remove();t0=performance.now();}
 renderer.setAnimationLoop(()=>{const t=t0===null?0:(performance.now()-t0)/1000;frame(t);renderer.render(scene,camera);});
