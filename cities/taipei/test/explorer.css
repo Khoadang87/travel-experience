@@ -73,3 +73,4 @@ html body .mk.filmed i,html body.xjunc .mk.ahead i{display:none}
 html body .xring{position:fixed;z-index:10;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;border:2px solid rgba(232,181,90,.75);box-shadow:0 0 18px rgba(232,181,90,.45),inset 0 0 14px rgba(232,181,90,.25);pointer-events:none;animation:xrp 2s ease-in-out infinite}
 @keyframes xrp{0%,100%{transform:scale(.85);opacity:.45}50%{transform:scale(1.05);opacity:1}}
 html body.xwalk .xring{opacity:.5}
+html body .xring.clamped{width:64px;height:64px;margin:-32px 0 0 -32px}

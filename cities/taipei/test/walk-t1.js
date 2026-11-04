@@ -7,7 +7,7 @@
    No zoom, no look-inside. Flags via window.W50: xfade (w50a: 0.5 s heading-matched crossfade), rev (w50c: walk back on time-reversed real footage).
    Engine (video, seek, stick, sound) copied from w42k. */
 import * as THREE from 'three';
-import { initHunt } from './hunt-kit.js?v=t1l';
+import { initHunt } from './hunt-kit.js?v=t1m';
 window.__w = {};
 const CFG = window.W50 || {}; const VER = CFG.ver || 't1';
 const $ = id => document.getElementById(id), params = new URLSearchParams(location.search);
@@ -15,7 +15,7 @@ const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platfor
 const ROOT = window.WALK_ROOT ?? '../', A = ROOT + 'assets/walk/';
 const evlog = []; const log = s => { evlog.push((performance.now() / 1000).toFixed(1) + ' ' + s); if (evlog.length > 60) evlog.shift(); };
 window.__evlog = evlog;
-const BUILD = 't1l-2026-11-04'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
+const BUILD = 't1m-2026-11-04'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
 fetch('build.json?cb=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(b => { if (b.build && b.build !== BUILD && !sessionStorage.getItem('t1reload')) { sessionStorage.setItem('t1reload', '1'); location.replace(location.pathname + '?b=' + b.build + location.hash); } }).catch(() => {}); addEventListener('pageshow', e => { if (e.persisted) location.reload(); }); /* t1g: an old tab or cached page reloads itself onto the current build */
 
 // ---------- scene ----------
@@ -235,14 +235,14 @@ initHunt({ $, D2R, wrap, scr, mkMarker, headAt, log, joyEnd, cv, pos: () => pos(
     tt: ['Taipei Times, 6 Jul 2016', 'https://www.taipeitimes.com/News/lang/archives/2016/07/06/2003650422'],
     tp: ['Taipei Travel (Taipei City Government)', 'https://travel.taipei/en/attraction/details/2358'] },
   spots: [
-    { id: 'redhouse', t0: 232, t1: 247, u: [[235, 0.6], [245, 0.5]], label: 'Red House', title: 'The Red House, 1908', body: 'This red-brick octagon was built in 1908 as the Xinqi Street Market, designed by architect Kondo Juro with an octagonal entrance and a cruciform main hall. It later became a storytelling hall and a theatre, and was named a Taipei City historic site in 1997.', src: 'dca' },
+    { id: 'redhouse', t0: 232, t1: 247, u: [[235, 0.6], [239, 0.58], [245, 0.5]], v: 0.1, /* t1m: yaw+pitch measured from the live frames */ label: 'Red House', title: 'The Red House, 1908', body: 'This red-brick octagon was built in 1908 as the Xinqi Street Market, designed by architect Kondo Juro with an octagonal entrance and a cruciform main hall. It later became a storytelling hall and a theatre, and was named a Taipei City historic site in 1997.', src: 'dca' },
     { id: 'market', t0: 250, t1: 258, u: [[251, 0.56], [257, 0.58]], label: 'Old market', title: 'Dry goods in the octagon', body: 'The market opened on 20 December 1908. The octagon sold dry goods such as sweets, toys, cosmetics, shoes and umbrellas; the cross-shaped hall behind it was the wet market for meat and produce.', src: 'tt' },
     { id: 'rainbow', t0: 450, t1: 462, u: [[452, 0.28], [456, 0.3], [460, 0.45]], label: 'Rainbow Six', title: 'Rainbow Six crossing', body: 'Painted by Exit 6 of Ximen MRT station on 25 September 2019, after Taiwan became the first country in Asia to legalise same-sex marriage (17 May 2019).', src: 'tp' } ],
   hunt: [
-    { id: 'redhouse', t0: 232, t1: 247, u: [[235, 0.6], [245, 0.5]], label: 'the red-brick Red House' },
-    { id: 'livesign', t0: 251, t1: 258, u: [[252, 0.57], [257, 0.58]], label: 'the big blue banner on the Red House' },
-    { id: 'rainbow', t0: 450, t1: 462, u: [[452, 0.28], [456, 0.3], [460, 0.45]], pmin: -1.2, label: 'the rainbow crossing' },
-    { id: 'stall', t0: 1104, t1: 1116, u: [[1106, 0.74], [1114, 0.74]], label: 'a lit-up street-food stall' } ] });
+    { id: 'redhouse', t0: 232, t1: 247, u: [[235, 0.6], [239, 0.58], [245, 0.5]], v: 0.1, /* t1m: yaw+pitch measured from the live frames */ label: 'the red-brick Red House' },
+    { id: 'livesign', t0: 251, t1: 258, u: [[252, 0.57], [257, 0.58]], v: 0.05, label: 'the big blue banner on the Red House' },
+    { id: 'rainbow', t0: 450, t1: 462, u: [[452, 0.28], [456, 0.3], [460, 0.45]], v: -0.4, pmin: -1.2, label: 'the rainbow crossing' },
+    { id: 'stall', t0: 1104, t1: 1116, u: [[1106, 0.74], [1110, 0.74], [1114, 0.7]], v: 0, label: 'a lit-up street-food stall' } ] });
 
 // ---------- cards ----------
 function showNF(x) { joyEnd(); if (!v.paused) v.pause(); $('nf-title').textContent = x.label; $('nf').hidden = false; window.__w.nfShown = x.id; lastAct = 'not filmed ' + x.id; }

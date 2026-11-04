@@ -14,7 +14,7 @@ const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platfor
 const ROOT = window.WALK_ROOT ?? '../', A = ROOT + 'assets/walk/';
 const evlog = []; const log = s => { evlog.push((performance.now() / 1000).toFixed(1) + ' ' + s); if (evlog.length > 60) evlog.shift(); };
 window.__evlog = evlog;
-const BUILD = 'ls4d-2026-11-04'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
+const BUILD = 'ls4e-2026-11-04'; $('ver').textContent = VER + ' · build ' + BUILD; window.__build = BUILD; /* t1g: visible build id */
 fetch('ls1/build.json?cb=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(b => { if (b.build && b.build !== BUILD && !sessionStorage.getItem('ls2reload')) { sessionStorage.setItem('ls2reload', '1'); location.replace(location.pathname + '?b=' + b.build + location.hash); } }).catch(() => {}); addEventListener('pageshow', e => { if (e.persisted) location.reload(); }); /* t1g: an old tab or cached page reloads itself onto the current build */
 
 // ---------- scene ----------
@@ -267,10 +267,10 @@ setInterval(placeSpots, 80);
 // Found when you hold it near the middle of the view (within 10 deg) for 0.4 s, or tap it. All found, or reaching the end of the walk = 'Longshan Temple' stamp.
 // Passport is shared by all cities: localStorage 'tePassport' = { v: 1, stamps: { id: { name, city, at } } }. ----------
 const HUNT = [
-  { id: 'censer', t0: 135, t1: 145, u: [[136, 0.63], [144, 0.63]], label: 'the big incense burner' },
-  { id: 'tower', t0: 239, t1: 248, u: [[240, 0.27], [248, 0.27]], label: 'a tower with a pagoda roof' },
-  { id: 'dragon', t0: 258, t1: 266, u: [[260, 0.18], [264, 0.31]], label: 'a coiled-dragon column' },
-  { id: 'lantern', t0: 434, t1: 447, u: [[436, 0.47], [442, 0.45], [446, 0.33]], label: 'a painted lantern' } ];
+  { id: 'censer', t0: 135, t1: 145, u: [[136, 0.68], [140, 0.637], [143, 0.577], [144, 0.56]], v: -0.08, /* ls4e: yaw+pitch measured from the live frames (qa/ui/built-C/live3/measure) */ label: 'the big incense burner' },
+  { id: 'tower', t0: 239, t1: 248, u: [[240, 0.242], [248, 0.242]], v: 0.41, pmax: 0.8, label: 'a tower with a pagoda roof' },
+  { id: 'dragon', t0: 258, t1: 266, u: [[260, 0.18], [264, 0.31]], v: 0.1, label: 'a coiled-dragon column' },
+  { id: 'lantern', t0: 434, t1: 447, u: [[435, 0.496], [440, 0.514], [445, 0.381], [446, 0.36]], v: 0.5, pmax: 0.9, label: 'a painted lantern' } ];
 const STAMP = { id: 'taipei-longshan', name: 'Longshan Temple', city: 'Taipei' };
 const PK = 'tePassport', HK = 'huntLongshan';
 const pp = () => { try { return JSON.parse(localStorage.getItem(PK)) || { v: 1, stamps: {} }; } catch (e) { return { v: 1, stamps: {} }; } };

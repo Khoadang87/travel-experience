@@ -1,5 +1,5 @@
 // Shared spot hunt + tap-to-learn fact markers + passport stamp (t1j). Same rules as Longshan ls3 (walk-ls1.js keeps its inline copy, unchanged):
-// targets are real things in the walk footage (u = image position 0..1 in the walk frame at walk time t). Found when held within 10 deg of the
+// v = measured pitch (rad, + up) of the item, used to anchor the hint ring (t1m). targets are real things in the walk footage (u = image position 0..1 in the walk frame at walk time t). Found when held within 10 deg of the
 // middle of the view for 0.4 s (or tapped within 12 deg). All found, or reaching the end of the clip = stamp in the shared passport
 // localStorage 'tePassport' = { v: 1, stamps: { id: { name, city, at, why } } }. Markers sit mid-screen, never over the stick; nothing stops the walk.
 export function initHunt(A, C) {

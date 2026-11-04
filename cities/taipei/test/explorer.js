@@ -23,7 +23,7 @@
   function hunts() { const w = W(); if (!w.hunts || !w.spotDir || !w.proj || !w.state || !w.huntState) return; let st; try { st = w.state(); } catch (e) { return; } const p = st.pos, got = new Set(w.huntState().found);
     for (const h of w.hunts) { let r = rings[h.id]; if (!r) { r = rings[h.id] = document.createElement('div'); r.className = 'xring'; r.dataset.hunt = h.id; r.hidden = true; document.body.appendChild(r); }
       let show = !got.has(h.id) && p >= h.t0 && p <= h.t1 && !document.body.classList.contains('picking');
-      if (show) { const q = w.proj(w.spotDir(h.id, p), (h.pmin ?? -0.45) < -0.6 ? -0.35 : 0.05); show = q.on; if (show) { r.style.left = q.x + 'px'; r.style.top = q.y + 'px'; } }
+      if (show) { const q = w.proj(w.spotDir(h.id, p), h.v ?? 0); show = q.on; if (show) { const top = 150, bot = innerHeight - 250, x = Math.max(50, Math.min(innerWidth - 50, q.x)), y = Math.max(top, Math.min(bot, q.y)); r.style.left = x + 'px'; r.style.top = y + 'px'; r.classList.toggle('clamped', y !== q.y); } /* kept clear of the top bar and the bottom controls */ }
       r.hidden = !show; } }
   function tick() { junc(); hunts();
     const w = W(); if (w.relYaw) { const r = -w.relYaw() * 180 / Math.PI; /* look right = positive */ for (const s of sp) { const x = (+s.dataset.d - r) * PX; s.style.left = x + 'px'; s.style.display = Math.abs(x) < 130 ? '' : 'none'; } }
