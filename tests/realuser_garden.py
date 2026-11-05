@@ -22,7 +22,7 @@ async def main():
     await pg.wait_for_function('window.__w&&window.__w.state().ready',timeout=180000)
     await pg.wait_for_timeout(3000)
     st=lambda: E('window.__w.state()')
-    s=await st(); rec('load',s['people']>=20 and not errs and len(s['models'])>=12,{'build':s['build'],'people':s['people'],'avatars':s['avatars'],'models':s['models'],'errors':errs[:3],'drawcalls':s['calls'],'tris':s['tris']})
+    s=await st(); rec('load',s['people']>=20 and s['avatars']>=15 and not errs and len(s['models'])>=12,{'build':s['build'],'people':s['people'],'avatars':s['avatars'],'models':s['models'],'errors':errs[:3],'drawcalls':s['calls'],'tris':s['tris']})
     await pg.screenshot(path=OUT+'/01_spawn.png')
     # koi: small fish below the water surface, inside the pond
     kz=await E("""(()=>{const T=window.__THREE,out=[];window.__scene.traverse(o=>{if(o.isSkinnedMesh&&/^Object_(6|7|8|9|10)$/.test(o.name)){const b=new T.Box3().setFromObject(o,true);const z=b.getSize(new T.Vector3()),c=b.getCenter(new T.Vector3());out.push([Math.max(z.x,z.z),b.max.y,((c.x-13)/7)**2+(c.z/6.5)**2]);}});return out;})()""")

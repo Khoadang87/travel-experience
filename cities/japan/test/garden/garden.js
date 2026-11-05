@@ -12,7 +12,7 @@ import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
 import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
 import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
 import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
-const BUILD='g4'; window.__build=BUILD;
+const BUILD='g5'; window.__build=BUILD;
 const Q=new URLSearchParams(location.search);
 const PEOPLE_DIR='../../taipei/test/world/';
 function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296;};}
@@ -395,7 +395,8 @@ function kneeGuard(p){if(!p.B||!p.B.legs)return;p.obj.updateMatrixWorld(true);_F
   if(window.__kdbg){L.th.getWorldPosition(_H);L.ca.getWorldPosition(_K);L.ft.getWorldPosition(_A);_d.copy(_A).sub(_H);const t2=_K.clone().sub(_H).dot(_d)/_d.lengthSq();const o2=_K.clone().sub(_H.clone().addScaledVector(_d,t2)).dot(_F);(kneeStats.post=kneeStats.post||[]).push([+off.dot(_F).toFixed(3),+o2.toFixed(3),p.av,+Math.hypot(p.x-P.x,p.z-P.z).toFixed(0)]);}}}
 const P={x:0,z:34,yaw:0,pitch:-0.02,vx:0,vz:0,r:0.35,eye:1.62,y:0};
 if(Q.get('x'))P.x=+Q.get('x');if(Q.get('z'))P.z=+Q.get('z');
-const AV=['Female_Adult_01','Male_Adult_02','Female_Adult_04','Male_Adult_05','Female_Adult_02','Male_Adult_08','Female_Child_01','Female_Adult_05','Male_Adult_03','Female_Adult_07','Female_Adult_11','Female_Adult_13'];
+// g5: user-approved Rocketbox adults (excluded: Female_Adult_10, Female_Adult_12, Sports_Female_01, Female_Party_01/02); 18 picked at random per visit to keep downloads small
+const AVPOOL=['Business_Female_01','Business_Female_02','Business_Male_01','Business_Male_02','Female_Adult_01','Female_Adult_02','Female_Adult_03','Female_Adult_04','Female_Adult_05','Female_Adult_06','Female_Adult_07','Female_Adult_08','Female_Adult_09','Female_Adult_11','Female_Adult_13','Female_Adult_14','Female_Adult_15','Female_Adult_16','Female_Adult_17','Gardener_Male_01','Male_Adult_01','Male_Adult_02','Male_Adult_03','Male_Adult_04','Male_Adult_05','Male_Adult_06','Male_Adult_07','Male_Adult_08','Male_Adult_09','Male_Adult_10','Male_Adult_11','Male_Adult_12','Male_Adult_13','Male_Adult_14','Male_Adult_15','Male_Adult_16','Male_Adult_17','Male_Adult_18','Male_Adult_19','Male_Adult_20','Male_Adult_21'];const AV=AVPOOL.map(n=>[Math.random(),n]).sort((a,b)=>a[0]-b[0]).slice(0,18).map(a=>a[1]);
 const TP=[]; // Tripo bodies removed (auto-rigged); only creator-rigged Rocketbox avatars with their own clips
 const KIM=[0xf3d6de,0xd7e3f0,0xe9e2cc,0xf0dccb,0xffffff,0xdfe8d8];
 let ready=false;
@@ -409,7 +410,7 @@ function spawnAll(){const N=+(Q.get('n')||30);
   if(extra.props)p.props=extra.props;p.faceTo=p.yaw;play(p,'Idle_Loop',0);people.push(p);return p;};
  const rb=new Promise(res=>LD.load(PEOPLE_DIR+'rb/anims.glb',ag=>{for(const c of ag.animations)clipsByName[c.name]=prepClip(c);res(true);},undefined,()=>res(false)));
  const loadP=u=>new Promise(res=>LD.load(u,g=>res(g),undefined,()=>res(null)));
- Promise.all([rb,Promise.all(AV.map(n=>loadP(PEOPLE_DIR+'rb2/'+n+'.glb'))),Promise.all(TP.map(t=>loadP(PEOPLE_DIR+'tp/'+t[0]+'.glb'))),Promise.resolve(null)]).then(([okA,rbs,tps,alina])=>{
+ Promise.all([rb,Promise.all(AV.map(n=>loadP('garden/people/'+n+'.glb'))),Promise.all(TP.map(t=>loadP(PEOPLE_DIR+'tp/'+t[0]+'.glb'))),Promise.resolve(null)]).then(([okA,rbs,tps,alina])=>{
   const refY=g=>{const c=clipsByName[g+'_idle_neutral_01'];const t=c&&c.tracks.find(t=>t.name==='RBRoot.position');return t?t.values[1]:0.9;};const REFY={m:refY('m'),f:refY('f')};
   const cache={};function clipFor(nm,f,c,ry){const key=nm+'|'+c.name;if(cache[key])return cache[key];const k=ry/REFY[f];
    const tr=c.tracks.map(t=>{if(t.name!=='RBRoot.position')return t;const u=t.clone();for(let i=0;i<u.values.length;i++)u.values[i]*=k;return u;});return cache[key]=new THREE.AnimationClip(c.name+'|'+nm,c.duration,tr);}

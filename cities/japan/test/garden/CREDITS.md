@@ -39,3 +39,5 @@ Considered but not used: Grab3D "Cherry Blossom Tree" (CC0, grab3d.com) was down
 - aud/gong.m4a: "Gong or bell vibrant.ogg" by stephan, Wikimedia Commons, public domain.
 - aud/crowd.m4a: "Shopping mall less crowded.ogg" by natalie, Wikimedia Commons, public domain.
 - The water, wind and bird sounds are synthesized live with Web Audio.
+
+- g5 people: 41 Microsoft Rocketbox adults (MIT, creator-rigged; clips from the Rocketbox library), in garden/people/. Excluded by user: Female_Adult_10, Female_Adult_12, Sports_Female_01, Female_Party_01/02.
