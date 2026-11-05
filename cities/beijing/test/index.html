@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Beijing Forbidden City — joystick test</title>
+<style>
+  :root{
+    --xg:rgba(8,12,18,.55); --xl:rgba(255,255,255,.16); --mut:rgba(232,238,245,.62);
+    --sa-t:env(safe-area-inset-top,0px); --sa-b:env(safe-area-inset-bottom,0px);
+    --sa-l:env(safe-area-inset-left,0px); --sa-r:env(safe-area-inset-right,0px);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin:0; height:100%; background:#0b0d10; color:#e8eef5;
+    font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+    overflow:hidden; touch-action:none; -webkit-user-select:none; user-select:none; overscroll-behavior:none;
+  }
+  .glass{
+    background:var(--xg); -webkit-backdrop-filter:blur(22px) saturate(1.5); backdrop-filter:blur(22px) saturate(1.5);
+    border:.5px solid var(--xl); box-shadow:0 8px 30px rgba(0,0,0,.25);
+  }
+  #stage { position:relative; width:100%; height:100%; background:#000; }
+  video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#000; }
+  #vidA { z-index:1; opacity:1; transition: opacity .22s linear; }
+  #vidB { z-index:2; opacity:0; transition: opacity .22s linear; }
+
+  #hud {
+    position:absolute; z-index:10; left:calc(var(--sa-l) + 12px); top:calc(var(--sa-t) + 12px);
+    padding:10px 12px; border-radius:14px; font-size:13px; line-height:1.45;
+    pointer-events:none; max-width:min(420px, 78vw);
+  }
+  #hud b { color:#9fd0ff; }
+  #hint { opacity:.75; margin-top:4px; font-size:12px; }
+
+  #tip{
+    position:absolute; z-index:10; left:50%; bottom:calc(var(--sa-b) + 168px); transform:translateX(-50%);
+    border-radius:999px; padding:8px 16px; font:500 13px system-ui; white-space:nowrap; pointer-events:none;
+  }
+
+  /* Garden-style thumb stick — bottom LEFT (mobile-first) */
+  #joy{
+    position:fixed; z-index:12;
+    left:calc(var(--sa-l) + 18px); bottom:calc(var(--sa-b) + 28px);
+    width:124px; height:124px; border-radius:50%; touch-action:none;
+  }
+  #joy::after{
+    content:"WALK"; position:absolute; left:0; right:0; top:18px; text-align:center;
+    font:600 10px system-ui; letter-spacing:.1em; color:var(--mut); pointer-events:none;
+  }
+  #knob{
+    position:absolute; left:50%; top:50%; width:50px; height:50px; margin:-25px 0 0 -25px;
+    border-radius:50%; background:rgba(232,238,245,.88); box-shadow:0 2px 10px rgba(0,0,0,.35); pointer-events:none;
+  }
+
+  /* Optional compact look buttons (augment, not primary) */
+  #lookPad{
+    position:fixed; z-index:11; right:calc(var(--sa-r) + 16px); bottom:calc(var(--sa-b) + 28px);
+    display:grid; grid-template-columns:48px 48px; gap:8px;
+  }
+  #lookPad button{
+    width:48px; height:48px; border-radius:14px; border:.5px solid var(--xl);
+    background:rgba(20,28,40,.72); color:#fff; font-size:18px; cursor:pointer;
+    -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  }
+  #lookPad button:active { background:rgba(70,130,200,.55); }
+  #lookPad .label{ grid-column:1/-1; text-align:center; font-size:10px; opacity:.65; letter-spacing:.08em; }
+
+  #compass {
+    position:absolute; z-index:10; top:calc(var(--sa-t) + 12px); right:calc(var(--sa-r) + 12px);
+    width:64px; height:64px; border-radius:50%; display:grid; place-items:center;
+  }
+  #needle {
+    width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent;
+    border-bottom:24px solid #9fd0ff; transform-origin:50% 70%; transition: transform .2s ease; margin-bottom:8px;
+  }
+  #badge {
+    position:absolute; z-index:10; left:50%; transform:translateX(-50%);
+    bottom:calc(var(--sa-b) + 8px); font-size:10px; opacity:.5; pointer-events:none;
+  }
+  /* Desktop helper: hide look pad labels on very narrow if needed — keep both */
+  @media (min-width:900px){
+    #tip{ bottom:calc(var(--sa-b) + 40px); }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <video id="vidA" playsinline webkit-playsinline muted defaultMuted loop preload="auto"></video>
+  <video id="vidB" playsinline webkit-playsinline muted defaultMuted loop preload="auto"></video>
+  <div id="hud" class="glass">
+    <div>Heading: <b id="headingLabel">0°</b> · mode <b id="modeLabel">idle</b></div>
+    <div id="hint">Stick = walk · drag right half = look · Q/E look · WASD move</div>
+  </div>
+  <div id="compass" class="glass"><div id="needle"></div></div>
+  <div id="tip" class="glass">Drag right to look · stick to walk</div>
+  <div id="joy" class="glass"><div id="knob"></div></div>
+  <div id="lookPad">
+    <div class="label">LOOK</div>
+    <button type="button" id="btnLookL" title="Look left (Q)">⟲</button>
+    <button type="button" id="btnLookR" title="Look right (E)">⟳</button>
+  </div>
+  <div id="badge">TEST · Beijing Forbidden City joystick (AI video)</div>
+</div>
+<script>
+(() => {
+  const HEADINGS = [0,45,90,135,180,225,270,315];
+  const pad3 = (n) => String(n).padStart(3,'0');
+  const MEDIA_V = 'b1';
+  const idleSrc = (h) => `media/idle_${pad3(h)}.mp4?v=${MEDIA_V}`;
+  const MOVE = {
+    forward: `media/walk_000.mp4?v=${MEDIA_V}`,
+    back: `media/walk_back.mp4?v=${MEDIA_V}`,
+    left: `media/strafe_left.mp4?v=${MEDIA_V}`,
+    right: `media/strafe_right.mp4?v=${MEDIA_V}`,
+  };
+  const TURNS = {
+    '0->45': `media/turn_L45.mp4?v=${MEDIA_V}`,
+    '0->90': `media/turn_L90.mp4?v=${MEDIA_V}`,
+    '0->315': `media/turn_R45.mp4?v=${MEDIA_V}`,
+    '0->270': `media/turn_R90.mp4?v=${MEDIA_V}`,
+    '90->135': `media/turn_L135.mp4?v=${MEDIA_V}`,
+    '90->180': `media/turn_180.mp4?v=${MEDIA_V}`,
+    '270->225': `media/turn_R135.mp4?v=${MEDIA_V}`,
+  };
+
+  const vidA = document.getElementById('vidA');
+  const vidB = document.getElementById('vidB');
+  const headingLabel = document.getElementById('headingLabel');
+  const modeLabel = document.getElementById('modeLabel');
+  const needle = document.getElementById('needle');
+  const stage = document.getElementById('stage');
+  const tip = document.getElementById('tip');
+  const J = document.getElementById('joy');
+  const K = document.getElementById('knob');
+
+  let heading = 0;
+  let busy = false;
+  let front = vidA;
+  let back = vidB;
+  let tipHidden = false;
+
+  function hideTipSoon() {
+    if (tipHidden) return;
+    tipHidden = true;
+    setTimeout(() => { tip.style.opacity = '0'; }, 3500);
+  }
+
+  function setHud(mode) {
+    headingLabel.textContent = `${heading}°`;
+    modeLabel.textContent = mode;
+    needle.style.transform = `rotate(${heading}deg)`;
+  }
+  function showFront() {
+    front.style.opacity = '1';
+    back.style.opacity = '0';
+  }
+
+  async function playIdle(h, {fade=true} = {}) {
+    const src = idleSrc(h);
+    if (!fade) {
+      front.loop = true;
+      front.onended = null;
+      front.src = src;
+      await front.play().catch(()=>{});
+      showFront();
+      setHud('idle');
+      return;
+    }
+    back.loop = true;
+    back.onended = null;
+    back.src = src;
+    try { await back.play(); } catch(e) {}
+    back.style.opacity = '1';
+    front.style.opacity = '0';
+    await new Promise(r => setTimeout(r, 240));
+    const tmp = front; front = back; back = tmp;
+    back.pause();
+    setHud('idle');
+  }
+
+  async function playOnce(src) {
+    back.loop = false;
+    back.onended = null;
+    back.src = src;
+    try { await back.play(); } catch(e) {}
+    back.style.opacity = '1';
+    front.style.opacity = '0';
+    await new Promise((resolve) => {
+      const done = () => { back.removeEventListener('ended', done); resolve(); };
+      back.addEventListener('ended', done);
+    });
+    const tmp = front; front = back; back = tmp;
+    back.pause();
+  }
+
+  function normHeading(h) {
+    h = ((h % 360) + 360) % 360;
+    return HEADINGS.reduce((best, x) => Math.abs(x-h) < Math.abs(best-h) ? x : best, 0);
+  }
+  function turnKey(from, to) { return `${from}->${to}`; }
+
+  async function look(delta) {
+    if (busy) return;
+    busy = true;
+    hideTipSoon();
+    const from = heading;
+    const to = normHeading(from + delta);
+    if (to === from) { busy = false; return; }
+    const key = turnKey(from, to);
+    setHud(delta < 0 ? 'look left' : 'look right');
+    if (TURNS[key]) {
+      await playOnce(TURNS[key]);
+      heading = to;
+      await playIdle(heading, {fade:false});
+    } else {
+      heading = to;
+      await playIdle(heading, {fade:true});
+    }
+    busy = false;
+  }
+
+  async function playMove(kind) {
+    if (busy) return;
+    if (heading !== 0) {
+      setHud(`${kind} only at 0° — look forward`);
+      return;
+    }
+    const src = MOVE[kind];
+    if (!src) return;
+    busy = true;
+    hideTipSoon();
+    setHud(kind);
+    front.loop = false;
+    front.src = src;
+    showFront();
+    try { await front.play(); } catch(e) {}
+    await new Promise((resolve) => {
+      const done = () => { front.removeEventListener('ended', done); resolve(); };
+      front.addEventListener('ended', done);
+    });
+    busy = false;
+    await playIdle(0, {fade:false});
+  }
+
+  // --- Joystick (bottom-left): up=forward, down=back, left/right=strafe ---
+  const joy = { x:0, y:0, id:null, fired:false };
+  function joySector(x, y) {
+    const m = Math.hypot(x, y);
+    if (m < 0.45) return null;
+    if (Math.abs(y) >= Math.abs(x)) return y < 0 ? 'forward' : 'back';
+    return x < 0 ? 'left' : 'right';
+  }
+  function jmove(e) {
+    const b = J.getBoundingClientRect();
+    let dx = (e.clientX - (b.left + b.width/2)) / (b.width * 0.4);
+    let dy = (e.clientY - (b.top + b.height/2)) / (b.height * 0.4);
+    const m = Math.hypot(dx, dy);
+    if (m > 1) { dx /= m; dy /= m; }
+    joy.x = dx; joy.y = dy;
+    K.style.transform = `translate(${dx * b.width * 0.4}px, ${dy * b.height * 0.4}px)`;
+    // Fire once when entering a strong sector (clip-based, not continuous)
+    if (!joy.fired && !busy) {
+      const sec = joySector(dx, dy);
+      if (sec) {
+        joy.fired = true;
+        playMove(sec);
+      }
+    }
+  }
+  J.addEventListener('pointerdown', e => {
+    joy.id = e.pointerId; joy.fired = false;
+    J.setPointerCapture(e.pointerId); jmove(e); e.preventDefault();
+  });
+  J.addEventListener('pointermove', e => { if (e.pointerId === joy.id) jmove(e); });
+  const jend = e => {
+    if (e.pointerId !== joy.id) return;
+    joy.id = null; joy.x = joy.y = 0; joy.fired = false;
+    K.style.transform = '';
+  };
+  J.addEventListener('pointerup', jend);
+  J.addEventListener('pointercancel', jend);
+
+  // --- Right-half drag = look around (45° steps) ---
+  let lookDrag = null;
+  stage.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('#joy') || e.target.closest('#lookPad') || e.target.closest('button')) return;
+    // Only right half of screen for look (left reserved visually for stick)
+    if (e.clientX < window.innerWidth * 0.42) return;
+    lookDrag = { x: e.clientX, y: e.clientY, id: e.pointerId, acc: 0 };
+    stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener('pointermove', (e) => {
+    if (!lookDrag || lookDrag.id !== e.pointerId || busy) return;
+    const dx = e.clientX - lookDrag.x;
+    lookDrag.acc += dx;
+    lookDrag.x = e.clientX;
+    // every ~56px of horizontal drag → one 45° look step
+    while (lookDrag.acc >= 56) { lookDrag.acc -= 56; look(+45); }
+    while (lookDrag.acc <= -56) { lookDrag.acc += 56; look(-45); }
+  });
+  const lend = (e) => {
+    if (!lookDrag || lookDrag.id !== e.pointerId) return;
+    lookDrag = null;
+  };
+  stage.addEventListener('pointerup', lend);
+  stage.addEventListener('pointercancel', lend);
+
+  document.getElementById('btnLookL').addEventListener('click', () => look(-45));
+  document.getElementById('btnLookR').addEventListener('click', () => look(+45));
+
+  window.addEventListener('keydown', (e) => {
+    if (e.repeat) return;
+    if (e.code === 'KeyQ' || e.code === 'ArrowLeft') { e.preventDefault(); look(-45); }
+    if (e.code === 'KeyE' || e.code === 'ArrowRight') { e.preventDefault(); look(+45); }
+    if (e.code === 'KeyW' || e.code === 'ArrowUp') { e.preventDefault(); playMove('forward'); }
+    if (e.code === 'KeyS' || e.code === 'ArrowDown') { e.preventDefault(); playMove('back'); }
+    if (e.code === 'KeyA') { e.preventDefault(); playMove('left'); }
+    if (e.code === 'KeyD') { e.preventDefault(); playMove('right'); }
+  });
+
+  heading = 0;
+  playIdle(0, {fade:false});
+  setHud('idle');
+})();
+</script>
+</body>
+</html>
