@@ -117,7 +117,7 @@ async def main():
       try: return os.path.getsize(os.path.join(LOCAL,u.split('?')[0][len(BASE):]))
       except OSError: return 0
     mb=sum(fsz(u,n) for u,n in res)/1048576
-    rec('budgets',max(x['calls'] for x in bud)<=650 and max(x['tris'] for x in bud)<=1800000 and mb<20,{'frames':bud,'downloaded_mb':round(mb,2),'limits':{'calls':650,'tris':1800000,'mb':20},'note':'tris include the shadow pass on frames where it renders'})
+    rec('budgets',max(x['calls'] for x in bud)<=450 and max(x['tris'] for x in bud)<=1000000 and mb<20,{'frames':bud,'downloaded_mb':round(mb,2),'limits':{'calls':450,'tris':1000000,'mb':20},'note':'tris include the shadow pass on frames where it renders'})
     # credits panel opens and names the sources
     await pg.click('#credits-btn'); await pg.wait_for_timeout(600)
     cp=await E('(()=>{const d=document.getElementById("credits-panel");return {shown:getComputedStyle(d).display!=="none",text:d.innerText}})()')

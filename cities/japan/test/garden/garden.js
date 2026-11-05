@@ -12,7 +12,7 @@ import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
 import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
 import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
 import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
-const BUILD='g3'; window.__build=BUILD;
+const BUILD='g4'; window.__build=BUILD;
 const Q=new URLSearchParams(location.search);
 const PEOPLE_DIR='../../taipei/test/world/';
 function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296;};}
@@ -118,8 +118,11 @@ for(const [x,z,ry] of benches){const g=new THREE.Group();const s=new THREE.Mesh(
  if(Math.abs(s2)>0.5)solid(x-0.3,z-1.1,x+0.3,z+1.1);else solid(x-1.1,z-0.3,x+1.1,z+0.3);}
 // ---------- Somei-Yoshino cherry trees (g2): gnarled branching trunks + alpha-tested blossom cards, matched to Ritsurin/Kenroku-en photos ----------
 // Real Yoshino read as an airy pale white-pink cloud over dark, nearly black branches with sky showing through; no leaves at full bloom.
-const TREES=[[-8,30,1.1],[8.5,30.5,1.0],[-9.5,17,0.95],[6.8,12.2,0.9],[22.5,-4.5,1.0],[-23,24,1.05],[-4.5,-11,0.85],[19.5,25.5,0.95]];
-{const tr=rng(99);
+const TREES=[[-8,30,1.1],[8.5,30.5,1.0],[-9.5,17,0.95],[6.8,12.2,0.9],[22.5,-4.5,1.0],[-23,24,1.05],[-4.5,-11,0.85],[19.5,25.5,0.95],
+ // g4: on the pagoda mound (bases ray-cast onto the mound surface)
+ [-8,-22.5,0.85],[8,-24.5,0.9],[-10.5,-30,0.95],[10,-31,0.9],[-7,-36,0.8],[7.5,-37,0.8]];
+const _trc=new THREE.Raycaster();function topY(x,z){_trc.set(new THREE.Vector3(x,60,z),new THREE.Vector3(0,-1,0));const h=_trc.intersectObjects(walkMeshes,false);return h.length?h[0].point.y:groundH(x,z);}
+function buildTrees(){const tr=rng(99);
  const barkTex=canvasTex(256,512,(x,w,h)=>{x.fillStyle='#2b211d';x.fillRect(0,0,w,h);for(let i=0;i<500;i++){const v=nr();x.fillStyle=`rgba(${70+v*40|0},${55+v*30|0},${50+v*25|0},${0.25+nr()*0.4})`;x.fillRect(nr()*w,nr()*h,1+nr()*2,6+nr()*30);}
   // cherry bark: horizontal lenticel bands
   for(let i=0;i<260;i++){x.fillStyle=`rgba(${120+nr()*40|0},${100+nr()*30|0},${90|0},${0.35+nr()*0.3})`;x.fillRect(nr()*w,nr()*h,6+nr()*22,1.5+nr()*1.5);}noise(x,w,h,20);},[1,2]);
@@ -145,7 +148,7 @@ const TREES=[[-8,30,1.1],[8.5,30.5,1.0],[-9.5,17,0.95],[6.8,12.2,0.9],[22.5,-4.5
     limb(sp,nd,len*(0.55+tr()*0.25),rad*0.55,depth+1,tid);}}
   else{for(let i=2;i<=n;i++)tips.push([pts[i],tid]);}};
  const o=new THREE.Object3D();const cards=[];
- TREES.forEach(([x,z,sc],tid)=>{const H=(2.2+tr()*0.8)*sc;const base=new THREE.Vector3(x,0,z);const lean=new THREE.Vector3((tr()-.5)*0.5,1,(tr()-.5)*0.5).normalize();
+ TREES.forEach(([x,z,sc],tid)=>{const H=(2.2+tr()*0.8)*sc;const base=new THREE.Vector3(x,topY(x,z)-0.05,z);const lean=new THREE.Vector3((tr()-.5)*0.5,1,(tr()-.5)*0.5).normalize();
   const n0=tubes.length;limb(base,lean,H,0.26*sc,0,tid);
   // main scaffold limbs from the trunk top, spreading wide (umbrella crown)
   const top=base.clone().addScaledVector(lean,H);for(let k=0;k<4;k++){const a=k/4*6.283+tr();limb(top,new THREE.Vector3(Math.cos(a),0.5+tr()*0.3,Math.sin(a)).normalize(),(2.6+tr()*1.2)*sc,0.15*sc,1,tid);}
@@ -155,14 +158,14 @@ const TREES=[[-8,30,1.1],[8.5,30.5,1.0],[-9.5,17,0.95],[6.8,12.2,0.9],[22.5,-4.5
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(P,3));g.setAttribute('normal',new THREE.BufferAttribute(N,3));g.setAttribute('uv',new THREE.BufferAttribute(U,2));g.setIndex(new THREE.BufferAttribute(I,1));return g;})();
  const wood=new THREE.Mesh(merged,bark);wood.castShadow=true;wood.receiveShadow=true;scene.add(wood);
  // blossom cards clustered around twig tips, several per tip, random orientation, size grows toward the crown edge
- for(const [p,tid] of tips){const sc=TREES[tid][2];const k=3+(tr()*3|0);for(let i=0;i<k;i++){o.position.set(p.x+(tr()-.5)*0.9*sc,p.y+(tr()-.3)*0.6*sc,p.z+(tr()-.5)*0.9*sc);o.rotation.set((tr()-.5)*2.4,tr()*6.283,(tr()-.5)*2.4);o.scale.setScalar((1.1+tr()*0.8)*sc);o.updateMatrix();cards.push(o.matrix.clone());}}
+ for(const [p,tid] of tips){const sc=TREES[tid][2];const k=5+(tr()*3|0);for(let i=0;i<k;i++){o.position.set(p.x+(tr()-.5)*0.9*sc,p.y+(tr()-.3)*0.6*sc,p.z+(tr()-.5)*0.9*sc);o.rotation.set((tr()-.5)*2.4,tr()*6.283,(tr()-.5)*2.4);o.scale.setScalar((1.1+tr()*0.8)*sc);o.updateMatrix();cards.push(o.matrix.clone());}}
  const im=new THREE.InstancedMesh(cardG,bm,cards.length);cards.forEach((m,i)=>im.setMatrixAt(i,m));im.castShadow=true;scene.add(im);
  // fallen petals: flat specks under each crown and drifting on the pond
  const petT=canvasTex(32,32,(x,w,h)=>{x.clearRect(0,0,w,h);x.fillStyle='#f9dfe6';x.beginPath();x.ellipse(16,16,11,7,0.4,0,7);x.fill();});petT.wrapS=petT.wrapT=THREE.ClampToEdgeWrapping;
  const pg=new THREE.PlaneGeometry(0.06,0.06).rotateX(-Math.PI/2);const NP=2600;const pim=new THREE.InstancedMesh(pg,new THREE.MeshLambertMaterial({map:petT,alphaTest:0.5,color:0xffeef2}),NP);const q=new THREE.Object3D();
  for(let i=0;i<NP;i++){let x,z,y=0.012;if(i<600){const a=tr()*6.283,r=Math.sqrt(tr());x=POND.x+Math.cos(a)*POND.rx*0.95*r;z=POND.z+Math.sin(a)*POND.rz*0.95*r;y=0.05;}
-  else{const t=TREES[i%TREES.length];const a=tr()*6.283,r=Math.pow(tr(),0.7)*4.2*t[2];x=t[0]+Math.cos(a)*r;z=t[1]+Math.sin(a)*r;}
-  q.position.set(x,y,z);q.rotation.set(0,tr()*6.283,0);q.scale.setScalar(0.7+tr()*0.8);q.updateMatrix();pim.setMatrixAt(i,q.matrix);}
+  else{const t=TREES[i%8];const a=tr()*6.283,r=Math.pow(tr(),0.7)*4.2*t[2];x=t[0]+Math.cos(a)*r;z=t[1]+Math.sin(a)*r;}
+  q.position.set(x,i<600?y:groundH(x,z)+y,z);q.rotation.set(0,tr()*6.283,0);q.scale.setScalar(0.7+tr()*0.8);q.updateMatrix();pim.setMatrixAt(i,q.matrix);}
  pim.receiveShadow=true;scene.add(pim);window.__trees={n:TREES.length,cards:cards.length,woodTris:merged.index.count/3};}
 // ---------- layered surroundings: 3D mid-ground hills + cedars/pines, painted far ridges, faded AI-video strips ----------
 // Real Japanese gardens sit in "borrowed scenery" (shakkei): dark evergreen hills close behind the wall, paler ridges beyond, haze between.
@@ -179,18 +182,18 @@ const BGV=[];window.__backdrop={};
  // evergreens: sugi (stacked narrow cones) and pine/broadleaf clumps; one draw call each
  const tint=(geo,lo,hi)=>{const p=geo.attributes.position;const c=[];const b=new THREE.Box3().setFromBufferAttribute(p);const A=new THREE.Color(lo),B=new THREE.Color(hi);
   for(let i=0;i<p.count;i++){const t=(p.getY(i)-b.min.y)/(b.max.y-b.min.y);const k=A.clone().lerp(B,t);c.push(k.r,k.g,k.b);}geo.setAttribute('color',new THREE.Float32BufferAttribute(c,3));return geo;};
- const sg=[];for(let k=0;k<4;k++){const c=new THREE.ConeGeometry(0.42-k*0.08,0.42,7,1);c.translate(0,0.3+k*0.2,0);sg.push(c.toNonIndexed());}
+ const sg=[];for(let k=0;k<4;k++){const c=new THREE.ConeGeometry(0.42-k*0.08,0.42,9,1);c.translate(0,0.3+k*0.2,0);sg.push(c);}
  const sugiG=tint(BufferGeometryUtils.mergeGeometries(sg),0x1b2716,0x34452a);
- const bl=[];for(const [x,y,z,s] of [[0,0.55,0,0.55],[0.3,0.4,0.15,0.4],[-0.28,0.42,-0.1,0.42],[0.05,0.82,0.05,0.36]]){const c=new THREE.IcosahedronGeometry(1,0);c.scale(s,s*0.7,s);c.translate(x,y,z);bl.push(c.toNonIndexed());}
+ const bl=[];for(const [x,y,z,s] of [[0,0.55,0,0.55],[0.3,0.4,0.15,0.4],[-0.28,0.42,-0.1,0.42],[0.05,0.82,0.05,0.36]]){const c=new THREE.IcosahedronGeometry(1,1);c.scale(s,s*0.7,s);c.translate(x,y,z);bl.push(c);}
  const blobG=tint(BufferGeometryUtils.mergeGeometries(bl),0x223019,0x4a5a33);
- const mat=new THREE.MeshLambertMaterial({vertexColors:true,flatShading:true});
+ const mat=new THREE.MeshLambertMaterial({vertexColors:true});
  let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
  const place=(geo,N,hmin,hmax,wmul)=>{const im=new THREE.InstancedMesh(geo,mat,N);const o=new THREE.Object3D();const c=new THREE.Color();let n=0;
   for(let t=0;t<N*4&&n<N;t++){const a=rnd()*Math.PI*2;const r=R0+3+Math.pow(rnd(),1.6)*(R1-R0-20);const x=Math.sin(a)*r,z=Math.cos(a)*r;
    if(Math.abs(x)<58&&Math.abs(z)<66)continue;const y=H(a,r);const h=hmin+rnd()*(hmax-hmin);o.position.set(x,y-0.6,z);o.rotation.set(0,rnd()*6.28,0);o.scale.set(h*wmul,h,h*wmul);o.updateMatrix();im.setMatrixAt(n,o.matrix);
    c.setHSL(0.24+rnd()*0.06,0.25+rnd()*0.15,0.75+rnd()*0.35);im.setColorAt(n,c);n++;}
   im.count=n;scene.add(im);return n;};
- const nS=place(sugiG,900,7,15,0.9),nB=place(blobG,550,5,10,1.0);
+ const nS=place(sugiG,900,7,15,0.9),nB=place(blobG,300,5,10,1.0);
  // far ridges: seamless painted cylinder, haze colours, transparent above the ridgelines
  const fr=canvasTex(2048,256,(x,w,h)=>{const L=[['#b4bfc6',0.15,[2,5,9,17],0.9],['#9eacb4',0.38,[3,7,11,23],0.7],['#8a9a9f',0.6,[4,6,13,19],0.55]];
   for(const [cl,base,fq,amp] of L){x.fillStyle=cl;x.beginPath();x.moveTo(0,h);for(let i=0;i<=w;i+=4){const u=i/w*Math.PI*2;let v=0;fq.forEach((f,k)=>v+=Math.sin(f*u+k*1.7+base*9)/(k+1.2));
@@ -199,7 +202,7 @@ const BGV=[];window.__backdrop={};
  fr.wrapS=THREE.RepeatWrapping;fr.repeat.x=-1;
  const far=new THREE.Mesh(new THREE.CylinderGeometry(330,330,110,128,1,true),new THREE.MeshBasicMaterial({map:fr,transparent:true,side:THREE.BackSide,fog:false,depthWrite:false}));far.position.y=40;far.renderOrder=-2;scene.add(far);
  // haze band hides any seam where the far ridges meet the ground plane
- window.__backdrop={hillsTris:idx.length/3,sugi:nS,blobs:nB,instTris:nS*sugiG.attributes.position.count/3+nB*blobG.attributes.position.count/3,farR:330};}
+ window.__backdrop={hillsTris:idx.length/3,sugi:nS,blobs:nB,instTris:nS*(sugiG.index?sugiG.index.count:sugiG.attributes.position.count)/3+nB*(blobG.index?blobG.index.count:blobG.attributes.position.count)/3,farR:330};}
 // AI-video strips (Grok Imagine): only two videos, shown as soft-edged cropped bands far out in the haze between hills and ridges
 {const edge=canvasTex(256,128,(x,w,h)=>{const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'#000');g.addColorStop(0.45,'#fff');g.addColorStop(0.8,'#fff');g.addColorStop(1,'#000');x.fillStyle=g;x.fillRect(0,0,w,h);
   x.globalCompositeOperation='multiply';const s=x.createLinearGradient(0,0,w,0);s.addColorStop(0,'#000');s.addColorStop(0.25,'#fff');s.addColorStop(0.75,'#fff');s.addColorStop(1,'#000');x.fillStyle=s;x.fillRect(0,0,w,h);});
@@ -240,7 +243,7 @@ const koi=[];
 const modelsReady=Promise.all(MODELS.map(loadM)).then(arr=>{const G={};MODELS.forEach((n,i)=>G[n]=arr[i]&&arr[i].scene);window.__koiAnims=arr[MODELS.indexOf('koi')]?arr[MODELS.indexOf('koi')].animations:[];window.__models=Object.keys(G).filter(k=>G[k]);
  // pagoda hill scene: rotate so its stairs come down toward the visitor (+z)
  if(G.pagoda){const s=G.pagoda;s.traverse(m=>{if(m.isMesh&&(/^(Sphere|Cube)$/.test(m.name)||/sakura/i.test(m.name+' '+(m.parent?m.parent.name:'')+' '+(m.material&&m.material.name))))m.visible=false;});
-  s.traverse(m=>{if(m.isMesh&&m.visible){m.castShadow=true;m.receiveShadow=true;if(/Stairs|Grass/.test(m.name))walkMeshes.push(m);const mt=m.material;if(mt&&mt.emissiveMap&&/Lantern/i.test(m.name))mt.emissiveIntensity=2.2;}});
+  s.traverse(m=>{if(m.isMesh&&m.visible){m.castShadow=true;m.receiveShadow=true;if(/Stairs|Grass/.test(m.name))walkMeshes.push(m);if(/^Grass/.test(m.name)&&m.material){m.material=m.material.clone();m.material.color.setRGB(2.1,2.5,1.65);}const mt=m.material;if(mt&&mt.emissiveMap&&/Lantern/i.test(m.name))mt.emissiveIntensity=2.2;}});
   s.rotation.y=Math.PI;s.position.set(0,PAG.y,PAG.z);scene.add(s);
   for(const zo of[-6.15,-9.45,-11.85,-14.25,-18.05])for(const xo of[-1.55,1.55]){addGlow(-xo,PAG.y+(zo>-7?0:zo>-10?-1.6:zo>-12.5?-2.7:zo>-15?-3.7:-3.85),PAG.z-zo,0.7,0xffa040);}}
  if(G.torii){const t=fit(G.torii,{h:6.6,x:0,z:26});const b=new THREE.Box3().setFromObject(t);const w=b.max.x-b.min.x;circles.push([-w*0.36,26,0.45],[w*0.36,26,0.45]);}
@@ -281,7 +284,7 @@ function buildHeight(){HF.nx=Math.ceil((BOUND.x1-BOUND.x0)/HF.res)+1;HF.nz=Math.
    if(x>=BRIDGE.x0-0.6&&x<=BRIDGE.x1+0.6&&Math.abs(z)<=1.2){if(h.point.y>0.05&&h.point.y<2.2){y=y?Math.min(y,h.point.y):h.point.y;}}else y=Math.max(y,h.point.y);}
   const i=Math.round((x-HF.x0)/HF.res),j=Math.round((z-HF.z0)/HF.res);if(i>=0&&j>=0&&i<HF.nx&&j<HF.nz)HF.d[j*HF.nx+i]=Math.max(0,y);}
  window.__hf=true;}
-function groundH(x,z){if(!HF.d)return z<-29.5&&Math.abs(x)<5?PAG.y:0;const fx=(x-HF.x0)/HF.res,fz=(z-HF.z0)/HF.res;const i=Math.floor(fx),j=Math.floor(fz);if(i<0||j<0||i>=HF.nx-1||j>=HF.nz-1)return 0;
+window.__gh=(x,z)=>groundH(x,z);function groundH(x,z){if(!HF.d)return z<-29.5&&Math.abs(x)<5?PAG.y:0;const fx=(x-HF.x0)/HF.res,fz=(z-HF.z0)/HF.res;const i=Math.floor(fx),j=Math.floor(fz);if(i<0||j<0||i>=HF.nx-1||j>=HF.nz-1)return 0;
  const a=HF.d[j*HF.nx+i],b=HF.d[j*HF.nx+i+1],c=HF.d[(j+1)*HF.nx+i],d=HF.d[(j+1)*HF.nx+i+1];const u=fx-i,v=fz-j;return (a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v;}
 // ---------- falling sakura petals ----------
 const PET_N=Q.get('petals')?+Q.get('petals'):700;const pet={p:new Float32Array(PET_N*3),v:new Float32Array(PET_N*3),ph:new Float32Array(PET_N)};
@@ -291,7 +294,7 @@ const PET_N=Q.get('petals')?+Q.get('petals'):700;const pet={p:new Float32Array(P
   vertexShader:'attribute float ph;varying float vr;uniform float scale;uniform float t;void main(){vr=ph+t*(1.5+fract(ph)*2.);vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=clamp(0.09*scale/(-mv.z),1.,28.);gl_Position=projectionMatrix*mv;}',
   fragmentShader:'uniform sampler2D map;varying float vr;void main(){vec2 c=gl_PointCoord-.5;float s=sin(vr),k=cos(vr);c=vec2(c.x*k-c.y*s,(c.x*s+c.y*k)*(.4+.6*abs(sin(vr*.7))))+.5;vec4 col=texture2D(map,c);if(col.a<.4)discard;gl_FragColor=vec4(col.rgb*vec3(1.,.93,.9),col.a);}'});
  pet.pts=new THREE.Points(g,m);pet.pts.frustumCulled=false;scene.add(pet.pts);
- const seed=i=>{const t=TREES[i%TREES.length];pet.p[i*3]=t[0]+(R()-.5)*6;pet.p[i*3+1]=1+R()*4.5;pet.p[i*3+2]=t[1]+(R()-.5)*6;pet.v[i*3]=0.25+R()*0.3;pet.v[i*3+1]=-(0.25+R()*0.35);pet.v[i*3+2]=(R()-.5)*0.3;pet.ph[i]=R()*100;};
+ const seed=i=>{const t=TREES[i%8];pet.p[i*3]=t[0]+(R()-.5)*6;pet.p[i*3+1]=1+R()*4.5;pet.p[i*3+2]=t[1]+(R()-.5)*6;pet.v[i*3]=0.25+R()*0.3;pet.v[i*3+1]=-(0.25+R()*0.35);pet.v[i*3+2]=(R()-.5)*0.3;pet.ph[i]=R()*100;};
  pet.seed=seed;for(let i=0;i<PET_N;i++)seed(i);}
 function stepPetals(dt,t){pet.pts.material.uniforms.t.value=t;for(let i=0;i<PET_N;i++){const k=i*3;const ph=pet.ph[i];
   pet.p[k]+=(pet.v[k]+Math.sin(t*0.9+ph)*0.35)*dt;pet.p[k+1]+=(pet.v[k+1]+Math.sin(t*2.1+ph)*0.12)*dt;pet.p[k+2]+=(pet.v[k+2]+Math.cos(t*0.7+ph)*0.3)*dt;
@@ -437,7 +440,10 @@ function spawnAll(){const N=+(Q.get('n')||30);
    const mixer=new THREE.AnimationMixer(o);const a=alina.animations[0]?mixer.clipAction(alina.animations[0]):null;const actions={};if(a){actions.Idle_Loop=a;a.timeScale=0.9+i*0.15;}
    const p=mk(o,actions,mixer,'alina',{fixed:true});const spot=i?[10.2,-0.25,Math.PI*0.5]:[-2.5,23.5,Math.PI*0.9];p.x=spot[0];p.z=spot[1];p.yaw=p.faceTo=spot[2];}
   ready=true;document.getElementById('load').style.opacity=0;setTimeout(()=>{const l=document.getElementById('load');if(l)l.remove();},700);});}
-modelsReady.then(()=>{initNav();spawnAll();});
+modelsReady.then(()=>{
+ // g4: a single transmissive lantern-paper material made three.js re-render the whole scene into a transmission target every frame (~+60% triangles); paper reads the same as emissive translucent
+ scene.traverse(o=>{if(o.isMesh)for(const m of [].concat(o.material))if(m&&m.transmission>0){m.transmission=0;m.transparent=true;m.opacity=0.88;if(m.emissive){m.emissive.setHex(0xffb060);m.emissiveIntensity=Math.max(m.emissiveIntensity||0,0.6);}m.needsUpdate=true;}});
+ buildTrees();initNav();spawnAll();});
 // ---------- player ----------
 const joy={x:0,y:0,id:null};const keys={};
 const J=document.getElementById('joy'),K=document.getElementById('knob');
