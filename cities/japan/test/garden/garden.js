@@ -12,7 +12,7 @@ import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
 import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
 import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
 import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
-const BUILD='g5'; window.__build=BUILD;
+const BUILD='g6'; window.__build=BUILD;
 const Q=new URLSearchParams(location.search);
 const PEOPLE_DIR='../../taipei/test/world/';
 function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296;};}
@@ -354,11 +354,15 @@ function arrive(p,t){const s=p.slot;p.state='do';
 const angDiff=(a,b)=>{let d=a-b;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;return d;};
 function updatePerson(p,dt,t){
  if(p.state==='walk'){const w=p.route&&p.route[0];if(!w){arrive(p,t);}else{const dx=w[0]-p.x,dz=w[1]-p.z,d=Math.hypot(dx,dz);
-  // personal space: a walker heading toward the visitor within 3 m stops (idle) until the way is clear, so faces never fill the screen
-  const px=P.x-p.x,pz=P.z-p.z,pd=Math.hypot(px,pz);const near=pd<3&&(px*dx+pz*dz)>0;
-  if(near&&!p.yield){p.yield=true;p.wasClip=p.clip;play(p,'Idle_Look');}else if(!near&&p.yield&&pd>3.4){p.yield=false;play(p,p.wasClip||'Walk_Loop');}
+  // personal space: walkers heading toward the visitor stop ~4 m out (resume past 4.5 m). Step is clamped so a hitch/large dt cannot overshoot into the bubble.
+  const YIELD_IN=4.0,YIELD_OUT=4.5;const px=P.x-p.x,pz=P.z-p.z,pd=Math.hypot(px,pz);const toward=(px*dx+pz*dz)>0;
+  if(toward&&pd<YIELD_IN&&!p.yield){p.yield=true;p.wasClip=p.clip;play(p,'Idle_Look');}
+  else if(p.yield&&pd>YIELD_OUT){p.yield=false;play(p,p.wasClip||'Walk_Loop');}
   if(p.yield){p.yaw+=angDiff(Math.atan2(px,pz),p.yaw)*Math.min(1,dt*3);}
-  else if(d<0.15){p.route.shift();if(!p.route.length)arrive(p,t);}else{const st=Math.min(d,p.speed*dt);p.x+=dx/d*st;p.z+=dz/d*st;const ty=Math.atan2(dx,dz);p.yaw+=angDiff(ty,p.yaw)*Math.min(1,dt*6);}}}
+  else if(d<0.15){p.route.shift();if(!p.route.length)arrive(p,t);}
+  else{let st=Math.min(d,p.speed*Math.min(dt,0.1));
+   if(toward&&pd-st<YIELD_IN){st=Math.max(0,pd-YIELD_IN);if(st<0.02){p.yield=true;p.wasClip=p.clip;play(p,'Idle_Look');}}
+   if(!p.yield){p.x+=dx/d*st;p.z+=dz/d*st;const ty=Math.atan2(dx,dz);p.yaw+=angDiff(ty,p.yaw)*Math.min(1,dt*6);}}}}
  else{p.yaw+=angDiff(p.faceTo,p.yaw)*Math.min(1,dt*4);if(t>p.doUntil)chooseNext(p);}
  p.y+=(groundH(p.x,p.z)-p.y)*Math.min(1,dt*10);p.obj.position.set(p.x,p.y,p.z);p.obj.rotation.y=p.yaw;}
 const CLIPMAP={Walk_Loop:{m:'m_walk_neutral_01',f:'f_walk_neutral_01'},Walk_Formal_Loop:{m:'m_walk_slow_01',f:'f_walk_stroll_01'},
