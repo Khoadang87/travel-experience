@@ -32,6 +32,16 @@ async def main():
       if(((p.x-13)/7)**2+(p.z/6.5)**2<1&&!(p.x>5.2&&p.x<20.8&&Math.abs(p.z)<0.75)){v++;if(ex.length<4)ex.push(['pond',p.x,p.z]);}}}return {props:pr.length,violations:v,min_clear_m:+worst.toFixed(2),ex};})()""")
     cv['nav_min_clear_m']=await E('window.__w.navClear()')
     rec('npc_vs_props',cv['props']>=10 and cv['violations']==0 and cv['nav_min_clear_m']>=0.3,cv)
+    # knees: every walker within 40 m bends its knees forward (no hyperextension); Tripo bodies must not walk until they have native clips
+    kn=await E("""(async()=>{const T=window.__THREE;const P=window.__w.state();const find=(o,re)=>{let x=null;o.traverse(b=>{if(!x&&b.isBone&&re.test(b.name))x=b;});return x;};
+      const a=new T.Vector3(),b=new T.Vector3(),c=new T.Vector3();let n=0,back=0,worst=9,tripoWalk=0;
+      for(let k=0;k<40;k++){await new Promise(r=>requestAnimationFrame(()=>setTimeout(r,120)));const me=window.__w.state();
+       for(const p of window.__w._people()){if(/tripo/.test(p.av))tripoWalk++;if(p.state!=='walk'||Math.hypot(p.x-me.x,p.z-me.z)>40)continue;p.obj.updateMatrixWorld(true);
+        for(const s of['L','R']){const th=find(p.obj,new RegExp('_'+s+'_Thigh$')),ca=find(p.obj,new RegExp('_'+s+'_Calf$')),ft=find(p.obj,new RegExp('_'+s+'_Foot$'));if(!th||!ca||!ft)continue;
+         th.getWorldPosition(a);ca.getWorldPosition(b);ft.getWorldPosition(c);const fw=new T.Vector3(Math.sin(p.yaw),0,Math.cos(p.yaw));const ha=c.clone().sub(a);const t=b.clone().sub(a).dot(ha)/ha.lengthSq();
+         const off=b.clone().sub(a.clone().add(ha.multiplyScalar(t))).dot(fw);n++;worst=Math.min(worst,off);if(off<-0.02)back++;}}}
+      return {leg_samples:n,backward:back,worst_knee_fwd_m:+worst.toFixed(3),tripo_people:tripoWalk};})()""")
+    rec('knees_bend_forward',kn['leg_samples']>=20 and kn['backward']==0 and kn['tripo_people']==0,kn)
     jb=await pg.locator('#joy').bounding_box(); cx,cy=jb['x']+jb['width']/2,jb['y']+jb['height']/2; R=jb['width']*0.4
     async def hold(dx,dy,ms):
       await cdp.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'x':cx,'y':cy,'id':1}]})
@@ -80,12 +90,47 @@ async def main():
     rec('never_stuck',bad==0 and worst<=120,{'blocked_frames':bad,'max_consecutive_no_move_frames':worst,'note':'anti-stuck nudge triggers at 90'})
     # people animate while user idle
     await E('window.__w.set(2,14,0.6)'); await pg.wait_for_timeout(1500)
-    a=await st(); i1=await pg.screenshot(path=OUT+'/04_idle_a.png'); await pg.wait_for_timeout(2500); i2=await pg.screenshot(path=OUT+'/05_idle_b.png'); b2=await st()
+    pp0=await E('window.__w._people().map(p=>[p.x,p.z])'); i1=await pg.screenshot(path=OUT+'/04_idle_a.png'); a=await st()
+    await pg.wait_for_timeout(4000); i2=await pg.screenshot(path=OUT+'/05_idle_b.png'); b2=await st(); pp1=await E('window.__w._people().map(p=>[p.x,p.z])')
     from PIL import Image, ImageChops; import io
     d=ImageChops.difference(Image.open(io.BytesIO(i1)).convert('L'),Image.open(io.BytesIO(i2)).convert('L')).point(lambda v:255 if v>24 else 0)
     changed=sum(d.histogram()[255:])/(d.width*d.height)
-    moved=sum(1 for p,q in zip(a['sample'],b2['sample']) if abs(p['x']-q['x'])+abs(p['z']-q['z'])>0.05 or p['clip']!=q['clip'])
-    rec('people_move_while_idle',changed>0.0005 and moved>=1 and abs(b2['x']-a['x'])<1e-6,{'pixels_changed_pct':round(changed*100,2),'sampled_people_moved':moved,'clips':b2['clips']})
+    moved=sum(1 for p,q in zip(pp0,pp1) if abs(p[0]-q[0])+abs(p[1]-q[1])>0.05)
+    rec('people_move_while_idle',moved>=3 and abs(b2['x']-a['x'])<1e-6,{'pixels_changed_pct':round(changed*100,2),'people_moved':moved,'of':len(pp0),'clips':b2['clips']})
+    # layered backdrop: real 3D hills + evergreens, far ring, CC0 sky, <=2 videos, and no holes/hard edges around the horizon
+    bd=await E('({...window.__backdrop,sky:!!(window.__sky&&window.__sky.material.map&&window.__sky.material.map.image&&window.__sky.material.map.image.width)})')
+    holes=[]
+    for k in range(8):
+      a=k*math.pi/4; await E(f'window.__w.cam=[0,1.7,0,{200*math.sin(a):.1f},{200*math.cos(a):.1f},14]'); await pg.wait_for_timeout(1800)
+      im=Image.open(io.BytesIO(await pg.screenshot(path=OUT+f'/bd_{k}.png'))).convert('RGB'); W,Hh=im.size; px=list(im.crop((0,int(Hh*0.06),W,int(Hh*0.3))).resize((W//4,int(Hh*0.24)//4)).get_flattened_data())
+      dark=sum(1 for r,g,b_ in px if r+g+b_<12)/len(px); holes.append(round(dark*100,2))
+    await E('window.__w.cam=null')
+    rec('backdrop_layers_no_edges',bd.get('sky') and bd.get('sugi',0)>=300 and bd.get('blobs',0)>=150 and bd.get('videos',9)<=2 and bd.get('farR',0)>0 and max(holes)<0.5,{**bd,'dark_pct_per_heading':holes})
+    # budgets: draw calls / triangles from a busy view and the overview; bytes downloaded
+    bud=[]
+    for c in [[0,1.7,30,0,-20,4],[0,45,40,0,-5,0]]:
+      await E(f'window.__w.cam={json.dumps(c)}'); await pg.wait_for_timeout(2500); bud.append(await E('window.__frameInfo'))
+    await E('window.__w.cam=null')
+    res=await E('performance.getEntriesByType("resource").map(e=>[e.name,e.encodedBodySize||e.transferSize||0])')
+    def fsz(u,n):
+      if n or MODE!='local' or not u.startswith(BASE): return n
+      try: return os.path.getsize(os.path.join(LOCAL,u.split('?')[0][len(BASE):]))
+      except OSError: return 0
+    mb=sum(fsz(u,n) for u,n in res)/1048576
+    rec('budgets',max(x['calls'] for x in bud)<=650 and max(x['tris'] for x in bud)<=1800000 and mb<20,{'frames':bud,'downloaded_mb':round(mb,2),'limits':{'calls':650,'tris':1800000,'mb':20},'note':'tris include the shadow pass on frames where it renders'})
+    # credits panel opens and names the sources
+    await pg.click('#credits-btn'); await pg.wait_for_timeout(600)
+    cp=await E('(()=>{const d=document.getElementById("credits-panel");return {shown:getComputedStyle(d).display!=="none",text:d.innerText}})()')
+    rec('credits_panel',cp['shown'] and 'Poly Haven' in cp['text'] and 'Rocketbox' in cp['text'],{'shown':cp['shown'],'chars':len(cp['text'])})
+    await pg.click('#credits-btn')
+    # personal space: walkers stop >=2.5 m short of the visitor standing on the main path
+    await E('window.__w.set(0,12,3.14)'); v=0; mind=99
+    for k in range(16):
+      await pg.wait_for_timeout(700)
+      r=await E('window.__w._people().filter(p=>p.state==="walk"&&!p.yield).map(p=>Math.hypot(p.x-0,p.z-12))')
+      for dd in r:
+        mind=min(mind,dd); v+=dd<2.5
+    rec('walkers_keep_distance',v==0,{'violations':v,'min_walking_dist_m':round(mind,2)})
     s=await st(); rec('fps_estimate',True,{'fps_swiftshader_cpu':round(s['fps'],1),'note':'software GPU on the box; not an iPhone measurement'})
     bg=await E('window.__w.bgv?window.__w.bgv():null')
     if bg is not None and len(bg)>0:

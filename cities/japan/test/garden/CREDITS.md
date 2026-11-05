@@ -21,11 +21,16 @@ Sakura Lantern Garden is a fictional, original attraction. All models were re-co
 | bridge.glb | Old Dry Bamboo Bridge | CC BY 4.0 | https://www.fab.com/listings/4a996a76-311d-4511-848d-23a6245e3dca |
 | pergola.glb | Wisteria Pergola Arch | Fab Standard License | https://www.fab.com/listings/8feecfee-b287-4156-91eb-89ec6917adc1 |
 
-Procedural (made in code): the cherry trees, ground painting, petals, ripples, lantern glow, benches and walls.
+Procedural (made in code): the Yoshino cherry trees (branching bark mesh + instanced blossom cards, modelled on the reference photos), fallen petals, the 3D hill ring with cedars and pines, the painted far ridges, ground painting, ripples, lantern glow, benches and walls. The pagoda scene's own billboard sakura are hidden.
+
+Considered but not used: Grab3D "Cherry Blossom Tree" (CC0, grab3d.com) was downloaded but is a single puffy merged mesh that read worse than the procedural trees. A Sketchfab CC0 tree needs a login and was not downloaded.
+
+## Sky
+- m/sky.jpg: "Qwantani Late Afternoon (Pure Sky)", Poly Haven, CC0: https://polyhaven.com/a/qwantani_late_afternoon_puresky (tonemapped JPG, upper half, resized).
 
 ## People (shared with ../../taipei/test/world/)
 - Microsoft Rocketbox avatars and animations, MIT License: https://github.com/microsoft/Microsoft-Rocketbox
-- Tripo AI generated characters (elder, young, tourist), made with the owner's Tripo account.
+- Tripo AI characters were removed from the garden (auto-rigged); only creator-rigged Rocketbox avatars playing Rocketbox's own clips are used.
 
 ## Video backdrops
 - vid/hills.mp4 and vid/town.mp4 were AI-generated with Grok Imagine for this project. Both use a static camera and are crossfade-looped.
