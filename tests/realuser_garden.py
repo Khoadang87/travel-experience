@@ -24,6 +24,14 @@ async def main():
     st=lambda: E('window.__w.state()')
     s=await st(); rec('load',s['people']>=20 and not errs and len(s['models'])>=12,{'build':s['build'],'people':s['people'],'avatars':s['avatars'],'models':s['models'],'errors':errs[:3],'drawcalls':s['calls'],'tris':s['tris']})
     await pg.screenshot(path=OUT+'/01_spawn.png')
+    # koi: small fish below the water surface, inside the pond
+    kz=await E("""(()=>{const T=window.__THREE,out=[];window.__scene.traverse(o=>{if(o.isSkinnedMesh&&/^Object_(6|7|8|9|10)$/.test(o.name)){const b=new T.Box3().setFromObject(o,true);const z=b.getSize(new T.Vector3()),c=b.getCenter(new T.Vector3());out.push([Math.max(z.x,z.z),b.max.y,((c.x-13)/7)**2+(c.z/6.5)**2]);}});return out;})()""")
+    rec('koi_small_in_pond',len(kz)>=5 and all(k[0]<0.75 and k[1]<0.12 and k[2]<1 for k in kz),{'n_meshes':len(kz),'max_len_m':round(max(k[0] for k in kz),2) if kz else None,'max_top_y':round(max(k[1] for k in kz),3) if kz else None})
+    # people never walk through props (lanterns, komainu, toro, bonsai) or the pond (bridge excepted): sample 40 s
+    cv=await E("""(async()=>{const pr=window.__props;let v=0,worst=99;const ex=[];for(let k=0;k<160;k++){await new Promise(r=>setTimeout(r,250));for(const p of window.__w._people()){for(const [x,z,r] of pr){const d=Math.hypot(p.x-x,p.z-z)-r;worst=Math.min(worst,d);if(d<0.15){v++;if(ex.length<4)ex.push([p.av,x,z]);}}
+      if(((p.x-13)/7)**2+(p.z/6.5)**2<1&&!(p.x>5.2&&p.x<20.8&&Math.abs(p.z)<0.75)){v++;if(ex.length<4)ex.push(['pond',p.x,p.z]);}}}return {props:pr.length,violations:v,min_clear_m:+worst.toFixed(2),ex};})()""")
+    cv['nav_min_clear_m']=await E('window.__w.navClear()')
+    rec('npc_vs_props',cv['props']>=10 and cv['violations']==0 and cv['nav_min_clear_m']>=0.3,cv)
     jb=await pg.locator('#joy').bounding_box(); cx,cy=jb['x']+jb['width']/2,jb['y']+jb['height']/2; R=jb['width']*0.4
     async def hold(dx,dy,ms):
       await cdp.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'x':cx,'y':cy,'id':1}]})

@@ -1,4 +1,4 @@
-// Sakura Lantern Garden — fictional Japanese garden, walk-around prototype (build g1b).
+// Sakura Lantern Garden — fictional Japanese garden, walk-around prototype (build g2a).
 // Engine adapted from cities/taipei/test/world/world-ls3.js. Models: Fab/Sketchfab (CC-BY / Fab Standard), people: Microsoft Rocketbox (MIT),
 // Tripo AI people, Sketchfab "Alina Ip" (CC-BY). AI video backdrops: Grok Imagine. See CREDITS.md.
 import * as THREE from 'three';
@@ -11,7 +11,7 @@ import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
 import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
 import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
 import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
-const BUILD='g1b'; window.__build=BUILD;
+const BUILD='g2a'; window.__build=BUILD;
 const Q=new URLSearchParams(location.search);
 const PEOPLE_DIR='../../taipei/test/world/';
 function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296;};}
@@ -24,7 +24,7 @@ renderer.setSize(innerWidth,innerHeight);
 renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
 const SHADOWS=Q.get('shadows')!=='0';if(SHADOWS){renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;}
 document.body.prepend(renderer.domElement);
-const scene=new THREE.Scene();
+const scene=new THREE.Scene();window.__scene=scene;window.__THREE=THREE;
 {const pm=new THREE.PMREMGenerator(renderer);scene.environment=pm.fromScene(new RoomEnvironment(),0.04).texture;scene.environmentIntensity=0.5;}
 scene.fog=new THREE.Fog(0xe9b98e,30,150);
 const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.1,420);
@@ -149,37 +149,42 @@ const BGV=[];
 const LD=new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 const loadM=n=>new Promise(res=>LD.load(`garden/m/${n}.glb?v=${BUILD}`,g=>res(g),undefined,e=>{console.warn('model failed',n,e);res(null);}));
 const walkMeshes=[];const glows=[];
-function fit(src,{h,s,x,z,y=0,ry=0,cast=true}){const o=src.clone(true);o.rotation.y=ry;const b=new THREE.Box3().setFromObject(src);const sz=b.getSize(new THREE.Vector3());
+const PROPS=[];window.__props=PROPS;
+function fit(src,{h,s,x,z,y=0,ry=0,cast=true,col=0}){const o=src.clone(true);o.rotation.y=ry;const b=new THREE.Box3().setFromObject(src);const sz=b.getSize(new THREE.Vector3());
  const k=s??(h/sz.y);o.scale.multiplyScalar(k);o.updateMatrixWorld(true);const b2=new THREE.Box3().setFromObject(o);const c=b2.getCenter(new THREE.Vector3());
- o.position.set(x-c.x,y-b2.min.y,z-c.z);o.traverse(m=>{if(m.isMesh){m.castShadow=cast;m.receiveShadow=true;}});scene.add(o);return o;}
+ o.position.set(x-c.x,y-b2.min.y,z-c.z);o.traverse(m=>{if(m.isMesh){m.castShadow=cast;m.receiveShadow=true;}});scene.add(o);
+ if(col){const hx=(b2.max.x-b2.min.x)/2,hz=(b2.max.z-b2.min.z)/2;const r=Math.max(hx,hz)*col;circles.push([x,z,r]);PROPS.push([x,z,r]);}return o;}
 function addGlow(x,y,z,s=1.2,c=0xffb050){glows.push([x,y,z,s,c]);}
 const lanternLights=[];
 const MODELS=['pagoda','torii','komainu','toro','stone_lantern','ishi_doro','teahouse','bridge','pergola','bamboo','bamboo2','bonsai_pine','bonsai','lanterns','koi'];
 const koi=[];
-const modelsReady=Promise.all(MODELS.map(loadM)).then(arr=>{const G={};MODELS.forEach((n,i)=>G[n]=arr[i]&&arr[i].scene);window.__models=Object.keys(G).filter(k=>G[k]);
+const modelsReady=Promise.all(MODELS.map(loadM)).then(arr=>{const G={};MODELS.forEach((n,i)=>G[n]=arr[i]&&arr[i].scene);window.__koiAnims=arr[MODELS.indexOf('koi')]?arr[MODELS.indexOf('koi')].animations:[];window.__models=Object.keys(G).filter(k=>G[k]);
  // pagoda hill scene: rotate so its stairs come down toward the visitor (+z)
  if(G.pagoda){const s=G.pagoda;s.traverse(m=>{if(m.isMesh&&/^(Sphere|Cube)$/.test(m.name))m.visible=false;});
   s.traverse(m=>{if(m.isMesh&&m.visible){m.castShadow=true;m.receiveShadow=true;if(/Stairs|Grass/.test(m.name))walkMeshes.push(m);const mt=m.material;if(mt&&mt.emissiveMap&&/Lantern/i.test(m.name))mt.emissiveIntensity=2.2;}});
   s.rotation.y=Math.PI;s.position.set(0,PAG.y,PAG.z);scene.add(s);
   for(const zo of[-6.15,-9.45,-11.85,-14.25,-18.05])for(const xo of[-1.55,1.55]){addGlow(-xo,PAG.y+(zo>-7?0:zo>-10?-1.6:zo>-12.5?-2.7:zo>-15?-3.7:-3.85),PAG.z-zo,0.7,0xffa040);}}
  if(G.torii){const t=fit(G.torii,{h:6.6,x:0,z:26});const b=new THREE.Box3().setFromObject(t);const w=b.max.x-b.min.x;circles.push([-w*0.36,26,0.45],[w*0.36,26,0.45]);}
- if(G.komainu)for(const s of[-1,1]){box(1.3,0.9,1.3,capMat,s*4.6,0.45,27.5);fit(G.komainu,{h:1.6,x:s*4.6,z:27.5,y:0.9,ry:s>0?-Math.PI/2:Math.PI/2});circles.push([s*4.6,27.5,0.95]);}
+ if(G.komainu)for(const s of[-1,1]){box(1.3,0.9,1.3,capMat,s*4.6,0.45,27.5);fit(G.komainu,{h:1.6,x:s*4.6,z:27.5,y:0.9,ry:s>0?-Math.PI/2:Math.PI/2});circles.push([s*4.6,27.5,0.95]);PROPS.push([s*4.6,27.5,0.95]);}
  const LAMPS=[[-2.9,20],[2.9,20],[-2.9,12],[2.9,12],[-2.9,6.5],[2.9,-6],[-2.9,-12]];
- LAMPS.forEach(([x,z],i)=>{const src=i%3===2&&G.ishi_doro?G.ishi_doro:G.stone_lantern;if(!src)return;fit(src,{h:i%3===2?1.6:2.0,x,z,ry:x<0?Math.PI/2:-Math.PI/2});circles.push([x,z,0.55]);addGlow(x,i%3===2?1.1:1.35,z,1.0);});
- if(G.toro){fit(G.toro,{h:2.6,x:5.2,z:7,ry:-0.6});circles.push([5.2,7,0.9]);addGlow(5.2,1.9,7,1.6);}
+ LAMPS.forEach(([x,z],i)=>{const src=i%3===2&&G.ishi_doro?G.ishi_doro:G.stone_lantern;if(!src)return;fit(src,{h:i%3===2?1.6:2.0,x,z,ry:x<0?Math.PI/2:-Math.PI/2,col:0.95});addGlow(x,i%3===2?1.1:1.35,z,1.0);});
+ if(G.toro){fit(G.toro,{h:2.6,x:5.2,z:7,ry:-0.6,col:0.95});addGlow(5.2,1.9,7,1.6);}
  if(G.teahouse){const t=fit(G.teahouse,{h:11.2,x:TEA.x,z:TEA.z});t.traverse(m=>{if(m.isMesh&&/lantern|cloth/i.test(m.name+(m.material&&m.material.name))){m.material=m.material.clone();m.material.emissive=new THREE.Color(0xff8a3a);m.material.emissiveIntensity=0.9;if(m.material.map)m.material.emissiveMap=m.material.map;}});}
  if(G.bridge){const b=fit(G.bridge,{s:(BRIDGE.x1-BRIDGE.x0+0.6)/20.2,x:(BRIDGE.x0+BRIDGE.x1)/2,z:BRIDGE.z});b.traverse(m=>{if(m.isMesh)walkMeshes.push(m);});}
  if(G.pergola){fit(G.pergola,{h:3.2,x:24,z:7});for(const sx of[-1.75,1.75])for(const sz of[-1.75,1.75])circles.push([24+sx,7+sz,0.25]);}
  if(G.bamboo){const br=rng(3);for(const [x0,z0,x1,z1,n] of [[-26.5,10,-26.5,34,9],[26.5,-30,26.5,-6,8],[-26.5,-34,-26.5,-14,7],[26.5,24,26.5,36,4]])for(let i=0;i<n;i++){const t=i/(n-1);const x=x0+(x1-x0)*t+(br()-.5)*1.5,z=z0+(z1-z0)*t+(br()-.5)*1.5;
   fit(i%3===1&&G.bamboo2?G.bamboo2:G.bamboo,{h:7+br()*3,x,z,ry:br()*6.28,cast:i%2===0});circles.push([x,z,0.9]);}}
  if(G.bonsai_pine)for(const z of[-6.2,2.2]){box(0.8,0.7,0.8,woodMat,-12.9,0.35,z);fit(G.bonsai_pine,{h:1.0,x:-12.9,z,y:0.7});circles.push([-12.9,z,0.6]);}
- if(G.bonsai){box(0.9,0.7,0.9,woodMat,-4.2,0.35,-15.6);fit(G.bonsai,{h:1.1,x:-4.2,z:-15.6,y:0.7});circles.push([-4.2,-15.6,0.65]);}
+ if(G.bonsai){box(0.9,0.7,0.9,woodMat,-4.2,0.35,-15.6);fit(G.bonsai,{h:1.1,x:-4.2,z:-15.6,y:0.7});circles.push([-4.2,-15.6,0.65]);PROPS.push([-4.2,-15.6,0.65]);}
  if(G.lanterns){fit(G.lanterns,{h:1.5,x:-11.8,z:-11.6,ry:Math.PI/2});solid(-12.4,-13.4,-11.2,-9.8);addGlow(-11.8,1.0,-11.6,1.6,0xff6a30);}
- if(G.koi){const b=new THREE.Box3().setFromObject(G.koi);const sz=b.getSize(new THREE.Vector3());const k=0.55/Math.max(sz.x,sz.y,sz.z);
-  for(let i=0;i<9;i++){const o=G.koi.clone(true);o.scale.setScalar(k*(0.7+R()*0.6));const holder=new THREE.Group();const inner=new THREE.Group();inner.add(o);
-   // orient fish so its long axis points along +z of holder
+ if(G.koi){const KA=window.__koiAnims||[];
+  // skinned fish: SkeletonUtils.clone so each copy gets its own skeleton (plain clone() kept the original bones at the world origin -> one giant fish)
+  const probe=SkeletonUtils.clone(G.koi);probe.updateMatrixWorld(true);const b=new THREE.Box3().setFromObject(probe,true);const sz=b.getSize(new THREE.Vector3());const L=Math.max(sz.x,sz.y,sz.z)||1;
+  for(let i=0;i<9;i++){const o=SkeletonUtils.clone(G.koi);const len=0.32+R()*0.26;o.scale.multiplyScalar(len/L);const holder=new THREE.Group();const inner=new THREE.Group();inner.add(o);
    if(sz.y>=sz.x&&sz.y>=sz.z)o.rotation.x=-Math.PI/2;else if(sz.x>=sz.z)o.rotation.y=Math.PI/2;
-   holder.add(inner);scene.add(holder);koi.push({o:holder,a:R()*6.28,r:0.35+R()*0.5,sp:(0.08+R()*0.08)*(R()<0.5?-1:1),ph:R()*6});}}
+   o.traverse(m=>{if(m.isMesh){m.frustumCulled=false;m.castShadow=false;}});
+   let mixer=null;if(KA.length){mixer=new THREE.AnimationMixer(o);const a=mixer.clipAction(KA.find(c=>/swim/i.test(c.name))||KA[0]);a.play();a.time=R()*a.getClip().duration;}
+   holder.add(inner);scene.add(holder);koi.push({o:holder,len,mixer,a:R()*6.28,r:0.3+R()*0.5,sp:(0.08+R()*0.08)*(R()<0.5?-1:1),ph:R()*6});}}
  // glow sprites + a few real lights
  const spr=canvasTex(64,64,(x,w,h)=>{const g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,240,210,1)');g.addColorStop(0.25,'rgba(255,170,80,.6)');g.addColorStop(1,'rgba(255,120,40,0)');x.fillStyle=g;x.fillRect(0,0,w,h);});
  for(const [x,y,z,s,c] of glows){const m=new THREE.Sprite(new THREE.SpriteMaterial({map:spr,color:c,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:0.45,fog:false}));m.position.set(x,y,z);m.scale.setScalar(s*0.55);m.userData.ph=R()*6;scene.add(m);lanternLights.push(m);}
@@ -221,27 +226,33 @@ function stepRipples(dt){for(const r of ripples){r.life+=dt/2.6;if(r.life>=1){r.
    if(kf){r.m.position.x=kf.o.position.x;r.m.position.z=kf.o.position.z;}else{r.m.position.x=POND.x+Math.cos(a)*POND.rx*d;r.m.position.z=POND.z+Math.sin(a)*POND.rz*d;}if(onBridge(r.m.position.x,r.m.position.z,-0.5)){r.life=0.99;}}
   r.m.scale.setScalar(0.2+r.life*1.8);r.m.material.opacity=(1-r.life)*0.55;}}
 function stepKoi(dt,t){for(const f of koi){f.a+=f.sp*dt*3;const rr=f.r+Math.sin(t*0.3+f.ph)*0.12;const x=POND.x+Math.cos(f.a)*POND.rx*rr,z=POND.z+Math.sin(f.a)*POND.rz*rr;
-  const dx=x-f.o.position.x,dz=z-f.o.position.z;f.o.position.set(x,-0.02,z);if(Math.hypot(dx,dz)>1e-5)f.o.rotation.y=Math.atan2(dx,dz);f.o.children[0].rotation.y=Math.sin(t*5+f.ph)*0.18;}}
+  const dx=x-f.o.position.x,dz=z-f.o.position.z;f.o.position.set(x,-0.1,z);if(f.mixer)f.mixer.update(dt);if(Math.hypot(dx,dz)>1e-5)f.o.rotation.y=Math.atan2(dx,dz);f.o.children[0].rotation.y=Math.sin(t*5+f.ph)*0.18;}}
 // ---------- navigation graph ----------
-const nodes=[];for(let x=BOUND.x0+1.5;x<=BOUND.x1-1.5;x+=2.5)for(let z=BOUND.z0+1.5;z<=BOUND.z1-1.5;z+=2.5)if(!blocked(x,z,0.7))nodes.push([x,z]);
-for(let x=BRIDGE.x0+0.5;x<BRIDGE.x1;x+=1.5)nodes.push([x,BRIDGE.z]);for(let z=-15;z>-30;z-=1.5)nodes.push([0,z]);for(const [x,z] of [[0,-30.2],[-2,-31.5],[2,-31.5],[-4,-34],[4,-34]])nodes.push([x,z]);
-function clearSeg(a,b,m=0.45){const d=Math.hypot(b[0]-a[0],b[1]-a[1]);const n=Math.ceil(d/0.3);for(let i=1;i<n;i++){const t=i/n;if(blocked(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,m))return false;}return true;}
-const adj=nodes.map(()=>[]);for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const d=Math.hypot(nodes[i][0]-nodes[j][0],nodes[i][1]-nodes[j][1]);if(d<3.8&&clearSeg(nodes[i],nodes[j],0.35)){adj[i].push([j,d]);adj[j].push([i,d]);}}
-function nearestNode(p){let bi=0,bd=1e9;for(let i=0;i<nodes.length;i++){const d=(nodes[i][0]-p[0])**2+(nodes[i][1]-p[1])**2;if(d<bd){bd=d;bi=i;}}return bi;}
-function path(a,b){if(clearSeg(a,b,0.35))return[b];const s=nearestNode(a),t=nearestNode(b);const dist=new Float32Array(nodes.length).fill(1e9),prev=new Int32Array(nodes.length).fill(-1),done=new Uint8Array(nodes.length);dist[s]=0;
- for(;;){let u=-1,bd=1e9;for(let i=0;i<nodes.length;i++)if(!done[i]&&dist[i]<bd){bd=dist[i];u=i;}if(u<0||u===t)break;done[u]=1;for(const[v,w]of adj[u])if(dist[u]+w<dist[v]){dist[v]=dist[u]+w;prev[v]=u;}}
- if(prev[t]<0&&s!==t)return[nodes[s]];
- const out=[];let c=t;while(c>=0){out.unshift(nodes[c]);c=prev[c];}out.push(b);
- const sm=[];let cur=a;let i=0;while(i<out.length){let j=out.length-1;while(j>i&&!clearSeg(cur,out[j],0.35))j--;sm.push(out[j]);cur=out[j];i=j+1;}return sm;}
-// ---------- activity slots ----------
-const slots=[];const S=(kind,x,z,face,clip,extra={})=>slots.push({kind,x,z,face,clip,busy:null,...extra});
+const nodes=[],adj=[],slots=[];
+// test hook: smallest clearance between any nav edge / live route segment and a prop collider
+function navClear(){let w=99;const seg=(a,b)=>{for(const [x,z,r] of PROPS){const dx=b[0]-a[0],dz=b[1]-a[1],L=dx*dx+dz*dz||1e-9;let t=((x-a[0])*dx+(z-a[1])*dz)/L;t=Math.max(0,Math.min(1,t));w=Math.min(w,Math.hypot(a[0]+dx*t-x,a[1]+dz*t-z)-r);}};
+ for(let i=0;i<adj.length;i++)for(const [j] of adj[i])seg(nodes[i],nodes[j]);for(const p of people)if(p.state==='walk'&&p.route){let c=[p.x,p.z];for(const q of p.route){seg(c,q);c=q;}}return +w.toFixed(3);}
 const faceTo=(x,z,tx,tz)=>Math.atan2(tx-x,tz-z);
+// built after the models load, so every prop collider (lanterns, torii, komainu, bamboo...) is in the graph
+function initNav(){for(let x=BOUND.x0+1.5;x<=BOUND.x1-1.5;x+=2.5)for(let z=BOUND.z0+1.5;z<=BOUND.z1-1.5;z+=2.5)if(!blocked(x,z,0.7))nodes.push([x,z]);
+for(let x=BRIDGE.x0+0.5;x<BRIDGE.x1;x+=1.5)nodes.push([x,BRIDGE.z]);for(let z=-15;z>-30;z-=1.5)nodes.push([0,z]);for(const [x,z] of [[0,-30.2],[-2,-31.5],[2,-31.5],[-4,-34],[4,-34]])nodes.push([x,z]);
+nodes.forEach(()=>adj.push([]));for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const d=Math.hypot(nodes[i][0]-nodes[j][0],nodes[i][1]-nodes[j][1]);if(d<3.8&&clearSeg(nodes[i],nodes[j],0.42)){adj[i].push([j,d]);adj[j].push([i,d]);}}
+// ---------- activity slots ----------
+const S=(kind,x,z,face,clip,extra={})=>slots.push({kind,x,z,face,clip,busy:null,...extra});
 for(let k=0;k<10;k++){const a=k/10*Math.PI*2;const x=POND.x+Math.cos(a)*(POND.rx+0.7),z=POND.z+Math.sin(a)*(POND.rz+0.7);if(Math.abs(z)<1.5||blocked(x,z,0.3))continue;S('feed',x,z,faceTo(x,z,POND.x,POND.z),k%2?'Fixing_Kneeling':'Idle_Look');}
 for(const x of[8,10.5,15.5,18])S('bridge',x,BRIDGE.z+(x%2?0.3:-0.3),x<13?Math.PI:0,pick(['Idle_Look','Spell_Simple_Idle_Loop','Phone']));
 for(const [x,z,tx,tz] of [[0,31,0,26],[-2,22,0,26],[3,32,0,26],[0,-31,0,-34],[-3,-32.5,0,-34],[2.5,-31,0,-34],[-8,-1,-19,-2],[-14,8,-19,-2],[22,3,24,7],[6,12,5.2,7],[0,-13,0,-30]])S('photo',x,z,faceTo(x,z,tx,tz),'Spell_Simple_Idle_Loop',{prop:'phone'});
 for(const [x,z] of [[-1.5,-31],[1.5,-31],[0,-30.5]])S('bow',x,z,Math.PI,'Interact');
 for(const[cx,cz]of [[-5,16],[6,24],[-10,-14],[18,-12],[22,16],[-8,8],[4,-8],[-20,16]]){for(let k=0;k<3;k++){const a=k/3*Math.PI*2+0.4;const x=cx+Math.cos(a)*0.8,z=cz+Math.sin(a)*0.8;if(blocked(x,z,0.3))continue;S('chat',x,z,faceTo(x,z,cx,cz),pick(['Idle_Talking_Loop','Idle_Listen','Idle_Talking_Loop','Idle_Look']),{group:cx+','+cz});}}
 for(const [x,z,ry] of benches){const c=Math.cos(ry),s=Math.sin(ry);for(const k of[-0.5,0.5]){const px=x+(Math.abs(s)>0.5?0:k),pz=z+(Math.abs(s)>0.5?k:0);S('sit',px,pz,ry,'Sitting_Idle_Loop',{sx:px,sz:pz});}}
+}
+function clearSeg(a,b,m=0.45){const d=Math.hypot(b[0]-a[0],b[1]-a[1]);const n=Math.ceil(d/0.3);for(let i=1;i<n;i++){const t=i/n;if(blocked(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,m))return false;}return true;}
+function nearestNode(p){let bi=0,bd=1e9;for(let i=0;i<nodes.length;i++){const d=(nodes[i][0]-p[0])**2+(nodes[i][1]-p[1])**2;if(d<bd){bd=d;bi=i;}}return bi;}
+function path(a,b){if(clearSeg(a,b,0.42))return[b];const s=nearestNode(a),t=nearestNode(b);const dist=new Float32Array(nodes.length).fill(1e9),prev=new Int32Array(nodes.length).fill(-1),done=new Uint8Array(nodes.length);dist[s]=0;
+ for(;;){let u=-1,bd=1e9;for(let i=0;i<nodes.length;i++)if(!done[i]&&dist[i]<bd){bd=dist[i];u=i;}if(u<0||u===t)break;done[u]=1;for(const[v,w]of adj[u])if(dist[u]+w<dist[v]){dist[v]=dist[u]+w;prev[v]=u;}}
+ if(prev[t]<0&&s!==t)return[nodes[s]];
+ const out=[];let c=t;while(c>=0){out.unshift(nodes[c]);c=prev[c];}out.push(b);
+ const sm=[];let cur=a;let i=0;while(i<out.length){let j=out.length-1;while(j>i&&!clearSeg(cur,out[j],0.42))j--;sm.push(out[j]);cur=out[j];i=j+1;}return sm;}
 // ---------- people (shared engine with world-ls) ----------
 const people=[];let clipsByName={};
 function makeProp(kind){const g=new THREE.Group();const p=new THREE.Mesh(new THREE.BoxGeometry(0.075,0.15,0.01),new THREE.MeshBasicMaterial({color:0x111111}));g.add(p);return g;}
@@ -320,7 +331,7 @@ function spawnAll(){const N=+(Q.get('n')||30);
    const mixer=new THREE.AnimationMixer(o);const a=alina.animations[0]?mixer.clipAction(alina.animations[0]):null;const actions={};if(a){actions.Idle_Loop=a;a.timeScale=0.9+i*0.15;}
    const p=mk(o,actions,mixer,'alina',{fixed:true});const spot=i?[10.2,-0.25,Math.PI*0.5]:[-2.5,23.5,Math.PI*0.9];p.x=spot[0];p.z=spot[1];p.yaw=p.faceTo=spot[2];}
   ready=true;document.getElementById('load').style.opacity=0;setTimeout(()=>{const l=document.getElementById('load');if(l)l.remove();},700);});}
-modelsReady.then(spawnAll);
+modelsReady.then(()=>{initNav();spawnAll();});
 // ---------- player ----------
 const joy={x:0,y:0,id:null};const keys={};
 const J=document.getElementById('joy'),K=document.getElementById('knob');
@@ -344,8 +355,8 @@ function updatePlayer(dt){let f=-joy.y,s=joy.x;if(keys.KeyW||keys.ArrowUp)f=1;if
  const tvx=(fx*f+rx*s)*sp,tvz=(fz*f+rz*s)*sp;const k=Math.min(1,dt*10);P.vx+=(tvx-P.vx)*k;P.vz+=(tvz-P.vz)*k;
  const ox=P.x,oz=P.z;let [nx,nz]=resolve(P.x+P.vx*dt,P.z+P.vz*dt,P.r);
  const want=m>0.2,moved=Math.hypot(nx-ox,nz-oz);if(want&&moved<0.002)stuckFrames++;else stuckFrames=0;maxStuck=Math.max(maxStuck,stuckFrames);
- if(stuckFrames>90){const n=nodes[nearestNode([nx,nz])];nx+=(n[0]-nx)*0.1;nz+=(n[1]-nz)*0.1;}
- if(blocked(nx,nz,P.r*0.5)){const n=nodes[nearestNode([nx,nz])];nx=n[0];nz=n[1];}
+ if(stuckFrames>90&&nodes.length){const n=nodes[nearestNode([nx,nz])];nx+=(n[0]-nx)*0.1;nz+=(n[1]-nz)*0.1;}
+ if(blocked(nx,nz,P.r*0.5)&&nodes.length){const n=nodes[nearestNode([nx,nz])];nx=n[0];nz=n[1];}
  P.x=nx;P.z=nz;document.body.classList.toggle('walking',m>0.2);if(m>0.2)hideTip();
  P.y+=(groundH(P.x,P.z)-P.y)*Math.min(1,dt*8);
  const bob=Math.sin(performance.now()/1000*8)*0.025*Math.min(1,Math.hypot(P.vx,P.vz)/sp);
@@ -371,7 +382,7 @@ renderer.setAnimationLoop(()=>{const dt=Math.min(0.1,clock.getDelta());simT+=dt;
 window.__w={state:()=>({ready,build:BUILD,x:P.x,z:P.z,y:P.y,yaw:P.yaw,fps:fpsAvg,frames,people:people.length,maxStuck,blocked:blocked(P.x,P.z,0.01),models:window.__models||[],
  sample:people.slice(0,6).map(p=>({x:+p.x.toFixed(3),z:+p.z.toFixed(3),clip:p.clip,state:p.state})),clips:people.reduce((m,p)=>{m[p.clip]=(m[p.clip]||0)+1;return m;},{}),
  avatars:[...new Set(people.map(p=>p.av))].length,calls:renderer.info.render.calls,tris:renderer.info.render.triangles,petals:PET_N,koi:koi.length}),
- bgv:()=>window.__bgvState?window.__bgvState():[],cam:null,set:(x,z,yaw)=>{P.x=x;P.z=z;if(yaw!==undefined)P.yaw=yaw;P.vx=P.vz=0;}};
+ _people:()=>people,navClear:()=>navClear(),bgv:()=>window.__bgvState?window.__bgvState():[],cam:null,set:(x,z,yaw)=>{P.x=x;P.z=z;if(yaw!==undefined)P.yaw=yaw;P.vx=P.vz=0;}};
 // ---------- ambient sound: procedural water, wind and birds (Web Audio) + CC0/PD temple bell and soft crowd; starts on first tap, mute toggle ----------
 {const AU={started:false,muted:localStorage.getItem('teMute')==='1',src:{}};window.__aud=()=>({started:AU.started,muted:AU.muted,ctx:AU.ctx?AU.ctx.state:'none',playing:Object.fromEntries(Object.entries(AU.src).map(([k,v])=>[k,!!v.isPlaying]))});
  const btn=document.createElement('button');btn.id='mute';btn.setAttribute('aria-label','Sound');
