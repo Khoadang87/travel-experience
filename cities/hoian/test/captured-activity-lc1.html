@@ -1,0 +1,30 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Captured activity · internal LC1 check</title>
+<style>body{margin:0;background:#111;color:#eee;font:16px system-ui}canvas{display:block;width:100%;height:100vh;touch-action:none}aside{position:fixed;top:12px;left:12px;max-width:460px;padding:16px;background:#171717ee;border-radius:12px}button{min-height:44px;margin:4px;padding:8px 16px}small{display:block;margin-top:8px}#pad{position:fixed;bottom:20px;left:20px;display:grid;grid-template-columns:repeat(3,60px)}#pad button{touch-action:none}#status{font-variant-numeric:tabular-nums}</style></head><body>
+<aside><strong>Captured activity · internal LC1 check</strong><p>Real Lifecast face-paint recording, 4.2-second loop. Small depth-based viewpoint offsets only. This is not a food stall, city walk or approved result.</p><button id="start">Start recording</button><button id="pause" disabled>Pause scene</button><div id="status">Not started</div><small>WASD / arrows move the viewpoint. Release stops the viewpoint; scene playback continues. Drag changes view. Bounds are reconstruction units, not verified metres. Source: Lifecast public sample; reuse permission clarification pending.</small></aside>
+<div id="pad"><span></span><button data-key="w" aria-label="Move forward">↑</button><span></span><button data-key="a" aria-label="Move left">←</button><button data-key="s" aria-label="Move backward">↓</button><button data-key="d" aria-label="Move right">→</button></div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/gh/fbriggs/lifecast_public@3cecce98ab34747afe7695166944724075638dba/web/lifecast_res/three152.module.min.js';
+import {Ldi3Mesh} from 'https://cdn.jsdelivr.net/gh/fbriggs/lifecast_public@3cecce98ab34747afe7695166944724075638dba/web/lifecast_res/Ldi3Mesh.js';
+import {advanceCamera} from './captured-controls-lc1.mjs';
+const status=document.querySelector('#status'),start=document.querySelector('#start'),pause=document.querySelector('#pause');
+const video=document.createElement('video');video.crossOrigin='anonymous';video.playsInline=true;video.muted=true;video.loop=true;video.preload='auto';
+video.src='https://raw.githubusercontent.com/fbriggs/lifecast_public/3cecce98ab34747afe7695166944724075638dba/web/media/facepaint_ldi3_h264_1920x1920.mp4';
+let renderer,camera,scene,keys=new Set(),position={x:0,z:0},yaw=0,pitch=0,last=0,drag=null;
+function resetInput(){keys.clear();drag=null;}
+try{
+ renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));document.body.prepend(renderer.domElement);
+ scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.01,100);camera.rotation.order='YXZ';
+ const texture=new THREE.VideoTexture(video);scene.add(new Ldi3Mesh(false,texture));
+ function resize(){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();}resize();addEventListener('resize',resize);
+ renderer.setAnimationLoop(t=>{const dt=last?(t-last)/1000:0;last=t;position=advanceCamera(position,keys,dt,yaw);camera.position.set(position.x,0,position.z);camera.rotation.set(pitch,yaw,0,'YXZ');if(video.readyState>=2)renderer.render(scene,camera);status.textContent=`Scene ${video.currentTime.toFixed(3)}s · ${video.paused?'paused':'playing'} · viewpoint x ${position.x.toFixed(3)}, z ${position.z.toFixed(3)}`;});
+ renderer.domElement.addEventListener('pointerdown',e=>{drag={id:e.pointerId,x:e.clientX,y:e.clientY};renderer.domElement.setPointerCapture(e.pointerId);});
+ renderer.domElement.addEventListener('pointermove',e=>{if(drag?.id!==e.pointerId)return;yaw+=(e.clientX-drag.x)*.003;pitch=Math.max(-.8,Math.min(.8,pitch+(e.clientY-drag.y)*.003));drag.x=e.clientX;drag.y=e.clientY;});
+ renderer.domElement.addEventListener('pointerup',()=>drag=null);renderer.domElement.addEventListener('pointercancel',()=>drag=null);
+}catch(e){status.textContent='Captured-depth view unavailable in this browser: '+e.message;start.disabled=true;document.querySelector('#pad').hidden=true;}
+start.onclick=async()=>{try{await video.play();pause.disabled=false;start.textContent='Resume scene';}catch(e){status.textContent='Playback failed: '+e.message;}};
+pause.onclick=()=>{video.pause();resetInput();};
+addEventListener('keydown',e=>{if(!['w','a','s','d','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;if(e.repeat&&!keys.has(e.key))return;e.preventDefault();keys.add(e.key);});
+addEventListener('keyup',e=>keys.delete(e.key));addEventListener('blur',resetInput);document.addEventListener('visibilitychange',resetInput);
+for(const button of document.querySelectorAll('[data-key]')){button.onpointerdown=e=>{e.preventDefault();button.setPointerCapture(e.pointerId);keys.add(button.dataset.key);};button.onpointerup=button.onpointercancel=button.onlostpointercapture=()=>keys.delete(button.dataset.key);}
+video.addEventListener('error',()=>status.textContent='Media load failed: '+(video.error?.message||'unknown error'));
+</script></body></html>

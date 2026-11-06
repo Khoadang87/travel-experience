@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {advanceCamera,LIMIT} from './captured-controls-lc1.mjs';
+let p={x:0,z:0};
+assert.deepEqual(advanceCamera(p,new Set(),1),p);
+assert(advanceCamera(p,new Set(['w']),.05).z<0);
+assert(advanceCamera(p,new Set(['s']),.05).z>0);
+assert(advanceCamera(p,new Set(['a']),.05).x<0);
+assert(advanceCamera(p,new Set(['d']),.05).x>0);
+assert.deepEqual(advanceCamera(p,new Set(['w','s','a','d']),.05),p);
+assert(Math.abs(advanceCamera(p,new Set(['w']),.05,Math.PI/2).x+.003)<1e-9);
+for(let i=0;i<10000;i++)p=advanceCamera(p,new Set(['d','w']),.05);
+assert.equal(p.x,LIMIT);assert.equal(p.z,-LIMIT);
+assert.deepEqual(advanceCamera(p,new Set(),.05),p);
+console.log('Camera direction, cancellation, release and bounds checks pass; no browser/device claim.');

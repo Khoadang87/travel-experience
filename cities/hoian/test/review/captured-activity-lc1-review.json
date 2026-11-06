@@ -1,0 +1,28 @@
+{
+  "candidate": "LC1 captured activity diagnostic",
+  "upstream_commit": "3cecce98ab34747afe7695166944724075638dba",
+  "media": {
+    "path": "web/media/facepaint_ldi3_h264_1920x1920.mp4",
+    "sha256": "24e71d4a349a99932ee2681cc20ebc711e6eaf6fbad4817c21ae8797215d2239",
+    "bytes": 827012,
+    "duration": 4.2,
+    "frames": 126,
+    "width": 1920,
+    "height": 1920,
+    "decode": "ffmpeg full decode exited 0"
+  },
+  "checks": {
+    "camera_math": "passed",
+    "rendered_browser": "not yet checked",
+    "human_activity": "not established",
+    "iphone_safari": "absent",
+    "strict_advisor": "absent"
+  },
+  "limits": [
+    "Small captured-depth offsets only; reconstruction units are not verified metres",
+    "4.2-second loop, not food-stall/city/free-roaming coverage",
+    "Offline point raster has sampling holes; retained only as inspection, not adopted as renderer/fallback",
+    "Upstream code MIT; media reuse clarification requested; no commercial permission claimed"
+  ],
+  "delivery_approved": false
+}
