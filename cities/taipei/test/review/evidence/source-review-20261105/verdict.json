@@ -1,0 +1,19 @@
+{
+  "kind": "source_preflight",
+  "source_id": "gl75QoeWtaM",
+  "source_motion": "short positive-time samples only",
+  "native_decoded": true,
+  "available_dimensions": [
+    1920,
+    1080
+  ],
+  "full_route_review": false,
+  "spherical_projection_verified": false,
+  "player_built": false,
+  "iphone_safari": false,
+  "independent_advisor": false,
+  "delivery_approved": false,
+  "verdict": "not_shortlisted_in_available_form",
+  "source_media_sha256": null,
+  "evidence_sha256": "bf066edf59aa962b68775086098e81ae30915ba97cddddae464ad7339ad4e297"
+}
