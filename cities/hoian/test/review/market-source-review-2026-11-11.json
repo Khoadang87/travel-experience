@@ -1,0 +1,39 @@
+{
+  "source_page": "https://commons.wikimedia.org/wiki/File:HoiAn_Market.webm",
+  "original_url": "https://upload.wikimedia.org/wikipedia/commons/e/e1/HoiAn_Market.webm",
+  "creator": "Poiana11",
+  "published_license": "CC0 1.0",
+  "sha256": "ef8d750c188bb8e731d203037eb1796edd39edb848bec673623a1295f432f99e",
+  "bytes": 33115573,
+  "video": {
+    "codec": "vp8",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "duration": 162.633
+  },
+  "audio": "vorbis",
+  "full_decode": {
+    "exit_code": 0,
+    "errors": 0
+  },
+  "actual_browser": {
+    "readyState": 4,
+    "observed_playing_times": [
+      8.678753,
+      25.479276
+    ],
+    "paused_time": 33.667556,
+    "scope": "Opening only; screenshots sampled. Not full-route motion review."
+  },
+  "visual_findings": [
+    "Real vendors, shoppers and indoor market stalls visible.",
+    "Ordinary perspective footage in inspected opening, not navigable spherical coverage.",
+    "Noticeable handheld motion/shake and soft detail."
+  ],
+  "decision": "Do not integrate into 360 walking player. Potential flat documentary/activity insert only, subject to separate presentation decision.",
+  "runtime_changes": false,
+  "delivery_approved": false,
+  "iphone_evidence": false,
+  "next": "Qualify other actual spherical sources before a substantial build. Do not infer camera freedom from free license."
+}
