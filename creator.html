@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Creator submission — Walk of Fame Globe</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="creator">
+  <header class="top">
+    <div class="brand">
+      <strong>Walk of Fame Globe</strong>
+      <span>Prototype — 360 stand-in, not Hollywood</span>
+    </div>
+    <nav>
+      <a href="index.html">Map</a>
+      <a href="creator.html" aria-current="page">Submit</a>
+      <a href="sales.html">For businesses</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+  </header>
+  <main class="page">
+    <h1>One-week creator submission</h1>
+    <p class="lead">Mock form only — nothing is uploaded to a server, emailed, or charged. Prefer native 360 of the Hollywood Walk of Fame sidewalks. A public pin would wait for a conversion and placement fee after review.</p>
+    <p id="window-status"></p>
+    <p id="countdown"></p>
+    <p class="muted" id="window-range"></p>
+
+    <div class="fees">
+      <div class="fee">
+        <span class="tiny">360 ingest + placement</span>
+        <strong id="fee-360">$25</strong>
+        <span class="tiny">per clip, up to 5 minutes · figure to review · no real payment</span>
+      </div>
+      <div class="fee">
+        <span class="tiny">Spatial preview + placement</span>
+        <strong id="fee-spatial">$39</strong>
+        <span class="tiny">per 2D clip, up to 3 minutes · figure to review · no real payment</span>
+      </div>
+    </div>
+
+    <div class="card" id="monetization-explainer"></div>
+
+    <h2>Submit a clip</h2>
+    <form id="submit-form">
+      <label>Name <input name="name" required autocomplete="name"></label>
+      <label>Email (mock id for the one-trial rule) <input name="email" type="email" required autocomplete="email"></label>
+      <label>Clip title <input name="title" required placeholder="Walk past the Chinese Theatre"></label>
+      <label>Footage type
+        <select name="kind" required>
+          <option value="360">Native 360 (preferred)</option>
+          <option value="spatial">2D, for a spatial preview</option>
+        </select>
+      </label>
+      <label>Pin location
+        <select name="pinId" id="pinId" required></select>
+      </label>
+      <label class="check"><input type="checkbox" name="license" required> I grant a mock license for this prototype: I keep copyright; the platform may host, transcode, make a spatial preview, and show a pin. (Not a real legal agreement.)</label>
+      <button class="primary" type="submit">Submit and start free trial render</button>
+      <p class="tiny">One free 45-second watermarked trial render per creator email, in this browser only. The preview uses a labeled 360 stand-in (Anıtkabir, Ankara — 360TR, CC BY 3.0), not an uploaded file and not Hollywood footage.</p>
+    </form>
+    <p id="form-notice" hidden></p>
+    <h2>Submissions on this browser</h2>
+    <div id="sub-list"></div>
+  </main>
+<div id="player-root"></div>
+  <script type="module" src="src/creator-app.js"></script>
+</body>
+</html>

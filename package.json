@@ -1,0 +1,25 @@
+{
+  "name": "travel-globe",
+  "version": "1.0.0",
+  "description": "Local prototype: MapLibre globe to Hollywood Walk of Fame street pins and a labeled sample 360 player.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "bash scripts/build-site.sh && python3 serve.py --bind 127.0.0.1 --port 8765 --dir site",
+    "test": "bash scripts/build-site.sh && playwright test",
+    "build": "bash scripts/build-site.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "type": "commonjs",
+  "dependencies": {
+    "maplibre-gl": "^6.19.0",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "submissionWindowStart": "2026-11-19T00:00:00-08:00",
+  "submissionWindowEnd": "2026-11-26T23:59:59-08:00",
+  "freePeriodStart": "2026-11-19T00:00:00-08:00",
+  "adsStart": "2027-01-19T00:00:00-08:00",
+  "revenueSharePercent": 50,
+  "revenueShareLabel": "figure to review",
+  "fee360": 25,
+  "feeSpatial": 39,
+  "feeLabel": "figure to review",
+  "trialSeconds": 45,
+  "timezone": "America/Los_Angeles"
+}

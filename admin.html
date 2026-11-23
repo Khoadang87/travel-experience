@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Admin — Walk of Fame Globe</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="admin">
+  <header class="top">
+    <div class="brand">
+      <strong>Walk of Fame Globe</strong>
+      <span>Prototype — 360 stand-in, not Hollywood</span>
+    </div>
+    <nav>
+      <a href="index.html">Map</a>
+      <a href="creator.html">Submit</a>
+      <a href="sales.html">For businesses</a>
+      <a href="admin.html" aria-current="page">Admin</a>
+    </nav>
+  </header>
+  <main class="page">
+    <h1>Monetization settings</h1>
+    <p class="lead">Local mock only. These controls do not connect to an ad network, payments, or email. Dates are shown and stored as Pacific Time.</p>
+    <p id="live-window"></p>
+    <p id="live-ads"></p>
+    <p class="muted">Mock submissions stored here: <strong id="sub-count">0</strong></p>
+
+    <form id="admin-form">
+      <div class="admin-grid">
+        <label>Submission window start <input type="datetime-local" name="submissionWindowStart" required></label>
+        <label>Submission window end <input type="datetime-local" name="submissionWindowEnd" required></label>
+        <label>Free-to-start period begins <input type="datetime-local" name="freePeriodStart" required></label>
+        <label>Ads start (about two months later) <input type="datetime-local" name="adsStart" required></label>
+      </div>
+      <label>Creator ad-revenue share percent (placeholder, labeled to review)
+        <input type="number" name="revenueSharePercent" min="0" max="100" step="1" required>
+      </label>
+      <label class="check"><input type="checkbox" name="previewAds"> Preview ads now (still a placeholder banner, not a real network)</label>
+      <p class="tiny">Placement fees stay at <span id="fee-360">$25</span> / <span id="fee-spatial">$39</span> per clip (figure to review) and are not editable here.</p>
+      <button class="primary" type="submit">Save in this browser</button>
+      <button class="ghost" type="button" id="btn-reset">Restore defaults</button>
+      <button class="ghost" type="button" id="btn-clear-subs">Clear mock submissions and trials</button>
+    </form>
+    <p id="admin-status"></p>
+  </main>
+  <script type="module" src="src/admin-app.js"></script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+# Prototype only — do not index this site.
+User-agent: *
+Disallow: /

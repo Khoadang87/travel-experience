@@ -1,0 +1,4 @@
+Vendored front-end libraries for the Walk of Fame Globe prototype.
+
+- MapLibre GL JS — BSD 3-Clause. https://github.com/maplibre/maplibre-gl-js
+- three.js — MIT. https://github.com/mrdoob/three.js

@@ -1,0 +1,12 @@
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+shots/
+site/
+*.log
+.env
+.env.*
+!.env.example
+
+public/

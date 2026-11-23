@@ -1,0 +1,116 @@
+{
+  "source": "Coordinates from English Wikipedia, retrieved 19 November 2026 via the MediaWiki API (prop=coordinates).",
+  "area": {
+    "name": "Hollywood Walk of Fame",
+    "center": [
+      -118.3338,
+      34.1018
+    ],
+    "streetZoom": 16.2,
+    "note": "The Walk runs along Hollywood Boulevard and Vine Street. Pin coordinates are the Wikipedia locations of the named landmarks; star-segment pins sit at those landmarks along the sidewalks."
+  },
+  "pins": [
+    {
+      "id": "tcl-chinese",
+      "name": "TCL Chinese Theatre",
+      "kind": "theatre",
+      "lng": -118.34097222,
+      "lat": 34.10194444,
+      "sourceName": "Grauman's Chinese Theatre",
+      "sourceUrl": "https://en.wikipedia.org/wiki/Grauman%27s_Chinese_Theatre",
+      "blurb": "Historic movie palace at 6925 Hollywood Blvd. Pins here are on the public sidewalk in front of the theatre, not inside.",
+      "label": "TCL Chinese Theatre"
+    },
+    {
+      "id": "dolby",
+      "name": "Dolby Theatre",
+      "kind": "theatre",
+      "lng": -118.34027778,
+      "lat": 34.10277778,
+      "sourceName": "Dolby Theatre",
+      "sourceUrl": "https://en.wikipedia.org/wiki/Dolby_Theatre",
+      "blurb": "Home of the Academy Awards, at Hollywood Blvd and Highland Ave. Sidewalk pin only.",
+      "label": "Dolby Theatre"
+    },
+    {
+      "id": "star-roosevelt",
+      "name": "Star segment: Hollywood Blvd at the Roosevelt",
+      "kind": "star-segment",
+      "lng": -118.34166667,
+      "lat": 34.10111111,
+      "sourceName": "Hollywood Roosevelt Hotel",
+      "sourceUrl": "https://en.wikipedia.org/wiki/Hollywood_Roosevelt_Hotel",
+      "blurb": "Wikipedia notes the blocks outside the Chinese Theatre and the Roosevelt as prime Walk of Fame star locations.",
+      "label": "Roosevelt"
+    },
+    {
+      "id": "star-el-capitan",
+      "name": "Star segment: Hollywood Blvd at El Capitan",
+      "kind": "star-segment",
+      "lng": -118.339722,
+      "lat": 34.101111,
+      "sourceName": "El Capitan Theatre",
+      "sourceUrl": "https://en.wikipedia.org/wiki/El_Capitan_Theatre",
+      "blurb": "Sidewalk stars along Hollywood Blvd at El Capitan Theatre, across from the Chinese / Highland cluster.",
+      "label": "El Capitan"
+    },
+    {
+      "id": "star-egyptian",
+      "name": "Star segment: Hollywood Blvd at the Egyptian",
+      "kind": "star-segment",
+      "lng": -118.33638889,
+      "lat": 34.10083333,
+      "sourceName": "Grauman's Egyptian Theatre",
+      "sourceUrl": "https://en.wikipedia.org/wiki/Grauman%27s_Egyptian_Theatre",
+      "blurb": "Mid-boulevard star segment near Grauman's Egyptian Theatre.",
+      "label": "Egyptian"
+    },
+    {
+      "id": "star-hollywood-vine",
+      "name": "Star segment: Hollywood Blvd and Vine",
+      "kind": "star-segment",
+      "lng": -118.32666667,
+      "lat": 34.10166667,
+      "sourceName": "Hollywood and Vine",
+      "sourceUrl": "https://en.wikipedia.org/wiki/Hollywood_and_Vine",
+      "blurb": "The Hollywood Blvd and Vine Street crossing, a well-known stretch of the Walk of Fame.",
+      "label": "Hollywood & Vine"
+    },
+    {
+      "id": "star-capitol",
+      "name": "Star segment: Vine Street at Capitol Records",
+      "kind": "star-segment",
+      "lng": -118.326189,
+      "lat": 34.103085,
+      "sourceName": "Capitol Records Building",
+      "sourceUrl": "https://en.wikipedia.org/wiki/Capitol_Records_Building",
+      "blurb": "Walk of Fame stars also run along Vine Street. This pin is at the Capitol Records Building.",
+      "label": "Capitol Records"
+    },
+    {
+      "id": "wof-corner-flat",
+      "name": "Walk of Fame corner \u2014 flat video demo",
+      "kind": "star-segment",
+      "lng": -118.3431,
+      "lat": 34.1019,
+      "sourceName": "Hollywood Walk of Fame",
+      "sourceUrl": "https://en.wikipedia.org/wiki/Hollywood_Walk_of_Fame",
+      "blurb": "One small corner of the Walk of Fame on Hollywood Blvd, west of the Chinese Theatre. Flat video shown on a curved screen \u2014 a demo of turning flat footage into a 360-style view.",
+      "flat": true,
+      "label": "Flat video demo"
+    },
+    {
+      "id": "business-demo",
+      "name": "Example business pin \u2014 your business here",
+      "kind": "business",
+      "lng": -118.331,
+      "lat": 34.1012,
+      "sourceName": "Example business pin",
+      "sourceUrl": "sales.html",
+      "blurb": "EXAMPLE \u2014 not a real business and not a paid listing. This is what a buyer's pin looks like: a 60-second clip of their location on the globe for 1 year, with their name and a link (the demo clip here is a 30-second excerpt). Tap it to see the clip, and the sales page for prices and the free 45-second preview.",
+      "flat": true,
+      "demo": true,
+      "label": "Example pin"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+Sample 360 footage (stand-in — not Hollywood, not creator footage)
+==================================================================
+
+File: sample-360.mp4 (and sample-360-poster.jpg)
+
+This is a short, downscaled, muted excerpt of:
+
+  “Anıtkabir ( Atatürk ) 360 Derece Video Panorama Gezinti - 360 Degree Video.webm”
+  Source: https://commons.wikimedia.org/wiki/File:An%C4%B1tkabir_(%20Atat%C3%BCrk%20)_360_Derece_Video_Panorama_Gezinti_-_360_Degree_Video.webm
+  Author: 360TR
+  License: Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+  License URL: https://creativecommons.org/licenses/by/3.0/
+  Original: 3840×2048 equirectangular walking 360 video, recorded at Anıtkabir, Ankara.
+  This excerpt: about 22 seconds starting ~00:20, scaled to 1280×682, H.264, no audio,
+  used as a labeled stand-in in the 360 player.
+
+This is the clip the player serves. It is not Hollywood Walk of Fame footage
+and is not creator-submitted video. The app labels it as a stand-in on screen.
+
+Attribution to show in the app:
+  360 stand-in (not Hollywood Walk of Fame, not creator footage):
+  Anıtkabir, Ankara — 360TR, CC BY 3.0.
+
+Flat-video demo (curved screen — not true 360)
+================================================
+
+File: walk-of-fame-flat.mp4 (and walk-of-fame-flat-poster.jpg)
+
+  “Walk of Fame in Los Angeles” — slow-motion video of people walking
+  along the Hollywood Walk of Fame
+  Source: https://www.pexels.com/video/walk-of-fame-in-los-angeles-13560787/
+  Author: Dimitri Baret
+  License: Pexels License (free to use, no attribution required;
+  credited here anyway)
+  License URL: https://www.pexels.com/license/
+  This file: 30-second excerpt (starting ~00:05) of the 55-second
+  original, scaled to 1280×540, H.264, 23.98 fps, no audio, for the
+  prototype. Shown on a curved screen inside
+  the 360 player as a demo of turning flat footage into a 360-style
+  view. It is flat footage, not true 360, and the app labels it so.
+
+This is also the clip used by the example business pin (same file,
+credited as a demo listing).
+
+Files no longer in this tree
+============================
+
+The unlicensed YouTube test clips previously stored as hollywood-360.mp4
+and hollywood-360-2d-converted.mp4 (and their posters) were removed from
+the project going forward. They must not be served. Git history may still
+contain them; they are not part of the current tree.
+
+Lower-resolution first-load encodes
+===================================
+
+Files: sample-360-low.mp4 and walk-of-fame-flat-low.mp4
+
+These are smaller, faststart (moov-at-front) H.264 encodes of the same
+source clips above, used only to show a first frame faster. The player
+then upgrades to the full-resolution file. Same authors and licenses
+as the corresponding full files (360TR, CC BY 3.0; Dimitri Baret,
+Pexels License).
+
+2D -> 360 AI fill-in tests (unlisted test pages, not linked from the map)
+=========================================================================
+
+Files: wof-ai360.mp4, wof-ai360-low.mp4, wof-ai360-poster.jpg (test v1)
+       wof-ai360-v2.mp4, wof-ai360-v2-low.mp4, wof-ai360-v2-poster.jpg (test v2)
+
+  Front: excerpt of "Walk of Fame in Los Angeles" by Dimitri Baret, Pexels
+  License (https://www.pexels.com/license/).
+  Surround: AI-generated 360 panorama (DiT360 Hugging Face Space); in v2 the
+  sidewalk band is animated with the Wan 2.2 image-to-video Hugging Face Space.
+  Not true 360 footage. See SOURCES.md for details.
