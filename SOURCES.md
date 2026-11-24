@@ -120,8 +120,9 @@ removed from the current tree and must not be served.
   natural neck, a medium tapered lathe torso, two-segment legs with small
   rounded feet, and hip-length capsule arms, built as rounded volumes.
   White MeshStandardMaterial with a brighter emissive, key/fill lights,
-  a fresnel rim and a soft outer halo. The figure is composited in a
-  separate MSAA pass after the splat so the silhouette stays clean. There is no third-party character or icon
+  and a soft screen-space glow (not a per-part outline). The figure is
+  composited in a separate MSAA pass after the splat so the silhouette
+  stays clean, then a blurred glow is added behind it. There is no third-party character or icon
   file. Walk and idle are a short procedural cycle (limb swing). The
   figure is a simple sign-style stand-in, about 1.7 m tall, not a real
   person at the pin.

@@ -130,6 +130,11 @@ export function mountSplatPlayer(root) {
   let composeScene = null;
   let composeCam = null;
   let composeQuad = null;
+  let glowTargetA = null;
+  let glowTargetB = null;
+  let blurScene = null;
+  let blurQuad = null;
+  let glowQuad = null;
   const _foot = new THREE.Vector3();
   const _clearCol = new THREE.Color();
 
@@ -695,58 +700,145 @@ export function mountSplatPlayer(root) {
     plantFeet();
   }
 
+  function disposeRt(rt) {
+    if (rt) rt.dispose();
+    return null;
+  }
+
+  function makeFullscreenMat(frag, extras) {
+    return new THREE.ShaderMaterial(Object.assign({
+      uniforms: Object.assign({ tDiffuse: { value: null } }, extras || {}),
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position.xy, 0.0, 1.0);
+        }
+      `,
+      fragmentShader: frag,
+      depthTest: false,
+      depthWrite: false,
+      toneMapped: false,
+    }, {}));
+  }
+
   function ensureAvatarTarget() {
     if (!renderer) return;
     const size = new THREE.Vector2();
     renderer.getDrawingBufferSize(size);
     const w = Math.max(1, Math.floor(size.x));
     const h = Math.max(1, Math.floor(size.y));
-    if (avatarTarget && avatarTarget.width === w && avatarTarget.height === h) return;
-    if (avatarTarget) {
-      avatarTarget.dispose();
-      avatarTarget = null;
-    }
+    const gw = Math.max(1, Math.floor(w / 2));
+    const gh = Math.max(1, Math.floor(h / 2));
+    const sameAvatar = avatarTarget && avatarTarget.width === w && avatarTarget.height === h;
+    const sameGlow = glowTargetA && glowTargetA.width === gw && glowTargetA.height === gh;
+    if (sameAvatar && sameGlow && composeScene && blurScene) return;
+
+    avatarTarget = disposeRt(avatarTarget);
+    glowTargetA = disposeRt(glowTargetA);
+    glowTargetB = disposeRt(glowTargetB);
+
     avatarTarget = new THREE.WebGLRenderTarget(w, h, {
       samples: 4,
       depthBuffer: true,
       stencilBuffer: false,
     });
-    if (renderer.outputColorSpace) avatarTarget.texture.colorSpace = renderer.outputColorSpace;
-    if (!composeScene) {
-      composeScene = new THREE.Scene();
-      composeCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-      const mat = new THREE.ShaderMaterial({
-        uniforms: { tDiffuse: { value: avatarTarget.texture } },
-        vertexShader: `
+    glowTargetA = new THREE.WebGLRenderTarget(gw, gh, { depthBuffer: false, stencilBuffer: false });
+    glowTargetB = new THREE.WebGLRenderTarget(gw, gh, { depthBuffer: false, stencilBuffer: false });
+    if (renderer.outputColorSpace) {
+      avatarTarget.texture.colorSpace = renderer.outputColorSpace;
+      glowTargetA.texture.colorSpace = renderer.outputColorSpace;
+      glowTargetB.texture.colorSpace = renderer.outputColorSpace;
+    }
+
+    if (!composeCam) composeCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+    if (!blurScene) {
+      const blurMat = makeFullscreenMat(
+        `
+          uniform sampler2D tDiffuse;
+          uniform vec2 direction;
+          uniform float intensity;
           varying vec2 vUv;
           void main() {
-            vUv = uv;
-            gl_Position = vec4(position.xy, 0.0, 1.0);
+            vec2 texel = direction;
+            vec4 sum = texture2D(tDiffuse, vUv) * 0.227027;
+            sum += texture2D(tDiffuse, vUv + texel) * 0.1945946;
+            sum += texture2D(tDiffuse, vUv - texel) * 0.1945946;
+            sum += texture2D(tDiffuse, vUv + texel * 2.0) * 0.1216216;
+            sum += texture2D(tDiffuse, vUv - texel * 2.0) * 0.1216216;
+            sum += texture2D(tDiffuse, vUv + texel * 3.0) * 0.054054;
+            sum += texture2D(tDiffuse, vUv - texel * 3.0) * 0.054054;
+            sum += texture2D(tDiffuse, vUv + texel * 4.0) * 0.016216;
+            sum += texture2D(tDiffuse, vUv - texel * 4.0) * 0.016216;
+            gl_FragColor = sum * intensity;
           }
         `,
-        fragmentShader: `
+        { direction: { value: new THREE.Vector2() }, intensity: { value: 1 } }
+      );
+      blurMat.toneMapped = false;
+      blurQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), blurMat);
+      blurQuad.frustumCulled = false;
+      blurScene = new THREE.Scene();
+      blurScene.add(blurQuad);
+    }
+
+    if (!composeScene) {
+      const glowMat = makeFullscreenMat(
+        `
+          uniform sampler2D tDiffuse;
+          uniform float intensity;
+          varying vec2 vUv;
+          void main() {
+            gl_FragColor = texture2D(tDiffuse, vUv) * intensity;
+          }
+        `,
+        { intensity: { value: 0.95 } }
+      );
+      glowMat.transparent = true;
+      glowMat.blending = THREE.AdditiveBlending;
+      glowMat.premultipliedAlpha = true;
+      glowQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), glowMat);
+      glowQuad.frustumCulled = false;
+      glowQuad.renderOrder = 0;
+
+      const sharpMat = makeFullscreenMat(
+        `
           uniform sampler2D tDiffuse;
           varying vec2 vUv;
           void main() {
             gl_FragColor = texture2D(tDiffuse, vUv);
           }
-        `,
-        transparent: true,
-        depthTest: false,
-        depthWrite: false,
-        premultipliedAlpha: true,
-        blending: THREE.CustomBlending,
-        blendSrc: THREE.OneFactor,
-        blendDst: THREE.OneMinusSrcAlphaFactor,
-        blendSrcAlpha: THREE.OneFactor,
-        blendDstAlpha: THREE.OneMinusSrcAlphaFactor,
-      });
-      composeQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat);
+        `
+      );
+      sharpMat.transparent = true;
+      sharpMat.premultipliedAlpha = true;
+      sharpMat.blending = THREE.CustomBlending;
+      sharpMat.blendSrc = THREE.OneFactor;
+      sharpMat.blendDst = THREE.OneMinusSrcAlphaFactor;
+      sharpMat.blendSrcAlpha = THREE.OneFactor;
+      sharpMat.blendDstAlpha = THREE.OneMinusSrcAlphaFactor;
+      composeQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), sharpMat);
       composeQuad.frustumCulled = false;
+      composeQuad.renderOrder = 1;
+
+      composeScene = new THREE.Scene();
+      composeScene.add(glowQuad);
       composeScene.add(composeQuad);
-    } else {
-      composeQuad.material.uniforms.tDiffuse.value = avatarTarget.texture;
     }
+
+    composeQuad.material.uniforms.tDiffuse.value = avatarTarget.texture;
+    glowQuad.material.uniforms.tDiffuse.value = glowTargetA.texture;
+  }
+
+  function blitBlur(src, dest, dirX, dirY, intensity) {
+    blurQuad.material.uniforms.tDiffuse.value = src.texture;
+    blurQuad.material.uniforms.direction.value.set(dirX, dirY);
+    blurQuad.material.uniforms.intensity.value = intensity;
+    renderer.setRenderTarget(dest);
+    renderer.setClearColor(0x000000, 0);
+    renderer.clear();
+    renderer.render(blurScene, composeCam);
   }
 
   function renderFrame() {
@@ -763,7 +855,7 @@ export function mountSplatPlayer(root) {
 
   function renderAvatarOverlay() {
     ensureAvatarTarget();
-    if (!avatarTarget || !composeScene) return;
+    if (!avatarTarget || !composeScene || !glowTargetA) return;
     const prevBg = scene.background;
     const sparkVis = spark ? spark.visible : true;
     const prevColor = renderer.getClearColor(_clearCol);
@@ -774,6 +866,18 @@ export function mountSplatPlayer(root) {
     renderer.setClearColor(0x000000, 0);
     renderer.clear();
     renderer.render(scene, camera);
+
+    const sx = 1 / glowTargetA.width;
+    const sy = 1 / glowTargetA.height;
+    const spread = 2.4;
+    blitBlur(avatarTarget, glowTargetA, sx * spread, 0.0, 1.0);
+    blitBlur(glowTargetA, glowTargetB, 0.0, sy * spread, 1.0);
+    blitBlur(glowTargetB, glowTargetA, sx * spread, 0.0, 1.0);
+    blitBlur(glowTargetA, glowTargetB, 0.0, sy * spread, 1.0);
+    blitBlur(glowTargetB, glowTargetA, sx * 1.6, 0.0, 1.0);
+    blitBlur(glowTargetA, glowTargetB, 0.0, sy * 1.6, 1.0);
+    glowQuad.material.uniforms.tDiffuse.value = glowTargetB.texture;
+
     renderer.setRenderTarget(null);
     scene.background = prevBg;
     if (spark) spark.visible = sparkVis;
@@ -784,16 +888,26 @@ export function mountSplatPlayer(root) {
   }
 
   function disposeAvatarTarget() {
-    if (avatarTarget) {
-      avatarTarget.dispose();
-      avatarTarget = null;
-    }
+    avatarTarget = disposeRt(avatarTarget);
+    glowTargetA = disposeRt(glowTargetA);
+    glowTargetB = disposeRt(glowTargetB);
     if (composeQuad) {
       composeQuad.geometry.dispose();
       composeQuad.material.dispose();
       composeQuad = null;
     }
+    if (glowQuad) {
+      glowQuad.geometry.dispose();
+      glowQuad.material.dispose();
+      glowQuad = null;
+    }
+    if (blurQuad) {
+      blurQuad.geometry.dispose();
+      blurQuad.material.dispose();
+      blurQuad = null;
+    }
     composeScene = null;
+    blurScene = null;
     composeCam = null;
   }
 
@@ -836,24 +950,6 @@ export function mountSplatPlayer(root) {
     }
   }
 
-  function addShell(mesh, rimMat, scale) {
-    const shell = new THREE.Mesh(mesh.geometry, rimMat);
-    shell.name = (mesh.name || "part") + "-rim";
-    shell.scale.setScalar(scale);
-    shell.renderOrder = 6;
-    mesh.add(shell);
-    return shell;
-  }
-
-  function addHalo(mesh, haloMat, scale) {
-    const halo = new THREE.Mesh(mesh.geometry, haloMat);
-    halo.name = (mesh.name || "part") + "-halo";
-    halo.scale.setScalar(scale);
-    halo.renderOrder = 7;
-    mesh.add(halo);
-    return halo;
-  }
-
   function bodyBox(root) {
     const box = new THREE.Box3();
     root.updateMatrixWorld(true);
@@ -882,6 +978,11 @@ export function mountSplatPlayer(root) {
       held.copy(origin);
       held.addScaledVector(right, 0.75).addScaledVector(forward, 0.9);
       held.y = origin.y + 0.42;
+    } else if (cameraHold === "knees") {
+      origin.y += 0.48;
+      held.copy(origin);
+      held.addScaledVector(right, 0.8).addScaledVector(forward, 0.65);
+      held.y = origin.y + 0.12;
     } else if (cameraHold === "side") {
       origin.y += 0.85;
       held.copy(origin);
@@ -894,7 +995,7 @@ export function mountSplatPlayer(root) {
       held.y += 0.22;
     }
     held.x = clamp(held.x, boundsMin.x, boundsMax.x);
-    held.y = clamp(held.y, cameraHold === "feet" ? 0.16 : 0.9, Math.max(boundsMax.y, 2.55));
+    held.y = clamp(held.y, cameraHold === "feet" || cameraHold === "knees" ? 0.16 : 0.9, Math.max(boundsMax.y, 2.55));
     held.z = clamp(held.z, boundsMin.z, boundsMax.z);
     camera.position.copy(held);
     camera.lookAt(origin);
@@ -916,52 +1017,6 @@ export function mountSplatPlayer(root) {
     fill.target.position.set(0, 0.9, 0);
     root.add(fill);
     root.add(fill.target);
-  }
-
-  function makeHaloMaterial(power, intensity) {
-    return new THREE.ShaderMaterial({
-      uniforms: {
-        color: { value: new THREE.Color(0xffffff) },
-        power: { value: power },
-        intensity: { value: intensity },
-      },
-      vertexShader: `
-        varying vec3 vNormal;
-        varying vec3 vViewDir;
-        void main() {
-          vec4 wp = modelMatrix * vec4(position, 1.0);
-          vNormal = normalize(mat3(modelMatrix) * normal);
-          vViewDir = normalize(cameraPosition - wp.xyz);
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform vec3 color;
-        uniform float power;
-        uniform float intensity;
-        varying vec3 vNormal;
-        varying vec3 vViewDir;
-        void main() {
-          float f = pow(1.0 - abs(dot(normalize(vNormal), normalize(vViewDir))), power);
-          vec3 c = color * f * intensity;
-          gl_FragColor = vec4(c, f * intensity);
-        }
-      `,
-      side: THREE.BackSide,
-      transparent: true,
-      depthWrite: false,
-      depthTest: false,
-      blending: THREE.AdditiveBlending,
-      premultipliedAlpha: true,
-    });
-  }
-
-  function makeRimMaterial() {
-    return makeHaloMaterial(2.0, 1.05);
-  }
-
-  function makeSoftHaloMaterial() {
-    return makeHaloMaterial(1.15, 0.55);
   }
 
   function attachFresnel(mat, strength, power) {
@@ -1046,9 +1101,7 @@ export function mountSplatPlayer(root) {
     return geo;
   }
 
-  function dress(mesh, rimMat, haloMat, rimScale, haloScale) {
-    addShell(mesh, rimMat, rimScale);
-    addHalo(mesh, haloMat, haloScale);
+  function dress(mesh) {
     mesh.renderOrder = 5;
     return mesh;
   }
@@ -1067,9 +1120,7 @@ export function mountSplatPlayer(root) {
       depthTest: true,
       envMapIntensity: 0,
     });
-    attachFresnel(mat, 0.48, 2.4);
-    const rimMat = makeRimMaterial();
-    const haloMat = makeSoftHaloMaterial();
+    attachFresnel(mat, 0.3, 1.7);
     const figure = new THREE.Group();
     figure.name = "restroom-icon";
 
@@ -1096,17 +1147,17 @@ export function mountSplatPlayer(root) {
     const torsoGeo = torsoLatheGeometry(shoulderW, hipW, torsoH, neckH * 0.7, neckR);
     torsoGeo.scale(1, 1, depth / shoulderW);
     torsoGeo.computeVertexNormals();
-    const torso = dress(new THREE.Mesh(torsoGeo, mat), rimMat, haloMat, 1.055, 1.13);
+    const torso = dress(new THREE.Mesh(torsoGeo, mat));
     torso.name = "torso";
     torso.position.y = hipY + torsoH * 0.5;
     figure.add(torso);
 
-    const neck = dress(new THREE.Mesh(new THREE.CapsuleGeometry(neckR, Math.max(0.01, neckH - neckR), 8, 16), mat), rimMat, haloMat, 1.06, 1.14);
+    const neck = dress(new THREE.Mesh(new THREE.CapsuleGeometry(neckR, Math.max(0.01, neckH - neckR), 8, 16), mat));
     neck.name = "neck";
     neck.position.y = torsoTop + neckH * 0.35;
     figure.add(neck);
 
-    const head = dress(new THREE.Mesh(eggHeadGeometry(headH, headR), mat), rimMat, haloMat, 1.05, 1.12);
+    const head = dress(new THREE.Mesh(eggHeadGeometry(headH, headR), mat));
     head.name = "head";
     head.position.y = torsoTop + neckH * 0.7 + headH * 0.42;
     figure.add(head);
@@ -1116,10 +1167,13 @@ export function mountSplatPlayer(root) {
       pivot.name = name + "-pivot";
       pivot.position.set(x, jointY, 0);
       const cyl = Math.max(0.01, totalLen - radius * 2);
-      const mesh = dress(new THREE.Mesh(new THREE.CapsuleGeometry(radius, cyl, 8, 16), mat), rimMat, haloMat, 1.06, 1.14);
+      const mesh = dress(new THREE.Mesh(new THREE.CapsuleGeometry(radius, cyl, 8, 16), mat));
       mesh.name = name;
       mesh.position.y = -totalLen * 0.5;
       pivot.add(mesh);
+      const cap = dress(new THREE.Mesh(new THREE.SphereGeometry(radius * 1.12, 14, 12), mat));
+      cap.name = name + "-shoulder";
+      pivot.add(cap);
       figure.add(pivot);
       return pivot;
     }
@@ -1134,18 +1188,24 @@ export function mountSplatPlayer(root) {
       const thighTop = joint * 0.35;
       const thighBot = -thighLen - joint;
       const thighCyl = Math.max(0.01, thighTop - thighBot - legR * 2);
-      const thigh = dress(new THREE.Mesh(new THREE.CapsuleGeometry(legR, thighCyl, 8, 16), mat), rimMat, haloMat, 1.06, 1.14);
+      const thigh = dress(new THREE.Mesh(new THREE.CapsuleGeometry(legR, thighCyl, 8, 16), mat));
       thigh.name = name + "-thigh";
       thigh.position.y = (thighTop + thighBot) * 0.5;
       hip.add(thigh);
+      const hipCap = dress(new THREE.Mesh(new THREE.SphereGeometry(legR * 1.08, 14, 12), mat));
+      hipCap.name = name + "-hip";
+      hip.add(hipCap);
       const knee = new THREE.Group();
       knee.name = name + "-knee";
       knee.position.y = -thighLen;
       hip.add(knee);
+      const kneeCap = dress(new THREE.Mesh(new THREE.SphereGeometry(legR * 1.1, 14, 12), mat));
+      kneeCap.name = name + "-knee-ball";
+      knee.add(kneeCap);
       const shinTop = joint;
       const shinBot = -shinLen + joint * 0.2;
       const shinCyl = Math.max(0.01, shinTop - shinBot - legR * 0.95 * 2);
-      const shin = dress(new THREE.Mesh(new THREE.CapsuleGeometry(legR * 0.95, shinCyl, 8, 16), mat), rimMat, haloMat, 1.06, 1.14);
+      const shin = dress(new THREE.Mesh(new THREE.CapsuleGeometry(legR * 0.95, shinCyl, 8, 16), mat));
       shin.name = name + "-shin";
       shin.position.y = (shinTop + shinBot) * 0.5;
       knee.add(shin);
@@ -1154,7 +1214,7 @@ export function mountSplatPlayer(root) {
       ankle.position.y = -shinLen;
       knee.add(ankle);
       const footGeo = new THREE.SphereGeometry(legR * 1.05, 14, 10);
-      const foot = dress(new THREE.Mesh(footGeo, mat), rimMat, haloMat, 1.05, 1.12);
+      const foot = dress(new THREE.Mesh(footGeo, mat));
       foot.name = name + "-foot";
       foot.scale.set(1.05, 0.38, footLen / (legR * 1.05));
       foot.position.set(0, -footH * 0.42, footLen * 0.28);
@@ -1192,7 +1252,6 @@ export function mountSplatPlayer(root) {
       torso,
       head,
       mat,
-      rimMat,
       natural,
     };
   }
@@ -1558,7 +1617,7 @@ export function mountSplatPlayer(root) {
       return { loadMs: stats.loadMs, fps: stats.fps };
     },
     frameFigure(mode) {
-      cameraHold = mode === "side" ? "side" : mode === "feet" ? "feet" : "threeQuarter";
+      cameraHold = mode === "side" ? "side" : mode === "feet" ? "feet" : mode === "knees" ? "knees" : "threeQuarter";
     },
     clearFigureFrame() {
       cameraHold = null;
