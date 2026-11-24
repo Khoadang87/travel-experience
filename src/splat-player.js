@@ -91,10 +91,9 @@ export function mountSplatPlayer(root) {
   const boundsMin = new THREE.Vector3(-10, 0.5, -10);
   const boundsMax = new THREE.Vector3(10, 2.2, 10);
   const WALK_SPEED = 1.8;
-  const FOLLOW_BACK = 2.7;
-  const FOLLOW_UP = 1.95;
+  const FOLLOW_DIST = 3.35;
+  const FOLLOW_UP = 2.08;
   const FOLLOW_LOOK_Y = 0.85;
-  const FOLLOW_SHOULDER = 0.28;
   const LEG_SWING = 0.5;
   const ARM_SWING = 0.4;
   const WALK_CYCLE = 1.0;
@@ -554,43 +553,45 @@ export function mountSplatPlayer(root) {
       avatarRoot.rotation.y = Math.atan2(_tan.x, _tan.z) + avatarYawOffset;
       avatarRoot.updateMatrixWorld(true);
     }
-    // Over-the-shoulder but pulled back and up, looking at mid-torso so the
-    // whole figure stays in frame (head to toe) on a tall phone stage. Slightly
-    // off to the right. Look stick/drag orbits that follow pose. Near a wall
-    // (start/end of the aisle) there may not be room behind, so swing to a
-    // three-quarter view inside the room.
+    // Pull back far enough that the ~1.7 m figure fills about 40–55% of a
+    // tall phone stage. Prefer a rear-quarter view inside the room; if the
+    // window wall is too close behind, swing to the side (or slightly ahead)
+    // rather than clipping through a wall.
     _back.set(-_tan.x, 0, -_tan.z).normalize();
-    _back.applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw);
-    _side.set(_tan.z, 0, -_tan.x).normalize();
-    if (yaw) _side.applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw);
-    const desiredBack = FOLLOW_BACK * Math.cos(clamp(pitch, -0.7, 0.7));
-    const available = travelInBounds(carPosition, _back, desiredBack + 0.25);
-    const pitchLift = Math.sin(clamp(pitch, -0.7, 0.7)) * 0.55;
-    if (available < Math.min(1.5, desiredBack * 0.5)) {
-      // Stay inside the room: ahead and to the side, looking back at the walker
-      // (going "behind" here would push the camera through the window).
-      _side.set(_tan.z, 0, -_tan.x).normalize();
-      const left = travelInBounds(carPosition, _side, 1.6);
-      _side.negate();
-      const right = travelInBounds(carPosition, _side, 1.6);
-      if (left >= right) _side.negate();
-      const sideDist = Math.min(1.2, Math.max(0.5, Math.max(left, right) - 0.2));
-      const aheadDist = Math.min(1.15, Math.max(0.55, travelInBounds(carPosition, _tan, 1.7) - 0.2));
-      _look.copy(_tan).multiplyScalar(aheadDist).addScaledVector(_side, sideDist);
-      if (yaw) _look.applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw);
-      pos.copy(carPosition).add(_look);
-      pos.y = carPosition.y + FOLLOW_UP + 0.22 + pitchLift;
-    } else {
-      pos.copy(carPosition).addScaledVector(_back, Math.min(desiredBack, available - 0.12));
-      const shoulderRoom = travelInBounds(carPosition, _side, FOLLOW_SHOULDER + 0.2);
-      pos.addScaledVector(_side, Math.min(FOLLOW_SHOULDER, Math.max(0, shoulderRoom - 0.08)));
-      pos.y = carPosition.y + FOLLOW_UP + pitchLift;
+    if (yaw) _back.applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw);
+    const targetDist = FOLLOW_DIST * Math.cos(clamp(pitch, -0.55, 0.55));
+    const pitchLift = Math.sin(clamp(pitch, -0.7, 0.7)) * 0.45;
+    const angles = [0.4, -0.4, 0.6, -0.6, 0.85, -0.85, 0.2, -0.2, 0, 1.1, -1.1, 1.35, -1.35, 1.65, -1.65, 2.2, -2.2];
+    let bestScore = -Infinity;
+    let bestDist = 0;
+    let bestAng = 0;
+    for (const a of angles) {
+      _side.copy(_back).applyAxisAngle(THREE.Object3D.DEFAULT_UP, a);
+      const max = travelInBounds(carPosition, _side, targetDist + 0.5);
+      const dist = Math.min(targetDist, Math.max(0, max - 0.16));
+      if (dist < 1.5) continue;
+      const distScore = 1 - Math.abs(dist - targetDist) / Math.max(targetDist, 0.01);
+      const rearPref = Math.max(0, Math.cos(a));
+      const shoulderPref = 1 - Math.min(1, Math.abs(Math.abs(a) - 0.45) / 1.8);
+      const score = distScore * 2.4 + rearPref * 0.25 + shoulderPref * 0.2;
+      if (score > bestScore) {
+        bestScore = score;
+        bestDist = dist;
+        bestAng = a;
+      }
     }
+    if (bestDist > 0) {
+      _back.applyAxisAngle(THREE.Object3D.DEFAULT_UP, bestAng);
+      pos.copy(carPosition).addScaledVector(_back, bestDist);
+    } else {
+      pos.copy(carPosition).addScaledVector(_back, 1.6);
+    }
+    pos.y = carPosition.y + FOLLOW_UP + pitchLift;
     pos.x = clamp(pos.x, boundsMin.x, boundsMax.x);
     pos.y = clamp(pos.y, 0.9, Math.max(boundsMax.y, 2.55));
     pos.z = clamp(pos.z, boundsMin.z, boundsMax.z);
     camera.position.copy(pos);
-    _look.copy(carPosition).addScaledVector(_tan, 0.35);
+    _look.copy(carPosition).addScaledVector(_tan, 0.2);
     _look.y = carPosition.y + FOLLOW_LOOK_Y;
     camera.lookAt(_look);
     camera.updateMatrixWorld(true);
@@ -668,34 +669,60 @@ export function mountSplatPlayer(root) {
     avatarLimbs.legR.rotation.x = Math.sin(phase + Math.PI) * LEG_SWING * w;
     avatarLimbs.armL.rotation.x = Math.sin(phase + Math.PI) * ARM_SWING * w;
     avatarLimbs.armR.rotation.x = Math.sin(phase) * ARM_SWING * w;
-    // Small bob while walking; a quieter breath when idle.
-    const bob = Math.abs(Math.sin(phase)) * 0.03 * w + Math.sin(animTime * 2) * 0.008 * (1 - w);
+    // Walk bob only lifts off the planted stance; idle stays on the floor.
+    const bob = Math.abs(Math.sin(phase)) * 0.02 * w;
     avatarLimbs.figure.position.y = avatarLimbs.baseY + bob;
   }
 
-  function buildSimpleFigure(height, color) {
+  function addShell(mesh, rimMat, scale) {
+    const shell = new THREE.Mesh(mesh.geometry, rimMat);
+    shell.name = (mesh.name || "part") + "-rim";
+    shell.scale.setScalar(scale);
+    shell.renderOrder = 6;
+    mesh.add(shell);
+    return shell;
+  }
+
+  function buildSimpleFigure(height) {
     const h = height > 0.5 ? height : 1.7;
     const s = h / 1.7;
-    const mat = new THREE.MeshLambertMaterial({
-      color: new THREE.Color(color || 0xc27a4a),
+    const mat = new THREE.MeshStandardMaterial({
+      color: 0xf7f8fb,
+      roughness: 0.4,
+      metalness: 0.08,
+      emissive: 0xe8edf8,
+      emissiveIntensity: 0.4,
+      transparent: true,
+      opacity: 1,
+      depthWrite: true,
+      depthTest: true,
       polygonOffset: true,
       polygonOffsetFactor: -1,
       polygonOffsetUnits: -1,
+    });
+    const rimMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      side: THREE.BackSide,
+      transparent: true,
+      opacity: 0.16,
+      depthWrite: false,
+      depthTest: true,
+      blending: THREE.AdditiveBlending,
     });
     const figure = new THREE.Group();
     figure.name = "simple-figure";
 
     const hipY = 0.9 * s;
     const shoulderY = 1.36 * s;
-    const headR = 0.13 * s;
-    const headY = 1.57 * s;
+    const headR = 0.125 * s;
     const torsoR = 0.15 * s;
     const torsoLen = 0.52 * s;
+    const neckR = 0.07 * s;
+    const neckLen = 0.12 * s;
     const armRadius = 0.055 * s;
     const armLen = 0.58 * s;
     const legRadius = 0.07 * s;
-    const footClear = 0.02 * s;
-    const legLen = hipY - footClear;
+    const legLen = hipY;
 
     function capsule(radius, totalLen) {
       const mid = Math.max(0.01, totalLen - 2 * radius);
@@ -706,11 +733,21 @@ export function mountSplatPlayer(root) {
     torso.name = "torso";
     torso.position.y = shoulderY - torsoLen * 0.45;
     figure.add(torso);
+    addShell(torso, rimMat, 1.055);
 
-    const head = new THREE.Mesh(new THREE.SphereGeometry(headR, 14, 10), mat);
+    const torsoTop = torso.position.y + torsoLen * 0.5;
+    const neck = new THREE.Mesh(capsule(neckR, neckLen), mat);
+    neck.name = "neck";
+    neck.position.y = torsoTop + neckLen * 0.25;
+    figure.add(neck);
+    addShell(neck, rimMat, 1.06);
+
+    const headY = neck.position.y + neckLen * 0.5 + headR * 0.72;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(headR, 16, 12), mat);
     head.name = "head";
     head.position.y = headY;
     figure.add(head);
+    addShell(head, rimMat, 1.06);
 
     function limb(x, jointY, radius, totalLen, name) {
       const pivot = new THREE.Group();
@@ -719,6 +756,7 @@ export function mountSplatPlayer(root) {
       const mesh = new THREE.Mesh(capsule(radius, totalLen), mat);
       mesh.name = name;
       mesh.position.y = -totalLen * 0.5;
+      addShell(mesh, rimMat, 1.07);
       pivot.add(mesh);
       figure.add(pivot);
       return pivot;
@@ -731,59 +769,99 @@ export function mountSplatPlayer(root) {
     const legL = limb(-hipX, hipY, legRadius, legLen, "legL");
     const legR = limb(hipX, hipY, legRadius, legLen, "legR");
 
+    figure.traverse((obj) => {
+      if (obj.isMesh && !/-rim$/.test(obj.name || "")) obj.renderOrder = 5;
+    });
     const step = 2 * legLen * Math.sin(LEG_SWING);
     const natural = (2 * step) / WALK_CYCLE;
-    return { figure, armL, armR, legL, legR, mat, natural };
+    return { figure, armL, armR, legL, legR, mat, rimMat, natural };
   }
 
-  function makeContactShadow() {
-    const shadowCanvas = document.createElement("canvas");
-    shadowCanvas.width = 128;
-    shadowCanvas.height = 128;
-    const ctx = shadowCanvas.getContext("2d");
-    const grd = ctx.createRadialGradient(64, 64, 6, 64, 64, 62);
-    grd.addColorStop(0, "rgba(0,0,0,0.38)");
-    grd.addColorStop(0.5, "rgba(0,0,0,0.12)");
-    grd.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, 128, 128);
-    const shadowTex = new THREE.CanvasTexture(shadowCanvas);
-    const shadow = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.42, 0.3),
-      new THREE.MeshBasicMaterial({
-        map: shadowTex,
-        transparent: true,
-        opacity: 0.9,
-        depthWrite: false,
-        depthTest: true,
-        polygonOffset: true,
-        polygonOffsetFactor: 1,
-        polygonOffsetUnits: 1,
-      })
-    );
+  function makeFloorGlow() {
+    const group = new THREE.Group();
+    group.name = "floor-fx";
+
+    function radial(inner, mid, outer, size) {
+      const c = document.createElement("canvas");
+      c.width = 128;
+      c.height = 128;
+      const ctx = c.getContext("2d");
+      const grd = ctx.createRadialGradient(64, 64, inner, 64, 64, 62);
+      grd.addColorStop(0, mid);
+      grd.addColorStop(0.45, outer);
+      grd.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, 128, 128);
+      const tex = new THREE.CanvasTexture(c);
+      const mesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(size, size),
+        new THREE.MeshBasicMaterial({
+          map: tex,
+          transparent: true,
+          depthWrite: false,
+          depthTest: true,
+          polygonOffset: true,
+          polygonOffsetFactor: 1,
+          polygonOffsetUnits: 1,
+        })
+      );
+      mesh.rotation.x = -Math.PI / 2;
+      return mesh;
+    }
+
+    const glow = radial(8, "rgba(255,255,255,0.55)", "rgba(230,236,255,0.16)", 1.15);
+    glow.name = "floor-glow";
+    glow.material.blending = THREE.AdditiveBlending;
+    glow.material.opacity = 0.9;
+    glow.position.y = 0.008;
+    glow.renderOrder = 4;
+    const shadow = radial(6, "rgba(0,0,0,0.22)", "rgba(0,0,0,0.08)", 0.4);
     shadow.name = "contact-shadow";
-    shadow.rotation.x = -Math.PI / 2;
-    shadow.position.y = 0.006;
-    shadow.renderOrder = -2;
-    return shadow;
+    shadow.position.y = 0.005;
+    shadow.renderOrder = 3;
+    group.add(shadow);
+    group.add(glow);
+    return group;
+  }
+
+  function figureCanvasHeight() {
+    if (!avatarRoot || !camera) return 0;
+    avatarRoot.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(avatarLimbs && avatarLimbs.figure ? avatarLimbs.figure : avatarRoot);
+    const v = new THREE.Vector3();
+    let y0 = 1;
+    let y1 = -1;
+    const min = box.min;
+    const max = box.max;
+    const corners = [
+      [min.x, min.y, min.z], [min.x, min.y, max.z], [min.x, max.y, min.z], [min.x, max.y, max.z],
+      [max.x, min.y, min.z], [max.x, min.y, max.z], [max.x, max.y, min.z], [max.x, max.y, max.z],
+    ];
+    for (const c of corners) {
+      v.set(c[0], c[1], c[2]).project(camera);
+      if (!Number.isFinite(v.y)) continue;
+      y0 = Math.min(y0, v.y);
+      y1 = Math.max(y1, v.y);
+    }
+    return Math.max(0, (y1 - y0) / 2);
   }
 
   async function loadAvatar(spec, floorY) {
     disposeAvatar();
     const height = spec && Number(spec.height) > 0 ? Number(spec.height) : 1.7;
-    const color = spec && spec.color != null ? spec.color : 0xc27a4a;
-    const built = buildSimpleFigure(height, color);
+    const built = buildSimpleFigure(height);
     built.figure.updateMatrixWorld(true);
+    const floor = Number.isFinite(floorY) ? floorY : 0;
     const box = new THREE.Box3().setFromObject(built.figure);
-    const yLift = (Number.isFinite(floorY) ? floorY : 0) - box.min.y;
-    built.figure.position.y += yLift;
+    built.figure.position.y += floor - box.min.y;
+    built.figure.updateMatrixWorld(true);
     avatarYawOffset = spec && Number.isFinite(spec.yawOffset) ? spec.yawOffset : 0;
     if (built.natural > 0.2) walkNaturalSpeed = built.natural;
 
     avatarRoot = new THREE.Group();
     avatarRoot.name = "splat-avatar";
     avatarRoot.add(built.figure);
-    avatarRoot.add(makeContactShadow());
+    avatarRoot.add(makeFloorGlow());
     scene.add(avatarRoot);
     avatarLimbs = {
       figure: built.figure,
@@ -1027,6 +1105,9 @@ export function mountSplatPlayer(root) {
     },
     get walkNaturalSpeed() {
       return walkNaturalSpeed;
+    },
+    get figureHeight() {
+      return figureCanvasHeight();
     },
     get bounds() {
       return {

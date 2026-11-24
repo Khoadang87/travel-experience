@@ -115,8 +115,8 @@ removed from the current tree and must not be served.
 ## Placeholder avatar (simple figure)
 
 - The splat-room walker is a procedural, low-poly figure built in
-  `src/splat-player.js` with three.js r187 (MIT): a capsule torso, a sphere
-  head, and simple capsule limbs in one flat color. There is no third-party
+  `src/splat-player.js` with three.js r187 (MIT): a capsule torso, a short neck, a sphere
+  head, and simple capsule limbs in a softly lit white material. There is no third-party
   character mesh. Walk and idle are a short procedural cycle (limb swing),
-  not a Mixamo or Quaternius clip. The figure is a map-pin style stand-in,
+  not a Mixamo or Quaternius clip. The figure is a simple white stand-in,
   about 1.7 m tall, not a real person at the pin.

@@ -95,6 +95,6 @@ Placeholder avatar (simple figure)
 =================================
 
   No third-party character file. The walker is built in
-  src/splat-player.js with three.js (MIT): a one-color capsule figure
+  src/splat-player.js with three.js (MIT): a white, softly lit capsule figure
   with a procedural walk/idle cycle. Used as a stylized stand-in in
   the splat room, not as a real person at the map pin.

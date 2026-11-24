@@ -130,8 +130,7 @@
       },
       "splatAvatar": {
         "kind": "simple",
-        "height": 1.7,
-        "color": 12738122
+        "height": 1.7
       },
       "splatPath": "data/splat-path.json",
       "label": "Splat preview (test)"

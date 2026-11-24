@@ -209,10 +209,9 @@ export const PLACEHOLDER_SPLAT = {
   },
   // Per-pin avatar and path. A later real capture should set its own.
   avatar: {
-    // Procedural one-color capsule figure, typical adult height.
+    // Procedural white capsule figure, typical adult height.
     kind: "simple",
     height: 1.7,
-    color: 0xc27a4a,
   },
   path: "data/splat-path.json",
 };
