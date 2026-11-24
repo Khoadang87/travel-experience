@@ -463,6 +463,7 @@ export function mountSplatPlayer(root) {
     yaw -= lookAxis.x * 1.4 * dt;
     pitch = clamp(pitch + lookAxis.y * 1.0 * dt, -1.2, 1.2);
     if (pathCurve) {
+      let moverDt = dt;
       if (moveAxis.y || moveAxis.x) {
         const scrub = (-moveAxis.y * 0.85 + moveAxis.x * 0.25) * (pathSpeed / Math.max(pathLength, 0.001)) * dt;
         setPathU(pathU + scrub, { fromUser: true });
@@ -474,9 +475,13 @@ export function mountSplatPlayer(root) {
         setPathU(playAnchorU + (pathSpeed / Math.max(pathLength, 0.001)) * elapsed);
         playAnchorMs = now;
         playAnchorU = pathU;
+        // Keep the crowd on the same clock as Kane; rAF dt is capped at
+        // 0.08s and would leave pedestrians and cars almost still on a
+        // slow GPU while the walker advances on the wall-clock cap.
+        moverDt = elapsed;
       }
       poseAvatarAndCamera();
-      if (playing) updateMovers(dt);
+      if (playing) updateMovers(moverDt);
     } else {
       // No path: keep the interior walk camera.
       if (moveAxis.x || moveAxis.y) {
@@ -991,6 +996,7 @@ export function mountSplatPlayer(root) {
   function applyHeldCamera() {
     if (!cameraHold || !camera) return false;
     if (cameraHold === "crowd") return frameCrowdCamera();
+    if (cameraHold === "car") return frameCarCamera();
     if (!avatarRoot) return false;
     const origin = new THREE.Vector3();
     avatarRoot.getWorldPosition(origin);
@@ -1420,25 +1426,55 @@ export function mountSplatPlayer(root) {
     const mat = figureMaterial();
     const car = new THREE.Group();
     car.name = "street-car";
-    const body = dress(new THREE.Mesh(new THREE.CapsuleGeometry(0.62, 2.55, 8, 16), mat));
-    body.name = "car-body";
-    body.rotation.x = Math.PI / 2;
-    body.scale.set(1.35, 1, 1);
-    body.position.y = 0.58;
-    car.add(body);
-    const cabin = dress(new THREE.Mesh(new THREE.SphereGeometry(0.72, 16, 12), mat));
+
+    // Rounded lower body (length along Z, slightly wider than tall).
+    const hull = dress(new THREE.Mesh(new THREE.CapsuleGeometry(0.48, 2.85, 8, 20), mat));
+    hull.name = "car-body";
+    hull.rotation.x = Math.PI / 2;
+    hull.scale.set(1.7, 1, 1.05);
+    hull.position.y = 0.55;
+    car.add(hull);
+
+    const belt = dress(new THREE.Mesh(new THREE.BoxGeometry(1.72, 0.38, 3.35), mat));
+    belt.name = "car-belt";
+    belt.position.y = 0.62;
+    car.add(belt);
+
+    const hood = dress(new THREE.Mesh(new THREE.BoxGeometry(1.52, 0.14, 1.05), mat));
+    hood.name = "car-hood";
+    hood.position.set(0, 0.86, 1.15);
+    car.add(hood);
+
+    // Distinct cabin / greenhouse, shorter than the body and set slightly aft.
+    const cabin = dress(new THREE.Mesh(new THREE.BoxGeometry(1.42, 0.62, 1.65), mat));
     cabin.name = "car-cabin";
-    cabin.scale.set(0.92, 0.72, 0.95);
-    cabin.position.set(0, 1.05, -0.15);
+    cabin.position.set(0, 1.18, -0.22);
     car.add(cabin);
-    const wheelR = 0.28;
-    for (const [x, z] of [[-0.7, 1.05], [0.7, 1.05], [-0.7, -1.05], [0.7, -1.05]]) {
-      const wheel = dress(new THREE.Mesh(new THREE.SphereGeometry(wheelR, 12, 10), mat));
+
+    const windshield = dress(new THREE.Mesh(new THREE.BoxGeometry(1.38, 0.08, 0.85), mat));
+    windshield.name = "car-windshield";
+    windshield.position.set(0, 1.08, 0.72);
+    windshield.rotation.x = -0.58;
+    car.add(windshield);
+
+    const rearWindow = dress(new THREE.Mesh(new THREE.BoxGeometry(1.38, 0.08, 0.55), mat));
+    rearWindow.name = "car-rear-window";
+    rearWindow.position.set(0, 1.08, -1.08);
+    rearWindow.rotation.x = 0.5;
+    car.add(rearWindow);
+
+    // Cylindrical wheels with the axle along X, sitting on the ground.
+    const wheelR = 0.33;
+    const wheelW = 0.24;
+    const wheelGeo = new THREE.CylinderGeometry(wheelR, wheelR, wheelW, 18);
+    for (const [x, z] of [[-0.82, 1.12], [0.82, 1.12], [-0.82, -1.12], [0.82, -1.12]]) {
+      const wheel = dress(new THREE.Mesh(wheelGeo, mat));
       wheel.name = "car-wheel";
-      wheel.scale.set(0.55, 1, 1);
+      wheel.rotation.z = Math.PI / 2;
       wheel.position.set(x, wheelR, z);
       car.add(wheel);
     }
+
     car.updateMatrixWorld(true);
     const box = bodyBox(car);
     car.position.y += -box.min.y;
@@ -1565,6 +1601,24 @@ export function mountSplatPlayer(root) {
         plantMoverFeet(mover);
       }
     }
+  }
+
+  function frameCarCamera() {
+    const car = movers.find((m) => m.kind === "car" && m.root);
+    if (!car || !camera) return false;
+    const origin = car.root.position.clone();
+    origin.y += 0.65;
+    const held = origin.clone();
+    held.x += 5.2;
+    held.y += 2.05;
+    held.z += 4.6;
+    held.x = clamp(held.x, boundsMin.x, boundsMax.x);
+    held.y = clamp(held.y, 0.6, Math.max(boundsMax.y, 3.2));
+    held.z = clamp(held.z, boundsMin.z, boundsMax.z);
+    camera.position.copy(held);
+    camera.lookAt(origin);
+    camera.updateMatrixWorld(true);
+    return true;
   }
 
   function frameCrowdCamera() {
@@ -1884,7 +1938,7 @@ export function mountSplatPlayer(root) {
       return { loadMs: stats.loadMs, fps: stats.fps };
     },
     frameFigure(mode) {
-      cameraHold = mode === "side" ? "side" : mode === "feet" ? "feet" : mode === "knees" ? "knees" : mode === "crowd" ? "crowd" : "threeQuarter";
+      cameraHold = mode === "side" ? "side" : mode === "feet" ? "feet" : mode === "knees" ? "knees" : mode === "crowd" ? "crowd" : mode === "car" ? "car" : "threeQuarter";
     },
     clearFigureFrame() {
       cameraHold = null;

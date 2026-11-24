@@ -216,27 +216,28 @@ export const PLACEHOLDER_SPLAT = {
   path: "data/splat-path.json",
 };
 
-// Montreal Clock Tower plaza — a real outdoor capture (CC BY 4.0), used as
-// the street-style splat preview. Not a live Tesla reconstruction.
-export const CLOCK_TOWER_SPLAT = {
-  src: "media/splat/clocktower-plaza.sog",
-  title: "Clock Tower plaza (Montreal)",
+// Street intersection Gaussian splat — a CC BY 4.0 reconstruction of a
+// suburban intersection from dashcam footage, not an official Tesla asset
+// and not a capture of the map pin's real surroundings.
+export const STREET_SPLAT = {
+  src: "media/splat/street-intersection.sog",
+  title: "Street intersection (test)",
   credit:
-    "Clock Tower plaza, Old Port of Montreal. Gaussian splat trained by SplatCast from Heritage3DMtl drone photos by Rucha Shende, Sudhir Mudur, Tiberiu Popa and Kaustubha Mendhurwar, Concordia University. CC BY 4.0. Converted and downsampled for this preview (550,000 Gaussians, SOG v2; see media/splat/CLOCKTOWER-ATTRIBUTION.md). No endorsement implied.",
-  commons: "https://zenodo.org/records/17063337",
+    "Test asset, not the real place and not an official Tesla asset. Street intersection Gaussian splat by cfahlgren1, reconstructed from Tesla FSD dashcam footage, with a 2021 Tesla Model Y (763468712, Sketchfab) placed in the scene. CC BY 4.0. Converted and downsampled for this preview (1,000,000 Gaussians, SOG v2; see media/splat/STREET-ATTRIBUTION.md). No endorsement implied.",
+  commons: "https://huggingface.co/datasets/cfahlgren1/tesla-fsd-street-splat",
   license: "CC BY 4.0",
   licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
   view: {
-    position: [2.2, 2.42, -7.4],
-    lookAt: [2.2, 1.07, -3.0],
-    boundsMin: [-6.0, 0.45, -12.0],
-    boundsMax: [14.0, 6.0, 16.0],
+    position: [-8.75, 2.03, -6.75],
+    lookAt: [-8.75, 0.78, -1.75],
+    boundsMin: [-16.0, 0.4, -20.0],
+    boundsMax: [16.0, 8.0, 24.0],
   },
   avatar: {
     kind: "simple",
     height: 1.7,
   },
-  path: "data/clocktower-path.json",
+  path: "data/street-path.json",
 };
 
 export function currentPage() {

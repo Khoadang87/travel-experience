@@ -113,28 +113,28 @@ removed from the current tree and must not be served.
   “Test asset, not the real place.”
 
 
-## Clock Tower plaza Gaussian splat (Montreal)
+## Street intersection Gaussian splat (test asset — not a real place)
 
-- Photos: Heritage3DMtl by Rucha Shende, Sudhir Mudur, Tiberiu Popa and
-  Kaustubha Mendhurwar, Concordia University. Source:
-  https://zenodo.org/records/17063337 (file 7-Clock-Tower.zip).
-- Trained scene: SplatCast sample-scenes dataset, folder `ClockTower`
-  (https://huggingface.co/datasets/splatcast/sample-scenes), 1,150,558
-  Gaussians in `scene.splatcast`.
+- Source: [tesla-fsd-street-splat](https://huggingface.co/datasets/cfahlgren1/tesla-fsd-street-splat)
+  by cfahlgren1, file `street-with-model-y.sog`. Drive footage is from
+  [cfahlgren1/tesla-fsd-drive-5min](https://huggingface.co/datasets/cfahlgren1/tesla-fsd-drive-5min).
+  The black Model Y in the capture is a recolored 2021 Tesla Model Y by
+  763468712 on Sketchfab. This is not an official Tesla asset.
 - License: Creative Commons Attribution 4.0 International (CC BY 4.0),
   https://creativecommons.org/licenses/by/4.0/. Full text:
-  `media/splat/CLOCKTOWER-LICENSE.md`. Detailed credits and conversion
-  notes: `media/splat/CLOCKTOWER-ATTRIBUTION.md`.
-- Packaged file: `media/splat/clocktower-plaza.sog` — SOG v2 from
-  PlayCanvas splat-transform 3.12.0, 550,000 Gaussians, about 6.5 MB,
-  SH degree 0. Converted from the `.splatcast` (LZFSE decoded to PLY,
-  far shell removed, plaza leveled, higher-order SH dropped, downsampled)
-  for a phone-friendly web preview. Not a live street reconstruction.
+  `media/splat/STREET-LICENSE.md`. Credits and conversion notes:
+  `media/splat/STREET-ATTRIBUTION.md`.
+- Packaged file: `media/splat/street-intersection.sog` — SOG v2 from
+  PlayCanvas splat-transform 3.12.0, 1,000,000 Gaussians, about 4.1 MB,
+  SH degree 0. Converted from the 21 MB / 2,671,814-Gaussian original
+  (scaled to metres, higher-order SH dropped, downsampled) for a
+  phone-friendly web preview. Not a live street reconstruction and not
+  this pin's real surroundings. The app labels it as a test asset and
+  “not an official Tesla asset.”
 - The glowing walker, pedestrians, and cars are procedural figures built
   in `src/splat-player.js` (same style as the Kyoto-room walker). No
   third-party character or vehicle files.
-- No endorsement by the photographers, Concordia University, Heritage3DMtl,
-  SplatCast, or the places shown is implied.
+- No endorsement by Tesla, Inc., cfahlgren1, or the model author is implied.
 
 ## Placeholder avatar (simple figure)
 

@@ -580,17 +580,17 @@ test("existing pins keep their ids, coordinates, and 360/flat behaviour", async 
       splat: p.splat || undefined,
     }))
   );
-  const splatIds = new Set(["splat-placeholder", "montreal-clock-tower"]);
+  const splatIds = new Set(["splat-placeholder", "street-intersection-splat"]);
   const withoutSplat = pins.filter((p) => !splatIds.has(p.id));
   expect(withoutSplat).toEqual(ORIGINAL_PINS);
   const splat = pins.find((p) => p.id === "splat-placeholder");
   expect(splat).toBeTruthy();
   expect(splat.splat).toMatch(/kyoto-room\.sog$/);
-  const clock = pins.find((p) => p.id === "montreal-clock-tower");
-  expect(clock).toBeTruthy();
-  expect(clock.splat).toMatch(/clocktower-plaza\.sog$/);
-  expect(clock.lng).toBeCloseTo(-73.54361, 4);
-  expect(clock.lat).toBeCloseTo(45.5125, 4);
+  const street = pins.find((p) => p.id === "street-intersection-splat");
+  expect(street).toBeTruthy();
+  expect(street.splat).toMatch(/street-intersection\.sog$/);
+  expect(street.lng).toBeCloseTo(-118.3495, 4);
+  expect(street.lat).toBeCloseTo(34.1048, 4);
   expect(pins).toHaveLength(11);
 
   await page.evaluate(() => window.__tgOpenPin("tcl-chinese"));
@@ -794,18 +794,18 @@ test("splat stage fills the leftover phone viewport under the controls", async (
 });
 
 
-test("Clock Tower plaza splat loads with credit, autoplay walk, pedestrians, and cars", async ({ page }) => {
+test("Street intersection splat loads with credit, autoplay walk, pedestrians, and cars", async ({ page }) => {
   test.setTimeout(180000);
   await page.goto("/index.html");
   await waitForMap(page);
-  await page.evaluate(() => window.__tgOpenPin("montreal-clock-tower"));
+  await page.evaluate(() => window.__tgOpenPin("street-intersection-splat"));
   await expect(page.locator("#splat-root .player-shell")).toBeVisible();
   await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.ready === true, null, { timeout: 90000 });
   await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.avatarReady === true, null, { timeout: 60000 });
-  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Clock Tower plaza");
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Test asset, not the real place");
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("not an official Tesla asset");
   await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("CC BY 4.0");
-  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Heritage3DMtl");
-  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Concordia");
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("cfahlgren1");
   await expect(page.locator("#splat-root .look-hint")).toContainText("starts walking when the preview opens");
   await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.playing === true && window.__tgSplatPlayer.anim === "walk", null, { timeout: 5000 });
 
@@ -817,7 +817,7 @@ test("Clock Tower plaza splat loads with credit, autoplay walk, pedestrians, and
     pedPos: window.__tgSplatPlayer.pedestrians.map((p) => p.position),
     carPos: window.__tgSplatPlayer.cars.map((c) => c.position),
   }));
-  expect(start.peds).toBeGreaterThanOrEqual(4);
+  expect(start.peds).toBeGreaterThanOrEqual(5);
   expect(start.peds).toBeLessThanOrEqual(8);
   expect(start.cars).toBeGreaterThanOrEqual(2);
   expect(start.cars).toBeLessThanOrEqual(3);
@@ -826,21 +826,19 @@ test("Clock Tower plaza splat loads with credit, autoplay walk, pedestrians, and
     expect(p.y).toBeLessThan(1.2);
   }
 
-  const mid = await page.waitForFunction((startU) => {
+  await page.waitForFunction(() => {
     const p = window.__tgSplatPlayer;
     if (!p || p.playing !== true) return false;
-    const pedMoved = p.pedestrians.some((m, i) => Math.abs(m.u - (window.__tgClockStart && window.__tgClockStart.pedU[i])) > 0.02);
-    // stash start U once
-    if (!window.__tgClockStart) {
-      window.__tgClockStart = { u: p.pathU, t: p.animTime, pedU: p.pedestrians.map((m) => m.u), carU: p.cars.map((m) => m.u) };
+    if (!window.__tgStreetStart) {
+      window.__tgStreetStart = { u: p.pathU, t: p.animTime, pedU: p.pedestrians.map((m) => m.u), carU: p.cars.map((m) => m.u) };
       return false;
     }
-    return p.pathU > window.__tgClockStart.u + 0.04 && p.animTime > window.__tgClockStart.t + 0.3;
-  }, null, { timeout: 45000 });
+    return p.pathU > window.__tgStreetStart.u + 0.04 && p.animTime > window.__tgStreetStart.t + 0.3;
+  }, null, { timeout: 90000 });
 
   const after = await page.evaluate(() => {
     const p = window.__tgSplatPlayer;
-    const s = window.__tgClockStart;
+    const s = window.__tgStreetStart;
     return {
       pathMoved: p.pathU - s.u,
       walkMoved: p.animTime - s.t,

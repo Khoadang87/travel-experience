@@ -103,22 +103,23 @@ Placeholder avatar (simple figure)
   Used as a stylized stand-in in the splat room, not as a real person at
   the map pin.
 
-Clock Tower plaza Gaussian splat (Montreal)
-===========================================
+Street intersection Gaussian splat (test asset — not a real place)
+=================================================================
 
-File: splat/clocktower-plaza.sog
-Licence text: splat/CLOCKTOWER-LICENSE.md (Creative Commons Attribution 4.0 International)
-Attribution and conversion notes: splat/CLOCKTOWER-ATTRIBUTION.md
+File: splat/street-intersection.sog
+Licence text: splat/STREET-LICENSE.md (Creative Commons Attribution 4.0 International)
+Attribution and conversion notes: splat/STREET-ATTRIBUTION.md
 
-  Photos: Heritage3DMtl by Rucha Shende, Sudhir Mudur, Tiberiu Popa and
-  Kaustubha Mendhurwar, Concordia University.
-  Source: https://zenodo.org/records/17063337 (file 7-Clock-Tower.zip)
-  Trained scene: SplatCast sample-scenes (ClockTower),
-  https://huggingface.co/datasets/splatcast/sample-scenes
+  Reconstruction and drive footage: cfahlgren1,
+  https://huggingface.co/datasets/cfahlgren1/tesla-fsd-street-splat
+  (from cfahlgren1/tesla-fsd-drive-5min).
+  Vehicle exterior in the capture: 2021 Tesla Model Y by 763468712,
+  Sketchfab, recolored.
   License: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
 
-  This file is a converted, leveled, SH0, downsampled SOG v2 preview
-  (550,000 Gaussians, about 6.5 MB) of the Clock Tower plaza capture.
-  See CLOCKTOWER-ATTRIBUTION.md for the exact changes. No endorsement
-  implied.
+  This file is a converted, metre-scaled, SH0, downsampled SOG v2
+  preview (1,000,000 Gaussians, about 4.1 MB) of that intersection
+  capture. It is not an official Tesla asset and not a capture of the
+  map pin's real surroundings. See STREET-ATTRIBUTION.md for the exact
+  changes. No endorsement implied.
 

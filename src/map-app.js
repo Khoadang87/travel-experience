@@ -1,5 +1,5 @@
 import { Map, Marker, setWorkerUrl } from "maplibre-gl";
-import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360, FLAT_BUSINESS, PLACEHOLDER_SPLAT, CLOCK_TOWER_SPLAT } from "./shared.js";
+import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360, FLAT_BUSINESS, PLACEHOLDER_SPLAT, STREET_SPLAT } from "./shared.js";
 
 import { mountPlayer } from "./player.js";
 import { mountSplatPlayer } from "./splat-player.js";
@@ -139,8 +139,8 @@ function openPin(pin) {
   if (pin.splat) {
     if (window.__tgPlayer) window.__tgPlayer.close({ silent: true });
     const splatCredit =
-      pin.id === "montreal-clock-tower" || (pin.splat && String(pin.splat).includes("clocktower"))
-        ? CLOCK_TOWER_SPLAT
+      pin.id === "street-intersection-splat" || (pin.splat && String(pin.splat).includes("street-intersection"))
+        ? STREET_SPLAT
         : PLACEHOLDER_SPLAT;
     splatPlayer.open({
       title: pin.name,
@@ -270,9 +270,9 @@ function flyToAllPins() {
   // Vine, Capitol, and the business pin sit east of the primary cluster.
   // This wider fit is a separate control so the default "Go to Walk of
   // Fame" view can stay zoomed in enough for TCL/Dolby to stay tappable.
-  // Only include pins near that Hollywood cluster — a far pin such as
-  // the Montreal Clock Tower would otherwise zoom the map out to a
-  // continent and hide the Walk of Fame pins on a phone.
+  // Only include pins near that Hollywood cluster — a far pin would
+  // otherwise zoom the map out to a continent and hide the Walk of
+  // Fame pins on a phone.
   const origin = (pins || []).find((p) => p.id === "tcl-chinese") || (pins || [])[0];
   const localIds = (pins || [])
     .filter((p) => {

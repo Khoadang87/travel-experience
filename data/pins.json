@@ -152,43 +152,43 @@
       "label": "Splat preview (test)"
     },
     {
-      "id": "montreal-clock-tower",
-      "name": "Clock Tower plaza (Montreal)",
+      "id": "street-intersection-splat",
+      "name": "Street intersection (test)",
       "kind": "splat",
-      "lng": -73.54361,
-      "lat": 45.5125,
-      "sourceName": "Heritage3DMtl / Concordia University \u2014 Clock Tower, CC BY 4.0 (via SplatCast)",
-      "sourceUrl": "https://zenodo.org/records/17063337",
-      "blurb": "A 3D Gaussian splat of the Clock Tower plaza in the Old Port of Montreal (Heritage3DMtl / Concordia, trained by SplatCast, CC BY 4.0). A glowing walker, pedestrians, and cars move across the plaza floor. Converted and downsampled for this preview; not a live reconstruction.",
-      "splat": "media/splat/clocktower-plaza.sog",
+      "lng": -118.3495,
+      "lat": 34.1048,
+      "sourceName": "Test asset, not the real place \u2014 cfahlgren1 street splat, CC BY 4.0 (not an official Tesla asset)",
+      "sourceUrl": "https://huggingface.co/datasets/cfahlgren1/tesla-fsd-street-splat",
+      "blurb": "Test asset, not the real place and not an official Tesla asset. A 3D Gaussian splat of a suburban street intersection (cfahlgren1, from Tesla FSD dashcam footage, CC BY 4.0). A glowing walker, pedestrians, and cars move on the sidewalks and in the lanes. Converted and downsampled for this preview.",
+      "splat": "media/splat/street-intersection.sog",
       "splatView": {
         "position": [
-          2.2,
-          2.42,
-          -7.4
+          -8.75,
+          2.03,
+          -10.75
         ],
         "lookAt": [
-          2.2,
-          1.07,
-          -3.0
+          -8.75,
+          0.78,
+          -5.75
         ],
         "boundsMin": [
-          -6.0,
-          0.45,
-          -12.0
+          -16.0,
+          0.4,
+          -20.0
         ],
         "boundsMax": [
-          14.0,
-          6.0,
-          16.0
+          16.0,
+          8.0,
+          24.0
         ]
       },
       "splatAvatar": {
         "kind": "simple",
         "height": 1.7
       },
-      "splatPath": "data/clocktower-path.json",
-      "label": "Clock Tower plaza"
+      "splatPath": "data/street-path.json",
+      "label": "Street intersection (test)"
     }
   ]
 }
