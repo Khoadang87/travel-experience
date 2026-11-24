@@ -694,20 +694,27 @@ export function mountSplatPlayer(root) {
     return box;
   }
 
-  function roundedRectShape(w, h, r) {
-    const x = -w / 2;
-    const y = -h / 2;
-    r = Math.min(r, w / 2, h / 2);
+  function taperedTorsoShape(shoulderW, hipW, h, r) {
+    const y0 = -h / 2;
+    const y1 = h / 2;
+    const xHip = hipW / 2;
+    const xSh = shoulderW / 2;
+    r = Math.min(r, hipW * 0.45, shoulderW * 0.45, h / 4);
+    const dx = xSh - xHip;
+    const dy = h;
+    const len = Math.hypot(dx, dy) || 1;
+    const ux = dx / len;
+    const uy = dy / len;
     const s = new THREE.Shape();
-    s.moveTo(x + r, y);
-    s.lineTo(x + w - r, y);
-    s.quadraticCurveTo(x + w, y, x + w, y + r);
-    s.lineTo(x + w, y + h - r);
-    s.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    s.lineTo(x + r, y + h);
-    s.quadraticCurveTo(x, y + h, x, y + h - r);
-    s.lineTo(x, y + r);
-    s.quadraticCurveTo(x, y, x + r, y);
+    s.moveTo(-xHip + r, y0);
+    s.lineTo(xHip - r, y0);
+    s.quadraticCurveTo(xHip, y0, xHip + ux * r, y0 + uy * r);
+    s.lineTo(xSh - ux * r, y1 - uy * r);
+    s.quadraticCurveTo(xSh, y1, xSh - r, y1);
+    s.lineTo(-xSh + r, y1);
+    s.quadraticCurveTo(-xSh, y1, -xSh + ux * r, y1 - uy * r);
+    s.lineTo(-xHip - ux * r, y0 + uy * r);
+    s.quadraticCurveTo(-xHip, y0, -xHip + r, y0);
     s.closePath();
     return s;
   }
@@ -754,25 +761,29 @@ export function mountSplatPlayer(root) {
     const figure = new THREE.Group();
     figure.name = "restroom-icon";
 
-    const depth = 0.11 * s;
-    const torsoBevel = 0.018 * s;
-    const shellScale = 1.065;
-    const hipY = 0.86 * s;
-    const torsoH = 0.46 * s;
-    const torsoW = 0.52 * s;
-    const torsoCorner = 0.12 * s;
-    const torsoTop = hipY + torsoH;
-    const gap = 0.08 * s;
-    const headR = 0.15 * s;
+    // Lean, tall pictogram proportions at a 1.7 m figure.
+    const depth = 0.07 * s;
+    const torsoBevel = 0.01 * s;
+    const shellScale = 1.05;
+    const hipY = 0.84 * s;
+    const headR = 0.125 * s;
+    const gap = 0.07 * s;
+    const torsoTop = h - headR * 2 - gap;
+    const torsoH = torsoTop - hipY;
+    const shoulderW = 0.39 * s;
+    const hipW = 0.28 * s;
+    const torsoCorner = 0.08 * s;
     const headY = torsoTop + gap + headR;
-    const armW = 0.08 * s;
-    const armLen = 0.52 * s;
-    const legW = 0.12 * s;
+    const armW = 0.055 * s;
+    const midThighY = hipY * 0.64;
+    const shoulderY = torsoTop - 0.02 * s;
+    const armLen = Math.max(0.4 * s, shoulderY - midThighY);
+    const legW = 0.075 * s;
     const legLen = hipY;
-    const legGap = 0.12 * s;
-    const armGap = 0.035 * s;
+    const legGap = 0.09 * s;
+    const armGap = 0.012 * s;
 
-    const torso = new THREE.Mesh(extrudeShape(roundedRectShape(torsoW, torsoH, torsoCorner), depth, torsoBevel), mat);
+    const torso = new THREE.Mesh(extrudeShape(taperedTorsoShape(shoulderW, hipW, torsoH, torsoCorner), depth, torsoBevel), mat);
     torso.name = "torso";
     torso.position.y = hipY + torsoH * 0.5;
     figure.add(torso);
@@ -783,7 +794,7 @@ export function mountSplatPlayer(root) {
     head.scale.z = 0.72;
     head.position.y = headY;
     figure.add(head);
-    addShell(head, rimMat, 1.055);
+    addShell(head, rimMat, 1.045);
 
     function limb(x, jointY, width, totalLen, name) {
       const pivot = new THREE.Group();
@@ -796,14 +807,13 @@ export function mountSplatPlayer(root) {
       const mesh = new THREE.Mesh(new THREE.CapsuleGeometry(radius, cyl, 6, 14), mat);
       mesh.name = name;
       mesh.position.y = -totalLen * 0.5;
-      addShell(mesh, rimMat, 1.055);
+      addShell(mesh, rimMat, 1.045);
       pivot.add(mesh);
       figure.add(pivot);
       return pivot;
     }
 
-    const shoulderX = torsoW * 0.5 + armGap + armW * 0.5;
-    const shoulderY = torsoTop - armW * 0.15;
+    const shoulderX = shoulderW * 0.5 + armGap + armW * 0.5;
     const armL = limb(-shoulderX, shoulderY, armW, armLen, "armL");
     const armR = limb(shoulderX, shoulderY, armW, armLen, "armR");
     const legX = legW * 0.5 + legGap * 0.5;
@@ -856,7 +866,7 @@ export function mountSplatPlayer(root) {
       return mesh;
     }
 
-    const glow = radial(8, "rgba(255,255,255,0.35)", "rgba(230,236,255,0.12)", 1.0);
+    const glow = radial(8, "rgba(255,255,255,0.32)", "rgba(230,236,255,0.11)", 0.82);
     glow.name = "floor-glow";
     glow.material.blending = THREE.AdditiveBlending;
     glow.material.opacity = 0.7;
