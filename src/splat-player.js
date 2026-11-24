@@ -873,9 +873,9 @@ export function mountSplatPlayer(root) {
     const headY = torsoTop + neckH + gap + headR;
     const armR = 0.048 * s;
     const legR = 0.062 * s;
-    const midThighY = hipY * 0.64;
     const shoulderY = torsoTop - 0.03 * s;
-    const armLen = Math.max(0.42 * s, shoulderY - midThighY);
+    // Fingertip-equivalent capsule end at the hip/crotch, not below it.
+    const armLen = Math.max(0.2 * s, shoulderY - hipY);
     const legLen = hipY;
     const legGap = 0.07 * s;
     const armGap = 0.016 * s;
