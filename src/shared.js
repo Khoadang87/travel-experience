@@ -209,11 +209,10 @@ export const PLACEHOLDER_SPLAT = {
   },
   // Per-pin avatar and path. A later real capture should set its own.
   avatar: {
-    src: "media/avatar/ual-walker.glb",
-    // Rest-pose mannequin is ~1.83 m tall; this target height is a typical adult.
+    // Procedural one-color capsule figure, typical adult height.
+    kind: "simple",
     height: 1.7,
-    walkClip: "Walk_Loop",
-    idleClip: "Idle_Loop",
+    color: 0xc27a4a,
   },
   path: "data/splat-path.json",
 };

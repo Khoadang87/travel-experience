@@ -112,22 +112,11 @@ removed from the current tree and must not be served.
   Fame, not this pin's real surroundings, and the app labels it
   “Test asset, not the real place.”
 
-## Placeholder avatar (Quaternius mannequin)
+## Placeholder avatar (simple figure)
 
-- Source: [Universal Animation Library (Standard)](https://quaternius.com/packs/universalanimationlibrary.html)
-  by [Quaternius](https://quaternius.com/), also listed at
-  https://quaternius.itch.io/universal-animation-library, checked 23 November 2026.
-- License: CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/).
-  Models by @Quaternius. Upstream License.txt is copied to media/avatar/LICENSE.txt.
-- Local file: media/avatar/ual-walker.glb — a stylized (not photoreal) mannequin
-  taken from the official in-place `UAL1_Standard.glb` (7,618,436 bytes, sha256
-  69591853d817488edaa8fd9bf8fc1d821eaeaf789f8627b3cd23b41c4ed67997). Other
-  animation clips were dropped, leaving Idle_Loop (3 s) and Walk_Loop (1 s,
-  no root motion). The result was compressed with glTF-Transform 4.5.1
-  (resample, dedup, prune, weld, simplify; no Draco/Meshopt) to 523,532
-  bytes (sha256 2360b31cd03ed5f2aa87917b0f07e1492fc9ac10bbd119b9b1cd23b013cb01ef).
-  Used as a walking avatar in the splat room, not as a real person at the pin.
-- Loaded with three.js r187 `GLTFLoader` (MIT), vendored with its add-on
-  dependencies at vendor/three/addons/loaders/GLTFLoader.js,
-  vendor/three/addons/utils/BufferGeometryUtils.js, and
-  vendor/three/addons/utils/SkeletonUtils.js.
+- The splat-room walker is a procedural, low-poly figure built in
+  `src/splat-player.js` with three.js r187 (MIT): a capsule torso, a sphere
+  head, and simple capsule limbs in one flat color. There is no third-party
+  character mesh. Walk and idle are a short procedural cycle (limb swing),
+  not a Mixamo or Quaternius clip. The figure is a map-pin style stand-in,
+  about 1.7 m tall, not a real person at the pin.

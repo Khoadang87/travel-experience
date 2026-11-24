@@ -8,6 +8,3 @@ Vendored front-end libraries for the Walk of Fame Globe prototype.
   (same revision as vendor/three.module.js and vendor/three.core.js, REVISION 187).
   Local copy: three/addons/postprocessing/Pass.js
 
-- three.js examples add-ons `loaders/GLTFLoader.js`, `utils/BufferGeometryUtils.js`,
-  and `utils/SkeletonUtils.js` — MIT, from three@0.187.0 (REVISION 187).
-  Used to load the walking avatar in the splat viewer.

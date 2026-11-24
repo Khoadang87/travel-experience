@@ -91,20 +91,10 @@ Licence text: splat/LICENSE.txt (upstream CC0 1.0)
   capture of Hollywood Walk of Fame or of the map pin's real surroundings.
   The app labels it: “Test asset, not the real place.”
 
-Placeholder avatar (Quaternius mannequin)
-=======================================
+Placeholder avatar (simple figure)
+=================================
 
-File: avatar/ual-walker.glb
-Licence text: avatar/LICENSE.txt (upstream)
-
-  Universal Animation Library (Standard) by Quaternius
-  Source: https://quaternius.com/packs/universalanimationlibrary.html
-  Also: https://quaternius.itch.io/universal-animation-library
-  Models by @Quaternius
-  License: CC0 1.0 Universal
-  License URL: https://creativecommons.org/publicdomain/zero/1.0/
-
-  Official in-place UAL1_Standard.glb was 7,618,436 bytes. This tree
-  keeps only Idle_Loop and Walk_Loop, compressed with glTF-Transform
-  4.5.1 to 523,532 bytes. Same CC0 model. Used as a stylized walking
-  avatar in the splat room, not as a real person at the map pin.
+  No third-party character file. The walker is built in
+  src/splat-player.js with three.js (MIT): a one-color capsule figure
+  with a procedural walk/idle cycle. Used as a stylized stand-in in
+  the splat room, not as a real person at the map pin.
