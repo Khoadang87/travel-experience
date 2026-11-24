@@ -2,3 +2,8 @@ Vendored front-end libraries for the Walk of Fame Globe prototype.
 
 - MapLibre GL JS — BSD 3-Clause. https://github.com/maplibre/maplibre-gl-js
 - three.js — MIT. https://github.com/mrdoob/three.js
+- Spark (@sparkjsdev/spark 2.4.0) — MIT. https://github.com/sparkjsdev/spark
+  Local copies: spark.module.js and the full MIT text in spark.LICENSE.txt.
+- three.js examples add-on `postprocessing/Pass.js` — MIT, from three@0.187.0
+  (same revision as vendor/three.module.js and vendor/three.core.js, REVISION 187).
+  Local copy: three/addons/postprocessing/Pass.js

@@ -2,6 +2,22 @@
 
 Checked 19–22 November 2026. No accounts were created and no one was contacted.
 
+## Vendored front-end libraries
+
+- MapLibre GL JS — BSD 3-Clause. https://github.com/maplibre/maplibre-gl-js
+- three.js r187 (0.187.0) — MIT. https://github.com/mrdoob/three.js
+  Confirmed by `REVISION = '187'` in vendor/three.core.js, which matches the
+  official three@0.187.0 package byte-for-byte.
+- three.js add-on `examples/jsm/postprocessing/Pass.js` from the same 0.187.0
+  package — MIT. Vendored at vendor/three/addons/postprocessing/Pass.js because
+  Spark imports `three/addons/postprocessing/Pass.js`.
+- Spark (@sparkjsdev/spark 2.4.0) — MIT, World Labs Technologies, Inc.
+  https://github.com/sparkjsdev/spark
+  https://www.npmjs.com/package/@sparkjsdev/spark
+  Local file: vendor/spark.module.js. Full licence text: vendor/spark.LICENSE.txt.
+  Not used by the map UI in this change; imported only when a later change
+  loads the splat viewer.
+
 ## Map tiles
 
 - OpenFreeMap Liberty style, no API key: https://tiles.openfreemap.org/styles/liberty
