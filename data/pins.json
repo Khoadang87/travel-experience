@@ -128,6 +128,12 @@
         "boundsMin": [-2.66, 0.9, -5.6],
         "boundsMax": [2.96, 2.2, 0.95]
       },
+      "splatAvatar": {
+        "src": "media/avatar/ToyCar.glb",
+        "scale": 15,
+        "length": 0.58
+      },
+      "splatPath": "data/splat-path.json",
       "label": "Splat preview (test)"
     }
   ]

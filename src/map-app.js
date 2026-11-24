@@ -143,6 +143,8 @@ function openPin(pin) {
       src: pin.splat,
       credit: PLACEHOLDER_SPLAT,
       view: pin.splatView || PLACEHOLDER_SPLAT.view,
+      avatar: pin.splatAvatar || PLACEHOLDER_SPLAT.avatar,
+      path: pin.splatPath || PLACEHOLDER_SPLAT.path,
       onClose: hidePinCard,
       onFallback(note) {
         player.open({

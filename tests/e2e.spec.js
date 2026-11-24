@@ -644,6 +644,131 @@ test("forced WebGL2 failure falls back to the 360 player with a banner note", as
   await expect(page.locator("#player-root [data-sample-banner]")).toContainText("showing instead");
 });
 
+
+test("splat avatar car loads, play/pause/seek follow the path, and stays in bounds", async ({ page }) => {
+  test.setTimeout(180000);
+  await page.goto("/index.html");
+  await waitForMap(page);
+  await openSplatPin(page);
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.avatarReady === true, null, { timeout: 60000 });
+  await expect(page.locator("#splat-root [data-play]")).toBeVisible();
+  await expect(page.locator("#splat-root [data-seek]")).toBeVisible();
+  await expect(page.locator("#splat-root .look-hint")).toContainText("Play drives the car");
+
+  const start = await page.evaluate(() => ({
+    u: window.__tgSplatPlayer.pathU,
+    pos: window.__tgSplatPlayer.carPosition,
+    playing: window.__tgSplatPlayer.playing,
+    bounds: window.__tgSplatPlayer.bounds,
+  }));
+  expect(start.playing).toBe(false);
+  expect(start.u).toBeCloseTo(0, 3);
+
+  // Start a little into the path so Play has room before the end, then use the
+  // Play/Pause controls. Also call the test hook so a finished path can't
+  // retrigger play when the button label flips.
+  await page.evaluate(() => window.__tgSplatPlayer.seek(0.08));
+  await page.locator("#splat-root").getByRole("button", { name: "Play path" }).click();
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.playing === true, null, { timeout: 5000 });
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.pathU > 0.11, null, { timeout: 15000 });
+  const midPlay = await page.evaluate(() => ({
+    u: window.__tgSplatPlayer.pathU,
+    pos: window.__tgSplatPlayer.carPosition,
+    playing: window.__tgSplatPlayer.playing,
+  }));
+  expect(midPlay.playing).toBe(true);
+  expect(midPlay.u).toBeGreaterThan(0.11);
+  expect(Math.hypot(midPlay.pos.x - start.pos.x, midPlay.pos.z - start.pos.z)).toBeGreaterThan(0.05);
+
+  await page.evaluate(() => window.__tgSplatPlayer.pause());
+  const pauseLabel = page.locator("#splat-root").getByRole("button", { name: "Play path" });
+  await expect(pauseLabel).toBeVisible();
+  const pausedAt = await page.evaluate(() => ({
+    u: window.__tgSplatPlayer.pathU,
+    playing: window.__tgSplatPlayer.playing,
+  }));
+  expect(pausedAt.playing).toBe(false);
+  await new Promise((r) => setTimeout(r, 1200));
+  const still = await page.evaluate(() => window.__tgSplatPlayer.pathU);
+  expect(Math.abs(still - pausedAt.u)).toBeLessThan(0.002);
+
+  await page.evaluate(() => window.__tgSplatPlayer.seek(0.5));
+  const sought = await page.evaluate(() => ({
+    u: window.__tgSplatPlayer.pathU,
+    pos: window.__tgSplatPlayer.carPosition,
+  }));
+  expect(sought.u).toBeCloseTo(0.5, 2);
+  expect(Math.hypot(sought.pos.x - start.pos.x, sought.pos.z - start.pos.z)).toBeGreaterThan(0.2);
+
+  const boundsCheck = await page.evaluate(() => {
+    const b = window.__tgSplatPlayer.bounds;
+    const out = [];
+    for (let i = 0; i <= 40; i++) {
+      window.__tgSplatPlayer.seek(i / 40);
+      const p = window.__tgSplatPlayer.carPosition;
+      const inside =
+        p.x >= b.min[0] && p.x <= b.max[0] &&
+        p.y >= b.min[1] && p.y <= b.max[1] &&
+        p.z >= b.min[2] && p.z <= b.max[2];
+      if (!inside) out.push({ u: i / 40, p, b });
+    }
+    return { ok: out.length === 0, out };
+  });
+  expect(boundsCheck.ok, JSON.stringify(boundsCheck.out.slice(0, 3))).toBeTruthy();
+});
+
+test("splat stage fills the leftover phone viewport under the controls", async ({ page }) => {
+  test.setTimeout(180000);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/index.html");
+  await waitForMap(page);
+  await openSplatPin(page);
+  const layout = await page.evaluate(() => {
+    const stage = document.querySelector("#splat-root .stage");
+    const controls = document.querySelector("#splat-root .player-controls");
+    const panel = document.querySelector("#splat-root .player-panel");
+    const s = stage.getBoundingClientRect();
+    const c = controls.getBoundingClientRect();
+    const p = panel.getBoundingClientRect();
+    return {
+      stageHeight: s.height,
+      stageTop: s.top,
+      controlsTop: c.top,
+      controlsBottom: c.bottom,
+      panelBottom: p.bottom,
+      viewport: { w: window.innerWidth, h: window.innerHeight },
+      gapBelowControls: p.bottom - c.bottom,
+    };
+  });
+  expect(layout.stageHeight).toBeGreaterThan(450);
+  expect(layout.gapBelowControls).toBeLessThan(24);
+  expect(layout.controlsTop).toBeGreaterThan(layout.stageTop + 200);
+
+  const btn = await page.evaluate(() => {
+    const el = document.querySelector("#splat-root [data-view-360]");
+    const panel = document.querySelector("#splat-root .player-panel");
+    const r = el.getBoundingClientRect();
+    const p = panel.getBoundingClientRect();
+    const styles = getComputedStyle(el);
+    return {
+      text: (el.textContent || "").replace(/\s+/g, " ").trim(),
+      width: r.width,
+      height: r.height,
+      left: r.left,
+      right: r.right,
+      panelRight: p.right,
+      whiteSpace: styles.whiteSpace,
+    };
+  });
+  expect(btn.text).toBe("View 360 instead");
+  expect(btn.whiteSpace).toBe("nowrap");
+  expect(btn.width).toBeGreaterThan(160);
+  expect(btn.height).toBeLessThan(44);
+  expect(btn.height).toBeGreaterThan(24);
+  expect(btn.left).toBeGreaterThanOrEqual(0);
+  expect(btn.right).toBeLessThanOrEqual(btn.panelRight + 1);
+});
+
 // Pre-existing failures, left unfixed: these locators expect href="/sales.html"
 // but the pages use href="sales.html". Moved to the end only so serial mode
 // still runs the tests after them. Assertions are unchanged.

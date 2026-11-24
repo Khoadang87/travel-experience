@@ -111,3 +111,21 @@ removed from the current tree and must not be served.
   capture used only as a technical placeholder. It is not Hollywood Walk of
   Fame, not this pin's real surroundings, and the app labels it
   “Test asset, not the real place.”
+
+## Placeholder avatar (ToyCar)
+
+- Source: [ToyCar](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/ToyCar)
+  in the Khronos glTF Sample Assets, checked 23 November 2026.
+- License: CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/).
+  Credits: Guido Odendahl (initial car model) and Eric Chadwick (extensions and
+  scene composition). Upstream LICENSE.md (model CC0-1.0; metadata CC-BY-4.0)
+  is copied to media/avatar/LICENSE.md.
+- Local file: media/avatar/ToyCar.glb — the official glTF-Binary (~5.42 MB)
+  was compressed with glTF-Transform 4.5.1 (cameras pruned, 1024px WebP
+  textures, KHR_mesh_quantization; no Draco/Meshopt) to 2,973,624 bytes so
+  it stays within a free GitHub Pages budget. It is a toy car avatar, not a
+  real vehicle at the pin.
+- Loaded with three.js r187 `GLTFLoader` (MIT), vendored with its add-on
+  dependencies at vendor/three/addons/loaders/GLTFLoader.js,
+  vendor/three/addons/utils/BufferGeometryUtils.js, and
+  vendor/three/addons/utils/SkeletonUtils.js.
