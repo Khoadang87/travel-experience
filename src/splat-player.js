@@ -97,6 +97,7 @@ export function mountSplatPlayer(root) {
   const LEG_SWING = 0.38;
   const ARM_SWING = 0.3;
   const WALK_CYCLE = 1.0;
+  let cameraHold = null;
   let lookAxis = { x: 0, y: 0 };
   let moveAxis = { x: 0, y: 0 };
   let dragging = false;
@@ -553,6 +554,7 @@ export function mountSplatPlayer(root) {
       avatarRoot.rotation.y = Math.atan2(_tan.x, _tan.z) + avatarYawOffset;
       avatarRoot.updateMatrixWorld(true);
     }
+    if (applyHeldCamera()) return;
     // Pull back far enough that the ~1.7 m figure fills about 40–55% of a
     // tall phone stage. Prefer a rear-quarter view inside the room; if the
     // window wall is too close behind, swing to the side (or slightly ahead)
@@ -694,41 +696,144 @@ export function mountSplatPlayer(root) {
     return box;
   }
 
-  function taperedTorsoShape(shoulderW, hipW, h, r) {
-    const y0 = -h / 2;
-    const y1 = h / 2;
-    const xHip = hipW / 2;
-    const xSh = shoulderW / 2;
-    r = Math.min(r, hipW * 0.45, shoulderW * 0.45, h / 4);
-    const dx = xSh - xHip;
-    const dy = h;
-    const len = Math.hypot(dx, dy) || 1;
-    const ux = dx / len;
-    const uy = dy / len;
-    const s = new THREE.Shape();
-    s.moveTo(-xHip + r, y0);
-    s.lineTo(xHip - r, y0);
-    s.quadraticCurveTo(xHip, y0, xHip + ux * r, y0 + uy * r);
-    s.lineTo(xSh - ux * r, y1 - uy * r);
-    s.quadraticCurveTo(xSh, y1, xSh - r, y1);
-    s.lineTo(-xSh + r, y1);
-    s.quadraticCurveTo(-xSh, y1, -xSh + ux * r, y1 - uy * r);
-    s.lineTo(-xHip - ux * r, y0 + uy * r);
-    s.quadraticCurveTo(-xHip, y0, -xHip + r, y0);
-    s.closePath();
-    return s;
+  function applyHeldCamera() {
+    if (!cameraHold || !avatarRoot || !camera) return false;
+    const origin = new THREE.Vector3();
+    avatarRoot.getWorldPosition(origin);
+    origin.y += 0.85;
+    const q = new THREE.Quaternion();
+    avatarRoot.getWorldQuaternion(q);
+    const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(q);
+    forward.y = 0;
+    if (forward.lengthSq() < 1e-8) forward.set(0, 0, 1);
+    else forward.normalize();
+    const right = new THREE.Vector3().crossVectors(forward, THREE.Object3D.DEFAULT_UP).normalize();
+    const held = origin.clone();
+    if (cameraHold === "side") {
+      held.addScaledVector(right, 2.15).addScaledVector(forward, 0.2);
+      held.y += 0.08;
+    } else {
+      held.addScaledVector(right, 1.25).addScaledVector(forward, 1.4);
+      held.y += 0.22;
+    }
+    held.x = clamp(held.x, boundsMin.x, boundsMax.x);
+    held.y = clamp(held.y, 0.9, Math.max(boundsMax.y, 2.55));
+    held.z = clamp(held.z, boundsMin.z, boundsMax.z);
+    camera.position.copy(held);
+    camera.lookAt(origin);
+    camera.updateMatrixWorld(true);
+    return true;
   }
 
-  function extrudeShape(shape, depth, bevel) {
-    const geo = new THREE.ExtrudeGeometry(shape, {
-      depth,
-      bevelEnabled: bevel > 0,
-      bevelThickness: bevel,
-      bevelSize: bevel,
-      bevelSegments: 3,
-      curveSegments: 12,
+  function addFigureLights(root) {
+    const key = new THREE.DirectionalLight(0xf6f8ff, 0.7);
+    key.name = "figure-key";
+    key.position.set(0.85, 2.2, 1.4);
+    key.target.position.set(0, 0.95, 0);
+    root.add(key);
+    root.add(key.target);
+
+    const fill = new THREE.DirectionalLight(0xe4eaf6, 0.36);
+    fill.name = "figure-fill";
+    fill.position.set(-1.25, 1.3, 0.55);
+    fill.target.position.set(0, 0.9, 0);
+    root.add(fill);
+    root.add(fill.target);
+  }
+
+  function makeRimMaterial() {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        color: { value: new THREE.Color(0xffffff) },
+        power: { value: 2.15 },
+        intensity: { value: 0.9 },
+      },
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vViewDir;
+        void main() {
+          vec4 wp = modelMatrix * vec4(position, 1.0);
+          vNormal = normalize(mat3(modelMatrix) * normal);
+          vViewDir = normalize(cameraPosition - wp.xyz);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 color;
+        uniform float power;
+        uniform float intensity;
+        varying vec3 vNormal;
+        varying vec3 vViewDir;
+        void main() {
+          float f = pow(1.0 - abs(dot(normalize(vNormal), normalize(vViewDir))), power);
+          vec3 c = color * f * intensity;
+          gl_FragColor = vec4(c, f * intensity);
+        }
+      `,
+      side: THREE.BackSide,
+      transparent: true,
+      depthWrite: false,
+      depthTest: true,
+      blending: THREE.AdditiveBlending,
+      premultipliedAlpha: true,
     });
-    geo.translate(0, 0, -depth / 2);
+  }
+
+  function attachFresnel(mat, strength, power) {
+    const uniforms = {
+      uRimPower: { value: power },
+      uRimStrength: { value: strength },
+      uRimColor: { value: new THREE.Color(0xffffff) },
+    };
+    mat.userData.rimUniforms = uniforms;
+    mat.onBeforeCompile = (shader) => {
+      shader.uniforms.uRimPower = uniforms.uRimPower;
+      shader.uniforms.uRimStrength = uniforms.uRimStrength;
+      shader.uniforms.uRimColor = uniforms.uRimColor;
+      shader.fragmentShader = shader.fragmentShader
+        .replace(
+          "#include <common>",
+          "#include <common>\nuniform float uRimPower;\nuniform float uRimStrength;\nuniform vec3 uRimColor;"
+        )
+        .replace(
+          "#include <opaque_fragment>",
+          "outgoingLight += uRimColor * (pow(1.0 - max(0.0, dot(normalize(normal), normalize(vViewPosition))), uRimPower) * uRimStrength);\n#include <opaque_fragment>"
+        );
+    };
+    mat.needsUpdate = true;
+  }
+
+  // Body-of-revolution torso, later scaled on Z so it is round but not circularly wide.
+  function torsoLatheGeometry(shoulderW, hipW, torsoH, neckH, neckR) {
+    const shR = shoulderW / 2;
+    const hipR = hipW / 2;
+    const y0 = -torsoH / 2;
+    const y1 = torsoH / 2;
+    const pts = [];
+    const cap = Math.min(0.07, hipR * 0.45);
+    pts.push(new THREE.Vector2(0.001, y0));
+    for (let i = 1; i <= 7; i += 1) {
+      const t = i / 7;
+      const a = (Math.PI / 2) * t;
+      const r = hipR * Math.sin(a);
+      pts.push(new THREE.Vector2(r, y0 + cap * (1 - Math.cos(a))));
+    }
+    const ySide0 = y0 + cap;
+    const ySide1 = y1 - 0.05;
+    for (let i = 1; i <= 8; i += 1) {
+      const t = i / 8;
+      const y = ySide0 + (ySide1 - ySide0) * t;
+      const r = hipR + (shR - hipR) * (t * t * (3 - 2 * t));
+      pts.push(new THREE.Vector2(r, y));
+    }
+    for (let i = 1; i <= 8; i += 1) {
+      const t = i / 8;
+      const a = t * (Math.PI / 2);
+      const r = neckR + (shR - neckR) * Math.cos(a);
+      const y = ySide1 + (y1 + neckH - ySide1) * Math.sin(a);
+      pts.push(new THREE.Vector2(Math.max(neckR * 0.95, r), y));
+    }
+    const geo = new THREE.LatheGeometry(pts, 36);
     geo.computeVertexNormals();
     return geo;
   }
@@ -736,89 +841,80 @@ export function mountSplatPlayer(root) {
   function buildSimpleFigure(height) {
     const h = height > 0.5 ? height : 1.7;
     const s = h / 1.7;
-    // Even, self-lit sign color — no light/dark sides.
-    const mat = new THREE.MeshBasicMaterial({
-      color: 0xf3f6ff,
+    const mat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      emissive: 0xf0f3ff,
+      emissiveIntensity: 0.45,
+      roughness: 0.42,
+      metalness: 0.04,
       transparent: true,
       opacity: 1,
       depthWrite: true,
       depthTest: true,
       premultipliedAlpha: true,
-      polygonOffset: true,
-      polygonOffsetFactor: -1,
-      polygonOffsetUnits: -1,
+      envMapIntensity: 0,
     });
-    const rimMat = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      side: THREE.BackSide,
-      transparent: true,
-      opacity: 0.16,
-      depthWrite: false,
-      depthTest: true,
-      premultipliedAlpha: true,
-      blending: THREE.AdditiveBlending,
-    });
+    attachFresnel(mat, 0.55, 2.3);
+    const rimMat = makeRimMaterial();
     const figure = new THREE.Group();
     figure.name = "restroom-icon";
 
-    // Lean, tall pictogram proportions at a 1.7 m figure.
-    const depth = 0.07 * s;
-    const torsoBevel = 0.01 * s;
-    const shellScale = 1.05;
-    const hipY = 0.84 * s;
-    const headR = 0.125 * s;
-    const gap = 0.07 * s;
-    const torsoTop = h - headR * 2 - gap;
+    // Medium build, between the 0.52 m-shoulder version and the skinny 0.39 m one.
+    const hipY = 0.83 * s;
+    const headR = 0.12 * s;
+    const neckH = 0.05 * s;
+    const neckR = 0.05 * s;
+    const gap = 0.02 * s;
+    const torsoTop = h - headR * 2 - gap - neckH;
     const torsoH = torsoTop - hipY;
-    const shoulderW = 0.39 * s;
-    const hipW = 0.28 * s;
-    const torsoCorner = 0.08 * s;
-    const headY = torsoTop + gap + headR;
-    const armW = 0.055 * s;
+    const shoulderW = 0.45 * s;
+    const hipW = 0.34 * s;
+    const depth = 0.235 * s;
+    const headY = torsoTop + neckH + gap + headR;
+    const armR = 0.048 * s;
+    const legR = 0.062 * s;
     const midThighY = hipY * 0.64;
-    const shoulderY = torsoTop - 0.02 * s;
-    const armLen = Math.max(0.4 * s, shoulderY - midThighY);
-    const legW = 0.075 * s;
+    const shoulderY = torsoTop - 0.03 * s;
+    const armLen = Math.max(0.42 * s, shoulderY - midThighY);
     const legLen = hipY;
-    const legGap = 0.09 * s;
-    const armGap = 0.012 * s;
+    const legGap = 0.07 * s;
+    const armGap = 0.016 * s;
 
-    const torso = new THREE.Mesh(extrudeShape(taperedTorsoShape(shoulderW, hipW, torsoH, torsoCorner), depth, torsoBevel), mat);
+    const torsoGeo = torsoLatheGeometry(shoulderW, hipW, torsoH, neckH, neckR);
+    torsoGeo.scale(1, 1, depth / shoulderW);
+    torsoGeo.computeVertexNormals();
+    const torso = new THREE.Mesh(torsoGeo, mat);
     torso.name = "torso";
     torso.position.y = hipY + torsoH * 0.5;
     figure.add(torso);
-    addShell(torso, rimMat, shellScale);
+    addShell(torso, rimMat, 1.07);
 
-    const head = new THREE.Mesh(new THREE.SphereGeometry(headR, 20, 14), mat);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(headR, 24, 18), mat);
     head.name = "head";
-    head.scale.z = 0.72;
     head.position.y = headY;
     figure.add(head);
-    addShell(head, rimMat, 1.045);
+    addShell(head, rimMat, 1.055);
 
-    function limb(x, jointY, width, totalLen, name) {
+    function limb(x, jointY, radius, totalLen, name) {
       const pivot = new THREE.Group();
       pivot.name = name + "-pivot";
       pivot.position.set(x, jointY, 0);
-      // Capsules read as rounded 3D bars without the scalloped end caps
-      // ExtrudeGeometry + bevel produced on tight stadium shapes.
-      const radius = width * 0.5;
-      const cyl = Math.max(0.01, totalLen - width);
-      const mesh = new THREE.Mesh(new THREE.CapsuleGeometry(radius, cyl, 6, 14), mat);
+      const cyl = Math.max(0.01, totalLen - radius * 2);
+      const mesh = new THREE.Mesh(new THREE.CapsuleGeometry(radius, cyl, 8, 16), mat);
       mesh.name = name;
       mesh.position.y = -totalLen * 0.5;
-      addShell(mesh, rimMat, 1.045);
+      addShell(mesh, rimMat, 1.06);
       pivot.add(mesh);
       figure.add(pivot);
       return pivot;
     }
 
-    const shoulderX = shoulderW * 0.5 + armGap + armW * 0.5;
-    const armL = limb(-shoulderX, shoulderY, armW, armLen, "armL");
-    const armR = limb(shoulderX, shoulderY, armW, armLen, "armR");
-    const legX = legW * 0.5 + legGap * 0.5;
-    const legL = limb(-legX, hipY, legW, legLen, "legL");
-    const legR = limb(legX, hipY, legW, legLen, "legR");
+    const shoulderX = shoulderW * 0.5 + armGap + armR;
+    const armL = limb(-shoulderX, shoulderY, armR, armLen, "armL");
+    const armRgt = limb(shoulderX, shoulderY, armR, armLen, "armR");
+    const legX = legR + legGap * 0.5;
+    const legL = limb(-legX, hipY, legR, legLen, "legL");
+    const legRgt = limb(legX, hipY, legR, legLen, "legR");
 
     figure.updateMatrixWorld(true);
     const box = bodyBox(figure);
@@ -831,7 +927,7 @@ export function mountSplatPlayer(root) {
     });
     const step = 2 * (legLen * (h / Math.max(builtH, 0.01))) * Math.sin(LEG_SWING);
     const natural = (2 * step) / WALK_CYCLE;
-    return { figure, armL, armR, legL, legR, mat, rimMat, natural };
+    return { figure, armL, armR: armRgt, legL, legR: legRgt, mat, rimMat, natural };
   }
 
   function makeFloorGlow() {
@@ -866,7 +962,7 @@ export function mountSplatPlayer(root) {
       return mesh;
     }
 
-    const glow = radial(8, "rgba(255,255,255,0.32)", "rgba(230,236,255,0.11)", 0.82);
+    const glow = radial(8, "rgba(255,255,255,0.30)", "rgba(230,236,255,0.10)", 0.95);
     glow.name = "floor-glow";
     glow.material.blending = THREE.AdditiveBlending;
     glow.material.opacity = 0.7;
@@ -919,6 +1015,7 @@ export function mountSplatPlayer(root) {
     avatarRoot.name = "splat-avatar";
     avatarRoot.add(built.figure);
     avatarRoot.add(makeFloorGlow());
+    addFigureLights(avatarRoot);
     scene.add(avatarRoot);
     avatarLimbs = {
       figure: built.figure,
@@ -1174,6 +1271,12 @@ export function mountSplatPlayer(root) {
     },
     get stats() {
       return { loadMs: stats.loadMs, fps: stats.fps };
+    },
+    frameFigure(mode) {
+      cameraHold = mode === "side" ? "side" : "threeQuarter";
+    },
+    clearFigureFrame() {
+      cameraHold = null;
     },
   };
   window.__tgSplatPlayer = api;
