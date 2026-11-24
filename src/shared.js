@@ -228,8 +228,8 @@ export const STREET_SPLAT = {
   license: "CC BY 4.0",
   licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
   view: {
-    position: [-8.75, 2.03, -6.75],
-    lookAt: [-8.75, 0.78, -1.75],
+    position: [-6.15, 2.7, -9.95],
+    lookAt: [-5.35, 0.95, 2.75],
     boundsMin: [-16.0, 0.4, -20.0],
     boundsMax: [16.0, 8.0, 24.0],
   },

@@ -123,3 +123,15 @@ Attribution and conversion notes: splat/STREET-ATTRIBUTION.md
   map pin's real surroundings. See STREET-ATTRIBUTION.md for the exact
   changes. No endorsement implied.
 
+Street crowd 3D models (street intersection preview only)
+=========================================================
+
+Files: models/people/*.glb and models/cars/*.glb
+Licence text: models/CC0-1.0.txt (Creative Commons Zero 1.0 Universal)
+Attribution, SHA-256 sums, and pinned source URLs: models/ATTRIBUTION.md
+
+  Source: tevy (https://tevy.dev), pinned v1 downloads, license CC0-1.0.
+  Casual Walker, Dog Walker, Hiker, Cyclist, Road Worker;
+  Five-Door Hatchback, Mid-Size SUV, Family Estate Car.
+
+  Free for personal and commercial use. Not official Tesla assets.

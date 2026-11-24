@@ -1,7 +1,12 @@
 import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { KTX2Loader } from "three/addons/loaders/KTX2Loader.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
+import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 import { SparkRenderer, SplatMesh } from "@sparkjsdev/spark";
 import { detectWebGL2 } from "./webgl2.js";
 import { PLACEHOLDER_SPLAT } from "./shared.js";
+import { resolveStreetModel, collectWheels, WALK_DESIGN_SPEED } from "./street-models.js";
 
 const DEG = Math.PI / 180;
 const DEADZONE = 0.12;
@@ -127,6 +132,13 @@ export function mountSplatPlayer(root) {
   let avatarLimbs = null;
   let crowdRoot = null;
   let movers = [];
+  let crowdLit = false;
+  let streetGltfLoader = null;
+  const streetModelCache = new Map();
+  let streetEnvMap = null;
+  let litTarget = null;
+  let litQuad = null;
+  let litScene = null;
   let seeking = false;
   let avatarTarget = null;
   let composeScene = null;
@@ -147,6 +159,8 @@ export function mountSplatPlayer(root) {
   const _back = new THREE.Vector3();
   const _side = new THREE.Vector3();
   const _look = new THREE.Vector3();
+  const _spinQ = new THREE.Quaternion();
+  const _wheelAxis = new THREE.Vector3(1, 0, 0);
 
   function bindStick(el, onAxis) {
     const knob = el.querySelector(".stick-knob");
@@ -316,6 +330,13 @@ export function mountSplatPlayer(root) {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO));
     renderer.setSize(w, h, false);
     camera.aspect = w / Math.max(1, h);
+    // Tall phone stages have a tight horizontal FOV at 55° vertical, which
+    // previously pushed Kane out of the street follow frame.
+    if (pathData && Number.isFinite(Number(pathData.followWorldX))) {
+      camera.fov = camera.aspect < 0.75 ? 78 : 55;
+    } else {
+      camera.fov = 55;
+    }
     camera.updateProjectionMatrix();
     ensureAvatarTarget();
   }
@@ -563,6 +584,16 @@ export function mountSplatPlayer(root) {
     return Math.max(0, t);
   }
 
+  function applyStreetFov() {
+    if (!camera) return;
+    const aspect = camera.aspect || 1;
+    const next = pathData && Number.isFinite(Number(pathData.followWorldX)) && aspect < 0.75 ? 78 : 55;
+    if (Math.abs(camera.fov - next) > 0.1) {
+      camera.fov = next;
+      camera.updateProjectionMatrix();
+    }
+  }
+
   function poseAvatarAndCamera() {
     if (!pathCurve || !camera) return;
     pathCurve.getPointAt(pathU, carPosition);
@@ -576,15 +607,36 @@ export function mountSplatPlayer(root) {
       avatarRoot.updateMatrixWorld(true);
     }
     if (applyHeldCamera()) return;
-    // Pull back far enough that the ~1.7 m figure fills about 40–55% of a
-    // tall phone stage. Prefer a rear-quarter view inside the room; if the
-    // window wall is too close behind, swing to the side (or slightly ahead)
-    // rather than clipping through a wall.
     _back.set(-_tan.x, 0, -_tan.z).normalize();
     if (yaw) _back.applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw);
     const followDist = pathData && Number(pathData.followDist) > 0 ? Number(pathData.followDist) : FOLLOW_DIST;
     const followUp = pathData && Number(pathData.followUp) > 0 ? Number(pathData.followUp) : FOLLOW_UP;
     const followLookY = pathData && Number(pathData.followLookY) > 0 ? Number(pathData.followLookY) : FOLLOW_LOOK_Y;
+    const followWorldX = pathData && Number.isFinite(Number(pathData.followWorldX)) ? Number(pathData.followWorldX) : null;
+    if (followWorldX != null) {
+      applyStreetFov();
+      // Street preview: sit east of Kane (world +X) so the lanes, cars,
+      // and crosswalk people stay in a phone frame in both path directions.
+      const lookWorldX = Number.isFinite(Number(pathData.followLookWorldX)) ? Number(pathData.followLookWorldX) : followWorldX * 0.8;
+      const lookAhead = Number(pathData.followLookAhead) > 0 ? Number(pathData.followLookAhead) : 3.0;
+      pos.copy(carPosition).addScaledVector(_back, followDist);
+      pos.x = carPosition.x + followWorldX;
+      pos.y = carPosition.y + followUp + Math.sin(clamp(pitch, -0.7, 0.7)) * 0.45;
+      pos.x = clamp(pos.x, boundsMin.x, boundsMax.x);
+      pos.y = clamp(pos.y, 0.9, Math.max(boundsMax.y, 3.2));
+      pos.z = clamp(pos.z, boundsMin.z, boundsMax.z);
+      camera.position.copy(pos);
+      _look.copy(carPosition).addScaledVector(_tan, lookAhead);
+      _look.x = carPosition.x + lookWorldX;
+      _look.y = carPosition.y + followLookY;
+      camera.lookAt(_look);
+      camera.updateMatrixWorld(true);
+      return;
+    }
+    // Pull back far enough that the ~1.7 m figure fills about 40–55% of a
+    // tall phone stage. Prefer a rear-quarter view inside the room; if the
+    // window wall is too close behind, swing to the side (or slightly ahead)
+    // rather than clipping through a wall.
     const targetDist = followDist * Math.cos(clamp(pitch, -0.55, 0.55));
     const pitchLift = Math.sin(clamp(pitch, -0.7, 0.7)) * 0.45;
     const angles = [0.4, -0.4, 0.6, -0.6, 0.85, -0.85, 0.2, -0.2, 0, 1.1, -1.1, 1.35, -1.35, 1.65, -1.65, 2.2, -2.2];
@@ -624,10 +676,15 @@ export function mountSplatPlayer(root) {
   }
 
   function disposeCrowd() {
+    for (const mover of movers) {
+      if (mover.mixer) mover.mixer.stopAllAction();
+    }
     movers = [];
+    crowdLit = false;
     if (!crowdRoot) return;
     scene.remove(crowdRoot);
     crowdRoot.traverse((obj) => {
+      if (obj.userData && obj.userData.sharedStreetModel) return;
       if (obj.geometry && typeof obj.geometry.dispose === "function") obj.geometry.dispose();
       const mat = obj.material;
       if (mat) {
@@ -762,9 +819,11 @@ export function mountSplatPlayer(root) {
     const gh = Math.max(1, Math.floor(h / 2));
     const sameAvatar = avatarTarget && avatarTarget.width === w && avatarTarget.height === h;
     const sameGlow = glowTargetA && glowTargetA.width === gw && glowTargetA.height === gh;
-    if (sameAvatar && sameGlow && composeScene && blurScene) return;
+    const sameLit = litTarget && litTarget.width === w && litTarget.height === h;
+    if (sameAvatar && sameGlow && sameLit && composeScene && blurScene && litScene) return;
 
     avatarTarget = disposeRt(avatarTarget);
+    litTarget = disposeRt(litTarget);
     glowTargetA = disposeRt(glowTargetA);
     glowTargetB = disposeRt(glowTargetB);
 
@@ -773,10 +832,16 @@ export function mountSplatPlayer(root) {
       depthBuffer: true,
       stencilBuffer: false,
     });
+    litTarget = new THREE.WebGLRenderTarget(w, h, {
+      samples: 4,
+      depthBuffer: true,
+      stencilBuffer: false,
+    });
     glowTargetA = new THREE.WebGLRenderTarget(gw, gh, { depthBuffer: false, stencilBuffer: false });
     glowTargetB = new THREE.WebGLRenderTarget(gw, gh, { depthBuffer: false, stencilBuffer: false });
     if (renderer.outputColorSpace) {
       avatarTarget.texture.colorSpace = renderer.outputColorSpace;
+      litTarget.texture.colorSpace = renderer.outputColorSpace;
       glowTargetA.texture.colorSpace = renderer.outputColorSpace;
       glowTargetB.texture.colorSpace = renderer.outputColorSpace;
     }
@@ -859,6 +924,30 @@ export function mountSplatPlayer(root) {
 
     composeQuad.material.uniforms.tDiffuse.value = avatarTarget.texture;
     glowQuad.material.uniforms.tDiffuse.value = glowTargetA.texture;
+
+    if (!litScene) {
+      const litMat = makeFullscreenMat(
+        `
+          uniform sampler2D tDiffuse;
+          varying vec2 vUv;
+          void main() {
+            gl_FragColor = texture2D(tDiffuse, vUv);
+          }
+        `
+      );
+      litMat.transparent = true;
+      litMat.premultipliedAlpha = true;
+      litMat.blending = THREE.CustomBlending;
+      litMat.blendSrc = THREE.OneFactor;
+      litMat.blendDst = THREE.OneMinusSrcAlphaFactor;
+      litMat.blendSrcAlpha = THREE.OneFactor;
+      litMat.blendDstAlpha = THREE.OneMinusSrcAlphaFactor;
+      litQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), litMat);
+      litQuad.frustumCulled = false;
+      litScene = new THREE.Scene();
+      litScene.add(litQuad);
+    }
+    litQuad.material.uniforms.tDiffuse.value = litTarget.texture;
   }
 
   function blitBlur(src, dest, dirX, dirY, intensity) {
@@ -873,16 +962,47 @@ export function mountSplatPlayer(root) {
 
   function renderFrame() {
     if (!renderer || !scene || !camera) return;
-    const showOverlay = !!(avatarRoot && avatarRoot.parent) || !!(crowdRoot && crowdRoot.parent);
+    const hasAvatar = !!(avatarRoot && avatarRoot.parent);
+    const hasCrowd = !!(crowdRoot && crowdRoot.parent);
     if (avatarRoot) avatarRoot.visible = false;
     if (crowdRoot) crowdRoot.visible = false;
     renderer.setRenderTarget(null);
     renderer.render(scene, camera);
-    if (showOverlay) {
+    if (hasCrowd && crowdLit) {
+      crowdRoot.visible = true;
+      if (avatarRoot) avatarRoot.visible = false;
+      renderLitCrowd();
+      crowdRoot.visible = false;
+    }
+    const glowCrowd = hasCrowd && !crowdLit;
+    if (hasAvatar || glowCrowd) {
       if (avatarRoot) avatarRoot.visible = true;
-      if (crowdRoot) crowdRoot.visible = true;
+      if (crowdRoot) crowdRoot.visible = glowCrowd;
       renderAvatarOverlay();
     }
+  }
+
+  function renderLitCrowd() {
+    ensureAvatarTarget();
+    if (!litTarget || !litQuad || !composeCam) return;
+    const prevBg = scene.background;
+    const sparkVis = spark ? spark.visible : true;
+    const prevColor = renderer.getClearColor(_clearCol);
+    const prevAlpha = renderer.getClearAlpha();
+    if (spark) spark.visible = false;
+    scene.background = null;
+    renderer.setRenderTarget(litTarget);
+    renderer.setClearColor(0x000000, 0);
+    renderer.clear();
+    renderer.render(scene, camera);
+    renderer.setRenderTarget(null);
+    scene.background = prevBg;
+    if (spark) spark.visible = sparkVis;
+    renderer.setClearColor(prevColor, prevAlpha);
+    litQuad.material.uniforms.tDiffuse.value = litTarget.texture;
+    renderer.autoClear = false;
+    renderer.render(litScene, composeCam);
+    renderer.autoClear = true;
   }
 
   function renderAvatarOverlay() {
@@ -921,6 +1041,7 @@ export function mountSplatPlayer(root) {
 
   function disposeAvatarTarget() {
     avatarTarget = disposeRt(avatarTarget);
+    litTarget = disposeRt(litTarget);
     glowTargetA = disposeRt(glowTargetA);
     glowTargetB = disposeRt(glowTargetB);
     if (composeQuad) {
@@ -1490,37 +1611,141 @@ export function mountSplatPlayer(root) {
     return { curve, length: curve.getLength(), speed: Number(spec.speed) > 0 ? Number(spec.speed) : 1.2, closed, height: Number(spec.height) > 0 ? Number(spec.height) : 1.7 };
   }
 
-  function loadCrowd(spec) {
+  function makeContactShadow(width, depth, opacity) {
+    const mat = new THREE.MeshBasicMaterial({
+      color: 0x1a1612,
+      transparent: true,
+      opacity: opacity == null ? 0.34 : opacity,
+      depthWrite: false,
+    });
+    const mesh = new THREE.Mesh(new THREE.CircleGeometry(1, 28), mat);
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.scale.set(width || 0.55, depth || 0.38, 1);
+    mesh.position.y = 0.012;
+    mesh.renderOrder = -1;
+    mesh.name = "contact-shadow";
+    return mesh;
+  }
+
+  function ensureStreetEnvironment() {
+    if (!renderer || !scene || streetEnvMap) return;
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envScene = new THREE.Scene();
+    envScene.add(new THREE.HemisphereLight(0xcdd8e8, 0x5c584c, 1.05));
+    const sun = new THREE.DirectionalLight(0xfff1d8, 1.15);
+    sun.position.set(8, 14, 5);
+    envScene.add(sun);
+    streetEnvMap = pmrem.fromScene(envScene, 0.04).texture;
+    scene.environment = streetEnvMap;
+    scene.environmentIntensity = 0.85;
+    pmrem.dispose();
+  }
+
+  function getStreetLoader() {
+    if (streetGltfLoader) return streetGltfLoader;
+    const ktx2 = new KTX2Loader().setTranscoderPath("vendor/three/addons/libs/basis/");
+    ktx2.detectSupport(renderer);
+    streetGltfLoader = new GLTFLoader().setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder);
+    return streetGltfLoader;
+  }
+
+  async function loadStreetTemplate(url) {
+    if (streetModelCache.has(url)) return streetModelCache.get(url);
+    const gltf = await getStreetLoader().loadAsync(url);
+    streetModelCache.set(url, gltf);
+    return gltf;
+  }
+
+  function prepareStreetClone(gltf) {
+    const root = cloneSkinned(gltf.scene);
+    root.traverse((obj) => {
+      if (!obj.isMesh) return;
+      obj.userData.sharedStreetModel = true;
+      obj.castShadow = false;
+      obj.receiveShadow = false;
+      obj.frustumCulled = false;
+      const mats = Array.isArray(obj.material) ? obj.material : obj.material ? [obj.material] : [];
+      for (const mat of mats) {
+        if (!mat) continue;
+        if ("emissiveIntensity" in mat) mat.emissiveIntensity = 0;
+        if ("envMapIntensity" in mat && mat.envMapIntensity == null) mat.envMapIntensity = 0.9;
+      }
+    });
+    root.updateMatrixWorld(true);
+    const box = bodyBox(root);
+    if (Number.isFinite(box.min.y) && Math.abs(box.min.y) > 0.004) {
+      root.position.y += -box.min.y;
+      root.updateMatrixWorld(true);
+    }
+    return root;
+  }
+
+  function walkClip(gltf) {
+    const clips = gltf.animations || [];
+    return clips.find((c) => /walk/i.test(c.name)) || clips[0] || null;
+  }
+
+  async function loadCrowd(spec) {
     disposeCrowd();
     if (!spec || !scene) return 0;
     const peds = Array.isArray(spec.pedestrians) ? spec.pedestrians : [];
     const cars = Array.isArray(spec.cars) ? spec.cars : [];
     if (!peds.length && !cars.length) return 0;
+    const usesModels = peds.some((item) => resolveStreetModel("pedestrian", item.model)) || cars.some((item) => resolveStreetModel("car", item.model));
+    crowdLit = usesModels;
     crowdRoot = new THREE.Group();
     crowdRoot.name = "splat-crowd";
-    addFigureLights(crowdRoot);
-    const tmpP = new THREE.Vector3();
-    const tmpT = new THREE.Vector3();
-    peds.forEach((item, i) => {
+    if (usesModels) {
+      ensureStreetEnvironment();
+      const fill = new THREE.DirectionalLight(0xf3efe6, 0.7);
+      fill.position.set(-6, 6, -8);
+      fill.name = "street-fill";
+      crowdRoot.add(fill);
+      const rim = new THREE.DirectionalLight(0xdde6f2, 0.35);
+      rim.position.set(6, 4, 8);
+      rim.name = "street-rim";
+      crowdRoot.add(rim);
+    } else addFigureLights(crowdRoot);
+
+    async function addPedestrian(item, i) {
       const made = makeCurve(item);
       if (!made) return;
-      const built = buildSimpleFigure(made.height);
-      built.figure.updateMatrixWorld(true);
-      const box = bodyBox(built.figure);
-      built.figure.position.y += 0 - box.min.y;
-      built.figure.updateMatrixWorld(true);
+      const url = resolveStreetModel("pedestrian", item.model);
       const root = new THREE.Group();
       root.name = "pedestrian-" + (item.id || i + 1);
-      const floorFx = makeFloorGlow();
-      root.add(built.figure);
-      root.add(floorFx);
-      crowdRoot.add(root);
-      const u0 = (i + 0.15) / Math.max(peds.length, 1);
-      movers.push({
-        kind: "pedestrian",
-        id: item.id || root.name,
-        root,
-        limbs: {
+      let mixer = null;
+      let limbs = null;
+      let modelName = item.model || "simple";
+      let natural = 1.2;
+      if (url) {
+        try {
+          const gltf = await loadStreetTemplate(url);
+          const figure = prepareStreetClone(gltf);
+          root.add(figure);
+          root.add(makeContactShadow(0.52, 0.36, 0.36));
+          const clip = walkClip(gltf);
+          if (clip) {
+            mixer = new THREE.AnimationMixer(figure);
+            const action = mixer.clipAction(clip);
+            action.loop = THREE.LoopRepeat;
+            action.play();
+          }
+          natural = WALK_DESIGN_SPEED;
+        } catch (err) {
+          console.error("Street pedestrian model failed", item.model, err);
+          modelName = "simple";
+        }
+      }
+      if (!mixer && modelName === "simple") {
+        const built = buildSimpleFigure(made.height);
+        built.figure.updateMatrixWorld(true);
+        const box = bodyBox(built.figure);
+        built.figure.position.y += 0 - box.min.y;
+        built.figure.updateMatrixWorld(true);
+        const floorFx = makeFloorGlow();
+        root.add(built.figure);
+        root.add(floorFx);
+        limbs = {
           figure: built.figure,
           armL: built.armL,
           armR: built.armR,
@@ -1533,30 +1758,62 @@ export function mountSplatPlayer(root) {
           torso: built.torso,
           head: built.head,
           baseY: built.figure.position.y,
-        },
+        };
+        natural = built.natural || 1.2;
+      }
+      crowdRoot.add(root);
+      const u0 = (i + 0.15) / Math.max(peds.length, 1);
+      movers.push({
+        kind: "pedestrian",
+        id: item.id || root.name,
+        model: modelName,
+        root,
+        limbs,
+        mixer,
+        wheels: null,
         curve: made.curve,
         length: made.length,
         speed: made.speed,
         closed: made.closed,
         u: u0,
         animTime: i * 0.37,
-        natural: built.natural || 1.2,
+        natural,
       });
-    });
-    cars.forEach((item, i) => {
+    }
+
+    async function addCar(item, i) {
       const made = makeCurve(item);
       if (!made) return;
-      const car = buildSimpleCar();
+      const url = resolveStreetModel("car", item.model);
       const root = new THREE.Group();
       root.name = "car-" + (item.id || i + 1);
-      root.add(car);
+      let wheels = null;
+      let modelName = item.model || "simple";
+      if (url) {
+        try {
+          const gltf = await loadStreetTemplate(url);
+          const car = prepareStreetClone(gltf);
+          root.add(car);
+          root.add(makeContactShadow(2.15, 1.05, 0.4));
+          wheels = collectWheels(car, THREE);
+        } catch (err) {
+          console.error("Street car model failed", item.model, err);
+          modelName = "simple";
+        }
+      }
+      if (modelName === "simple" && !wheels) {
+        root.add(buildSimpleCar());
+      }
       crowdRoot.add(root);
       const u0 = (i + 0.3) / Math.max(cars.length, 1);
       movers.push({
         kind: "car",
         id: item.id || root.name,
+        model: modelName,
         root,
         limbs: null,
+        mixer: null,
+        wheels,
         curve: made.curve,
         length: made.length,
         speed: made.speed,
@@ -1565,7 +1822,10 @@ export function mountSplatPlayer(root) {
         animTime: 0,
         natural: 1,
       });
-    });
+    }
+
+    for (let i = 0; i < peds.length; i++) await addPedestrian(peds[i], i);
+    for (let i = 0; i < cars.length; i++) await addCar(cars[i], i);
     scene.add(crowdRoot);
     // Place everyone once so the first frame is not stacked at the origin.
     updateMovers(0);
@@ -1595,10 +1855,20 @@ export function mountSplatPlayer(root) {
       mover.root.position.copy(tmpP);
       mover.root.rotation.y = Math.atan2(tmpT.x, tmpT.z);
       mover.root.updateMatrixWorld(true);
-      if (mover.kind === "pedestrian" && mover.limbs) {
+      if (mover.mixer) {
+        mover.mixer.timeScale = mover.speed / Math.max(mover.natural, 0.05);
+        if (dt > 0) mover.mixer.update(dt);
+      } else if (mover.kind === "pedestrian" && mover.limbs) {
         mover.animTime += dt * (mover.speed / Math.max(mover.natural, 0.05));
         applyWalkPose(mover.limbs, mover.animTime, 1);
         plantMoverFeet(mover);
+      }
+      if (mover.wheels && mover.wheels.length && dt > 0) {
+        for (const wheel of mover.wheels) {
+          wheel.spin += (mover.speed / Math.max(wheel.radius, 0.12)) * dt;
+          _spinQ.setFromAxisAngle(_wheelAxis, wheel.spin);
+          wheel.node.quaternion.copy(wheel.rest).multiply(_spinQ);
+        }
       }
     }
   }
@@ -1808,7 +2078,7 @@ export function mountSplatPlayer(root) {
         const floorY = pathData && Number.isFinite(pathData.floorY) ? pathData.floorY : 0;
         await loadAvatar(avatarSpec, floorY);
         if (gen !== openGen) return;
-        loadCrowd(pathData);
+        await loadCrowd(pathData);
         if (gen !== openGen) return;
       } catch (avatarErr) {
         console.error(avatarErr);
@@ -1821,12 +2091,18 @@ export function mountSplatPlayer(root) {
         setPathU(0);
         poseAvatarAndCamera();
       }
-      // A few warm-up frames so the first visible image isn't empty.
-      for (let i = 0; i < 6; i++) {
+      // A couple of warm-up frames so the first visible image isn't empty.
+      // Cap the wait; a slow splat GPU can take many seconds per frame.
+      for (let i = 0; i < 2; i++) {
         if (pathCurve) poseAvatarAndCamera();
         else applyCamera();
         renderFrame();
-        await new Promise((r) => requestAnimationFrame(r));
+        await new Promise((r) => {
+          let done = false;
+          const finish = () => { if (!done) { done = true; r(); } };
+          requestAnimationFrame(finish);
+          setTimeout(finish, 250);
+        });
         if (gen !== openGen) return;
       }
       stats.loadMs = performance.now() - t0;
@@ -1946,6 +2222,7 @@ export function mountSplatPlayer(root) {
     get pedestrians() {
       return movers.filter((m) => m.kind === "pedestrian").map((m) => ({
         id: m.id,
+        model: m.model || "simple",
         u: m.u,
         position: { x: m.root.position.x, y: m.root.position.y, z: m.root.position.z },
       }));
@@ -1953,6 +2230,7 @@ export function mountSplatPlayer(root) {
     get cars() {
       return movers.filter((m) => m.kind === "car").map((m) => ({
         id: m.id,
+        model: m.model || "simple",
         u: m.u,
         position: { x: m.root.position.x, y: m.root.position.y, z: m.root.position.z },
       }));

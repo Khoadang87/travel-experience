@@ -8,3 +8,13 @@ Vendored front-end libraries for the Walk of Fame Globe prototype.
   (same revision as vendor/three.module.js and vendor/three.core.js, REVISION 187).
   Local copy: three/addons/postprocessing/Pass.js
 
+- three.js examples add-ons used to load compressed glTF (MIT, three@0.187.0,
+  same revision as vendor/three.module.js):
+  loaders/GLTFLoader.js, loaders/KTX2Loader.js, utils/SkeletonUtils.js,
+  utils/BufferGeometryUtils.js, utils/WorkerPool.js, math/ColorSpaces.js,
+  libs/ktx-parse.module.js, libs/zstddec.module.js.
+- meshopt_decoder.module.js — MIT, meshoptimizer, Arseny Kapoulkine.
+  Local copy: three/addons/libs/meshopt_decoder.module.js
+- Basis Universal transcoder (basis_transcoder.js / .wasm) — Apache License
+  2.0, Binomial LLC, as shipped with three@0.187.0.
+  Local copies: three/addons/libs/basis/

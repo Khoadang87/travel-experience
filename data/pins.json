@@ -159,18 +159,18 @@
       "lat": 34.1048,
       "sourceName": "Test asset, not the real place \u2014 cfahlgren1 street splat, CC BY 4.0 (not an official Tesla asset)",
       "sourceUrl": "https://huggingface.co/datasets/cfahlgren1/tesla-fsd-street-splat",
-      "blurb": "Test asset, not the real place and not an official Tesla asset. A 3D Gaussian splat of a suburban street intersection (cfahlgren1, from Tesla FSD dashcam footage, CC BY 4.0). A glowing walker, pedestrians, and cars move on the sidewalks and in the lanes. Converted and downsampled for this preview.",
+      "blurb": "Test asset, not the real place and not an official Tesla asset. A 3D Gaussian splat of a suburban street intersection (cfahlgren1, from Tesla FSD dashcam footage, CC BY 4.0). A soft-glow walker marks 'you' among realistic CC0 people and cars on the sidewalks and in the lanes. Converted and downsampled for this preview.",
       "splat": "media/splat/street-intersection.sog",
       "splatView": {
         "position": [
-          -8.75,
-          2.03,
-          -10.75
+          -6.15,
+          2.7,
+          -9.95
         ],
         "lookAt": [
-          -8.75,
-          0.78,
-          -5.75
+          -5.35,
+          0.95,
+          2.75
         ],
         "boundsMin": [
           -16.0,

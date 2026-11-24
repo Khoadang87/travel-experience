@@ -3,9 +3,9 @@
   "closed": true,
   "floorY": 0.05,
   "speed": 1.2,
-  "followDist": 5.0,
-  "followUp": 2.15,
-  "followLookY": 0.9,
+  "followDist": 8.2,
+  "followUp": 2.7,
+  "followLookY": 0.95,
   "boundsMin": [
     -16.0,
     -0.8,
@@ -16,7 +16,7 @@
     8.0,
     24.0
   ],
-  "notes": "Sidewalk loop along the west edge of the reconstructed intersection. Pedestrians stay on the east sidewalk and on crosswalks so they do not enter the follow-camera near zone. Cars stay in lanes 8+ m away from the follow camera, offset from the baked Model Y cluster.",
+  "notes": "West sidewalk loop. Seven CC0 tevy people walk the east sidewalk and the crosswalks; three CC0 tevy cars stay in the lanes. The follow camera sits east of Kane so the street, people, and cars stay in a phone frame. Kane remains the soft-glow \"you\" walker.",
   "points": [
     [
       -8.75,
@@ -106,7 +106,8 @@
           0.147,
           0.25
         ]
-      ]
+      ],
+      "model": "casual-walker"
     },
     {
       "id": "ped-2",
@@ -154,7 +155,8 @@
           0.153,
           1.75
         ]
-      ]
+      ],
+      "model": "dog-walker"
     },
     {
       "id": "ped-3",
@@ -192,7 +194,8 @@
           0.086,
           3.25
         ]
-      ]
+      ],
+      "model": "hiker"
     },
     {
       "id": "ped-4",
@@ -230,7 +233,8 @@
           0.065,
           10.25
         ]
-      ]
+      ],
+      "model": "cyclist"
     },
     {
       "id": "ped-5",
@@ -268,7 +272,8 @@
           0.043,
           16.25
         ]
-      ]
+      ],
+      "model": "road-worker"
     },
     {
       "id": "ped-6",
@@ -306,7 +311,8 @@
           0.08,
           6.5
         ]
-      ]
+      ],
+      "model": "casual-walker"
     },
     {
       "id": "ped-7",
@@ -344,7 +350,8 @@
           -0.263,
           13.0
         ]
-      ]
+      ],
+      "model": "hiker"
     }
   ],
   "cars": [
@@ -393,7 +400,8 @@
           0.143,
           -5.75
         ]
-      ]
+      ],
+      "model": "hatchback"
     },
     {
       "id": "car-2",
@@ -440,7 +448,8 @@
           0.082,
           10.25
         ]
-      ]
+      ],
+      "model": "suv"
     },
     {
       "id": "car-3",
@@ -477,7 +486,11 @@
           0.155,
           -3.75
         ]
-      ]
+      ],
+      "model": "estate-car"
     }
-  ]
+  ],
+  "followWorldX": 2.6,
+  "followLookWorldX": 3.4,
+  "followLookAhead": 4.5
 }

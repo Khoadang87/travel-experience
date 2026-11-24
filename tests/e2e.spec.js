@@ -816,11 +816,17 @@ test("Street intersection splat loads with credit, autoplay walk, pedestrians, a
     cars: window.__tgSplatPlayer.cars.length,
     pedPos: window.__tgSplatPlayer.pedestrians.map((p) => p.position),
     carPos: window.__tgSplatPlayer.cars.map((c) => c.position),
+    pedModels: window.__tgSplatPlayer.pedestrians.map((p) => p.model),
+    carModels: window.__tgSplatPlayer.cars.map((c) => c.model),
   }));
   expect(start.peds).toBeGreaterThanOrEqual(5);
   expect(start.peds).toBeLessThanOrEqual(8);
   expect(start.cars).toBeGreaterThanOrEqual(2);
   expect(start.cars).toBeLessThanOrEqual(3);
+  expect(start.pedModels.every((m) => m && m !== "simple")).toBe(true);
+  expect(new Set(start.pedModels).size).toBeGreaterThanOrEqual(5);
+  expect(start.carModels.every((m) => m && m !== "simple")).toBe(true);
+  expect(new Set(start.carModels).size).toBe(3);
   for (const p of [...start.pedPos, ...start.carPos]) {
     expect(p.y).toBeGreaterThan(-1.2);
     expect(p.y).toBeLessThan(1.2);

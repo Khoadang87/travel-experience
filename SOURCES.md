@@ -150,3 +150,21 @@ removed from the current tree and must not be served.
   file. Walk and idle are a short procedural cycle (limb swing). The
   figure is a simple sign-style stand-in, about 1.7 m tall, not a real
   person at the pin.
+
+## Street crowd 3D models (test asset — street intersection only)
+
+- Source: [tevy](https://tevy.dev) pinned v1 GLB files (CC0 1.0). People:
+  Casual Walker, Dog Walker, Hiker, Cyclist, Road Worker. Cars: Five-Door
+  Hatchback, Mid-Size SUV, Family Estate Car. Each file, byte size, SHA-256,
+  and pinned URL is listed in `media/models/ATTRIBUTION.md`. Official CC0
+  legal text: `media/models/CC0-1.0.txt`.
+- License: Creative Commons Zero 1.0 Universal (public domain). Free for
+  public and commercial use; no attribution required (credited anyway).
+  Downloaded without an account. Not Mixamo, not an official Tesla asset.
+- These replace only the glowing procedural pedestrians and cars in the
+  street intersection preview. The Kyoto-room walker and its crowd stay
+  the procedural soft-glow figures. Kane's "you" walker on the street is
+  still the procedural pictogram.
+- Loading uses vendored three@0.187.0 add-ons (GLTFLoader, KTX2Loader,
+  SkeletonUtils, MeshoptDecoder, Basis transcoder). See `vendor/NOTICE.txt`.
+
