@@ -111,6 +111,18 @@
       "flat": true,
       "demo": true,
       "label": "Example pin"
+    },
+    {
+      "id": "splat-placeholder",
+      "name": "Splat preview (test)",
+      "kind": "splat",
+      "lng": -118.3458,
+      "lat": 34.1023,
+      "sourceName": "Test asset, not the real place \u2014 SharedTestModels (raymondyfei), kyoto_room, CC0 1.0",
+      "sourceUrl": "https://github.com/raymondyfei/SharedTestModels",
+      "blurb": "Test asset, not the real place. A Gaussian splat of a Kyoto room (CC0) opened in a 3D viewer \u2014 not a walk of a Hollywood street and not a capture of this pin's surroundings.",
+      "splat": "media/splat/kyoto-room.sog",
+      "label": "Splat preview (test)"
     }
   ]
 }

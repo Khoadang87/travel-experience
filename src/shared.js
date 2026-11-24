@@ -185,6 +185,19 @@ export const FLAT_BUSINESS = {
   licenseUrl: "https://www.pexels.com/license/",
 };
 
+
+// Placeholder Gaussian splat — a CC0 test room, not a Hollywood location
+// and not a capture of the pin's real surroundings.
+export const PLACEHOLDER_SPLAT = {
+  src: "media/splat/kyoto-room.sog",
+  title: "Splat preview (test)",
+  credit:
+    "Test asset, not the real place. Kyoto room Gaussian splat from SharedTestModels (raymondyfei), CC0 1.0.",
+  commons: "https://github.com/raymondyfei/SharedTestModels",
+  license: "CC0 1.0",
+  licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+};
+
 export function currentPage() {
   const p = location.pathname;
   if (p.endsWith("creator.html")) return "creator";

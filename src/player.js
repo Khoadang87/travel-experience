@@ -650,7 +650,10 @@ export function mountPlayer(root) {
       : flatMode
         ? "Flat video, curved screen — demo"
         : "360 preview";
-    banner.innerHTML = `${escapeHtml(clip.credit)} <a href="${clip.commons}" target="_blank" rel="noopener">Source</a> · <a href="${clip.licenseUrl}" target="_blank" rel="noopener">${escapeHtml(clip.license)}</a>`;
+    const fallback = opts.fallbackNote
+      ? `<span data-fallback-note>${escapeHtml(opts.fallbackNote)}</span> `
+      : "";
+    banner.innerHTML = `${fallback}${escapeHtml(clip.credit)} <a href="${clip.commons}" target="_blank" rel="noopener">Source</a> · <a href="${clip.licenseUrl}" target="_blank" rel="noopener">${escapeHtml(clip.license)}</a>`;
     // Offer line: only the example business pin shows it, so a buyer
     // sees what the pin is selling and where to read more. Reset on
     // every open so other pins never inherit it.
@@ -682,12 +685,13 @@ export function mountPlayer(root) {
     window.__tgPlayer = api;
   }
 
-  function close() {
+  function close(opts) {
     video.pause();
     cancelPendingHi();
     exitFullscreen(true);
     shell.hidden = true;
     document.body.classList.remove("player-open");
+    if (opts && opts.silent) return;
     const cb = onCloseCb;
     onCloseCb = null;
     if (typeof cb === "function") cb();

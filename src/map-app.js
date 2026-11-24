@@ -1,7 +1,8 @@
 import { Map, Marker, setWorkerUrl } from "maplibre-gl";
-import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360, FLAT_BUSINESS } from "./shared.js";
+import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360, FLAT_BUSINESS, PLACEHOLDER_SPLAT } from "./shared.js";
 
 import { mountPlayer } from "./player.js";
+import { mountSplatPlayer } from "./splat-player.js";
 
 setWorkerUrl("vendor/maplibre-gl-worker.mjs");
 
@@ -22,6 +23,7 @@ const PRIMARY_PIN_IDS = [
 ];
 
 const player = mountPlayer(document.querySelector("#player-root"));
+const splatPlayer = mountSplatPlayer(document.querySelector("#splat-root"));
 
 const map = new Map({
   container: "map",
@@ -112,6 +114,11 @@ function hidePinCard() {
   if (card) card.hidden = true;
 }
 
+function closeViewers(opts) {
+  if (window.__tgSplatPlayer) window.__tgSplatPlayer.close(opts);
+  if (window.__tgPlayer) window.__tgPlayer.close(opts);
+}
+
 function openPin(pin) {
   document.getElementById("pin-card").hidden = false;
   document.getElementById("pin-name").textContent = pin.name;
@@ -122,10 +129,37 @@ function openPin(pin) {
     // sales page instead of a coordinates source.
     src.href = "sales.html";
     src.textContent = "Example pin — see what a business pin includes and what it costs";
+  } else if (pin.splat) {
+    src.href = pin.sourceUrl;
+    src.textContent = pin.sourceName;
   } else {
     src.href = pin.sourceUrl;
     src.textContent = "Coordinates: Wikipedia — " + pin.sourceName;
   }
+  if (pin.splat) {
+    if (window.__tgPlayer) window.__tgPlayer.close({ silent: true });
+    splatPlayer.open({
+      title: pin.name,
+      src: pin.splat,
+      credit: PLACEHOLDER_SPLAT,
+      onClose: hidePinCard,
+      onFallback(note) {
+        player.open({
+          title: pin.name,
+          fallbackNote: note,
+          onClose: hidePinCard,
+        });
+      },
+      onView360() {
+        player.open({
+          title: pin.name,
+          onClose: hidePinCard,
+        });
+      },
+    });
+    return;
+  }
+  if (window.__tgSplatPlayer) window.__tgSplatPlayer.close({ silent: true });
   player.open({
     title: pin.name,
     trial: false,
@@ -276,13 +310,13 @@ document.getElementById("btn-wof").addEventListener("click", () => {
 
 document.getElementById("btn-all-pins").addEventListener("click", () => {
   hidePinCard();
-  if (window.__tgPlayer) window.__tgPlayer.close();
+  closeViewers();
   flyToAllPins();
 });
 
 document.getElementById("btn-globe").addEventListener("click", () => {
   hidePinCard();
-  if (window.__tgPlayer) window.__tgPlayer.close();
+  closeViewers();
   map.flyTo({ center: [-40, 20], zoom: 1.5, pitch: 0, bearing: 0, essential: true, duration: 1400 });
 });
 
@@ -294,10 +328,14 @@ boot().catch((err) => {
 document.getElementById("pin-card-close").addEventListener("click", (e) => {
   e.stopPropagation();
   hidePinCard();
-  if (window.__tgPlayer) window.__tgPlayer.close();
+  closeViewers();
 });
 
 window.__tgOpenFirstPin = () => {
   if (pins[0]) openPin(pins[0]);
+};
+window.__tgOpenPin = (id) => {
+  const pin = (pins || []).find((p) => p.id === id);
+  if (pin) openPin(pin);
 };
 window.__tgSample360 = SAMPLE_360;
