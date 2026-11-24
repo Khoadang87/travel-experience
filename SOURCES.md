@@ -112,19 +112,21 @@ removed from the current tree and must not be served.
   Fame, not this pin's real surroundings, and the app labels it
   “Test asset, not the real place.”
 
-## Placeholder avatar (ToyCar)
+## Placeholder avatar (Quaternius mannequin)
 
-- Source: [ToyCar](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/ToyCar)
-  in the Khronos glTF Sample Assets, checked 23 November 2026.
+- Source: [Universal Animation Library (Standard)](https://quaternius.com/packs/universalanimationlibrary.html)
+  by [Quaternius](https://quaternius.com/), also listed at
+  https://quaternius.itch.io/universal-animation-library, checked 23 November 2026.
 - License: CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/).
-  Credits: Guido Odendahl (initial car model) and Eric Chadwick (extensions and
-  scene composition). Upstream LICENSE.md (model CC0-1.0; metadata CC-BY-4.0)
-  is copied to media/avatar/LICENSE.md.
-- Local file: media/avatar/ToyCar.glb — the official glTF-Binary (~5.42 MB)
-  was compressed with glTF-Transform 4.5.1 (cameras pruned, 1024px WebP
-  textures, KHR_mesh_quantization; no Draco/Meshopt) to 2,973,624 bytes so
-  it stays within a free GitHub Pages budget. It is a toy car avatar, not a
-  real vehicle at the pin.
+  Models by @Quaternius. Upstream License.txt is copied to media/avatar/LICENSE.txt.
+- Local file: media/avatar/ual-walker.glb — a stylized (not photoreal) mannequin
+  taken from the official in-place `UAL1_Standard.glb` (7,618,436 bytes, sha256
+  69591853d817488edaa8fd9bf8fc1d821eaeaf789f8627b3cd23b41c4ed67997). Other
+  animation clips were dropped, leaving Idle_Loop (3 s) and Walk_Loop (1 s,
+  no root motion). The result was compressed with glTF-Transform 4.5.1
+  (resample, dedup, prune, weld, simplify; no Draco/Meshopt) to 523,532
+  bytes (sha256 2360b31cd03ed5f2aa87917b0f07e1492fc9ac10bbd119b9b1cd23b013cb01ef).
+  Used as a walking avatar in the splat room, not as a real person at the pin.
 - Loaded with three.js r187 `GLTFLoader` (MIT), vendored with its add-on
   dependencies at vendor/three/addons/loaders/GLTFLoader.js,
   vendor/three/addons/utils/BufferGeometryUtils.js, and

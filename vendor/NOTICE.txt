@@ -10,4 +10,4 @@ Vendored front-end libraries for the Walk of Fame Globe prototype.
 
 - three.js examples add-ons `loaders/GLTFLoader.js`, `utils/BufferGeometryUtils.js`,
   and `utils/SkeletonUtils.js` — MIT, from three@0.187.0 (REVISION 187).
-  Used to load the ToyCar avatar in the splat viewer.
+  Used to load the walking avatar in the splat viewer.

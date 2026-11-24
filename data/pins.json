@@ -129,9 +129,10 @@
         "boundsMax": [2.96, 2.2, 0.95]
       },
       "splatAvatar": {
-        "src": "media/avatar/ToyCar.glb",
-        "scale": 15,
-        "length": 0.58
+        "src": "media/avatar/ual-walker.glb",
+        "height": 1.7,
+        "walkClip": "Walk_Loop",
+        "idleClip": "Idle_Loop"
       },
       "splatPath": "data/splat-path.json",
       "label": "Splat preview (test)"

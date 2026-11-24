@@ -645,7 +645,7 @@ test("forced WebGL2 failure falls back to the 360 player with a banner note", as
 });
 
 
-test("splat avatar car loads, play/pause/seek follow the path, and stays in bounds", async ({ page }) => {
+test("splat avatar loads, walk plays on Play, idle when paused, seek, and stays in bounds", async ({ page }) => {
   test.setTimeout(180000);
   await page.goto("/index.html");
   await waitForMap(page);
@@ -653,16 +653,18 @@ test("splat avatar car loads, play/pause/seek follow the path, and stays in boun
   await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.avatarReady === true, null, { timeout: 60000 });
   await expect(page.locator("#splat-root [data-play]")).toBeVisible();
   await expect(page.locator("#splat-root [data-seek]")).toBeVisible();
-  await expect(page.locator("#splat-root .look-hint")).toContainText("Play drives the car");
+  await expect(page.locator("#splat-root .look-hint")).toContainText("Play walks the character");
 
   const start = await page.evaluate(() => ({
     u: window.__tgSplatPlayer.pathU,
     pos: window.__tgSplatPlayer.carPosition,
     playing: window.__tgSplatPlayer.playing,
+    anim: window.__tgSplatPlayer.anim,
     bounds: window.__tgSplatPlayer.bounds,
   }));
   expect(start.playing).toBe(false);
   expect(start.u).toBeCloseTo(0, 3);
+  expect(start.anim).toBe("idle");
 
   // Start a little into the path so Play has room before the end, then use the
   // Play/Pause controls. Also call the test hook so a finished path can't
@@ -670,14 +672,20 @@ test("splat avatar car loads, play/pause/seek follow the path, and stays in boun
   await page.evaluate(() => window.__tgSplatPlayer.seek(0.08));
   await page.locator("#splat-root").getByRole("button", { name: "Play path" }).click();
   await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.playing === true, null, { timeout: 5000 });
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.anim === "walk", null, { timeout: 5000 });
+  const walkT0 = await page.evaluate(() => window.__tgSplatPlayer.animTime);
   await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.pathU > 0.11, null, { timeout: 15000 });
   const midPlay = await page.evaluate(() => ({
     u: window.__tgSplatPlayer.pathU,
     pos: window.__tgSplatPlayer.carPosition,
     playing: window.__tgSplatPlayer.playing,
+    anim: window.__tgSplatPlayer.anim,
+    animTime: window.__tgSplatPlayer.animTime,
   }));
   expect(midPlay.playing).toBe(true);
+  expect(midPlay.anim).toBe("walk");
   expect(midPlay.u).toBeGreaterThan(0.11);
+  expect(midPlay.animTime).toBeGreaterThan(walkT0);
   expect(Math.hypot(midPlay.pos.x - start.pos.x, midPlay.pos.z - start.pos.z)).toBeGreaterThan(0.05);
 
   await page.evaluate(() => window.__tgSplatPlayer.pause());
@@ -686,18 +694,28 @@ test("splat avatar car loads, play/pause/seek follow the path, and stays in boun
   const pausedAt = await page.evaluate(() => ({
     u: window.__tgSplatPlayer.pathU,
     playing: window.__tgSplatPlayer.playing,
+    anim: window.__tgSplatPlayer.anim,
   }));
   expect(pausedAt.playing).toBe(false);
+  expect(pausedAt.anim).toBe("idle");
   await new Promise((r) => setTimeout(r, 1200));
-  const still = await page.evaluate(() => window.__tgSplatPlayer.pathU);
-  expect(Math.abs(still - pausedAt.u)).toBeLessThan(0.002);
+  const still = await page.evaluate(() => ({
+    u: window.__tgSplatPlayer.pathU,
+    anim: window.__tgSplatPlayer.anim,
+  }));
+  expect(Math.abs(still.u - pausedAt.u)).toBeLessThan(0.002);
+  expect(still.anim).toBe("idle");
 
   await page.evaluate(() => window.__tgSplatPlayer.seek(0.5));
   const sought = await page.evaluate(() => ({
     u: window.__tgSplatPlayer.pathU,
     pos: window.__tgSplatPlayer.carPosition,
+    anim: window.__tgSplatPlayer.anim,
+    playing: window.__tgSplatPlayer.playing,
   }));
   expect(sought.u).toBeCloseTo(0.5, 2);
+  expect(sought.playing).toBe(false);
+  expect(sought.anim).toBe("idle");
   expect(Math.hypot(sought.pos.x - start.pos.x, sought.pos.z - start.pos.z)).toBeGreaterThan(0.2);
 
   const boundsCheck = await page.evaluate(() => {

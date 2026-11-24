@@ -29,7 +29,7 @@ export function mountSplatPlayer(root) {
         <p class="sample-banner" data-sample-banner></p>
         <div class="stage" data-stage>
           <canvas data-canvas></canvas>
-          <div class="look-hint">Look stick or drag: look around · Move stick: scrub the path · Play drives the car</div>
+          <div class="look-hint">Look stick or drag: look around · Move stick: scrub the path · Play walks the character</div>
         </div>
         <div class="player-controls">
           <div class="sticks">
@@ -40,7 +40,7 @@ export function mountSplatPlayer(root) {
               <span>Look</span>
             </div>
             <div class="stick-wrap">
-              <div class="stick" data-stick="move" role="application" aria-label="Move joystick: scrub the car along its path">
+              <div class="stick" data-stick="move" role="application" aria-label="Move joystick: scrub the character along the path">
                 <span class="stick-dir dir-up" aria-hidden="true">↑</span>
                 <span class="stick-dir dir-down" aria-hidden="true">↓</span>
                 <span class="stick-dir dir-left" aria-hidden="true">←</span>
@@ -92,8 +92,10 @@ export function mountSplatPlayer(root) {
   const boundsMin = new THREE.Vector3(-10, 0.5, -10);
   const boundsMax = new THREE.Vector3(10, 2.2, 10);
   const WALK_SPEED = 1.8;
-  const FOLLOW_BACK = 1.55;
-  const FOLLOW_UP = 0.62;
+  const FOLLOW_BACK = 2.05;
+  const FOLLOW_UP = 1.55;
+  const FOLLOW_LOOK_Y = 1.45;
+  const FOLLOW_SHOULDER = 0.32;
   let lookAxis = { x: 0, y: 0 };
   let moveAxis = { x: 0, y: 0 };
   let dragging = false;
@@ -110,11 +112,17 @@ export function mountSplatPlayer(root) {
   let pathCurve = null;
   let pathData = null;
   let pathLength = 0;
-  let pathSpeed = 0.7;
+  let pathSpeed = 1.2;
   let pathU = 0;
   let playing = false;
   let playAnchorMs = 0;
   let playAnchorU = 0;
+  let mixer = null;
+  let walkAction = null;
+  let idleAction = null;
+  let avatarAnim = "idle";
+  let walkNaturalSpeed = 1.2;
+  let lastMixerTs = 0;
   let seeking = false;
   const pathBoundsMin = new THREE.Vector3(-10, -0.05, -10);
   const pathBoundsMax = new THREE.Vector3(10, 0.8, 10);
@@ -442,10 +450,15 @@ export function mountSplatPlayer(root) {
         const scrub = (-moveAxis.y * 0.85 + moveAxis.x * 0.25) * (pathSpeed / Math.max(pathLength, 0.001)) * dt;
         setPathU(pathU + scrub, { fromUser: true });
       } else if (playing) {
-        const elapsed = (performance.now() - playAnchorMs) / 1000;
+        // Cap the wall-clock step so a long SwiftShader/rAF stall cannot
+        // jump the walker from mid-path to the end in one tick.
+        const now = performance.now();
+        const elapsed = Math.min(0.4, Math.max(0, (now - playAnchorMs) / 1000));
         setPathU(playAnchorU + (pathSpeed / Math.max(pathLength, 0.001)) * elapsed);
+        playAnchorMs = now;
+        playAnchorU = pathU;
       }
-      poseCarAndCamera();
+      poseAvatarAndCamera();
     } else {
       // No path: keep the interior walk camera.
       if (moveAxis.x || moveAxis.y) {
@@ -459,6 +472,11 @@ export function mountSplatPlayer(root) {
         pos.z += forwardZ * walk + rightZ * strafe;
       }
       applyCamera();
+    }
+    if (mixer) {
+      const mixerDt = lastMixerTs ? Math.min(0.25, (ts - lastMixerTs) / 1000) : 0.016;
+      lastMixerTs = ts;
+      mixer.update(mixerDt);
     }
     if (renderer && scene && camera) renderer.render(scene, camera);
     if (ready) {
@@ -502,6 +520,7 @@ export function mountSplatPlayer(root) {
       if (playing && (pathU <= 0 || pathU >= 1) && !(opts && opts.fromUser)) {
         playing = false;
         pathU = pathU >= 1 ? 1 : 0;
+        setAvatarAnim("idle");
       }
     }
     if (opts && opts.fromUser) {
@@ -525,7 +544,7 @@ export function mountSplatPlayer(root) {
     return Math.max(0, t);
   }
 
-  function poseCarAndCamera() {
+  function poseAvatarAndCamera() {
     if (!pathCurve || !camera) return;
     pathCurve.getPointAt(pathU, carPosition);
     pathCurve.getTangentAt(pathU, _tan);
@@ -537,15 +556,18 @@ export function mountSplatPlayer(root) {
       avatarRoot.rotation.y = Math.atan2(_tan.x, _tan.z) + avatarYawOffset;
       avatarRoot.updateMatrixWorld(true);
     }
-    // Tesla-style: behind and slightly above the car. Look stick/drag orbits that follow pose.
-    // Near a wall (start/end of the aisle) there isn't room behind, so swing to a three-quarter view.
+    // Over-the-shoulder: behind the walker at about head height, slightly off to
+    // the right. Look stick/drag orbits that follow pose. Near a wall (start/end
+    // of the aisle) there isn't room behind, so swing to a three-quarter view.
     _back.set(-_tan.x, 0, -_tan.z).normalize();
     _back.applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw);
+    _side.set(_tan.z, 0, -_tan.x).normalize();
+    if (yaw) _side.applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw);
     const desiredBack = FOLLOW_BACK * Math.cos(clamp(pitch, -0.7, 0.7));
     const available = travelInBounds(carPosition, _back, desiredBack + 0.25);
     const pitchLift = Math.sin(clamp(pitch, -0.7, 0.7)) * 0.55;
     if (available < desiredBack * 0.55) {
-      // Stay inside the room: ahead and to the side, looking back at the car
+      // Stay inside the room: ahead and to the side, looking back at the walker
       // (going "behind" here would push the camera through the window).
       _side.set(_tan.z, 0, -_tan.x).normalize();
       const left = travelInBounds(carPosition, _side, 1.6);
@@ -560,19 +582,30 @@ export function mountSplatPlayer(root) {
       pos.y = carPosition.y + FOLLOW_UP + 0.22 + pitchLift;
     } else {
       pos.copy(carPosition).addScaledVector(_back, Math.min(desiredBack, available - 0.12));
+      const shoulderRoom = travelInBounds(carPosition, _side, FOLLOW_SHOULDER + 0.2);
+      pos.addScaledVector(_side, Math.min(FOLLOW_SHOULDER, Math.max(0, shoulderRoom - 0.08)));
       pos.y = carPosition.y + FOLLOW_UP + pitchLift;
     }
     pos.x = clamp(pos.x, boundsMin.x, boundsMax.x);
-    pos.y = clamp(pos.y, 0.35, Math.max(boundsMax.y, 2.4));
+    pos.y = clamp(pos.y, 0.9, Math.max(boundsMax.y, 2.4));
     pos.z = clamp(pos.z, boundsMin.z, boundsMax.z);
     camera.position.copy(pos);
-    _look.copy(carPosition).addScaledVector(_tan, 0.2);
-    _look.y = carPosition.y + 0.18;
+    _look.copy(carPosition).addScaledVector(_tan, 0.35);
+    _look.y = carPosition.y + FOLLOW_LOOK_Y;
     camera.lookAt(_look);
     camera.updateMatrixWorld(true);
   }
 
   function disposeAvatar() {
+    if (mixer) {
+      mixer.stopAllAction();
+      if (avatarRoot) mixer.uncacheRoot(avatarRoot);
+      mixer = null;
+    }
+    walkAction = null;
+    idleAction = null;
+    avatarAnim = "idle";
+    lastMixerTs = 0;
     if (!avatarRoot) return;
     scene.remove(avatarRoot);
     avatarRoot.traverse((obj) => {
@@ -607,13 +640,114 @@ export function mountSplatPlayer(root) {
     pathData = spec;
     pathCurve = new THREE.CatmullRomCurve3(pts, Boolean(spec.closed), "centripetal");
     pathLength = pathCurve.getLength();
-    pathSpeed = Number(spec.speed) > 0 ? Number(spec.speed) : 0.7;
+    pathSpeed = Number(spec.speed) > 0 ? Number(spec.speed) : 1.2;
     if (Array.isArray(spec.boundsMin) && Array.isArray(spec.boundsMax)) {
       pathBoundsMin.fromArray(spec.boundsMin);
       pathBoundsMax.fromArray(spec.boundsMax);
     }
     setPathU(0);
     return true;
+  }
+
+  function findClip(clips, names) {
+    if (!clips || !clips.length) return null;
+    for (const n of names) {
+      if (!n) continue;
+      const hit = THREE.AnimationClip.findByName(clips, n);
+      if (hit) return hit;
+    }
+    for (const n of names) {
+      if (!n) continue;
+      const key = String(n).toLowerCase();
+      const hit = clips.find((c) => (c.name || "").toLowerCase().includes(key));
+      if (hit) return hit;
+    }
+    return null;
+  }
+
+  function findBone(root, names) {
+    if (!root) return null;
+    for (const n of names) {
+      const obj = root.getObjectByName(n);
+      if (obj) return obj;
+    }
+    let found = null;
+    const keys = names.map((n) => String(n).toLowerCase());
+    root.traverse((obj) => {
+      if (found || !obj.name) return;
+      const n = obj.name.toLowerCase();
+      if (keys.some((k) => n === k || n.endsWith(k))) found = obj;
+    });
+    return found;
+  }
+
+  function measureWalkNaturalSpeed(model, clip) {
+    const foot = findBone(model, [
+      "foot_l",
+      "Foot_L",
+      "foot.l",
+      "ball_l",
+      "LeftFoot",
+      "mixamorigLeftFoot",
+    ]);
+    if (!foot || !clip || clip.duration < 0.05) return 0;
+    const probe = new THREE.AnimationMixer(model);
+    const action = probe.clipAction(clip);
+    action.play();
+    let xMin = Infinity;
+    let xMax = -Infinity;
+    let zMin = Infinity;
+    let zMax = -Infinity;
+    const pos = new THREE.Vector3();
+    const dt = 1 / 40;
+    for (let t = 0; t <= clip.duration + 1e-6; t += dt) {
+      probe.setTime(t);
+      model.updateMatrixWorld(true);
+      foot.getWorldPosition(pos);
+      xMin = Math.min(xMin, pos.x);
+      xMax = Math.max(xMax, pos.x);
+      zMin = Math.min(zMin, pos.z);
+      zMax = Math.max(zMax, pos.z);
+    }
+    probe.stopAllAction();
+    probe.uncacheRoot(model);
+    model.traverse((obj) => {
+      if (obj.isSkinnedMesh && obj.skeleton) obj.skeleton.pose();
+    });
+    const step = Math.max(xMax - xMin, zMax - zMin);
+    // One gait cycle usually has two steps (left and right).
+    return step > 0.05 ? (2 * step) / clip.duration : 0;
+  }
+
+  function setAvatarAnim(name, fade) {
+    const next = name === "walk" ? walkAction : idleAction;
+    const prev = name === "walk" ? idleAction : walkAction;
+    if (!next) {
+      if (name === "idle" && walkAction) {
+        walkAction.paused = true;
+        avatarAnim = "idle";
+      }
+      return;
+    }
+    if (name === "walk") {
+      next.setEffectiveTimeScale(pathSpeed / Math.max(walkNaturalSpeed, 0.05));
+    } else {
+      next.setEffectiveTimeScale(1);
+    }
+    next.paused = false;
+    next.enabled = true;
+    if (avatarAnim === name && next.isRunning()) return;
+    avatarAnim = name;
+    next.setEffectiveWeight(1);
+    const dur = Number.isFinite(fade) ? fade : 0.18;
+    if (prev && prev !== next && (prev.isRunning() || prev.weight > 0)) {
+      next.reset();
+      next.play();
+      next.crossFadeFrom(prev, dur, false);
+    } else {
+      next.reset();
+      next.play();
+    }
   }
 
   async function loadAvatar(spec, floorY) {
@@ -623,27 +757,43 @@ export function mountSplatPlayer(root) {
     const gltf = await loader.loadAsync(spec.src);
     const model = gltf.scene || gltf.scenes[0];
     if (!model) return false;
-    // Official ToyCar is staged on a red display cloth ("Fabric"). Drop it so
-    // the car sits on the room floor instead of a floating drape.
-    const drop = [];
-    model.traverse((obj) => {
-      if (obj !== model && /fabric/i.test(obj.name || "")) drop.push(obj);
-    });
-    for (const obj of drop) {
-      if (obj.parent) obj.parent.remove(obj);
+    model.updateMatrixWorld(true);
+    const restBox = new THREE.Box3().setFromObject(model);
+    const restH = restBox.max.y - restBox.min.y;
+    if (Number(spec.scale) > 0) {
+      model.scale.multiplyScalar(Number(spec.scale));
+    } else if (restH > 0.01) {
+      const targetH = Number(spec.height) > 0 ? Number(spec.height) : 1.7;
+      model.scale.multiplyScalar(targetH / restH);
     }
-    const scale = Number(spec.scale) > 0 ? Number(spec.scale) : 15;
-    model.scale.multiplyScalar(scale);
     model.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(model);
     const yLift = (Number.isFinite(floorY) ? floorY : 0) - box.min.y;
     model.position.y += yLift;
-    // If the longest horizontal side is X, the baked facing may need a yaw flip later.
     avatarYawOffset = Number.isFinite(spec.yawOffset) ? spec.yawOffset : 0;
+
+    const clips = gltf.animations || [];
+    const walkClip = findClip(clips, [spec.walkClip, "Walk_Loop", "Walk", "walk"]);
+    const idleClip = findClip(clips, [spec.idleClip, "Idle_Loop", "Idle", "idle"]);
+    const measured = measureWalkNaturalSpeed(model, walkClip);
+    if (measured > 0.2) walkNaturalSpeed = measured;
+    mixer = new THREE.AnimationMixer(model);
+    if (walkClip) {
+      walkAction = mixer.clipAction(walkClip);
+      walkAction.setLoop(THREE.LoopRepeat, Infinity);
+      walkAction.enabled = true;
+    }
+    if (idleClip) {
+      idleAction = mixer.clipAction(idleClip);
+      idleAction.setLoop(THREE.LoopRepeat, Infinity);
+      idleAction.enabled = true;
+    }
+
     // Soften the mesh/splat silhouette: antialias is off (Spark requires it),
-    // so a 1px ring around the car would otherwise show the clear color as a
-    // dark outline. A slightly larger unlit underlay fills that ring with a
-    // body color, and a faint contact shadow grounds the wheels.
+    // so a 1px ring around the walker would otherwise show the clear color as a
+    // dark outline. Polygon offset on the skinned mesh plus a contact shadow
+    // grounds the feet. A cloned underlay is skipped: it would desync from the
+    // skeleton and stay in T-pose.
     model.traverse((obj) => {
       if (!obj.isMesh) return;
       const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
@@ -660,20 +810,6 @@ export function mountSplatPlayer(root) {
         }
       }
     });
-    const underlay = model.clone(true);
-    underlay.name = "avatar-underlay";
-    underlay.scale.multiplyScalar(1.008);
-    underlay.traverse((obj) => {
-      if (!obj.isMesh) return;
-      const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-      const cloned = mats.map((m) => {
-        const copy = m.clone();
-        copy.polygonOffset = false;
-        return copy;
-      });
-      obj.material = Array.isArray(obj.material) ? cloned : cloned[0];
-      obj.renderOrder = -1;
-    });
     const shadowCanvas = document.createElement("canvas");
     shadowCanvas.width = 128;
     shadowCanvas.height = 128;
@@ -685,9 +821,8 @@ export function mountSplatPlayer(root) {
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, 128, 128);
     const shadowTex = new THREE.CanvasTexture(shadowCanvas);
-    const shadowLen = Number(spec.length) > 0 ? Number(spec.length) : 0.58;
     const shadow = new THREE.Mesh(
-      new THREE.PlaneGeometry(shadowLen * 1.05, shadowLen * 0.62),
+      new THREE.PlaneGeometry(0.5, 0.36),
       new THREE.MeshBasicMaterial({
         map: shadowTex,
         transparent: true,
@@ -706,10 +841,10 @@ export function mountSplatPlayer(root) {
 
     avatarRoot = new THREE.Group();
     avatarRoot.name = "splat-avatar";
-    avatarRoot.add(underlay);
     avatarRoot.add(model);
     avatarRoot.add(shadow);
     scene.add(avatarRoot);
+    setAvatarAnim("idle", 0);
     avatarReady = true;
     return true;
   }
@@ -720,6 +855,7 @@ export function mountSplatPlayer(root) {
     playing = true;
     playAnchorU = pathU;
     playAnchorMs = performance.now();
+    setAvatarAnim("walk");
     syncTransport();
   }
 
@@ -727,6 +863,7 @@ export function mountSplatPlayer(root) {
     playing = false;
     playAnchorU = pathU;
     playAnchorMs = performance.now();
+    setAvatarAnim("idle");
     syncTransport();
   }
 
@@ -828,18 +965,18 @@ export function mountSplatPlayer(root) {
         if (gen !== openGen) return;
       } catch (avatarErr) {
         console.error(avatarErr);
-        // Keep the splat view; the car is optional.
+        // Keep the splat view; the walker is optional.
         avatarReady = false;
       }
       if (pathCurve) {
         yaw = 0;
         pitch = 0.12;
         setPathU(0);
-        poseCarAndCamera();
+        poseAvatarAndCamera();
       }
       // A few warm-up frames so the first visible image isn't empty.
       for (let i = 0; i < 6; i++) {
-        if (pathCurve) poseCarAndCamera();
+        if (pathCurve) poseAvatarAndCamera();
         else applyCamera();
         renderer.render(scene, camera);
         await new Promise((r) => requestAnimationFrame(r));
@@ -878,7 +1015,7 @@ export function mountSplatPlayer(root) {
   });
   seek.addEventListener("input", () => {
     setPathU(Number(seek.value) / 1000, { fromUser: true });
-    if (pathCurve) poseCarAndCamera();
+    if (pathCurve) poseAvatarAndCamera();
   });
   const endSeek = () => {
     seeking = false;
@@ -907,7 +1044,7 @@ export function mountSplatPlayer(root) {
     pause: pausePath,
     seek(u) {
       setPathU(Number(u), { fromUser: true });
-      if (pathCurve) poseCarAndCamera();
+      if (pathCurve) poseAvatarAndCamera();
     },
     get ready() {
       return ready;
@@ -926,6 +1063,19 @@ export function mountSplatPlayer(root) {
     },
     get carPosition() {
       return { x: carPosition.x, y: carPosition.y, z: carPosition.z };
+    },
+    get avatarPosition() {
+      return { x: carPosition.x, y: carPosition.y, z: carPosition.z };
+    },
+    get anim() {
+      return avatarAnim;
+    },
+    get animTime() {
+      const action = avatarAnim === "walk" ? walkAction : idleAction;
+      return action ? action.time : 0;
+    },
+    get walkNaturalSpeed() {
+      return walkNaturalSpeed;
     },
     get bounds() {
       return {

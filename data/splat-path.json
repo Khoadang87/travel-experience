@@ -1,8 +1,8 @@
 {
-  "id": "kyoto-room-toycar",
+  "id": "kyoto-room-walker",
   "closed": false,
   "floorY": 0.0,
-  "speed": 0.7,
+  "speed": 1.2,
   "boundsMin": [
     -2.66,
     -0.05,
@@ -90,5 +90,5 @@
       -3.578
     ]
   ],
-  "notes": "Out-and-back aisle path at floor level, planned from SOG mean density with furniture (y 0.22\u20131.15) dilated 0.24 m so a ~0.6 m ToyCar stays off the bed and walls. Starts inward of the window wall so the follow camera has room behind the car on the carpet."
+  "notes": "Out-and-back aisle path at floor level, planned from SOG mean density with furniture (y 0.22\u20131.15) dilated 0.24 m so a ~1.7 m walking character stays off the bed and walls. Speed is a typical walk (~1.2 m/s). Starts inward of the window wall so the over-the-shoulder follow camera has room behind the character on the carpet."
 }

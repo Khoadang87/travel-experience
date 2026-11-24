@@ -91,20 +91,20 @@ Licence text: splat/LICENSE.txt (upstream CC0 1.0)
   capture of Hollywood Walk of Fame or of the map pin's real surroundings.
   The app labels it: “Test asset, not the real place.”
 
-Placeholder avatar (ToyCar)
-==========================
+Placeholder avatar (Quaternius mannequin)
+=======================================
 
-File: avatar/ToyCar.glb
-Licence text: avatar/LICENSE.md (upstream)
+File: avatar/ual-walker.glb
+Licence text: avatar/LICENSE.txt (upstream)
 
-  “ToyCar” from the Khronos glTF Sample Assets
-  Source: https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/ToyCar
-  Authors: Guido Odendahl (initial car model); Eric Chadwick (extensions and
-  scene composition)
+  Universal Animation Library (Standard) by Quaternius
+  Source: https://quaternius.com/packs/universalanimationlibrary.html
+  Also: https://quaternius.itch.io/universal-animation-library
+  Models by @Quaternius
   License: CC0 1.0 Universal
   License URL: https://creativecommons.org/publicdomain/zero/1.0/
 
-  Official glTF-Binary was 5,422,412 bytes. The file in this tree was
-  recompressed with glTF-Transform (WebP textures, quantization, unused
-  sample cameras removed) to 2,973,624 bytes. Same CC0 model. Used as a
-  stylized avatar in the splat room, not as a real car at the map pin.
+  Official in-place UAL1_Standard.glb was 7,618,436 bytes. This tree
+  keeps only Idle_Loop and Walk_Loop, compressed with glTF-Transform
+  4.5.1 to 523,532 bytes. Same CC0 model. Used as a stylized walking
+  avatar in the splat room, not as a real person at the map pin.

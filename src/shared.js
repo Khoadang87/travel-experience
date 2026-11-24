@@ -209,11 +209,11 @@ export const PLACEHOLDER_SPLAT = {
   },
   // Per-pin avatar and path. A later real capture should set its own.
   avatar: {
-    src: "media/avatar/ToyCar.glb",
-    // Official ToyCar is ~3.8 cm long after its baked 0.0001 node scale.
-    // 15× makes a ~0.58 m toy/RC car, visible in the room but clear of the bed.
-    scale: 15,
-    length: 0.58,
+    src: "media/avatar/ual-walker.glb",
+    // Rest-pose mannequin is ~1.83 m tall; this target height is a typical adult.
+    height: 1.7,
+    walkClip: "Walk_Loop",
+    idleClip: "Idle_Loop",
   },
   path: "data/splat-path.json",
 };
