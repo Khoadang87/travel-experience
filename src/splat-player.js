@@ -54,7 +54,9 @@ export function mountSplatPlayer(root) {
             <button type="button" class="text-btn" data-play>Play</button>
             <input type="range" min="0" max="1000" value="0" data-seek aria-label="Path position">
             <span class="time" data-time>0:00 / 0:00</span>
-            <button type="button" class="text-btn" data-view-360>View 360 instead</button>
+          </div>
+          <div class="transport-actions">
+            <button type="button" class="text-btn view-360-btn" data-view-360>View 360 instead</button>
           </div>
         </div>
       </div>
@@ -271,7 +273,7 @@ export function mountSplatPlayer(root) {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO));
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x15141c);
+    scene.background = new THREE.Color(0x3a332c);
     camera = new THREE.PerspectiveCamera(55, 1, 0.05, 5000);
     spark = new SparkRenderer({ renderer });
     scene.add(spark);
@@ -579,6 +581,7 @@ export function mountSplatPlayer(root) {
       if (mat) {
         const list = Array.isArray(mat) ? mat : [mat];
         for (const m of list) {
+          if (m && m.map && typeof m.map.dispose === "function") m.map.dispose();
           if (m && typeof m.dispose === "function") m.dispose();
         }
       }
@@ -637,9 +640,75 @@ export function mountSplatPlayer(root) {
     model.position.y += yLift;
     // If the longest horizontal side is X, the baked facing may need a yaw flip later.
     avatarYawOffset = Number.isFinite(spec.yawOffset) ? spec.yawOffset : 0;
+    // Soften the mesh/splat silhouette: antialias is off (Spark requires it),
+    // so a 1px ring around the car would otherwise show the clear color as a
+    // dark outline. A slightly larger unlit underlay fills that ring with a
+    // body color, and a faint contact shadow grounds the wheels.
+    model.traverse((obj) => {
+      if (!obj.isMesh) return;
+      const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+      for (const mat of mats) {
+        if (!mat) continue;
+        mat.polygonOffset = true;
+        mat.polygonOffsetFactor = -1;
+        mat.polygonOffsetUnits = -1;
+        if (mat.transmission && mat.transmission > 0) {
+          mat.transmission = 0;
+          mat.transparent = true;
+          if (mat.opacity >= 1) mat.opacity = 0.4;
+          mat.depthWrite = false;
+        }
+      }
+    });
+    const underlay = model.clone(true);
+    underlay.name = "avatar-underlay";
+    underlay.scale.multiplyScalar(1.008);
+    underlay.traverse((obj) => {
+      if (!obj.isMesh) return;
+      const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+      const cloned = mats.map((m) => {
+        const copy = m.clone();
+        copy.polygonOffset = false;
+        return copy;
+      });
+      obj.material = Array.isArray(obj.material) ? cloned : cloned[0];
+      obj.renderOrder = -1;
+    });
+    const shadowCanvas = document.createElement("canvas");
+    shadowCanvas.width = 128;
+    shadowCanvas.height = 128;
+    const ctx = shadowCanvas.getContext("2d");
+    const grd = ctx.createRadialGradient(64, 64, 6, 64, 64, 62);
+    grd.addColorStop(0, "rgba(0,0,0,0.38)");
+    grd.addColorStop(0.5, "rgba(0,0,0,0.12)");
+    grd.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, 128, 128);
+    const shadowTex = new THREE.CanvasTexture(shadowCanvas);
+    const shadowLen = Number(spec.length) > 0 ? Number(spec.length) : 0.58;
+    const shadow = new THREE.Mesh(
+      new THREE.PlaneGeometry(shadowLen * 1.05, shadowLen * 0.62),
+      new THREE.MeshBasicMaterial({
+        map: shadowTex,
+        transparent: true,
+        opacity: 0.9,
+        depthWrite: false,
+        depthTest: true,
+        polygonOffset: true,
+        polygonOffsetFactor: 1,
+        polygonOffsetUnits: 1,
+      })
+    );
+    shadow.name = "contact-shadow";
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.position.y = 0.006;
+    shadow.renderOrder = -2;
+
     avatarRoot = new THREE.Group();
     avatarRoot.name = "splat-avatar";
+    avatarRoot.add(underlay);
     avatarRoot.add(model);
+    avatarRoot.add(shadow);
     scene.add(avatarRoot);
     avatarReady = true;
     return true;

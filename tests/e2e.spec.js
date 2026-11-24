@@ -743,6 +743,30 @@ test("splat stage fills the leftover phone viewport under the controls", async (
   expect(layout.stageHeight).toBeGreaterThan(450);
   expect(layout.gapBelowControls).toBeLessThan(24);
   expect(layout.controlsTop).toBeGreaterThan(layout.stageTop + 200);
+
+  const btn = await page.evaluate(() => {
+    const el = document.querySelector("#splat-root [data-view-360]");
+    const panel = document.querySelector("#splat-root .player-panel");
+    const r = el.getBoundingClientRect();
+    const p = panel.getBoundingClientRect();
+    const styles = getComputedStyle(el);
+    return {
+      text: (el.textContent || "").replace(/\s+/g, " ").trim(),
+      width: r.width,
+      height: r.height,
+      left: r.left,
+      right: r.right,
+      panelRight: p.right,
+      whiteSpace: styles.whiteSpace,
+    };
+  });
+  expect(btn.text).toBe("View 360 instead");
+  expect(btn.whiteSpace).toBe("nowrap");
+  expect(btn.width).toBeGreaterThan(160);
+  expect(btn.height).toBeLessThan(44);
+  expect(btn.height).toBeGreaterThan(24);
+  expect(btn.left).toBeGreaterThanOrEqual(0);
+  expect(btn.right).toBeLessThanOrEqual(btn.panelRight + 1);
 });
 
 // Pre-existing failures, left unfixed: these locators expect href="/sales.html"
