@@ -645,7 +645,7 @@ test("forced WebGL2 failure falls back to the 360 player with a banner note", as
 });
 
 
-test("splat avatar loads, walk plays on Play, idle when paused, seek, and stays in bounds", async ({ page }) => {
+test("splat avatar loads, walk starts on open, idle when paused, seek, and stays in bounds", async ({ page }) => {
   test.setTimeout(180000);
   await page.goto("/index.html");
   await waitForMap(page);
@@ -653,28 +653,28 @@ test("splat avatar loads, walk plays on Play, idle when paused, seek, and stays 
   await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.avatarReady === true, null, { timeout: 60000 });
   await expect(page.locator("#splat-root [data-play]")).toBeVisible();
   await expect(page.locator("#splat-root [data-seek]")).toBeVisible();
-  await expect(page.locator("#splat-root .look-hint")).toContainText("Play walks the character");
+  await expect(page.locator("#splat-root .look-hint")).toContainText("starts walking when the preview opens");
 
+  // The preview should start walking on its own — no Play click required.
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.playing === true && window.__tgSplatPlayer.anim === "walk", null, { timeout: 5000 });
   const start = await page.evaluate(() => ({
     u: window.__tgSplatPlayer.pathU,
     pos: window.__tgSplatPlayer.carPosition,
     playing: window.__tgSplatPlayer.playing,
     anim: window.__tgSplatPlayer.anim,
+    animTime: window.__tgSplatPlayer.animTime,
     bounds: window.__tgSplatPlayer.bounds,
   }));
-  expect(start.playing).toBe(false);
-  expect(start.u).toBeCloseTo(0, 3);
-  expect(start.anim).toBe("idle");
+  expect(start.playing).toBe(true);
+  expect(start.anim).toBe("walk");
 
-  // Start a little into the path so Play has room before the end, then use the
-  // Play/Pause controls. Also call the test hook so a finished path can't
-  // retrigger play when the button label flips.
-  await page.evaluate(() => window.__tgSplatPlayer.seek(0.08));
-  await page.locator("#splat-root").getByRole("button", { name: "Play path" }).click();
-  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.playing === true, null, { timeout: 5000 });
-  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.anim === "walk", null, { timeout: 5000 });
-  const walkT0 = await page.evaluate(() => window.__tgSplatPlayer.animTime);
-  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.pathU > 0.11, null, { timeout: 15000 });
+  const walkT0 = start.animTime;
+  const startPos = start.pos;
+  const startU = start.u;
+  await page.waitForFunction(({ startU, walkT0 }) => {
+    const p = window.__tgSplatPlayer;
+    return p && p.playing === true && p.anim === "walk" && p.pathU > startU + 0.06 && p.animTime > walkT0;
+  }, { startU, walkT0 }, { timeout: 15000 });
   const midPlay = await page.evaluate(() => ({
     u: window.__tgSplatPlayer.pathU,
     pos: window.__tgSplatPlayer.carPosition,
@@ -684,11 +684,11 @@ test("splat avatar loads, walk plays on Play, idle when paused, seek, and stays 
   }));
   expect(midPlay.playing).toBe(true);
   expect(midPlay.anim).toBe("walk");
-  expect(midPlay.u).toBeGreaterThan(0.11);
+  expect(midPlay.u).toBeGreaterThan(0.08);
   expect(midPlay.animTime).toBeGreaterThan(walkT0);
-  expect(Math.hypot(midPlay.pos.x - start.pos.x, midPlay.pos.z - start.pos.z)).toBeGreaterThan(0.05);
+  expect(Math.hypot(midPlay.pos.x - startPos.x, midPlay.pos.z - startPos.z)).toBeGreaterThan(0.05);
 
-  await page.evaluate(() => window.__tgSplatPlayer.pause());
+  await page.locator("#splat-root").getByRole("button", { name: "Pause path" }).click();
   const pauseLabel = page.locator("#splat-root").getByRole("button", { name: "Play path" });
   await expect(pauseLabel).toBeVisible();
   const pausedAt = await page.evaluate(() => ({

@@ -28,7 +28,7 @@ export function mountSplatPlayer(root) {
         <p class="sample-banner" data-sample-banner></p>
         <div class="stage" data-stage>
           <canvas data-canvas></canvas>
-          <div class="look-hint">Look stick or drag: look around · Move stick: scrub the path · Play walks the character</div>
+          <div class="look-hint">Look stick or drag: look around · Move stick: scrub the path · The character starts walking when the preview opens · Pause stops it</div>
         </div>
         <div class="player-controls">
           <div class="sticks">
@@ -1512,6 +1512,8 @@ export function mountSplatPlayer(root) {
       }
       stats.loadMs = performance.now() - t0;
       ready = true;
+      // Start walking as soon as the preview is up; Pause still stops it.
+      if (pathCurve) playPath();
     } catch (err) {
       if (gen !== openGen) return;
       console.error(err);
