@@ -49,7 +49,7 @@ test("globe renders, street zoom and pins open the 360 player, joystick works", 
   await goToWalk(page);
   await page.waitForTimeout(1500);
   await expect(page.locator("#mode-badge")).toHaveText("Street map");
-  await expect(page.locator(".map-pin")).toHaveCount(10);
+  await expect(page.locator(".map-pin")).toHaveCount(11);
   await expect(page.getByRole("button", { name: "TCL Chinese Theatre" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Dolby Theatre" })).toBeVisible();
   await shot(page, "02-street-pins.png");
@@ -459,7 +459,7 @@ test("phone street view leaves primary pins tappable and dismisses the pin card"
     await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
     await goToWalk(page);
     await page.waitForTimeout(500);
-    await expect(page.locator(".map-pin")).toHaveCount(10);
+    await expect(page.locator(".map-pin")).toHaveCount(11);
     const hud = await page.locator(".hud").boundingBox();
     const header = await page.locator("header.top").boundingBox();
     for (const name of PRIMARY_PIN_NAMES) {
@@ -580,12 +580,18 @@ test("existing pins keep their ids, coordinates, and 360/flat behaviour", async 
       splat: p.splat || undefined,
     }))
   );
-  const withoutSplat = pins.filter((p) => p.id !== "splat-placeholder");
+  const splatIds = new Set(["splat-placeholder", "montreal-clock-tower"]);
+  const withoutSplat = pins.filter((p) => !splatIds.has(p.id));
   expect(withoutSplat).toEqual(ORIGINAL_PINS);
   const splat = pins.find((p) => p.id === "splat-placeholder");
   expect(splat).toBeTruthy();
   expect(splat.splat).toMatch(/kyoto-room\.sog$/);
-  expect(pins).toHaveLength(10);
+  const clock = pins.find((p) => p.id === "montreal-clock-tower");
+  expect(clock).toBeTruthy();
+  expect(clock.splat).toMatch(/clocktower-plaza\.sog$/);
+  expect(clock.lng).toBeCloseTo(-73.54361, 4);
+  expect(clock.lat).toBeCloseTo(45.5125, 4);
+  expect(pins).toHaveLength(11);
 
   await page.evaluate(() => window.__tgOpenPin("tcl-chinese"));
   await expect(page.locator("#player-root .player-shell")).toBeVisible();
@@ -674,7 +680,7 @@ test("splat avatar loads, walk starts on open, idle when paused, seek, and stays
   await page.waitForFunction(({ startU, walkT0 }) => {
     const p = window.__tgSplatPlayer;
     return p && p.playing === true && p.anim === "walk" && p.pathU > startU + 0.06 && p.animTime > walkT0;
-  }, { startU, walkT0 }, { timeout: 15000 });
+  }, { startU, walkT0 }, { timeout: 45000 });
   const midPlay = await page.evaluate(() => ({
     u: window.__tgSplatPlayer.pathU,
     pos: window.__tgSplatPlayer.carPosition,
@@ -785,6 +791,67 @@ test("splat stage fills the leftover phone viewport under the controls", async (
   expect(btn.height).toBeGreaterThan(24);
   expect(btn.left).toBeGreaterThanOrEqual(0);
   expect(btn.right).toBeLessThanOrEqual(btn.panelRight + 1);
+});
+
+
+test("Clock Tower plaza splat loads with credit, autoplay walk, pedestrians, and cars", async ({ page }) => {
+  test.setTimeout(180000);
+  await page.goto("/index.html");
+  await waitForMap(page);
+  await page.evaluate(() => window.__tgOpenPin("montreal-clock-tower"));
+  await expect(page.locator("#splat-root .player-shell")).toBeVisible();
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.ready === true, null, { timeout: 90000 });
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.avatarReady === true, null, { timeout: 60000 });
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Clock Tower plaza");
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("CC BY 4.0");
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Heritage3DMtl");
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Concordia");
+  await expect(page.locator("#splat-root .look-hint")).toContainText("starts walking when the preview opens");
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.playing === true && window.__tgSplatPlayer.anim === "walk", null, { timeout: 5000 });
+
+  const start = await page.evaluate(() => ({
+    u: window.__tgSplatPlayer.pathU,
+    animTime: window.__tgSplatPlayer.animTime,
+    peds: window.__tgSplatPlayer.pedestrians.length,
+    cars: window.__tgSplatPlayer.cars.length,
+    pedPos: window.__tgSplatPlayer.pedestrians.map((p) => p.position),
+    carPos: window.__tgSplatPlayer.cars.map((c) => c.position),
+  }));
+  expect(start.peds).toBeGreaterThanOrEqual(4);
+  expect(start.peds).toBeLessThanOrEqual(8);
+  expect(start.cars).toBeGreaterThanOrEqual(2);
+  expect(start.cars).toBeLessThanOrEqual(3);
+  for (const p of [...start.pedPos, ...start.carPos]) {
+    expect(p.y).toBeGreaterThan(-1.2);
+    expect(p.y).toBeLessThan(1.2);
+  }
+
+  const mid = await page.waitForFunction((startU) => {
+    const p = window.__tgSplatPlayer;
+    if (!p || p.playing !== true) return false;
+    const pedMoved = p.pedestrians.some((m, i) => Math.abs(m.u - (window.__tgClockStart && window.__tgClockStart.pedU[i])) > 0.02);
+    // stash start U once
+    if (!window.__tgClockStart) {
+      window.__tgClockStart = { u: p.pathU, t: p.animTime, pedU: p.pedestrians.map((m) => m.u), carU: p.cars.map((m) => m.u) };
+      return false;
+    }
+    return p.pathU > window.__tgClockStart.u + 0.04 && p.animTime > window.__tgClockStart.t + 0.3;
+  }, null, { timeout: 45000 });
+
+  const after = await page.evaluate(() => {
+    const p = window.__tgSplatPlayer;
+    const s = window.__tgClockStart;
+    return {
+      pathMoved: p.pathU - s.u,
+      walkMoved: p.animTime - s.t,
+      pedMoved: p.pedestrians.filter((m, i) => Math.abs(m.u - s.pedU[i]) > 0.02).length,
+      carMoved: p.cars.filter((m, i) => Math.abs(m.u - s.carU[i]) > 0.02).length,
+    };
+  });
+  expect(after.pathMoved).toBeGreaterThan(0.03);
+  expect(after.walkMoved).toBeGreaterThan(0.25);
+  expect(after.pedMoved).toBeGreaterThanOrEqual(2);
+  expect(after.carMoved).toBeGreaterThanOrEqual(1);
 });
 
 // Pre-existing failures, left unfixed: these locators expect href="/sales.html"

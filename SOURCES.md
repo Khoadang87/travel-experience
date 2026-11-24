@@ -112,6 +112,30 @@ removed from the current tree and must not be served.
   Fame, not this pin's real surroundings, and the app labels it
   “Test asset, not the real place.”
 
+
+## Clock Tower plaza Gaussian splat (Montreal)
+
+- Photos: Heritage3DMtl by Rucha Shende, Sudhir Mudur, Tiberiu Popa and
+  Kaustubha Mendhurwar, Concordia University. Source:
+  https://zenodo.org/records/17063337 (file 7-Clock-Tower.zip).
+- Trained scene: SplatCast sample-scenes dataset, folder `ClockTower`
+  (https://huggingface.co/datasets/splatcast/sample-scenes), 1,150,558
+  Gaussians in `scene.splatcast`.
+- License: Creative Commons Attribution 4.0 International (CC BY 4.0),
+  https://creativecommons.org/licenses/by/4.0/. Full text:
+  `media/splat/CLOCKTOWER-LICENSE.md`. Detailed credits and conversion
+  notes: `media/splat/CLOCKTOWER-ATTRIBUTION.md`.
+- Packaged file: `media/splat/clocktower-plaza.sog` — SOG v2 from
+  PlayCanvas splat-transform 3.12.0, 550,000 Gaussians, about 6.5 MB,
+  SH degree 0. Converted from the `.splatcast` (LZFSE decoded to PLY,
+  far shell removed, plaza leveled, higher-order SH dropped, downsampled)
+  for a phone-friendly web preview. Not a live street reconstruction.
+- The glowing walker, pedestrians, and cars are procedural figures built
+  in `src/splat-player.js` (same style as the Kyoto-room walker). No
+  third-party character or vehicle files.
+- No endorsement by the photographers, Concordia University, Heritage3DMtl,
+  SplatCast, or the places shown is implied.
+
 ## Placeholder avatar (simple figure)
 
 - The splat-room walker is a procedural, low-poly figure built in

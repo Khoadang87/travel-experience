@@ -125,6 +125,8 @@ export function mountSplatPlayer(root) {
   let walkNaturalSpeed = 1.2;
   let lastAnimTs = 0;
   let avatarLimbs = null;
+  let crowdRoot = null;
+  let movers = [];
   let seeking = false;
   let avatarTarget = null;
   let composeScene = null;
@@ -474,6 +476,7 @@ export function mountSplatPlayer(root) {
         playAnchorU = pathU;
       }
       poseAvatarAndCamera();
+      if (playing) updateMovers(dt);
     } else {
       // No path: keep the interior walk camera.
       if (moveAxis.x || moveAxis.y) {
@@ -574,7 +577,10 @@ export function mountSplatPlayer(root) {
     // rather than clipping through a wall.
     _back.set(-_tan.x, 0, -_tan.z).normalize();
     if (yaw) _back.applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw);
-    const targetDist = FOLLOW_DIST * Math.cos(clamp(pitch, -0.55, 0.55));
+    const followDist = pathData && Number(pathData.followDist) > 0 ? Number(pathData.followDist) : FOLLOW_DIST;
+    const followUp = pathData && Number(pathData.followUp) > 0 ? Number(pathData.followUp) : FOLLOW_UP;
+    const followLookY = pathData && Number(pathData.followLookY) > 0 ? Number(pathData.followLookY) : FOLLOW_LOOK_Y;
+    const targetDist = followDist * Math.cos(clamp(pitch, -0.55, 0.55));
     const pitchLift = Math.sin(clamp(pitch, -0.7, 0.7)) * 0.45;
     const angles = [0.4, -0.4, 0.6, -0.6, 0.85, -0.85, 0.2, -0.2, 0, 1.1, -1.1, 1.35, -1.35, 1.65, -1.65, 2.2, -2.2];
     let bestScore = -Infinity;
@@ -601,18 +607,37 @@ export function mountSplatPlayer(root) {
     } else {
       pos.copy(carPosition).addScaledVector(_back, 1.6);
     }
-    pos.y = carPosition.y + FOLLOW_UP + pitchLift;
+    pos.y = carPosition.y + followUp + pitchLift;
     pos.x = clamp(pos.x, boundsMin.x, boundsMax.x);
     pos.y = clamp(pos.y, 0.9, Math.max(boundsMax.y, 2.55));
     pos.z = clamp(pos.z, boundsMin.z, boundsMax.z);
     camera.position.copy(pos);
     _look.copy(carPosition).addScaledVector(_tan, 0.2);
-    _look.y = carPosition.y + FOLLOW_LOOK_Y;
+    _look.y = carPosition.y + followLookY;
     camera.lookAt(_look);
     camera.updateMatrixWorld(true);
   }
 
+  function disposeCrowd() {
+    movers = [];
+    if (!crowdRoot) return;
+    scene.remove(crowdRoot);
+    crowdRoot.traverse((obj) => {
+      if (obj.geometry && typeof obj.geometry.dispose === "function") obj.geometry.dispose();
+      const mat = obj.material;
+      if (mat) {
+        const list = Array.isArray(mat) ? mat : [mat];
+        for (const m of list) {
+          if (m && m.map && typeof m.map.dispose === "function") m.map.dispose();
+          if (m && typeof m.dispose === "function") m.dispose();
+        }
+      }
+    });
+    crowdRoot = null;
+  }
+
   function disposeAvatar() {
+    disposeCrowd();
     avatarLimbs = null;
     avatarAnim = "idle";
     animTime = 0;
@@ -843,12 +868,14 @@ export function mountSplatPlayer(root) {
 
   function renderFrame() {
     if (!renderer || !scene || !camera) return;
-    const showAvatar = !!(avatarRoot && avatarRoot.parent);
-    if (showAvatar) avatarRoot.visible = false;
+    const showOverlay = !!(avatarRoot && avatarRoot.parent) || !!(crowdRoot && crowdRoot.parent);
+    if (avatarRoot) avatarRoot.visible = false;
+    if (crowdRoot) crowdRoot.visible = false;
     renderer.setRenderTarget(null);
     renderer.render(scene, camera);
-    if (showAvatar) {
-      avatarRoot.visible = true;
+    if (showOverlay) {
+      if (avatarRoot) avatarRoot.visible = true;
+      if (crowdRoot) crowdRoot.visible = true;
       renderAvatarOverlay();
     }
   }
@@ -921,7 +948,7 @@ export function mountSplatPlayer(root) {
 
   function plantFeet() {
     if (!avatarLimbs || !avatarLimbs.figure) return;
-    const floor = Number.isFinite(avatarLimbs.floorY) ? avatarLimbs.floorY : 0;
+    const floor = avatarRoot ? avatarRoot.position.y : (Number.isFinite(avatarLimbs.floorY) ? avatarLimbs.floorY : 0);
     avatarLimbs.figure.position.y = avatarLimbs.baseY;
     avatarLimbs.figure.updateMatrixWorld(true);
     let lowest = Infinity;
@@ -962,7 +989,9 @@ export function mountSplatPlayer(root) {
   }
 
   function applyHeldCamera() {
-    if (!cameraHold || !avatarRoot || !camera) return false;
+    if (!cameraHold || !camera) return false;
+    if (cameraHold === "crowd") return frameCrowdCamera();
+    if (!avatarRoot) return false;
     const origin = new THREE.Vector3();
     avatarRoot.getWorldPosition(origin);
     const q = new THREE.Quaternion();
@@ -1332,6 +1361,240 @@ export function mountSplatPlayer(root) {
     return Math.max(0, (y1 - y0) / 2);
   }
 
+
+  function figureMaterial() {
+    const mat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      emissive: 0xf4f6ff,
+      emissiveIntensity: 0.62,
+      roughness: 0.46,
+      metalness: 0.04,
+      transparent: false,
+      depthWrite: true,
+      depthTest: true,
+      envMapIntensity: 0,
+    });
+    attachFresnel(mat, 0.3, 1.7);
+    return mat;
+  }
+
+  function applyWalkPose(limbs, time, walkWeight) {
+    if (!limbs) return;
+    const phase = (time / WALK_CYCLE) * Math.PI * 2;
+    const w = walkWeight * walkWeight * (3 - 2 * walkWeight);
+    const sl = Math.sin(phase);
+    const sr = Math.sin(phase + Math.PI);
+    limbs.legL.rotation.x = sl * LEG_SWING * w;
+    limbs.legR.rotation.x = sr * LEG_SWING * w;
+    if (limbs.kneeL) limbs.kneeL.rotation.x = -(0.1 + Math.max(0, sl) * 0.62) * w;
+    if (limbs.kneeR) limbs.kneeR.rotation.x = -(0.1 + Math.max(0, sr) * 0.62) * w;
+    limbs.armL.rotation.x = Math.sin(phase + Math.PI) * ARM_SWING * w;
+    limbs.armR.rotation.x = Math.sin(phase) * ARM_SWING * w;
+    if (limbs.torso) {
+      limbs.torso.rotation.y = sl * 0.06 * w;
+      limbs.torso.rotation.z = sl * 0.035 * w;
+    }
+    if (limbs.head) {
+      limbs.head.rotation.y = -sl * 0.04 * w;
+    }
+  }
+
+  function plantMoverFeet(mover) {
+    if (!mover || !mover.limbs || !mover.limbs.figure) return;
+    const floor = mover.root.position.y;
+    mover.limbs.figure.position.y = mover.limbs.baseY;
+    mover.limbs.figure.updateMatrixWorld(true);
+    let lowest = Infinity;
+    for (const foot of [mover.limbs.footL, mover.limbs.footR]) {
+      if (!foot) continue;
+      foot.updateWorldMatrix(true, false);
+      const box = meshWorldBox(foot);
+      if (box.min.y < lowest) lowest = box.min.y;
+    }
+    if (!Number.isFinite(lowest) || lowest === Infinity) return;
+    mover.limbs.figure.position.y = mover.limbs.baseY + (floor - lowest);
+    mover.limbs.figure.updateMatrixWorld(true);
+  }
+
+  function buildSimpleCar() {
+    const mat = figureMaterial();
+    const car = new THREE.Group();
+    car.name = "street-car";
+    const body = dress(new THREE.Mesh(new THREE.CapsuleGeometry(0.62, 2.55, 8, 16), mat));
+    body.name = "car-body";
+    body.rotation.x = Math.PI / 2;
+    body.scale.set(1.35, 1, 1);
+    body.position.y = 0.58;
+    car.add(body);
+    const cabin = dress(new THREE.Mesh(new THREE.SphereGeometry(0.72, 16, 12), mat));
+    cabin.name = "car-cabin";
+    cabin.scale.set(0.92, 0.72, 0.95);
+    cabin.position.set(0, 1.05, -0.15);
+    car.add(cabin);
+    const wheelR = 0.28;
+    for (const [x, z] of [[-0.7, 1.05], [0.7, 1.05], [-0.7, -1.05], [0.7, -1.05]]) {
+      const wheel = dress(new THREE.Mesh(new THREE.SphereGeometry(wheelR, 12, 10), mat));
+      wheel.name = "car-wheel";
+      wheel.scale.set(0.55, 1, 1);
+      wheel.position.set(x, wheelR, z);
+      car.add(wheel);
+    }
+    car.updateMatrixWorld(true);
+    const box = bodyBox(car);
+    car.position.y += -box.min.y;
+    car.updateMatrixWorld(true);
+    return car;
+  }
+
+  function makeCurve(spec) {
+    const pts = (spec.points || []).map((p) => new THREE.Vector3(p[0], p[1], p[2]));
+    if (pts.length < 2) return null;
+    const closed = Boolean(spec.closed);
+    const curve = new THREE.CatmullRomCurve3(pts, closed, "centripetal");
+    return { curve, length: curve.getLength(), speed: Number(spec.speed) > 0 ? Number(spec.speed) : 1.2, closed, height: Number(spec.height) > 0 ? Number(spec.height) : 1.7 };
+  }
+
+  function loadCrowd(spec) {
+    disposeCrowd();
+    if (!spec || !scene) return 0;
+    const peds = Array.isArray(spec.pedestrians) ? spec.pedestrians : [];
+    const cars = Array.isArray(spec.cars) ? spec.cars : [];
+    if (!peds.length && !cars.length) return 0;
+    crowdRoot = new THREE.Group();
+    crowdRoot.name = "splat-crowd";
+    addFigureLights(crowdRoot);
+    const tmpP = new THREE.Vector3();
+    const tmpT = new THREE.Vector3();
+    peds.forEach((item, i) => {
+      const made = makeCurve(item);
+      if (!made) return;
+      const built = buildSimpleFigure(made.height);
+      built.figure.updateMatrixWorld(true);
+      const box = bodyBox(built.figure);
+      built.figure.position.y += 0 - box.min.y;
+      built.figure.updateMatrixWorld(true);
+      const root = new THREE.Group();
+      root.name = "pedestrian-" + (item.id || i + 1);
+      const floorFx = makeFloorGlow();
+      root.add(built.figure);
+      root.add(floorFx);
+      crowdRoot.add(root);
+      const u0 = (i + 0.15) / Math.max(peds.length, 1);
+      movers.push({
+        kind: "pedestrian",
+        id: item.id || root.name,
+        root,
+        limbs: {
+          figure: built.figure,
+          armL: built.armL,
+          armR: built.armR,
+          legL: built.legL,
+          legR: built.legR,
+          kneeL: built.kneeL,
+          kneeR: built.kneeR,
+          footL: built.footL,
+          footR: built.footR,
+          torso: built.torso,
+          head: built.head,
+          baseY: built.figure.position.y,
+        },
+        curve: made.curve,
+        length: made.length,
+        speed: made.speed,
+        closed: made.closed,
+        u: u0,
+        animTime: i * 0.37,
+        natural: built.natural || 1.2,
+      });
+    });
+    cars.forEach((item, i) => {
+      const made = makeCurve(item);
+      if (!made) return;
+      const car = buildSimpleCar();
+      const root = new THREE.Group();
+      root.name = "car-" + (item.id || i + 1);
+      root.add(car);
+      crowdRoot.add(root);
+      const u0 = (i + 0.3) / Math.max(cars.length, 1);
+      movers.push({
+        kind: "car",
+        id: item.id || root.name,
+        root,
+        limbs: null,
+        curve: made.curve,
+        length: made.length,
+        speed: made.speed,
+        closed: made.closed,
+        u: u0,
+        animTime: 0,
+        natural: 1,
+      });
+    });
+    scene.add(crowdRoot);
+    // Place everyone once so the first frame is not stacked at the origin.
+    updateMovers(0);
+    return movers.length;
+  }
+
+  function updateMovers(dt) {
+    if (!movers.length) return;
+    const tmpT = new THREE.Vector3();
+    const tmpP = new THREE.Vector3();
+    for (const mover of movers) {
+      if (dt > 0) {
+        const du = (mover.speed / Math.max(mover.length, 0.001)) * dt;
+        if (mover.closed) {
+          mover.u = (mover.u + du) % 1;
+          if (mover.u < 0) mover.u += 1;
+        } else {
+          mover.u = clamp(mover.u + du, 0, 1);
+        }
+      }
+      const u = clamp(mover.u, 0, 1);
+      mover.curve.getPointAt(u, tmpP);
+      mover.curve.getTangentAt(u, tmpT);
+      tmpT.y = 0;
+      if (tmpT.lengthSq() < 1e-8) tmpT.set(0, 0, 1);
+      else tmpT.normalize();
+      mover.root.position.copy(tmpP);
+      mover.root.rotation.y = Math.atan2(tmpT.x, tmpT.z);
+      mover.root.updateMatrixWorld(true);
+      if (mover.kind === "pedestrian" && mover.limbs) {
+        mover.animTime += dt * (mover.speed / Math.max(mover.natural, 0.05));
+        applyWalkPose(mover.limbs, mover.animTime, 1);
+        plantMoverFeet(mover);
+      }
+    }
+  }
+
+  function frameCrowdCamera() {
+    const list = movers.filter((m) => m.root);
+    if (!list.length || !camera) return false;
+    const origin = new THREE.Vector3();
+    let n = 0;
+    for (const m of list) {
+      origin.add(m.root.position);
+      n += 1;
+    }
+    origin.multiplyScalar(1 / n);
+    origin.y += 0.7;
+    // Prefer a view that also catches Kane's walker if it is nearby.
+    if (avatarRoot) {
+      origin.lerp(avatarRoot.position.clone().setY(avatarRoot.position.y + 0.85), 0.25);
+    }
+    const held = origin.clone();
+    held.x += 5.4;
+    held.y += 1.6;
+    held.z += 4.2;
+    held.x = clamp(held.x, boundsMin.x, boundsMax.x);
+    held.y = clamp(held.y, 0.6, Math.max(boundsMax.y, 3.2));
+    held.z = clamp(held.z, boundsMin.z, boundsMax.z);
+    camera.position.copy(held);
+    camera.lookAt(origin);
+    camera.updateMatrixWorld(true);
+    return true;
+  }
+
   async function loadAvatar(spec, floorY) {
     disposeAvatar();
     const height = spec && Number(spec.height) > 0 ? Number(spec.height) : 1.7;
@@ -1491,6 +1754,8 @@ export function mountSplatPlayer(root) {
         const floorY = pathData && Number.isFinite(pathData.floorY) ? pathData.floorY : 0;
         await loadAvatar(avatarSpec, floorY);
         if (gen !== openGen) return;
+        loadCrowd(pathData);
+        if (gen !== openGen) return;
       } catch (avatarErr) {
         console.error(avatarErr);
         // Keep the splat view; the walker is optional.
@@ -1619,10 +1884,24 @@ export function mountSplatPlayer(root) {
       return { loadMs: stats.loadMs, fps: stats.fps };
     },
     frameFigure(mode) {
-      cameraHold = mode === "side" ? "side" : mode === "feet" ? "feet" : mode === "knees" ? "knees" : "threeQuarter";
+      cameraHold = mode === "side" ? "side" : mode === "feet" ? "feet" : mode === "knees" ? "knees" : mode === "crowd" ? "crowd" : "threeQuarter";
     },
     clearFigureFrame() {
       cameraHold = null;
+    },
+    get pedestrians() {
+      return movers.filter((m) => m.kind === "pedestrian").map((m) => ({
+        id: m.id,
+        u: m.u,
+        position: { x: m.root.position.x, y: m.root.position.y, z: m.root.position.z },
+      }));
+    },
+    get cars() {
+      return movers.filter((m) => m.kind === "car").map((m) => ({
+        id: m.id,
+        u: m.u,
+        position: { x: m.root.position.x, y: m.root.position.y, z: m.root.position.z },
+      }));
     },
   };
   window.__tgSplatPlayer = api;

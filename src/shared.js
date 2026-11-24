@@ -216,6 +216,29 @@ export const PLACEHOLDER_SPLAT = {
   path: "data/splat-path.json",
 };
 
+// Montreal Clock Tower plaza — a real outdoor capture (CC BY 4.0), used as
+// the street-style splat preview. Not a live Tesla reconstruction.
+export const CLOCK_TOWER_SPLAT = {
+  src: "media/splat/clocktower-plaza.sog",
+  title: "Clock Tower plaza (Montreal)",
+  credit:
+    "Clock Tower plaza, Old Port of Montreal. Gaussian splat trained by SplatCast from Heritage3DMtl drone photos by Rucha Shende, Sudhir Mudur, Tiberiu Popa and Kaustubha Mendhurwar, Concordia University. CC BY 4.0. Converted and downsampled for this preview (550,000 Gaussians, SOG v2; see media/splat/CLOCKTOWER-ATTRIBUTION.md). No endorsement implied.",
+  commons: "https://zenodo.org/records/17063337",
+  license: "CC BY 4.0",
+  licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+  view: {
+    position: [2.2, 2.42, -7.4],
+    lookAt: [2.2, 1.07, -3.0],
+    boundsMin: [-6.0, 0.45, -12.0],
+    boundsMax: [14.0, 6.0, 16.0],
+  },
+  avatar: {
+    kind: "simple",
+    height: 1.7,
+  },
+  path: "data/clocktower-path.json",
+};
+
 export function currentPage() {
   const p = location.pathname;
   if (p.endsWith("creator.html")) return "creator";

@@ -1,5 +1,5 @@
 import { Map, Marker, setWorkerUrl } from "maplibre-gl";
-import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360, FLAT_BUSINESS, PLACEHOLDER_SPLAT } from "./shared.js";
+import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360, FLAT_BUSINESS, PLACEHOLDER_SPLAT, CLOCK_TOWER_SPLAT } from "./shared.js";
 
 import { mountPlayer } from "./player.js";
 import { mountSplatPlayer } from "./splat-player.js";
@@ -138,13 +138,17 @@ function openPin(pin) {
   }
   if (pin.splat) {
     if (window.__tgPlayer) window.__tgPlayer.close({ silent: true });
+    const splatCredit =
+      pin.id === "montreal-clock-tower" || (pin.splat && String(pin.splat).includes("clocktower"))
+        ? CLOCK_TOWER_SPLAT
+        : PLACEHOLDER_SPLAT;
     splatPlayer.open({
       title: pin.name,
       src: pin.splat,
-      credit: PLACEHOLDER_SPLAT,
-      view: pin.splatView || PLACEHOLDER_SPLAT.view,
-      avatar: pin.splatAvatar || PLACEHOLDER_SPLAT.avatar,
-      path: pin.splatPath || PLACEHOLDER_SPLAT.path,
+      credit: splatCredit,
+      view: pin.splatView || splatCredit.view,
+      avatar: pin.splatAvatar || splatCredit.avatar,
+      path: pin.splatPath || splatCredit.path,
       onClose: hidePinCard,
       onFallback(note) {
         player.open({
@@ -224,7 +228,7 @@ function flyToPrimaryPins() {
   });
 }
 
-function flyToPinSet(ids, { all = false, maxZoom = 17.4 } = {}) {
+function flyToPinSet(ids, { all = false, maxZoom = 17.4, markAll = false } = {}) {
   const pts = all ? (pins || []).slice() : (pins || []).filter((p) => ids.includes(p.id));
   if (!pts.length || !map) return;
   let minLng = Infinity,
@@ -258,7 +262,7 @@ function flyToPinSet(ids, { all = false, maxZoom = 17.4 } = {}) {
   map.once("moveend", () => {
     syncMode();
     window.__tgStreetFitted = true;
-    if (all) window.__tgAllPinsFitted = true;
+    if (all || markAll) window.__tgAllPinsFitted = true;
   });
 }
 
@@ -266,7 +270,19 @@ function flyToAllPins() {
   // Vine, Capitol, and the business pin sit east of the primary cluster.
   // This wider fit is a separate control so the default "Go to Walk of
   // Fame" view can stay zoomed in enough for TCL/Dolby to stay tappable.
-  flyToPinSet([], { all: true, maxZoom: 16.2 });
+  // Only include pins near that Hollywood cluster — a far pin such as
+  // the Montreal Clock Tower would otherwise zoom the map out to a
+  // continent and hide the Walk of Fame pins on a phone.
+  const origin = (pins || []).find((p) => p.id === "tcl-chinese") || (pins || [])[0];
+  const localIds = (pins || [])
+    .filter((p) => {
+      if (!origin) return true;
+      const dlat = p.lat - origin.lat;
+      const dlng = (p.lng - origin.lng) * Math.cos((origin.lat * Math.PI) / 180);
+      return Math.hypot(dlat, dlng) < 0.5;
+    })
+    .map((p) => p.id);
+  flyToPinSet(localIds, { all: false, markAll: true, maxZoom: 16.2 });
 }
 
 async function boot() {

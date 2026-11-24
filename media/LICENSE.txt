@@ -102,3 +102,23 @@ Placeholder avatar (simple figure)
   with a soft screen-space glow rather than a per-part outline.
   Used as a stylized stand-in in the splat room, not as a real person at
   the map pin.
+
+Clock Tower plaza Gaussian splat (Montreal)
+===========================================
+
+File: splat/clocktower-plaza.sog
+Licence text: splat/CLOCKTOWER-LICENSE.md (Creative Commons Attribution 4.0 International)
+Attribution and conversion notes: splat/CLOCKTOWER-ATTRIBUTION.md
+
+  Photos: Heritage3DMtl by Rucha Shende, Sudhir Mudur, Tiberiu Popa and
+  Kaustubha Mendhurwar, Concordia University.
+  Source: https://zenodo.org/records/17063337 (file 7-Clock-Tower.zip)
+  Trained scene: SplatCast sample-scenes (ClockTower),
+  https://huggingface.co/datasets/splatcast/sample-scenes
+  License: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+
+  This file is a converted, leveled, SH0, downsampled SOG v2 preview
+  (550,000 Gaussians, about 6.5 MB) of the Clock Tower plaza capture.
+  See CLOCKTOWER-ATTRIBUTION.md for the exact changes. No endorsement
+  implied.
+

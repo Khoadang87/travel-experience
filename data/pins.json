@@ -123,10 +123,26 @@
       "blurb": "Test asset, not the real place. A Gaussian splat of a Kyoto room (CC0) opened in a 3D viewer \u2014 not a walk of a Hollywood street and not a capture of this pin's surroundings.",
       "splat": "media/splat/kyoto-room.sog",
       "splatView": {
-        "position": [-0.19, 1.52, -2.56],
-        "lookAt": [-0.19, 1.4, 1.15],
-        "boundsMin": [-2.66, 0.9, -5.6],
-        "boundsMax": [2.96, 2.2, 0.95]
+        "position": [
+          -0.19,
+          1.52,
+          -2.56
+        ],
+        "lookAt": [
+          -0.19,
+          1.4,
+          1.15
+        ],
+        "boundsMin": [
+          -2.66,
+          0.9,
+          -5.6
+        ],
+        "boundsMax": [
+          2.96,
+          2.2,
+          0.95
+        ]
       },
       "splatAvatar": {
         "kind": "simple",
@@ -134,6 +150,45 @@
       },
       "splatPath": "data/splat-path.json",
       "label": "Splat preview (test)"
+    },
+    {
+      "id": "montreal-clock-tower",
+      "name": "Clock Tower plaza (Montreal)",
+      "kind": "splat",
+      "lng": -73.54361,
+      "lat": 45.5125,
+      "sourceName": "Heritage3DMtl / Concordia University \u2014 Clock Tower, CC BY 4.0 (via SplatCast)",
+      "sourceUrl": "https://zenodo.org/records/17063337",
+      "blurb": "A 3D Gaussian splat of the Clock Tower plaza in the Old Port of Montreal (Heritage3DMtl / Concordia, trained by SplatCast, CC BY 4.0). A glowing walker, pedestrians, and cars move across the plaza floor. Converted and downsampled for this preview; not a live reconstruction.",
+      "splat": "media/splat/clocktower-plaza.sog",
+      "splatView": {
+        "position": [
+          2.2,
+          2.42,
+          -7.4
+        ],
+        "lookAt": [
+          2.2,
+          1.07,
+          -3.0
+        ],
+        "boundsMin": [
+          -6.0,
+          0.45,
+          -12.0
+        ],
+        "boundsMax": [
+          14.0,
+          6.0,
+          16.0
+        ]
+      },
+      "splatAvatar": {
+        "kind": "simple",
+        "height": 1.7
+      },
+      "splatPath": "data/clocktower-path.json",
+      "label": "Clock Tower plaza"
     }
   ]
 }
