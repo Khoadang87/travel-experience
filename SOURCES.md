@@ -116,11 +116,12 @@ removed from the current tree and must not be served.
 
 - The splat-room walker is a procedural, low-poly figure built in
   `src/splat-player.js` with three.js r187 (MIT): a 3D take on the classic
-  men's restroom pictogram (ISO/AIGA-style) — a sphere head on a short
-  neck, a medium tapered lathe torso, and capsule limbs, built as rounded
-  volumes (not a flat extrusion). White MeshStandardMaterial with a
-  moderate emissive, key/fill lights, and a fresnel rim so it reads as a
-  glowing 3D figure. There is no third-party character or icon
+  men's restroom pictogram (ISO/AIGA-style) — an egg-shaped head on a
+  natural neck, a medium tapered lathe torso, two-segment legs with small
+  rounded feet, and hip-length capsule arms, built as rounded volumes.
+  White MeshStandardMaterial with a brighter emissive, key/fill lights,
+  a fresnel rim and a soft outer halo. The figure is composited in a
+  separate MSAA pass after the splat so the silhouette stays clean. There is no third-party character or icon
   file. Walk and idle are a short procedural cycle (limb swing). The
   figure is a simple sign-style stand-in, about 1.7 m tall, not a real
   person at the pin.

@@ -95,6 +95,9 @@ Placeholder avatar (simple figure)
 =================================
 
   No third-party character file. The walker is built in
-  src/splat-player.js with three.js (MIT): a glowing, rounded 3D men's restroom pictogram figure
-  with a procedural walk/idle cycle. Used as a stylized stand-in in
-  the splat room, not as a real person at the map pin.
+  src/splat-player.js with three.js (MIT): a glowing, rounded 3D men's
+  restroom pictogram figure (egg-shaped head, natural neck, medium build,
+  hip-length arms, two-segment legs and small feet) with a procedural
+  walk/idle cycle, composited in a separate MSAA pass after the splat.
+  Used as a stylized stand-in in the splat room, not as a real person at
+  the map pin.

@@ -94,8 +94,8 @@ export function mountSplatPlayer(root) {
   const FOLLOW_DIST = 3.35;
   const FOLLOW_UP = 2.08;
   const FOLLOW_LOOK_Y = 0.85;
-  const LEG_SWING = 0.38;
-  const ARM_SWING = 0.3;
+  const LEG_SWING = 0.36;
+  const ARM_SWING = 0.32;
   const WALK_CYCLE = 1.0;
   let cameraHold = null;
   let lookAxis = { x: 0, y: 0 };
@@ -126,6 +126,13 @@ export function mountSplatPlayer(root) {
   let lastAnimTs = 0;
   let avatarLimbs = null;
   let seeking = false;
+  let avatarTarget = null;
+  let composeScene = null;
+  let composeCam = null;
+  let composeQuad = null;
+  const _foot = new THREE.Vector3();
+  const _clearCol = new THREE.Color();
+
   const pathBoundsMin = new THREE.Vector3(-10, -0.05, -10);
   const pathBoundsMax = new THREE.Vector3(10, 0.8, 10);
   const carPosition = new THREE.Vector3();
@@ -303,6 +310,7 @@ export function mountSplatPlayer(root) {
     renderer.setSize(w, h, false);
     camera.aspect = w / Math.max(1, h);
     camera.updateProjectionMatrix();
+    ensureAvatarTarget();
   }
 
   function clampToRoom() {
@@ -476,7 +484,7 @@ export function mountSplatPlayer(root) {
       applyCamera();
     }
     updateAvatarPose(ts);
-    if (renderer && scene && camera) renderer.render(scene, camera);
+    if (renderer && scene && camera) renderFrame();
     if (ready) {
       fpsFrames += 1;
       if (!fpsWindowStart) fpsWindowStart = ts;
@@ -656,24 +664,176 @@ export function mountSplatPlayer(root) {
     const dt = lastAnimTs ? Math.min(0.25, (ts - lastAnimTs) / 1000) : 0.016;
     lastAnimTs = ts;
     const target = avatarAnim === "walk" ? 1 : 0;
-    const fade = dt / 0.18;
+    const fade = dt / 0.32;
     if (target > animWalkWeight) animWalkWeight = Math.min(1, animWalkWeight + fade);
     else animWalkWeight = Math.max(0, animWalkWeight - fade);
     if (avatarAnim === "walk") {
       animTime += dt * (pathSpeed / Math.max(walkNaturalSpeed, 0.05));
     } else {
-      animTime += dt * 0.35;
+      animTime += dt * 0.28;
     }
     if (!avatarLimbs) return;
     const phase = (animTime / WALK_CYCLE) * Math.PI * 2;
-    const w = animWalkWeight;
-    avatarLimbs.legL.rotation.x = Math.sin(phase) * LEG_SWING * w;
-    avatarLimbs.legR.rotation.x = Math.sin(phase + Math.PI) * LEG_SWING * w;
+    const w = animWalkWeight * animWalkWeight * (3 - 2 * animWalkWeight);
+    const sl = Math.sin(phase);
+    const sr = Math.sin(phase + Math.PI);
+    avatarLimbs.legL.rotation.x = sl * LEG_SWING * w;
+    avatarLimbs.legR.rotation.x = sr * LEG_SWING * w;
+    if (avatarLimbs.kneeL) avatarLimbs.kneeL.rotation.x = -(0.1 + Math.max(0, sl) * 0.62) * w;
+    if (avatarLimbs.kneeR) avatarLimbs.kneeR.rotation.x = -(0.1 + Math.max(0, sr) * 0.62) * w;
     avatarLimbs.armL.rotation.x = Math.sin(phase + Math.PI) * ARM_SWING * w;
     avatarLimbs.armR.rotation.x = Math.sin(phase) * ARM_SWING * w;
-    // Walk bob only lifts off the planted stance; idle stays on the floor.
-    const bob = Math.abs(Math.sin(phase)) * 0.02 * w;
-    avatarLimbs.figure.position.y = avatarLimbs.baseY + bob;
+    if (avatarLimbs.torso) {
+      avatarLimbs.torso.rotation.y = sl * 0.06 * w;
+      avatarLimbs.torso.rotation.z = sl * 0.035 * w;
+    }
+    if (avatarLimbs.head) {
+      avatarLimbs.head.rotation.y = -sl * 0.04 * w;
+    }
+    // Hip drop from the stance leg keeps the planted foot on the floor
+    // and gives a gentle body bob; no extra lift is added on top.
+    plantFeet();
+  }
+
+  function ensureAvatarTarget() {
+    if (!renderer) return;
+    const size = new THREE.Vector2();
+    renderer.getDrawingBufferSize(size);
+    const w = Math.max(1, Math.floor(size.x));
+    const h = Math.max(1, Math.floor(size.y));
+    if (avatarTarget && avatarTarget.width === w && avatarTarget.height === h) return;
+    if (avatarTarget) {
+      avatarTarget.dispose();
+      avatarTarget = null;
+    }
+    avatarTarget = new THREE.WebGLRenderTarget(w, h, {
+      samples: 4,
+      depthBuffer: true,
+      stencilBuffer: false,
+    });
+    if (renderer.outputColorSpace) avatarTarget.texture.colorSpace = renderer.outputColorSpace;
+    if (!composeScene) {
+      composeScene = new THREE.Scene();
+      composeCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+      const mat = new THREE.ShaderMaterial({
+        uniforms: { tDiffuse: { value: avatarTarget.texture } },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = vec4(position.xy, 0.0, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D tDiffuse;
+          varying vec2 vUv;
+          void main() {
+            gl_FragColor = texture2D(tDiffuse, vUv);
+          }
+        `,
+        transparent: true,
+        depthTest: false,
+        depthWrite: false,
+        premultipliedAlpha: true,
+        blending: THREE.CustomBlending,
+        blendSrc: THREE.OneFactor,
+        blendDst: THREE.OneMinusSrcAlphaFactor,
+        blendSrcAlpha: THREE.OneFactor,
+        blendDstAlpha: THREE.OneMinusSrcAlphaFactor,
+      });
+      composeQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat);
+      composeQuad.frustumCulled = false;
+      composeScene.add(composeQuad);
+    } else {
+      composeQuad.material.uniforms.tDiffuse.value = avatarTarget.texture;
+    }
+  }
+
+  function renderFrame() {
+    if (!renderer || !scene || !camera) return;
+    const showAvatar = !!(avatarRoot && avatarRoot.parent);
+    if (showAvatar) avatarRoot.visible = false;
+    renderer.setRenderTarget(null);
+    renderer.render(scene, camera);
+    if (showAvatar) {
+      avatarRoot.visible = true;
+      renderAvatarOverlay();
+    }
+  }
+
+  function renderAvatarOverlay() {
+    ensureAvatarTarget();
+    if (!avatarTarget || !composeScene) return;
+    const prevBg = scene.background;
+    const sparkVis = spark ? spark.visible : true;
+    const prevColor = renderer.getClearColor(_clearCol);
+    const prevAlpha = renderer.getClearAlpha();
+    if (spark) spark.visible = false;
+    scene.background = null;
+    renderer.setRenderTarget(avatarTarget);
+    renderer.setClearColor(0x000000, 0);
+    renderer.clear();
+    renderer.render(scene, camera);
+    renderer.setRenderTarget(null);
+    scene.background = prevBg;
+    if (spark) spark.visible = sparkVis;
+    renderer.setClearColor(prevColor, prevAlpha);
+    renderer.autoClear = false;
+    renderer.render(composeScene, composeCam);
+    renderer.autoClear = true;
+  }
+
+  function disposeAvatarTarget() {
+    if (avatarTarget) {
+      avatarTarget.dispose();
+      avatarTarget = null;
+    }
+    if (composeQuad) {
+      composeQuad.geometry.dispose();
+      composeQuad.material.dispose();
+      composeQuad = null;
+    }
+    composeScene = null;
+    composeCam = null;
+  }
+
+  function meshWorldBox(mesh) {
+    const box = new THREE.Box3();
+    if (!mesh || !mesh.geometry) return box;
+    if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
+    box.copy(mesh.geometry.boundingBox).applyMatrix4(mesh.matrixWorld);
+    return box;
+  }
+
+  function plantFeet() {
+    if (!avatarLimbs || !avatarLimbs.figure) return;
+    const floor = Number.isFinite(avatarLimbs.floorY) ? avatarLimbs.floorY : 0;
+    avatarLimbs.figure.position.y = avatarLimbs.baseY;
+    avatarLimbs.figure.updateMatrixWorld(true);
+    let lowest = Infinity;
+    for (const foot of [avatarLimbs.footL, avatarLimbs.footR]) {
+      if (!foot) continue;
+      foot.updateWorldMatrix(true, false);
+      const box = meshWorldBox(foot);
+      if (box.min.y < lowest) lowest = box.min.y;
+    }
+    if (!Number.isFinite(lowest) || lowest === Infinity) return;
+    avatarLimbs.figure.position.y = avatarLimbs.baseY + (floor - lowest);
+    avatarLimbs.figure.updateMatrixWorld(true);
+    updateFootShadows();
+  }
+
+  function updateFootShadows() {
+    if (!avatarRoot || !avatarLimbs) return;
+    for (const [foot, sh] of [
+      [avatarLimbs.footL, avatarLimbs.shadowL],
+      [avatarLimbs.footR, avatarLimbs.shadowR],
+    ]) {
+      if (!foot || !sh) continue;
+      foot.getWorldPosition(_foot);
+      avatarRoot.worldToLocal(_foot);
+      sh.position.set(_foot.x, 0.004, _foot.z);
+    }
   }
 
   function addShell(mesh, rimMat, scale) {
@@ -685,11 +845,20 @@ export function mountSplatPlayer(root) {
     return shell;
   }
 
+  function addHalo(mesh, haloMat, scale) {
+    const halo = new THREE.Mesh(mesh.geometry, haloMat);
+    halo.name = (mesh.name || "part") + "-halo";
+    halo.scale.setScalar(scale);
+    halo.renderOrder = 7;
+    mesh.add(halo);
+    return halo;
+  }
+
   function bodyBox(root) {
     const box = new THREE.Box3();
     root.updateMatrixWorld(true);
     root.traverse((obj) => {
-      if (!obj.isMesh || /-rim$/.test(obj.name || "")) return;
+      if (!obj.isMesh || /-(rim|halo)$/.test(obj.name || "")) return;
       const b = new THREE.Box3().setFromObject(obj);
       if (!b.isEmpty()) box.union(b);
     });
@@ -700,7 +869,6 @@ export function mountSplatPlayer(root) {
     if (!cameraHold || !avatarRoot || !camera) return false;
     const origin = new THREE.Vector3();
     avatarRoot.getWorldPosition(origin);
-    origin.y += 0.85;
     const q = new THREE.Quaternion();
     avatarRoot.getWorldQuaternion(q);
     const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(q);
@@ -709,15 +877,24 @@ export function mountSplatPlayer(root) {
     else forward.normalize();
     const right = new THREE.Vector3().crossVectors(forward, THREE.Object3D.DEFAULT_UP).normalize();
     const held = origin.clone();
-    if (cameraHold === "side") {
+    if (cameraHold === "feet") {
+      origin.y += 0.08;
+      held.copy(origin);
+      held.addScaledVector(right, 0.75).addScaledVector(forward, 0.9);
+      held.y = origin.y + 0.42;
+    } else if (cameraHold === "side") {
+      origin.y += 0.85;
+      held.copy(origin);
       held.addScaledVector(right, 2.15).addScaledVector(forward, 0.2);
       held.y += 0.08;
     } else {
+      origin.y += 0.85;
+      held.copy(origin);
       held.addScaledVector(right, 1.25).addScaledVector(forward, 1.4);
       held.y += 0.22;
     }
     held.x = clamp(held.x, boundsMin.x, boundsMax.x);
-    held.y = clamp(held.y, 0.9, Math.max(boundsMax.y, 2.55));
+    held.y = clamp(held.y, cameraHold === "feet" ? 0.16 : 0.9, Math.max(boundsMax.y, 2.55));
     held.z = clamp(held.z, boundsMin.z, boundsMax.z);
     camera.position.copy(held);
     camera.lookAt(origin);
@@ -726,7 +903,7 @@ export function mountSplatPlayer(root) {
   }
 
   function addFigureLights(root) {
-    const key = new THREE.DirectionalLight(0xf6f8ff, 0.7);
+    const key = new THREE.DirectionalLight(0xf6f8ff, 0.85);
     key.name = "figure-key";
     key.position.set(0.85, 2.2, 1.4);
     key.target.position.set(0, 0.95, 0);
@@ -741,12 +918,12 @@ export function mountSplatPlayer(root) {
     root.add(fill.target);
   }
 
-  function makeRimMaterial() {
+  function makeHaloMaterial(power, intensity) {
     return new THREE.ShaderMaterial({
       uniforms: {
         color: { value: new THREE.Color(0xffffff) },
-        power: { value: 2.15 },
-        intensity: { value: 0.9 },
+        power: { value: power },
+        intensity: { value: intensity },
       },
       vertexShader: `
         varying vec3 vNormal;
@@ -773,10 +950,18 @@ export function mountSplatPlayer(root) {
       side: THREE.BackSide,
       transparent: true,
       depthWrite: false,
-      depthTest: true,
+      depthTest: false,
       blending: THREE.AdditiveBlending,
       premultipliedAlpha: true,
     });
+  }
+
+  function makeRimMaterial() {
+    return makeHaloMaterial(2.0, 1.05);
+  }
+
+  function makeSoftHaloMaterial() {
+    return makeHaloMaterial(1.15, 0.55);
   }
 
   function attachFresnel(mat, strength, power) {
@@ -838,83 +1023,152 @@ export function mountSplatPlayer(root) {
     return geo;
   }
 
+  function eggHeadGeometry(height, maxR) {
+    const pts = [];
+    const y0 = -height * 0.42;
+    const y1 = height * 0.58;
+    const peak = 0.62;
+    for (let i = 0; i <= 20; i += 1) {
+      const t = i / 20;
+      const y = y0 + (y1 - y0) * t;
+      let w;
+      if (t < peak) {
+        const u = t / peak;
+        w = 0.14 + 0.86 * Math.sin((Math.PI / 2) * Math.pow(u, 0.85));
+      } else {
+        const u = (t - peak) / Math.max(0.001, 1 - peak);
+        w = Math.cos((Math.PI / 2) * u);
+      }
+      pts.push(new THREE.Vector2(Math.max(0.001, maxR * w), y));
+    }
+    const geo = new THREE.LatheGeometry(pts, 28);
+    geo.computeVertexNormals();
+    return geo;
+  }
+
+  function dress(mesh, rimMat, haloMat, rimScale, haloScale) {
+    addShell(mesh, rimMat, rimScale);
+    addHalo(mesh, haloMat, haloScale);
+    mesh.renderOrder = 5;
+    return mesh;
+  }
+
   function buildSimpleFigure(height) {
     const h = height > 0.5 ? height : 1.7;
     const s = h / 1.7;
     const mat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
-      emissive: 0xf0f3ff,
-      emissiveIntensity: 0.45,
-      roughness: 0.42,
+      emissive: 0xf4f6ff,
+      emissiveIntensity: 0.62,
+      roughness: 0.46,
       metalness: 0.04,
-      transparent: true,
-      opacity: 1,
+      transparent: false,
       depthWrite: true,
       depthTest: true,
-      premultipliedAlpha: true,
       envMapIntensity: 0,
     });
-    attachFresnel(mat, 0.55, 2.3);
+    attachFresnel(mat, 0.48, 2.4);
     const rimMat = makeRimMaterial();
+    const haloMat = makeSoftHaloMaterial();
     const figure = new THREE.Group();
     figure.name = "restroom-icon";
 
-    // Medium build, between the 0.52 m-shoulder version and the skinny 0.39 m one.
     const hipY = 0.83 * s;
-    const headR = 0.12 * s;
-    const neckH = 0.05 * s;
-    const neckR = 0.05 * s;
-    const gap = 0.02 * s;
-    const torsoTop = h - headR * 2 - gap - neckH;
+    const headH = 0.29 * s;
+    const headR = 0.102 * s;
+    const neckH = 0.09 * s;
+    const neckR = 0.058 * s;
+    const torsoTop = h - headH - neckH * 0.55;
     const torsoH = torsoTop - hipY;
     const shoulderW = 0.45 * s;
     const hipW = 0.34 * s;
     const depth = 0.235 * s;
-    const headY = torsoTop + neckH + gap + headR;
     const armR = 0.048 * s;
     const legR = 0.062 * s;
     const shoulderY = torsoTop - 0.03 * s;
-    // Fingertip-equivalent capsule end at the hip/crotch, not below it.
     const armLen = Math.max(0.2 * s, shoulderY - hipY);
     const legLen = hipY;
     const legGap = 0.07 * s;
     const armGap = 0.016 * s;
+    const footH = 0.04 * s;
+    const footLen = 0.105 * s;
 
-    const torsoGeo = torsoLatheGeometry(shoulderW, hipW, torsoH, neckH, neckR);
+    const torsoGeo = torsoLatheGeometry(shoulderW, hipW, torsoH, neckH * 0.7, neckR);
     torsoGeo.scale(1, 1, depth / shoulderW);
     torsoGeo.computeVertexNormals();
-    const torso = new THREE.Mesh(torsoGeo, mat);
+    const torso = dress(new THREE.Mesh(torsoGeo, mat), rimMat, haloMat, 1.055, 1.13);
     torso.name = "torso";
     torso.position.y = hipY + torsoH * 0.5;
     figure.add(torso);
-    addShell(torso, rimMat, 1.07);
 
-    const head = new THREE.Mesh(new THREE.SphereGeometry(headR, 24, 18), mat);
+    const neck = dress(new THREE.Mesh(new THREE.CapsuleGeometry(neckR, Math.max(0.01, neckH - neckR), 8, 16), mat), rimMat, haloMat, 1.06, 1.14);
+    neck.name = "neck";
+    neck.position.y = torsoTop + neckH * 0.35;
+    figure.add(neck);
+
+    const head = dress(new THREE.Mesh(eggHeadGeometry(headH, headR), mat), rimMat, haloMat, 1.05, 1.12);
     head.name = "head";
-    head.position.y = headY;
+    head.position.y = torsoTop + neckH * 0.7 + headH * 0.42;
     figure.add(head);
-    addShell(head, rimMat, 1.055);
 
-    function limb(x, jointY, radius, totalLen, name) {
+    function limbArm(x, jointY, radius, totalLen, name) {
       const pivot = new THREE.Group();
       pivot.name = name + "-pivot";
       pivot.position.set(x, jointY, 0);
       const cyl = Math.max(0.01, totalLen - radius * 2);
-      const mesh = new THREE.Mesh(new THREE.CapsuleGeometry(radius, cyl, 8, 16), mat);
+      const mesh = dress(new THREE.Mesh(new THREE.CapsuleGeometry(radius, cyl, 8, 16), mat), rimMat, haloMat, 1.06, 1.14);
       mesh.name = name;
       mesh.position.y = -totalLen * 0.5;
-      addShell(mesh, rimMat, 1.06);
       pivot.add(mesh);
       figure.add(pivot);
       return pivot;
     }
 
+    function makeLeg(x, name) {
+      const hip = new THREE.Group();
+      hip.name = name + "-pivot";
+      hip.position.set(x, hipY, 0);
+      const thighLen = (legLen - footH) * 0.48;
+      const shinLen = legLen - footH - thighLen;
+      const joint = legR * 1.15;
+      const thighTop = joint * 0.35;
+      const thighBot = -thighLen - joint;
+      const thighCyl = Math.max(0.01, thighTop - thighBot - legR * 2);
+      const thigh = dress(new THREE.Mesh(new THREE.CapsuleGeometry(legR, thighCyl, 8, 16), mat), rimMat, haloMat, 1.06, 1.14);
+      thigh.name = name + "-thigh";
+      thigh.position.y = (thighTop + thighBot) * 0.5;
+      hip.add(thigh);
+      const knee = new THREE.Group();
+      knee.name = name + "-knee";
+      knee.position.y = -thighLen;
+      hip.add(knee);
+      const shinTop = joint;
+      const shinBot = -shinLen + joint * 0.2;
+      const shinCyl = Math.max(0.01, shinTop - shinBot - legR * 0.95 * 2);
+      const shin = dress(new THREE.Mesh(new THREE.CapsuleGeometry(legR * 0.95, shinCyl, 8, 16), mat), rimMat, haloMat, 1.06, 1.14);
+      shin.name = name + "-shin";
+      shin.position.y = (shinTop + shinBot) * 0.5;
+      knee.add(shin);
+      const ankle = new THREE.Group();
+      ankle.name = name + "-ankle";
+      ankle.position.y = -shinLen;
+      knee.add(ankle);
+      const footGeo = new THREE.SphereGeometry(legR * 1.05, 14, 10);
+      const foot = dress(new THREE.Mesh(footGeo, mat), rimMat, haloMat, 1.05, 1.12);
+      foot.name = name + "-foot";
+      foot.scale.set(1.05, 0.38, footLen / (legR * 1.05));
+      foot.position.set(0, -footH * 0.42, footLen * 0.28);
+      ankle.add(foot);
+      figure.add(hip);
+      return { hip, knee, ankle, foot, thighLen, shinLen };
+    }
+
     const shoulderX = shoulderW * 0.5 + armGap + armR;
-    const armL = limb(-shoulderX, shoulderY, armR, armLen, "armL");
-    const armRgt = limb(shoulderX, shoulderY, armR, armLen, "armR");
+    const armL = limbArm(-shoulderX, shoulderY, armR, armLen, "armL");
+    const armRgt = limbArm(shoulderX, shoulderY, armR, armLen, "armR");
     const legX = legR + legGap * 0.5;
-    const legL = limb(-legX, hipY, legR, legLen, "legL");
-    const legRgt = limb(legX, hipY, legR, legLen, "legR");
+    const left = makeLeg(-legX, "legL");
+    const right = makeLeg(legX, "legR");
 
     figure.updateMatrixWorld(true);
     const box = bodyBox(figure);
@@ -922,12 +1176,25 @@ export function mountSplatPlayer(root) {
     if (builtH > 0.01) figure.scale.multiplyScalar(h / builtH);
     figure.updateMatrixWorld(true);
 
-    figure.traverse((obj) => {
-      if (obj.isMesh && !/-rim$/.test(obj.name || "")) obj.renderOrder = 5;
-    });
-    const step = 2 * (legLen * (h / Math.max(builtH, 0.01))) * Math.sin(LEG_SWING);
+    const scale = h / Math.max(builtH, 0.01);
+    const step = 2 * ((left.thighLen + left.shinLen) * scale) * Math.sin(LEG_SWING);
     const natural = (2 * step) / WALK_CYCLE;
-    return { figure, armL, armR: armRgt, legL, legR: legRgt, mat, rimMat, natural };
+    return {
+      figure,
+      armL,
+      armR: armRgt,
+      legL: left.hip,
+      legR: right.hip,
+      kneeL: left.knee,
+      kneeR: right.knee,
+      footL: left.foot,
+      footR: right.foot,
+      torso,
+      head,
+      mat,
+      rimMat,
+      natural,
+    };
   }
 
   function makeFloorGlow() {
@@ -962,18 +1229,25 @@ export function mountSplatPlayer(root) {
       return mesh;
     }
 
-    const glow = radial(8, "rgba(255,255,255,0.30)", "rgba(230,236,255,0.10)", 0.95);
+    const glow = radial(8, "rgba(255,255,255,0.36)", "rgba(230,236,255,0.12)", 1.15);
     glow.name = "floor-glow";
     glow.material.blending = THREE.AdditiveBlending;
     glow.material.opacity = 0.7;
     glow.position.y = 0.008;
     glow.renderOrder = 4;
-    const shadow = radial(6, "rgba(0,0,0,0.22)", "rgba(0,0,0,0.08)", 0.4);
-    shadow.name = "contact-shadow";
-    shadow.position.y = 0.005;
-    shadow.renderOrder = 3;
-    group.add(shadow);
+    const shadowL = radial(3, "rgba(0,0,0,0.58)", "rgba(0,0,0,0.2)", 0.3);
+    shadowL.name = "contact-shadow-L";
+    shadowL.position.set(-0.08, 0.004, 0.02);
+    shadowL.renderOrder = 3;
+    const shadowR = radial(3, "rgba(0,0,0,0.58)", "rgba(0,0,0,0.2)", 0.3);
+    shadowR.name = "contact-shadow-R";
+    shadowR.position.set(0.08, 0.004, 0.02);
+    shadowR.renderOrder = 3;
+    group.add(shadowL);
+    group.add(shadowR);
     group.add(glow);
+    group.userData.shadowL = shadowL;
+    group.userData.shadowR = shadowR;
     return group;
   }
 
@@ -1013,8 +1287,9 @@ export function mountSplatPlayer(root) {
 
     avatarRoot = new THREE.Group();
     avatarRoot.name = "splat-avatar";
+    const floorFx = makeFloorGlow();
     avatarRoot.add(built.figure);
-    avatarRoot.add(makeFloorGlow());
+    avatarRoot.add(floorFx);
     addFigureLights(avatarRoot);
     scene.add(avatarRoot);
     avatarLimbs = {
@@ -1023,7 +1298,16 @@ export function mountSplatPlayer(root) {
       armR: built.armR,
       legL: built.legL,
       legR: built.legR,
+      kneeL: built.kneeL,
+      kneeR: built.kneeR,
+      footL: built.footL,
+      footR: built.footR,
+      torso: built.torso,
+      head: built.head,
+      shadowL: floorFx.userData.shadowL,
+      shadowR: floorFx.userData.shadowR,
       baseY: built.figure.position.y,
+      floorY: floor,
     };
     animTime = 0;
     animWalkWeight = 0;
@@ -1080,6 +1364,7 @@ export function mountSplatPlayer(root) {
     exitFullscreen(true);
     disposeMesh();
     disposeAvatar();
+    disposeAvatarTarget();
     pathCurve = null;
     pathData = null;
     playing = false;
@@ -1162,7 +1447,7 @@ export function mountSplatPlayer(root) {
       for (let i = 0; i < 6; i++) {
         if (pathCurve) poseAvatarAndCamera();
         else applyCamera();
-        renderer.render(scene, camera);
+        renderFrame();
         await new Promise((r) => requestAnimationFrame(r));
         if (gen !== openGen) return;
       }
@@ -1273,7 +1558,7 @@ export function mountSplatPlayer(root) {
       return { loadMs: stats.loadMs, fps: stats.fps };
     },
     frameFigure(mode) {
-      cameraHold = mode === "side" ? "side" : "threeQuarter";
+      cameraHold = mode === "side" ? "side" : mode === "feet" ? "feet" : "threeQuarter";
     },
     clearFigureFrame() {
       cameraHold = null;
