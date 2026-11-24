@@ -15,8 +15,7 @@ Checked 19–22 November 2026. No accounts were created and no one was contacted
   https://github.com/sparkjsdev/spark
   https://www.npmjs.com/package/@sparkjsdev/spark
   Local file: vendor/spark.module.js. Full licence text: vendor/spark.LICENSE.txt.
-  Not used by the map UI in this change; imported only when a later change
-  loads the splat viewer.
+  Used by the splat place viewer in src/splat-player.js.
 
 ## Map tiles
 
@@ -99,3 +98,16 @@ removed from the current tree and must not be served.
   People on the sides and behind walk; sky, buildings above the band and the
   ground under your feet stay still. 4.5 s loop with a 0.5 s crossfade.
 - Not true 360 footage. Test page only; not linked from the map.
+
+## Placeholder Gaussian splat (test asset — not a real place)
+
+- Source: `kyoto_room` in [SharedTestModels](https://github.com/raymondyfei/SharedTestModels)
+  by raymondyfei, checked 23 November 2026.
+- License: CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/).
+  The upstream repository LICENSE is copied to media/splat/LICENSE.txt.
+- Packaged file: media/splat/kyoto-room.sog — the `0_0` SOG LOD level
+  (meta.json + webp channels, 500,000 Gaussians, SOG v2 from splat-transform
+  v3.0.0) stored as a single ZIP at the archive root. This is a Kyoto room
+  capture used only as a technical placeholder. It is not Hollywood Walk of
+  Fame, not this pin's real surroundings, and the app labels it
+  “Test asset, not the real place.”

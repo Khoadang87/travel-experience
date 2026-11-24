@@ -112,6 +112,12 @@ nav a[aria-current="page"], button.primary, a.primary {
   text-overflow: ellipsis;
 }
 .map-pin.kind-theatre { color: #f3e6c4; }
+.map-pin.kind-splat { color: #9ad7e0; }
+.map-pin.kind-splat span {
+  background: #132126;
+  color: #c8f0f5;
+  border-color: #3d7a84;
+}
 .map-pin.kind-business { color: var(--gold); }
 .map-pin.kind-business span {
   background: var(--gold);
@@ -192,7 +198,7 @@ input, select, textarea {
 }
 .player-top { justify-content: space-between; padding: 12px 14px 0; }
 .eyebrow { margin: 0; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); }
-#player-title { margin: 2px 0 0; font-size: 18px; }
+#player-title, #splat-title { margin: 2px 0 0; font-size: 18px; }
 .sample-banner, .credit {
   margin: 8px 14px;
   font-size: 12px;
