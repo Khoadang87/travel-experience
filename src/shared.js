@@ -209,7 +209,7 @@ export const PLACEHOLDER_SPLAT = {
   },
   // Per-pin avatar and path. A later real capture should set its own.
   avatar: {
-    // Procedural white capsule figure, typical adult height.
+    // Procedural 3D men's restroom pictogram, typical adult height.
     kind: "simple",
     height: 1.7,
   },

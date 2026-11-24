@@ -94,8 +94,8 @@ export function mountSplatPlayer(root) {
   const FOLLOW_DIST = 3.35;
   const FOLLOW_UP = 2.08;
   const FOLLOW_LOOK_Y = 0.85;
-  const LEG_SWING = 0.5;
-  const ARM_SWING = 0.4;
+  const LEG_SWING = 0.38;
+  const ARM_SWING = 0.3;
   const WALK_CYCLE = 1.0;
   let lookAxis = { x: 0, y: 0 };
   let moveAxis = { x: 0, y: 0 };
@@ -683,19 +683,60 @@ export function mountSplatPlayer(root) {
     return shell;
   }
 
+  function bodyBox(root) {
+    const box = new THREE.Box3();
+    root.updateMatrixWorld(true);
+    root.traverse((obj) => {
+      if (!obj.isMesh || /-rim$/.test(obj.name || "")) return;
+      const b = new THREE.Box3().setFromObject(obj);
+      if (!b.isEmpty()) box.union(b);
+    });
+    return box;
+  }
+
+  function roundedRectShape(w, h, r) {
+    const x = -w / 2;
+    const y = -h / 2;
+    r = Math.min(r, w / 2, h / 2);
+    const s = new THREE.Shape();
+    s.moveTo(x + r, y);
+    s.lineTo(x + w - r, y);
+    s.quadraticCurveTo(x + w, y, x + w, y + r);
+    s.lineTo(x + w, y + h - r);
+    s.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    s.lineTo(x + r, y + h);
+    s.quadraticCurveTo(x, y + h, x, y + h - r);
+    s.lineTo(x, y + r);
+    s.quadraticCurveTo(x, y, x + r, y);
+    s.closePath();
+    return s;
+  }
+
+  function extrudeShape(shape, depth, bevel) {
+    const geo = new THREE.ExtrudeGeometry(shape, {
+      depth,
+      bevelEnabled: bevel > 0,
+      bevelThickness: bevel,
+      bevelSize: bevel,
+      bevelSegments: 3,
+      curveSegments: 12,
+    });
+    geo.translate(0, 0, -depth / 2);
+    geo.computeVertexNormals();
+    return geo;
+  }
+
   function buildSimpleFigure(height) {
     const h = height > 0.5 ? height : 1.7;
     const s = h / 1.7;
-    const mat = new THREE.MeshStandardMaterial({
-      color: 0xf7f8fb,
-      roughness: 0.4,
-      metalness: 0.08,
-      emissive: 0xe8edf8,
-      emissiveIntensity: 0.4,
+    // Even, self-lit sign color — no light/dark sides.
+    const mat = new THREE.MeshBasicMaterial({
+      color: 0xf3f6ff,
       transparent: true,
       opacity: 1,
       depthWrite: true,
       depthTest: true,
+      premultipliedAlpha: true,
       polygonOffset: true,
       polygonOffsetFactor: -1,
       polygonOffsetUnits: -1,
@@ -707,72 +748,78 @@ export function mountSplatPlayer(root) {
       opacity: 0.16,
       depthWrite: false,
       depthTest: true,
+      premultipliedAlpha: true,
       blending: THREE.AdditiveBlending,
     });
     const figure = new THREE.Group();
-    figure.name = "simple-figure";
+    figure.name = "restroom-icon";
 
-    const hipY = 0.9 * s;
-    const shoulderY = 1.36 * s;
-    const headR = 0.125 * s;
-    const torsoR = 0.15 * s;
-    const torsoLen = 0.52 * s;
-    const neckR = 0.07 * s;
-    const neckLen = 0.12 * s;
-    const armRadius = 0.055 * s;
-    const armLen = 0.58 * s;
-    const legRadius = 0.07 * s;
+    const depth = 0.11 * s;
+    const torsoBevel = 0.018 * s;
+    const shellScale = 1.065;
+    const hipY = 0.86 * s;
+    const torsoH = 0.46 * s;
+    const torsoW = 0.52 * s;
+    const torsoCorner = 0.12 * s;
+    const torsoTop = hipY + torsoH;
+    const gap = 0.08 * s;
+    const headR = 0.15 * s;
+    const headY = torsoTop + gap + headR;
+    const armW = 0.08 * s;
+    const armLen = 0.52 * s;
+    const legW = 0.12 * s;
     const legLen = hipY;
+    const legGap = 0.12 * s;
+    const armGap = 0.035 * s;
 
-    function capsule(radius, totalLen) {
-      const mid = Math.max(0.01, totalLen - 2 * radius);
-      return new THREE.CapsuleGeometry(radius, mid, 3, 10);
-    }
-
-    const torso = new THREE.Mesh(capsule(torsoR, torsoLen), mat);
+    const torso = new THREE.Mesh(extrudeShape(roundedRectShape(torsoW, torsoH, torsoCorner), depth, torsoBevel), mat);
     torso.name = "torso";
-    torso.position.y = shoulderY - torsoLen * 0.45;
+    torso.position.y = hipY + torsoH * 0.5;
     figure.add(torso);
-    addShell(torso, rimMat, 1.055);
+    addShell(torso, rimMat, shellScale);
 
-    const torsoTop = torso.position.y + torsoLen * 0.5;
-    const neck = new THREE.Mesh(capsule(neckR, neckLen), mat);
-    neck.name = "neck";
-    neck.position.y = torsoTop + neckLen * 0.25;
-    figure.add(neck);
-    addShell(neck, rimMat, 1.06);
-
-    const headY = neck.position.y + neckLen * 0.5 + headR * 0.72;
-    const head = new THREE.Mesh(new THREE.SphereGeometry(headR, 16, 12), mat);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(headR, 20, 14), mat);
     head.name = "head";
+    head.scale.z = 0.72;
     head.position.y = headY;
     figure.add(head);
-    addShell(head, rimMat, 1.06);
+    addShell(head, rimMat, 1.055);
 
-    function limb(x, jointY, radius, totalLen, name) {
+    function limb(x, jointY, width, totalLen, name) {
       const pivot = new THREE.Group();
       pivot.name = name + "-pivot";
       pivot.position.set(x, jointY, 0);
-      const mesh = new THREE.Mesh(capsule(radius, totalLen), mat);
+      // Capsules read as rounded 3D bars without the scalloped end caps
+      // ExtrudeGeometry + bevel produced on tight stadium shapes.
+      const radius = width * 0.5;
+      const cyl = Math.max(0.01, totalLen - width);
+      const mesh = new THREE.Mesh(new THREE.CapsuleGeometry(radius, cyl, 6, 14), mat);
       mesh.name = name;
       mesh.position.y = -totalLen * 0.5;
-      addShell(mesh, rimMat, 1.07);
+      addShell(mesh, rimMat, 1.055);
       pivot.add(mesh);
       figure.add(pivot);
       return pivot;
     }
 
-    const shoulderX = 0.2 * s;
-    const hipX = 0.09 * s;
-    const armL = limb(-shoulderX, shoulderY, armRadius, armLen, "armL");
-    const armR = limb(shoulderX, shoulderY, armRadius, armLen, "armR");
-    const legL = limb(-hipX, hipY, legRadius, legLen, "legL");
-    const legR = limb(hipX, hipY, legRadius, legLen, "legR");
+    const shoulderX = torsoW * 0.5 + armGap + armW * 0.5;
+    const shoulderY = torsoTop - armW * 0.15;
+    const armL = limb(-shoulderX, shoulderY, armW, armLen, "armL");
+    const armR = limb(shoulderX, shoulderY, armW, armLen, "armR");
+    const legX = legW * 0.5 + legGap * 0.5;
+    const legL = limb(-legX, hipY, legW, legLen, "legL");
+    const legR = limb(legX, hipY, legW, legLen, "legR");
+
+    figure.updateMatrixWorld(true);
+    const box = bodyBox(figure);
+    const builtH = box.max.y - box.min.y;
+    if (builtH > 0.01) figure.scale.multiplyScalar(h / builtH);
+    figure.updateMatrixWorld(true);
 
     figure.traverse((obj) => {
       if (obj.isMesh && !/-rim$/.test(obj.name || "")) obj.renderOrder = 5;
     });
-    const step = 2 * legLen * Math.sin(LEG_SWING);
+    const step = 2 * (legLen * (h / Math.max(builtH, 0.01))) * Math.sin(LEG_SWING);
     const natural = (2 * step) / WALK_CYCLE;
     return { figure, armL, armR, legL, legR, mat, rimMat, natural };
   }
@@ -809,10 +856,10 @@ export function mountSplatPlayer(root) {
       return mesh;
     }
 
-    const glow = radial(8, "rgba(255,255,255,0.55)", "rgba(230,236,255,0.16)", 1.15);
+    const glow = radial(8, "rgba(255,255,255,0.35)", "rgba(230,236,255,0.12)", 1.0);
     glow.name = "floor-glow";
     glow.material.blending = THREE.AdditiveBlending;
-    glow.material.opacity = 0.9;
+    glow.material.opacity = 0.7;
     glow.position.y = 0.008;
     glow.renderOrder = 4;
     const shadow = radial(6, "rgba(0,0,0,0.22)", "rgba(0,0,0,0.08)", 0.4);
@@ -852,7 +899,7 @@ export function mountSplatPlayer(root) {
     const built = buildSimpleFigure(height);
     built.figure.updateMatrixWorld(true);
     const floor = Number.isFinite(floorY) ? floorY : 0;
-    const box = new THREE.Box3().setFromObject(built.figure);
+    const box = bodyBox(built.figure);
     built.figure.position.y += floor - box.min.y;
     built.figure.updateMatrixWorld(true);
     avatarYawOffset = spec && Number.isFinite(spec.yawOffset) ? spec.yawOffset : 0;
