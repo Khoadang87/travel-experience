@@ -207,6 +207,15 @@ export const PLACEHOLDER_SPLAT = {
     boundsMin: [-2.66, 0.9, -5.6],
     boundsMax: [2.96, 2.2, 0.95],
   },
+  // Per-pin avatar and path. A later real capture should set its own.
+  avatar: {
+    src: "media/avatar/ToyCar.glb",
+    // Official ToyCar is ~3.8 cm long after its baked 0.0001 node scale.
+    // 15× makes a ~0.58 m toy/RC car, visible in the room but clear of the bed.
+    scale: 15,
+    length: 0.58,
+  },
+  path: "data/splat-path.json",
 };
 
 export function currentPage() {

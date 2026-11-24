@@ -313,7 +313,10 @@ body.player-open { overflow: hidden; }
   #pin-card { padding: 8px 10px; }
   #pin-card h2 { font-size: 16px; }
   #pin-blurb { font-size: 12px; margin: 4px 0; }
-  .stage { height: auto; min-height: 160px; max-height: min(48dvh, 420px); }
+  /* Fill the leftover phone viewport so the 3D stage is taller and the
+     empty strip under the controls goes away. Desktop keeps a capped height. */
+  .stage { height: auto; flex: 1 1 auto; min-height: 240px; max-height: none; }
+  .player-top, .sample-banner, .credit, .player-controls { flex-shrink: 0; }
   .stick { width: 88px; height: 88px; }
   .player-top { padding: 8px 12px 0; }
   .sample-banner, .credit { margin: 6px 12px; padding: 6px 8px; font-size: 11px; }

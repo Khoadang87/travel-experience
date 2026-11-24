@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { SparkRenderer, SplatMesh } from "@sparkjsdev/spark";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { detectWebGL2 } from "./webgl2.js";
 import { PLACEHOLDER_SPLAT } from "./shared.js";
 
@@ -28,7 +29,7 @@ export function mountSplatPlayer(root) {
         <p class="sample-banner" data-sample-banner></p>
         <div class="stage" data-stage>
           <canvas data-canvas></canvas>
-          <div class="look-hint">Look stick or drag: look around · Move stick: walk — stays in the room — no avatar yet</div>
+          <div class="look-hint">Look stick or drag: look around · Move stick: scrub the path · Play drives the car</div>
         </div>
         <div class="player-controls">
           <div class="sticks">
@@ -39,7 +40,7 @@ export function mountSplatPlayer(root) {
               <span>Look</span>
             </div>
             <div class="stick-wrap">
-              <div class="stick" data-stick="move" role="application" aria-label="Move joystick: walk forward, back, and sideways, staying inside the room">
+              <div class="stick" data-stick="move" role="application" aria-label="Move joystick: scrub the car along its path">
                 <span class="stick-dir dir-up" aria-hidden="true">↑</span>
                 <span class="stick-dir dir-down" aria-hidden="true">↓</span>
                 <span class="stick-dir dir-left" aria-hidden="true">←</span>
@@ -50,6 +51,9 @@ export function mountSplatPlayer(root) {
             </div>
           </div>
           <div class="transport">
+            <button type="button" class="text-btn" data-play>Play</button>
+            <input type="range" min="0" max="1000" value="0" data-seek aria-label="Path position">
+            <span class="time" data-time>0:00 / 0:00</span>
             <button type="button" class="text-btn" data-view-360>View 360 instead</button>
           </div>
         </div>
@@ -64,6 +68,9 @@ export function mountSplatPlayer(root) {
   const closeBtn = root.querySelector("[data-close]");
   const fsBtn = root.querySelector("[data-fs]");
   const view360Btn = root.querySelector("[data-view-360]");
+  const playBtn = root.querySelector("[data-play]");
+  const seek = root.querySelector("[data-seek]");
+  const timeEl = root.querySelector("[data-time]");
   const panel = root.querySelector(".player-panel");
 
   let renderer = null;
@@ -83,6 +90,8 @@ export function mountSplatPlayer(root) {
   const boundsMin = new THREE.Vector3(-10, 0.5, -10);
   const boundsMax = new THREE.Vector3(10, 2.2, 10);
   const WALK_SPEED = 1.8;
+  const FOLLOW_BACK = 1.55;
+  const FOLLOW_UP = 0.62;
   let lookAxis = { x: 0, y: 0 };
   let moveAxis = { x: 0, y: 0 };
   let dragging = false;
@@ -92,6 +101,26 @@ export function mountSplatPlayer(root) {
   let fpsFrames = 0;
   let fpsWindowStart = 0;
   const stats = { loadMs: 0, fps: 0 };
+
+  let avatarRoot = null;
+  let avatarReady = false;
+  let avatarYawOffset = 0;
+  let pathCurve = null;
+  let pathData = null;
+  let pathLength = 0;
+  let pathSpeed = 0.7;
+  let pathU = 0;
+  let playing = false;
+  let playAnchorMs = 0;
+  let playAnchorU = 0;
+  let seeking = false;
+  const pathBoundsMin = new THREE.Vector3(-10, -0.05, -10);
+  const pathBoundsMax = new THREE.Vector3(10, 0.8, 10);
+  const carPosition = new THREE.Vector3();
+  const _tan = new THREE.Vector3();
+  const _back = new THREE.Vector3();
+  const _side = new THREE.Vector3();
+  const _look = new THREE.Vector3();
 
   function bindStick(el, onAxis) {
     const knob = el.querySelector(".stick-knob");
@@ -246,6 +275,11 @@ export function mountSplatPlayer(root) {
     camera = new THREE.PerspectiveCamera(55, 1, 0.05, 5000);
     spark = new SparkRenderer({ renderer });
     scene.add(spark);
+    const hemi = new THREE.HemisphereLight(0xfff1dc, 0x2a221c, 1.05);
+    scene.add(hemi);
+    const dir = new THREE.DirectionalLight(0xffe6c4, 1.35);
+    dir.position.set(2.2, 5.5, 3.0);
+    scene.add(dir);
   }
 
   function resize() {
@@ -397,23 +431,33 @@ export function mountSplatPlayer(root) {
 
   function tick(ts) {
     raf = requestAnimationFrame(tick);
-    const dt = lastTs ? Math.min(0.05, (ts - lastTs) / 1000) : 0.016;
+    const dt = lastTs ? Math.min(0.08, (ts - lastTs) / 1000) : 0.016;
     lastTs = ts;
     yaw -= lookAxis.x * 1.4 * dt;
     pitch = clamp(pitch + lookAxis.y * 1.0 * dt, -1.2, 1.2);
-    // Move stick: walk in the look direction (up/down) and strafe (left/right).
-    // Camera looks down -Z at yaw 0, so forward is (-sin yaw, -cos yaw).
-    if (moveAxis.x || moveAxis.y) {
-      const forwardX = -Math.sin(yaw);
-      const forwardZ = -Math.cos(yaw);
-      const rightX = Math.cos(yaw);
-      const rightZ = -Math.sin(yaw);
-      const walk = -moveAxis.y * WALK_SPEED * dt;
-      const strafe = moveAxis.x * WALK_SPEED * dt;
-      pos.x += forwardX * walk + rightX * strafe;
-      pos.z += forwardZ * walk + rightZ * strafe;
+    if (pathCurve) {
+      if (moveAxis.y || moveAxis.x) {
+        const scrub = (-moveAxis.y * 0.85 + moveAxis.x * 0.25) * (pathSpeed / Math.max(pathLength, 0.001)) * dt;
+        setPathU(pathU + scrub, { fromUser: true });
+      } else if (playing) {
+        const elapsed = (performance.now() - playAnchorMs) / 1000;
+        setPathU(playAnchorU + (pathSpeed / Math.max(pathLength, 0.001)) * elapsed);
+      }
+      poseCarAndCamera();
+    } else {
+      // No path: keep the interior walk camera.
+      if (moveAxis.x || moveAxis.y) {
+        const forwardX = -Math.sin(yaw);
+        const forwardZ = -Math.cos(yaw);
+        const rightX = Math.cos(yaw);
+        const rightZ = -Math.sin(yaw);
+        const walk = -moveAxis.y * WALK_SPEED * dt;
+        const strafe = moveAxis.x * WALK_SPEED * dt;
+        pos.x += forwardX * walk + rightX * strafe;
+        pos.z += forwardZ * walk + rightZ * strafe;
+      }
+      applyCamera();
     }
-    applyCamera();
     if (renderer && scene && camera) renderer.render(scene, camera);
     if (ready) {
       fpsFrames += 1;
@@ -425,6 +469,201 @@ export function mountSplatPlayer(root) {
         fpsWindowStart = ts;
       }
     }
+  }
+
+
+  function fmtTime(s) {
+    s = Math.max(0, s || 0);
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return m + ":" + String(sec).padStart(2, "0");
+  }
+
+  function syncTransport() {
+    const duration = pathLength / Math.max(pathSpeed, 0.001);
+    const t = pathU * duration;
+    if (timeEl) timeEl.textContent = fmtTime(t) + " / " + fmtTime(duration);
+    if (seek && !seeking) seek.value = String(Math.round(pathU * 1000));
+    if (playBtn) {
+      playBtn.textContent = playing ? "Pause" : "Play";
+      playBtn.setAttribute("aria-label", playing ? "Pause path" : "Play path");
+    }
+  }
+
+  function setPathU(u, opts) {
+    if (!pathCurve) return;
+    if (pathData && pathData.closed) {
+      pathU = u - Math.floor(u);
+      if (pathU < 0) pathU += 1;
+    } else {
+      pathU = clamp(u, 0, 1);
+      if (playing && (pathU <= 0 || pathU >= 1) && !(opts && opts.fromUser)) {
+        playing = false;
+        pathU = pathU >= 1 ? 1 : 0;
+      }
+    }
+    if (opts && opts.fromUser) {
+      playAnchorU = pathU;
+      playAnchorMs = performance.now();
+    }
+    syncTransport();
+  }
+
+  function travelInBounds(origin, dir, maxDist) {
+    let t = maxDist;
+    const axes = [
+      [origin.x, dir.x, boundsMin.x, boundsMax.x],
+      [origin.z, dir.z, boundsMin.z, boundsMax.z],
+    ];
+    for (const [o, d, lo, hi] of axes) {
+      if (Math.abs(d) < 1e-8) continue;
+      const hit = d > 0 ? (hi - o) / d : (lo - o) / d;
+      if (hit >= 0) t = Math.min(t, hit);
+    }
+    return Math.max(0, t);
+  }
+
+  function poseCarAndCamera() {
+    if (!pathCurve || !camera) return;
+    pathCurve.getPointAt(pathU, carPosition);
+    pathCurve.getTangentAt(pathU, _tan);
+    _tan.y = 0;
+    if (_tan.lengthSq() < 1e-8) _tan.set(0, 0, 1);
+    else _tan.normalize();
+    if (avatarRoot) {
+      avatarRoot.position.copy(carPosition);
+      avatarRoot.rotation.y = Math.atan2(_tan.x, _tan.z) + avatarYawOffset;
+      avatarRoot.updateMatrixWorld(true);
+    }
+    // Tesla-style: behind and slightly above the car. Look stick/drag orbits that follow pose.
+    // Near a wall (start/end of the aisle) there isn't room behind, so swing to a three-quarter view.
+    _back.set(-_tan.x, 0, -_tan.z).normalize();
+    _back.applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw);
+    const desiredBack = FOLLOW_BACK * Math.cos(clamp(pitch, -0.7, 0.7));
+    const available = travelInBounds(carPosition, _back, desiredBack + 0.25);
+    const pitchLift = Math.sin(clamp(pitch, -0.7, 0.7)) * 0.55;
+    if (available < desiredBack * 0.55) {
+      // Stay inside the room: ahead and to the side, looking back at the car
+      // (going "behind" here would push the camera through the window).
+      _side.set(_tan.z, 0, -_tan.x).normalize();
+      const left = travelInBounds(carPosition, _side, 1.6);
+      _side.negate();
+      const right = travelInBounds(carPosition, _side, 1.6);
+      if (left >= right) _side.negate();
+      const sideDist = Math.min(1.2, Math.max(0.5, Math.max(left, right) - 0.2));
+      const aheadDist = Math.min(1.15, Math.max(0.55, travelInBounds(carPosition, _tan, 1.7) - 0.2));
+      _look.copy(_tan).multiplyScalar(aheadDist).addScaledVector(_side, sideDist);
+      if (yaw) _look.applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw);
+      pos.copy(carPosition).add(_look);
+      pos.y = carPosition.y + FOLLOW_UP + 0.22 + pitchLift;
+    } else {
+      pos.copy(carPosition).addScaledVector(_back, Math.min(desiredBack, available - 0.12));
+      pos.y = carPosition.y + FOLLOW_UP + pitchLift;
+    }
+    pos.x = clamp(pos.x, boundsMin.x, boundsMax.x);
+    pos.y = clamp(pos.y, 0.35, Math.max(boundsMax.y, 2.4));
+    pos.z = clamp(pos.z, boundsMin.z, boundsMax.z);
+    camera.position.copy(pos);
+    _look.copy(carPosition).addScaledVector(_tan, 0.2);
+    _look.y = carPosition.y + 0.18;
+    camera.lookAt(_look);
+    camera.updateMatrixWorld(true);
+  }
+
+  function disposeAvatar() {
+    if (!avatarRoot) return;
+    scene.remove(avatarRoot);
+    avatarRoot.traverse((obj) => {
+      if (obj.geometry && typeof obj.geometry.dispose === "function") obj.geometry.dispose();
+      const mat = obj.material;
+      if (mat) {
+        const list = Array.isArray(mat) ? mat : [mat];
+        for (const m of list) {
+          if (m && typeof m.dispose === "function") m.dispose();
+        }
+      }
+    });
+    avatarRoot = null;
+    avatarReady = false;
+  }
+
+  async function loadPath(spec) {
+    pathCurve = null;
+    pathData = null;
+    pathLength = 0;
+    pathU = 0;
+    playing = false;
+    if (!spec) return false;
+    if (typeof spec === "string") {
+      const res = await fetch(spec, { cache: "no-store" });
+      if (!res.ok) throw new Error("Could not load path");
+      spec = await res.json();
+    }
+    const pts = (spec.points || []).map((p) => new THREE.Vector3(p[0], p[1], p[2]));
+    if (pts.length < 2) return false;
+    pathData = spec;
+    pathCurve = new THREE.CatmullRomCurve3(pts, Boolean(spec.closed), "centripetal");
+    pathLength = pathCurve.getLength();
+    pathSpeed = Number(spec.speed) > 0 ? Number(spec.speed) : 0.7;
+    if (Array.isArray(spec.boundsMin) && Array.isArray(spec.boundsMax)) {
+      pathBoundsMin.fromArray(spec.boundsMin);
+      pathBoundsMax.fromArray(spec.boundsMax);
+    }
+    setPathU(0);
+    return true;
+  }
+
+  async function loadAvatar(spec, floorY) {
+    disposeAvatar();
+    if (!spec || !spec.src) return false;
+    const loader = new GLTFLoader();
+    const gltf = await loader.loadAsync(spec.src);
+    const model = gltf.scene || gltf.scenes[0];
+    if (!model) return false;
+    // Official ToyCar is staged on a red display cloth ("Fabric"). Drop it so
+    // the car sits on the room floor instead of a floating drape.
+    const drop = [];
+    model.traverse((obj) => {
+      if (obj !== model && /fabric/i.test(obj.name || "")) drop.push(obj);
+    });
+    for (const obj of drop) {
+      if (obj.parent) obj.parent.remove(obj);
+    }
+    const scale = Number(spec.scale) > 0 ? Number(spec.scale) : 15;
+    model.scale.multiplyScalar(scale);
+    model.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(model);
+    const yLift = (Number.isFinite(floorY) ? floorY : 0) - box.min.y;
+    model.position.y += yLift;
+    // If the longest horizontal side is X, the baked facing may need a yaw flip later.
+    avatarYawOffset = Number.isFinite(spec.yawOffset) ? spec.yawOffset : 0;
+    avatarRoot = new THREE.Group();
+    avatarRoot.name = "splat-avatar";
+    avatarRoot.add(model);
+    scene.add(avatarRoot);
+    avatarReady = true;
+    return true;
+  }
+
+  function playPath() {
+    if (!pathCurve) return;
+    if (pathU >= 1 && !(pathData && pathData.closed)) pathU = 0;
+    playing = true;
+    playAnchorU = pathU;
+    playAnchorMs = performance.now();
+    syncTransport();
+  }
+
+  function pausePath() {
+    playing = false;
+    playAnchorU = pathU;
+    playAnchorMs = performance.now();
+    syncTransport();
+  }
+
+  function togglePlay() {
+    if (playing) pausePath();
+    else playPath();
   }
 
   function showShell() {
@@ -450,6 +689,11 @@ export function mountSplatPlayer(root) {
     stopLoop();
     exitFullscreen(true);
     disposeMesh();
+    disposeAvatar();
+    pathCurve = null;
+    pathData = null;
+    playing = false;
+    pathU = 0;
     hideShell();
     lookAxis = { x: 0, y: 0 };
     moveAxis = { x: 0, y: 0 };
@@ -505,9 +749,29 @@ export function mountSplatPlayer(root) {
       if (!applyConfiguredView(view)) {
         applyInferredView(mesh);
       }
+      const avatarSpec = opts.avatar || credit.avatar;
+      const pathSpec = opts.path || credit.path;
+      try {
+        await loadPath(pathSpec);
+        if (gen !== openGen) return;
+        const floorY = pathData && Number.isFinite(pathData.floorY) ? pathData.floorY : 0;
+        await loadAvatar(avatarSpec, floorY);
+        if (gen !== openGen) return;
+      } catch (avatarErr) {
+        console.error(avatarErr);
+        // Keep the splat view; the car is optional.
+        avatarReady = false;
+      }
+      if (pathCurve) {
+        yaw = 0;
+        pitch = 0.12;
+        setPathU(0);
+        poseCarAndCamera();
+      }
       // A few warm-up frames so the first visible image isn't empty.
       for (let i = 0; i < 6; i++) {
-        applyCamera();
+        if (pathCurve) poseCarAndCamera();
+        else applyCamera();
         renderer.render(scene, camera);
         await new Promise((r) => requestAnimationFrame(r));
         if (gen !== openGen) return;
@@ -539,12 +803,29 @@ export function mountSplatPlayer(root) {
     teardown({ silent: true });
     if (typeof cb === "function") cb();
   });
+  playBtn.addEventListener("click", () => togglePlay());
+  seek.addEventListener("pointerdown", () => {
+    seeking = true;
+  });
+  seek.addEventListener("input", () => {
+    setPathU(Number(seek.value) / 1000, { fromUser: true });
+    if (pathCurve) poseCarAndCamera();
+  });
+  const endSeek = () => {
+    seeking = false;
+    syncTransport();
+  };
+  seek.addEventListener("pointerup", endSeek);
+  seek.addEventListener("pointercancel", endSeek);
 
   function onKey(e) {
     if (shell.hidden) return;
     if (e.key === "Escape") {
       if (isFullscreen()) exitFullscreen();
       else close();
+    } else if (e.key === " " || e.code === "Space") {
+      e.preventDefault();
+      togglePlay();
     }
   }
   window.addEventListener("keydown", onKey);
@@ -553,8 +834,35 @@ export function mountSplatPlayer(root) {
   const api = {
     open,
     close,
+    play: playPath,
+    pause: pausePath,
+    seek(u) {
+      setPathU(Number(u), { fromUser: true });
+      if (pathCurve) poseCarAndCamera();
+    },
     get ready() {
       return ready;
+    },
+    get avatarReady() {
+      return avatarReady;
+    },
+    get playing() {
+      return playing;
+    },
+    get pathU() {
+      return pathU;
+    },
+    get pathLength() {
+      return pathLength;
+    },
+    get carPosition() {
+      return { x: carPosition.x, y: carPosition.y, z: carPosition.z };
+    },
+    get bounds() {
+      return {
+        min: pathBoundsMin.toArray(),
+        max: pathBoundsMax.toArray(),
+      };
     },
     get stats() {
       return { loadMs: stats.loadMs, fps: stats.fps };
