@@ -28,7 +28,7 @@ export function mountSplatPlayer(root) {
         <p class="sample-banner" data-sample-banner></p>
         <div class="stage" data-stage>
           <canvas data-canvas></canvas>
-          <div class="look-hint">Look stick or drag: orbit · Move stick: orbit / zoom — no avatar yet</div>
+          <div class="look-hint">Look stick or drag: look around · Move stick: walk — stays in the room — no avatar yet</div>
         </div>
         <div class="player-controls">
           <div class="sticks">
@@ -39,7 +39,7 @@ export function mountSplatPlayer(root) {
               <span>Look</span>
             </div>
             <div class="stick-wrap">
-              <div class="stick" data-stick="move" role="application" aria-label="Move joystick: left or right to orbit, up or down to zoom">
+              <div class="stick" data-stick="move" role="application" aria-label="Move joystick: walk forward, back, and sideways, staying inside the room">
                 <span class="stick-dir dir-up" aria-hidden="true">↑</span>
                 <span class="stick-dir dir-down" aria-hidden="true">↓</span>
                 <span class="stick-dir dir-left" aria-hidden="true">←</span>
@@ -77,12 +77,12 @@ export function mountSplatPlayer(root) {
   let onCloseCb = null;
   let onFallbackCb = null;
   let onView360Cb = null;
-  let target = new THREE.Vector3();
-  let yaw = 0.6;
-  let pitch = 0.28;
-  let radius = 20;
-  let minRadius = 2;
-  let maxRadius = 80;
+  let pos = new THREE.Vector3();
+  let yaw = 0;
+  let pitch = 0;
+  const boundsMin = new THREE.Vector3(-10, 0.5, -10);
+  const boundsMax = new THREE.Vector3(10, 2.2, 10);
+  const WALK_SPEED = 1.8;
   let lookAxis = { x: 0, y: 0 };
   let moveAxis = { x: 0, y: 0 };
   let dragging = false;
@@ -259,35 +259,118 @@ export function mountSplatPlayer(root) {
     camera.updateProjectionMatrix();
   }
 
+  function clampToRoom() {
+    pos.x = clamp(pos.x, boundsMin.x, boundsMax.x);
+    pos.y = clamp(pos.y, boundsMin.y, boundsMax.y);
+    pos.z = clamp(pos.z, boundsMin.z, boundsMax.z);
+  }
+
   function applyCamera() {
     if (!camera) return;
-    const cp = Math.cos(pitch);
-    const sp = Math.sin(pitch);
-    const cy = Math.cos(yaw);
-    const sy = Math.sin(yaw);
-    camera.position.set(
-      target.x + radius * cp * sy,
-      target.y + radius * sp,
-      target.z + radius * cp * cy
-    );
-    camera.lookAt(target);
+    clampToRoom();
+    camera.position.copy(pos);
+    camera.rotation.order = "YXZ";
+    camera.rotation.y = yaw;
+    camera.rotation.x = pitch;
     camera.updateMatrixWorld(true);
   }
 
-  function fitToMesh() {
-    const box = mesh.getBoundingBox(true);
-    const size = new THREE.Vector3();
-    box.getSize(size);
-    box.getCenter(target);
-    const maxDim = Math.max(size.x, size.y, size.z, 1);
-    const fov = camera.fov * DEG;
-    radius = (maxDim / 2) / Math.tan(fov / 2) * 1.15;
-    minRadius = Math.max(maxDim * 0.12, 0.6);
-    maxRadius = maxDim * 4;
-    radius = clamp(radius, minRadius, maxRadius);
-    yaw = 0.7;
-    pitch = 0.22;
+  function applyConfiguredView(view) {
+    if (!view) return false;
+    if (Array.isArray(view.boundsMin) && Array.isArray(view.boundsMax)) {
+      boundsMin.fromArray(view.boundsMin);
+      boundsMax.fromArray(view.boundsMax);
+    }
+    if (Array.isArray(view.position)) {
+      pos.fromArray(view.position);
+    } else {
+      return false;
+    }
+    if (Array.isArray(view.lookAt)) {
+      const dir = new THREE.Vector3().fromArray(view.lookAt).sub(pos);
+      yaw = Math.atan2(-dir.x, -dir.z);
+      const horiz = Math.hypot(dir.x, dir.z);
+      // YXZ: positive rotation.x looks down.
+      pitch = clamp(-Math.atan2(dir.y, Math.max(horiz, 1e-5)), -1.2, 1.2);
+    } else if (typeof view.yaw === "number") {
+      yaw = view.yaw;
+      pitch = typeof view.pitch === "number" ? view.pitch : 0;
+    }
     applyCamera();
+    return true;
+  }
+
+  // Fallback if a pin has no splatView: start inside a robust (percentile)
+  // box of splat centers, at eye height, looking toward the densest wall.
+  function applyInferredView(splatMesh) {
+    const xs = [];
+    const ys = [];
+    const zs = [];
+    const each = splatMesh.forEachSplat?.bind(splatMesh);
+    if (typeof each !== "function") return false;
+    let i = 0;
+    each((_index, center) => {
+      if ((i++ & 3) !== 0) return; // sample every 4th splat
+      xs.push(center.x);
+      ys.push(center.y);
+      zs.push(center.z);
+    });
+    if (xs.length < 50) return false;
+    const pct = (arr, p) => {
+      const a = arr.slice().sort((a, b) => a - b);
+      const idx = Math.min(a.length - 1, Math.max(0, Math.floor((p / 100) * (a.length - 1))));
+      return a[idx];
+    };
+    const minX = pct(xs, 4);
+    const maxX = pct(xs, 96);
+    const minY = pct(ys, 8);
+    const maxY = pct(ys, 92);
+    const minZ = pct(zs, 4);
+    const maxZ = pct(zs, 96);
+    const inset = 0.4;
+    boundsMin.set(minX + inset, minY + 0.9, minZ + inset);
+    boundsMax.set(maxX - inset, maxY - 0.3, maxZ - inset);
+    if (boundsMin.x > boundsMax.x) {
+      const m = 0.5 * (boundsMin.x + boundsMax.x);
+      boundsMin.x = m - 0.2;
+      boundsMax.x = m + 0.2;
+    }
+    if (boundsMin.z > boundsMax.z) {
+      const m = 0.5 * (boundsMin.z + boundsMax.z);
+      boundsMin.z = m - 0.2;
+      boundsMax.z = m + 0.2;
+    }
+    pos.set(0.5 * (minX + maxX), minY + 1.52, 0.5 * (minZ + maxZ));
+    // Densest mid-height wall among the four faces.
+    const midLo = minY + 0.3;
+    const midHi = maxY - 0.2;
+    const depth = 0.4;
+    const faces = [
+      { axis: "x", sign: -1, count: 0 },
+      { axis: "x", sign: 1, count: 0 },
+      { axis: "z", sign: -1, count: 0 },
+      { axis: "z", sign: 1, count: 0 },
+    ];
+    for (let n = 0; n < xs.length; n++) {
+      const y = ys[n];
+      if (y < midLo || y > midHi) continue;
+      if (xs[n] <= minX + depth) faces[0].count++;
+      if (xs[n] >= maxX - depth) faces[1].count++;
+      if (zs[n] <= minZ + depth) faces[2].count++;
+      if (zs[n] >= maxZ - depth) faces[3].count++;
+    }
+    faces.sort((a, b) => b.count - a.count);
+    const wall = faces[0];
+    const look = pos.clone();
+    if (wall.axis === "x") look.x = wall.sign < 0 ? minX : maxX;
+    else look.z = wall.sign < 0 ? minZ : maxZ;
+    look.y = pos.y - 0.12;
+    const dir = look.sub(pos);
+    yaw = Math.atan2(-dir.x, -dir.z);
+    const horiz = Math.hypot(dir.x, dir.z);
+    pitch = clamp(-Math.atan2(dir.y, Math.max(horiz, 1e-5)), -1.2, 1.2);
+    applyCamera();
+    return true;
   }
 
   function disposeMesh() {
@@ -318,9 +401,17 @@ export function mountSplatPlayer(root) {
     lastTs = ts;
     yaw -= lookAxis.x * 1.4 * dt;
     pitch = clamp(pitch + lookAxis.y * 1.0 * dt, -1.2, 1.2);
-    yaw -= moveAxis.x * 1.2 * dt;
-    if (moveAxis.y) {
-      radius = clamp(radius * Math.exp(moveAxis.y * 0.9 * dt), minRadius, maxRadius);
+    // Move stick: walk in the look direction (up/down) and strafe (left/right).
+    // Camera looks down -Z at yaw 0, so forward is (-sin yaw, -cos yaw).
+    if (moveAxis.x || moveAxis.y) {
+      const forwardX = -Math.sin(yaw);
+      const forwardZ = -Math.cos(yaw);
+      const rightX = Math.cos(yaw);
+      const rightZ = -Math.sin(yaw);
+      const walk = -moveAxis.y * WALK_SPEED * dt;
+      const strafe = moveAxis.x * WALK_SPEED * dt;
+      pos.x += forwardX * walk + rightX * strafe;
+      pos.z += forwardZ * walk + rightZ * strafe;
     }
     applyCamera();
     if (renderer && scene && camera) renderer.render(scene, camera);
@@ -410,7 +501,10 @@ export function mountSplatPlayer(root) {
     try {
       await mesh.initialized;
       if (gen !== openGen) return;
-      fitToMesh();
+      const view = opts.view || credit.view;
+      if (!applyConfiguredView(view)) {
+        applyInferredView(mesh);
+      }
       // A few warm-up frames so the first visible image isn't empty.
       for (let i = 0; i < 6; i++) {
         applyCamera();

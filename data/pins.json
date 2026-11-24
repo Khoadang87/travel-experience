@@ -122,6 +122,12 @@
       "sourceUrl": "https://github.com/raymondyfei/SharedTestModels",
       "blurb": "Test asset, not the real place. A Gaussian splat of a Kyoto room (CC0) opened in a 3D viewer \u2014 not a walk of a Hollywood street and not a capture of this pin's surroundings.",
       "splat": "media/splat/kyoto-room.sog",
+      "splatView": {
+        "position": [-0.19, 1.52, -2.56],
+        "lookAt": [-0.19, 1.4, 1.15],
+        "boundsMin": [-2.66, 0.9, -5.6],
+        "boundsMax": [2.96, 2.2, 0.95]
+      },
       "label": "Splat preview (test)"
     }
   ]

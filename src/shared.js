@@ -196,6 +196,17 @@ export const PLACEHOLDER_SPLAT = {
   commons: "https://github.com/raymondyfei/SharedTestModels",
   license: "CC0 1.0",
   licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+  // Interior start pose, worked out from the decoded SOG means: drop
+  // sparse log-range outliers, take the dense room (about 6.5 × 3.4 × 7.6),
+  // floor near y = 0, eye height 1.52, looking toward the +Z wall (the
+  // densest mid-height face). A later real capture should set its own
+  // splatView / view rather than reuse these numbers.
+  view: {
+    position: [-0.19, 1.52, -2.56],
+    lookAt: [-0.19, 1.4, 1.15],
+    boundsMin: [-2.66, 0.9, -5.6],
+    boundsMax: [2.96, 2.2, 0.95],
+  },
 };
 
 export function currentPage() {
