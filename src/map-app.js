@@ -1,5 +1,5 @@
 import { Map, Marker, setWorkerUrl } from "maplibre-gl";
-import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360, FLAT_BUSINESS, PLACEHOLDER_SPLAT, STREET_SPLAT } from "./shared.js";
+import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360, FLAT_BUSINESS, PLACEHOLDER_SPLAT, STREET_SPLAT, LUDLOW_SPLAT } from "./shared.js";
 
 import { mountPlayer } from "./player.js";
 import { mountSplatPlayer } from "./splat-player.js";
@@ -139,9 +139,11 @@ function openPin(pin) {
   if (pin.splat) {
     if (window.__tgPlayer) window.__tgPlayer.close({ silent: true });
     const splatCredit =
-      pin.id === "street-intersection-splat" || (pin.splat && String(pin.splat).includes("street-intersection"))
-        ? STREET_SPLAT
-        : PLACEHOLDER_SPLAT;
+      pin.id === "ludlow-courtyard-splat" || (pin.splat && String(pin.splat).includes("ludlow-courtyard"))
+        ? LUDLOW_SPLAT
+        : pin.id === "street-intersection-splat" || (pin.splat && String(pin.splat).includes("street-intersection"))
+          ? STREET_SPLAT
+          : PLACEHOLDER_SPLAT;
     splatPlayer.open({
       title: pin.name,
       src: pin.splat,
@@ -331,6 +333,23 @@ document.getElementById("btn-all-pins").addEventListener("click", () => {
   hidePinCard();
   closeViewers();
   flyToAllPins();
+});
+
+document.getElementById("btn-ludlow").addEventListener("click", () => {
+  const pin = (pins || []).find((p) => p.id === "ludlow-courtyard-splat");
+  if (!pin) return;
+  hidePinCard();
+  closeViewers();
+  setMode("street");
+  map.flyTo({
+    center: [pin.lng, pin.lat],
+    zoom: Math.max(STREET_ZOOM + 3.6, 16.2),
+    pitch: 42,
+    bearing: 0,
+    essential: true,
+    duration: 1600,
+  });
+  openPin(pin);
 });
 
 document.getElementById("btn-globe").addEventListener("click", () => {

@@ -1,0 +1,209 @@
+{
+  "id": "ludlow-courtyard-walker",
+  "closed": true,
+  "floorY": 0.02,
+  "speed": 0.95,
+  "followDist": 2.0,
+  "followUp": 1.55,
+  "followLookY": 0.85,
+  "followWorldX": 1.15,
+  "followLookWorldX": 0.4,
+  "followLookAhead": 1.7,
+  "boundsMin": [
+    -3.0,
+    -0.5,
+    -0.8
+  ],
+  "boundsMax": [
+    16.0,
+    9.0,
+    14.0
+  ],
+  "lighting": {
+    "fill": 1.25,
+    "rim": 0.7,
+    "hemi": 0.9,
+    "envIntensity": 1.15
+  },
+  "notes": "Kane (the soft-glow 'you' walker) walks a north-south loop on the open cobbles of Quality Square, clear of the scanned parked Fiat, the picnic tables, and the brick walls. Five CC0 tevy people walk other cobble paths; no extra cars are added \u2014 the scanned parked car is already in the capture, and the passage is too tight for a driving car. The follow camera sits east of Kane so the people, the facades, and the parked car stay in a phone frame. Lighting is brighter than the Tesla street preview so the people match this overcast courtyard.",
+  "points": [
+    [
+      2.8,
+      0.02,
+      1.15
+    ],
+    [
+      2.8,
+      0.02,
+      2.25
+    ],
+    [
+      2.8,
+      0.02,
+      3.35
+    ],
+    [
+      2.8,
+      0.02,
+      4.5
+    ],
+    [
+      2.8,
+      0.02,
+      3.35
+    ],
+    [
+      2.8,
+      0.02,
+      2.25
+    ]
+  ],
+  "pedestrians": [
+    {
+      "id": "ped-1",
+      "closed": true,
+      "speed": 0.85,
+      "height": 1.7,
+      "model": "casual-walker",
+      "points": [
+        [
+          2.05,
+          0.02,
+          4.85
+        ],
+        [
+          3.15,
+          0.02,
+          4.85
+        ],
+        [
+          4.2,
+          0.02,
+          4.85
+        ],
+        [
+          3.15,
+          0.02,
+          4.85
+        ]
+      ]
+    },
+    {
+      "id": "ped-2",
+      "closed": true,
+      "speed": 0.9,
+      "height": 1.68,
+      "model": "dog-walker",
+      "points": [
+        [
+          0.55,
+          0.02,
+          1.25
+        ],
+        [
+          1.25,
+          0.02,
+          1.25
+        ],
+        [
+          2.15,
+          0.02,
+          1.25
+        ],
+        [
+          1.25,
+          0.02,
+          1.25
+        ]
+      ]
+    },
+    {
+      "id": "ped-3",
+      "closed": true,
+      "speed": 0.8,
+      "height": 1.72,
+      "model": "hiker",
+      "points": [
+        [
+          0.4,
+          0.02,
+          0.45
+        ],
+        [
+          0.4,
+          0.02,
+          1.55
+        ],
+        [
+          1.15,
+          0.02,
+          1.55
+        ],
+        [
+          0.4,
+          0.02,
+          1.55
+        ]
+      ]
+    },
+    {
+      "id": "ped-4",
+      "closed": true,
+      "speed": 0.75,
+      "height": 1.7,
+      "model": "road-worker",
+      "points": [
+        [
+          6.1,
+          0.02,
+          0.75
+        ],
+        [
+          7.4,
+          0.02,
+          0.85
+        ],
+        [
+          8.8,
+          0.02,
+          0.95
+        ],
+        [
+          7.4,
+          0.02,
+          0.85
+        ]
+      ]
+    },
+    {
+      "id": "ped-5",
+      "closed": true,
+      "speed": 0.88,
+      "height": 1.66,
+      "model": "casual-walker",
+      "points": [
+        [
+          1.95,
+          0.02,
+          3.4
+        ],
+        [
+          1.95,
+          0.02,
+          4.0
+        ],
+        [
+          1.95,
+          0.02,
+          4.55
+        ],
+        [
+          1.95,
+          0.02,
+          4.0
+        ]
+      ]
+    }
+  ],
+  "cars": []
+}

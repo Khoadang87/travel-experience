@@ -49,7 +49,7 @@ test("globe renders, street zoom and pins open the 360 player, joystick works", 
   await goToWalk(page);
   await page.waitForTimeout(1500);
   await expect(page.locator("#mode-badge")).toHaveText("Street map");
-  await expect(page.locator(".map-pin")).toHaveCount(11);
+  await expect(page.locator(".map-pin")).toHaveCount(12);
   await expect(page.getByRole("button", { name: "TCL Chinese Theatre" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Dolby Theatre" })).toBeVisible();
   await shot(page, "02-street-pins.png");
@@ -459,7 +459,7 @@ test("phone street view leaves primary pins tappable and dismisses the pin card"
     await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
     await goToWalk(page);
     await page.waitForTimeout(500);
-    await expect(page.locator(".map-pin")).toHaveCount(11);
+    await expect(page.locator(".map-pin")).toHaveCount(12);
     const hud = await page.locator(".hud").boundingBox();
     const header = await page.locator("header.top").boundingBox();
     for (const name of PRIMARY_PIN_NAMES) {
@@ -580,7 +580,7 @@ test("existing pins keep their ids, coordinates, and 360/flat behaviour", async 
       splat: p.splat || undefined,
     }))
   );
-  const splatIds = new Set(["splat-placeholder", "street-intersection-splat"]);
+  const splatIds = new Set(["splat-placeholder", "street-intersection-splat", "ludlow-courtyard-splat"]);
   const withoutSplat = pins.filter((p) => !splatIds.has(p.id));
   expect(withoutSplat).toEqual(ORIGINAL_PINS);
   const splat = pins.find((p) => p.id === "splat-placeholder");
@@ -591,7 +591,12 @@ test("existing pins keep their ids, coordinates, and 360/flat behaviour", async 
   expect(street.splat).toMatch(/street-intersection\.sog$/);
   expect(street.lng).toBeCloseTo(-118.3495, 4);
   expect(street.lat).toBeCloseTo(34.1048, 4);
-  expect(pins).toHaveLength(11);
+  const ludlow = pins.find((p) => p.id === "ludlow-courtyard-splat");
+  expect(ludlow).toBeTruthy();
+  expect(ludlow.splat).toMatch(/ludlow-courtyard\.sog$/);
+  expect(ludlow.lng).toBeCloseTo(-2.72001, 4);
+  expect(ludlow.lat).toBeCloseTo(52.36789, 4);
+  expect(pins).toHaveLength(12);
 
   await page.evaluate(() => window.__tgOpenPin("tcl-chinese"));
   await expect(page.locator("#player-root .player-shell")).toBeVisible();
@@ -856,6 +861,96 @@ test("Street intersection splat loads with credit, autoplay walk, pedestrians, a
   expect(after.walkMoved).toBeGreaterThan(0.25);
   expect(after.pedMoved).toBeGreaterThanOrEqual(2);
   expect(after.carMoved).toBeGreaterThanOrEqual(1);
+});
+
+
+test("Ludlow courtyard splat loads with credit, autoplay walk, and pedestrians on the cobbles", async ({ page }) => {
+  test.setTimeout(300000);
+  await page.goto("/index.html");
+  await waitForMap(page);
+  await expect(page.getByRole("button", { name: "Ludlow courtyard" })).toBeVisible();
+  await page.evaluate(() => window.__tgOpenPin("ludlow-courtyard-splat"));
+  await expect(page.locator("#splat-root .player-shell")).toBeVisible();
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.ready === true, null, { timeout: 120000 });
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.avatarReady === true, null, { timeout: 60000 });
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Quality Square, Ludlow");
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("ijenko");
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("CC BY 4.0");
+  await expect(page.locator("#splat-root .look-hint")).toContainText("starts walking when the preview opens");
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.playing === true && window.__tgSplatPlayer.anim === "walk", null, { timeout: 5000 });
+
+  const start = await page.evaluate(() => ({
+    u: window.__tgSplatPlayer.pathU,
+    animTime: window.__tgSplatPlayer.animTime,
+    peds: window.__tgSplatPlayer.pedestrians.length,
+    cars: window.__tgSplatPlayer.cars.length,
+    pedPos: window.__tgSplatPlayer.pedestrians.map((p) => p.position),
+    pedModels: window.__tgSplatPlayer.pedestrians.map((p) => p.model),
+    loadMs: window.__tgSplatPlayer.stats && window.__tgSplatPlayer.stats.loadMs,
+  }));
+  expect(start.peds).toBeGreaterThanOrEqual(4);
+  expect(start.peds).toBeLessThanOrEqual(6);
+  expect(start.cars).toBe(0);
+  expect(start.pedModels.every((m) => m && m !== "simple")).toBe(true);
+  expect(new Set(start.pedModels).size).toBeGreaterThanOrEqual(3);
+  for (const p of start.pedPos) {
+    expect(p.y).toBeGreaterThan(-0.4);
+    expect(p.y).toBeLessThan(0.6);
+    // Stay in the courtyard / passage mouth, clear of the parked Fiat box.
+    expect(p.x).toBeGreaterThan(-2.2);
+    expect(p.x).toBeLessThan(10.5);
+    expect(p.z).toBeGreaterThan(-0.5);
+    expect(p.z).toBeLessThan(5.4);
+    const inCar = p.x >= 5.55 && p.x <= 7.7 && p.z >= 2.85 && p.z <= 5.55;
+    expect(inCar).toBe(false);
+  }
+
+  await page.waitForFunction(() => {
+    const p = window.__tgSplatPlayer;
+    if (!p || p.playing !== true) return false;
+    if (!window.__tgLudlowStart) {
+      window.__tgLudlowStart = { u: p.pathU, t: p.animTime, pedU: p.pedestrians.map((m) => m.u) };
+      return false;
+    }
+    return p.pathU > window.__tgLudlowStart.u + 0.04 && p.animTime > window.__tgLudlowStart.t + 0.3;
+  }, null, { timeout: 90000 });
+
+  const after = await page.evaluate(() => {
+    const p = window.__tgSplatPlayer;
+    const s = window.__tgLudlowStart;
+    return {
+      pathMoved: p.pathU - s.u,
+      walkMoved: p.animTime - s.t,
+      pedMoved: p.pedestrians.filter((m, i) => Math.abs(m.u - s.pedU[i]) > 0.02).length,
+    };
+  });
+  expect(after.pathMoved).toBeGreaterThan(0.03);
+  expect(after.walkMoved).toBeGreaterThan(0.25);
+  expect(after.pedMoved).toBeGreaterThanOrEqual(2);
+
+  // Pause stops Kane and the crowd; Play starts them again.
+  // Click via the DOM: SwiftShader splat frames can keep the control from
+  // counting as "stable" for Playwright's actionability checks.
+  await expect(page.locator("#splat-root [data-play]")).toHaveText("Pause");
+  await page.locator("#splat-root [data-play]").evaluate((el) => el.click());
+  const paused = await page.evaluate(() => {
+    const p = window.__tgSplatPlayer;
+    return { playing: p.playing, u: p.pathU, pedU: p.pedestrians.map((m) => m.u) };
+  });
+  expect(paused.playing).toBe(false);
+  await page.waitForTimeout(400);
+  const still = await page.evaluate(() => {
+    const p = window.__tgSplatPlayer;
+    return { playing: p.playing, u: p.pathU, pedU: p.pedestrians.map((m) => m.u) };
+  });
+  expect(still.playing).toBe(false);
+  expect(Math.abs(still.u - paused.u)).toBeLessThan(0.002);
+  expect(still.pedU.every((u, i) => Math.abs(u - paused.pedU[i]) < 0.002)).toBe(true);
+
+  await expect(page.locator("#splat-root [data-play]")).toHaveText("Play");
+  await page.locator("#splat-root [data-play]").evaluate((el) => el.click());
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.playing === true, null, { timeout: 5000 });
+  await expect(page.locator("#splat-root [data-play]")).toHaveText("Pause");
 });
 
 // Pre-existing failures, left unfixed: these locators expect href="/sales.html"

@@ -189,6 +189,45 @@
       },
       "splatPath": "data/street-path.json",
       "label": "Street intersection (test)"
+    },
+    {
+      "id": "ludlow-courtyard-splat",
+      "name": "Ludlow courtyard (test)",
+      "kind": "splat",
+      "lng": -2.72001,
+      "lat": 52.36789,
+      "sourceName": "Quality Square, Ludlow, UK \u2014 ijenko courtyard splat, CC BY 4.0",
+      "sourceUrl": "https://superspl.at/scene/ca36efcc",
+      "blurb": "A 3D Gaussian splat of Quality Square in Ludlow, Shropshire, UK (ijenko, XGRIDS LixelKity K1, CC BY 4.0). A soft-glow walker marks 'you' among realistic CC0 people on the cobbles. The parked car is part of the scan. Cropped and converted for this preview; see media/splat/LUDLOW-ATTRIBUTION.md.",
+      "splat": "media/splat/ludlow-courtyard.sog",
+      "splatView": {
+        "position": [
+          3.95,
+          1.6,
+          -0.4
+        ],
+        "lookAt": [
+          3.2,
+          0.9,
+          2.8
+        ],
+        "boundsMin": [
+          -3.0,
+          -0.5,
+          -0.8
+        ],
+        "boundsMax": [
+          16.0,
+          9.0,
+          14.0
+        ]
+      },
+      "splatAvatar": {
+        "kind": "simple",
+        "height": 1.7
+      },
+      "splatPath": "data/ludlow-path.json",
+      "label": "Ludlow courtyard (test)"
     }
   ]
 }

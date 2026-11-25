@@ -240,6 +240,30 @@ export const STREET_SPLAT = {
   path: "data/street-path.json",
 };
 
+
+// Quality Square, Ludlow — a CC BY 4.0 courtyard and passage scan by
+// ijenko (XGRIDS LixelKity K1). Cropped and converted for this preview.
+export const LUDLOW_SPLAT = {
+  src: "media/splat/ludlow-courtyard.sog",
+  title: "Ludlow courtyard (test)",
+  credit:
+    "Quality Square, Ludlow, UK. Gaussian splat by ijenko (XGRIDS LixelKity K1), CC BY 4.0. Cropped and converted for this preview (1,859,892 Gaussians, SOG v2; see media/splat/LUDLOW-ATTRIBUTION.md). No endorsement implied.",
+  commons: "https://superspl.at/scene/ca36efcc",
+  license: "CC BY 4.0",
+  licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+  view: {
+    position: [3.95, 1.6, -0.4],
+    lookAt: [3.2, 0.9, 2.8],
+    boundsMin: [-3.0, -0.5, -0.8],
+    boundsMax: [16.0, 9.0, 14.0],
+  },
+  avatar: {
+    kind: "simple",
+    height: 1.7,
+  },
+  path: "data/ludlow-path.json",
+};
+
 export function currentPage() {
   const p = location.pathname;
   if (p.endsWith("creator.html")) return "creator";

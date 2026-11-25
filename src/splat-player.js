@@ -681,6 +681,7 @@ export function mountSplatPlayer(root) {
     }
     movers = [];
     crowdLit = false;
+    if (scene && scene.environmentIntensity != null) scene.environmentIntensity = 0.85;
     if (!crowdRoot) return;
     scene.remove(crowdRoot);
     crowdRoot.traverse((obj) => {
@@ -1697,14 +1698,26 @@ export function mountSplatPlayer(root) {
     crowdRoot.name = "splat-crowd";
     if (usesModels) {
       ensureStreetEnvironment();
-      const fill = new THREE.DirectionalLight(0xf3efe6, 0.7);
+      const lighting = spec.lighting || {};
+      const num = (key, fallback) => {
+        const n = Number(lighting[key]);
+        return Number.isFinite(n) && n >= 0 ? n : fallback;
+      };
+      const fill = new THREE.DirectionalLight(0xf3efe6, num("fill", 0.7));
       fill.position.set(-6, 6, -8);
       fill.name = "street-fill";
       crowdRoot.add(fill);
-      const rim = new THREE.DirectionalLight(0xdde6f2, 0.35);
+      const rim = new THREE.DirectionalLight(0xdde6f2, num("rim", 0.35));
       rim.position.set(6, 4, 8);
       rim.name = "street-rim";
       crowdRoot.add(rim);
+      const hemiI = num("hemi", 0);
+      if (hemiI > 0) {
+        const hemi = new THREE.HemisphereLight(0xe8eef6, 0x6a6560, hemiI);
+        hemi.name = "street-hemi";
+        crowdRoot.add(hemi);
+      }
+      if (scene) scene.environmentIntensity = num("envIntensity", 0.85);
     } else addFigureLights(crowdRoot);
 
     async function addPedestrian(item, i) {
