@@ -252,10 +252,10 @@ export const LUDLOW_SPLAT = {
   license: "CC BY 4.0",
   licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
   view: {
-    position: [3.95, 1.6, -0.4],
-    lookAt: [3.2, 0.9, 2.8],
+    position: [3.5, 2.2, -0.15],
+    lookAt: [3.25, 0.75, 3.15],
     boundsMin: [-3.0, -0.5, -0.8],
-    boundsMax: [16.0, 9.0, 14.0],
+    boundsMax: [16.0, 9.0, 5.0],
   },
   avatar: {
     kind: "simple",

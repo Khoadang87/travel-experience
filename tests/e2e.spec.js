@@ -878,6 +878,9 @@ test("Ludlow courtyard splat loads with credit, autoplay walk, and pedestrians o
   await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("CC BY 4.0");
   await expect(page.locator("#splat-root .look-hint")).toContainText("starts walking when the preview opens");
   await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.playing === true && window.__tgSplatPlayer.anim === "walk", null, { timeout: 5000 });
+  // The transport must already read Pause as soon as autoplay has started,
+  // not still show Play on the first visible frame.
+  await expect(page.locator("#splat-root [data-play]")).toHaveText("Pause");
 
   const start = await page.evaluate(() => ({
     u: window.__tgSplatPlayer.pathU,
@@ -885,24 +888,59 @@ test("Ludlow courtyard splat loads with credit, autoplay walk, and pedestrians o
     peds: window.__tgSplatPlayer.pedestrians.length,
     cars: window.__tgSplatPlayer.cars.length,
     pedPos: window.__tgSplatPlayer.pedestrians.map((p) => p.position),
+    you: window.__tgSplatPlayer.avatarPosition,
     pedModels: window.__tgSplatPlayer.pedestrians.map((p) => p.model),
+    playLabel: document.querySelector("#splat-root [data-play]")?.textContent,
     loadMs: window.__tgSplatPlayer.stats && window.__tgSplatPlayer.stats.loadMs,
   }));
+  expect(start.playLabel).toBe("Pause");
   expect(start.peds).toBeGreaterThanOrEqual(4);
   expect(start.peds).toBeLessThanOrEqual(6);
   expect(start.cars).toBe(0);
   expect(start.pedModels.every((m) => m && m !== "simple")).toBe(true);
   expect(new Set(start.pedModels).size).toBeGreaterThanOrEqual(3);
-  for (const p of start.pedPos) {
-    expect(p.y).toBeGreaterThan(-0.4);
-    expect(p.y).toBeLessThan(0.6);
-    // Stay in the courtyard / passage mouth, clear of the parked Fiat box.
-    expect(p.x).toBeGreaterThan(-2.2);
-    expect(p.x).toBeLessThan(10.5);
-    expect(p.z).toBeGreaterThan(-0.5);
-    expect(p.z).toBeLessThan(5.4);
-    const inCar = p.x >= 5.55 && p.x <= 7.7 && p.z >= 2.85 && p.z <= 5.55;
-    expect(inCar).toBe(false);
+
+  const inFiat = (p) => p.x >= 5.3 && p.x <= 8.0 && p.z >= 2.6 && p.z <= 5.7;
+  const inPicnic = (p) => p.x <= 2.15 && p.z >= 2.45 && p.z <= 4.85;
+  const onWall = (p) => p.z >= 4.9 || p.z <= -0.3;
+  function assertClear(label, you, peds) {
+    const bodies = [{ id: "you", ...you }, ...peds.map((p, i) => ({ id: "ped-" + i, ...p }))];
+    for (const p of bodies) {
+      expect(p.y, label + " " + p.id + " y").toBeGreaterThan(-0.15);
+      expect(p.y, label + " " + p.id + " y").toBeLessThan(0.35);
+      expect(p.x, label + " " + p.id + " x").toBeGreaterThan(-0.5);
+      expect(p.x, label + " " + p.id + " x").toBeLessThan(5.2);
+      expect(p.z, label + " " + p.id + " z").toBeGreaterThan(0.6);
+      expect(p.z, label + " " + p.id + " z").toBeLessThan(4.7);
+      expect(inFiat(p), label + " " + p.id + " in Fiat").toBe(false);
+      if (p.id !== "you") {
+        expect(inPicnic(p), label + " " + p.id + " in picnic").toBe(false);
+        expect(onWall(p), label + " " + p.id + " in wall").toBe(false);
+      }
+    }
+    for (let i = 0; i < bodies.length; i++) {
+      for (let j = i + 1; j < bodies.length; j++) {
+        const dx = bodies[i].x - bodies[j].x;
+        const dz = bodies[i].z - bodies[j].z;
+        const dist = Math.hypot(dx, dz);
+        expect(dist, label + " " + bodies[i].id + " vs " + bodies[j].id).toBeGreaterThan(0.8);
+      }
+    }
+  }
+  assertClear("start", start.you, start.pedPos);
+
+  // Sample later poses while autoplay continues; button must stay Pause.
+  for (let i = 0; i < 5; i++) {
+    await page.waitForTimeout(500);
+    const sample = await page.evaluate(() => ({
+      playing: window.__tgSplatPlayer.playing,
+      label: document.querySelector("#splat-root [data-play]")?.textContent,
+      you: window.__tgSplatPlayer.avatarPosition,
+      peds: window.__tgSplatPlayer.pedestrians.map((p) => p.position),
+    }));
+    expect(sample.playing).toBe(true);
+    expect(sample.label).toBe("Pause");
+    assertClear("sample-" + i, sample.you, sample.peds);
   }
 
   await page.waitForFunction(() => {

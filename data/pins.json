@@ -202,14 +202,14 @@
       "splat": "media/splat/ludlow-courtyard.sog",
       "splatView": {
         "position": [
-          3.95,
-          1.6,
-          -0.4
+          3.5,
+          2.2,
+          -0.15
         ],
         "lookAt": [
-          3.2,
-          0.9,
-          2.8
+          3.25,
+          0.75,
+          3.15
         ],
         "boundsMin": [
           -3.0,
@@ -219,7 +219,7 @@
         "boundsMax": [
           16.0,
           9.0,
-          14.0
+          5.0
         ]
       },
       "splatAvatar": {

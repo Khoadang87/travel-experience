@@ -332,11 +332,7 @@ export function mountSplatPlayer(root) {
     camera.aspect = w / Math.max(1, h);
     // Tall phone stages have a tight horizontal FOV at 55° vertical, which
     // previously pushed Kane out of the street follow frame.
-    if (pathData && Number.isFinite(Number(pathData.followWorldX))) {
-      camera.fov = camera.aspect < 0.75 ? 78 : 55;
-    } else {
-      camera.fov = 55;
-    }
+    camera.fov = streetFovForAspect(camera.aspect);
     camera.updateProjectionMatrix();
     ensureAvatarTarget();
   }
@@ -584,10 +580,17 @@ export function mountSplatPlayer(root) {
     return Math.max(0, t);
   }
 
+  function streetFovForAspect(aspect) {
+    const a = Number.isFinite(aspect) ? aspect : 1;
+    if (!(pathData && Number.isFinite(Number(pathData.followWorldX)))) return 55;
+    if (a >= 0.75) return 55;
+    const custom = Number(pathData && pathData.phoneFov);
+    return Number.isFinite(custom) && custom >= 40 && custom <= 100 ? custom : 78;
+  }
+
   function applyStreetFov() {
     if (!camera) return;
-    const aspect = camera.aspect || 1;
-    const next = pathData && Number.isFinite(Number(pathData.followWorldX)) && aspect < 0.75 ? 78 : 55;
+    const next = streetFovForAspect(camera.aspect);
     if (Math.abs(camera.fov - next) > 0.1) {
       camera.fov = next;
       camera.updateProjectionMatrix();
@@ -609,19 +612,36 @@ export function mountSplatPlayer(root) {
     if (applyHeldCamera()) return;
     _back.set(-_tan.x, 0, -_tan.z).normalize();
     if (yaw) _back.applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw);
-    const followDist = pathData && Number(pathData.followDist) > 0 ? Number(pathData.followDist) : FOLLOW_DIST;
-    const followUp = pathData && Number(pathData.followUp) > 0 ? Number(pathData.followUp) : FOLLOW_UP;
-    const followLookY = pathData && Number(pathData.followLookY) > 0 ? Number(pathData.followLookY) : FOLLOW_LOOK_Y;
-    const followWorldX = pathData && Number.isFinite(Number(pathData.followWorldX)) ? Number(pathData.followWorldX) : null;
+    const portrait = (camera.aspect || 1) < 0.75;
+    const numPath = (key) => {
+      const n = pathData ? Number(pathData[key]) : NaN;
+      return Number.isFinite(n) ? n : NaN;
+    };
+    const pickFollow = (portraitKey, key, fallback) => {
+      if (portrait && numPath(portraitKey) > 0) return numPath(portraitKey);
+      if (numPath(key) > 0) return numPath(key);
+      return fallback;
+    };
+    const followDist = pickFollow("followDistPortrait", "followDist", FOLLOW_DIST);
+    const followUp = pickFollow("followUpPortrait", "followUp", FOLLOW_UP);
+    const followLookY = numPath("followLookY") > 0 ? numPath("followLookY") : FOLLOW_LOOK_Y;
+    let followWorldX = pathData && Number.isFinite(Number(pathData.followWorldX)) ? Number(pathData.followWorldX) : null;
+    if (followWorldX != null && portrait && Number.isFinite(numPath("followWorldXPortrait"))) {
+      followWorldX = numPath("followWorldXPortrait");
+    }
     if (followWorldX != null) {
       applyStreetFov();
       // Street preview: sit east of Kane (world +X) so the lanes, cars,
       // and crosswalk people stay in a phone frame in both path directions.
-      const lookWorldX = Number.isFinite(Number(pathData.followLookWorldX)) ? Number(pathData.followLookWorldX) : followWorldX * 0.8;
+      // A path may pin camera/look Z (followCamZ / followLookZ) so a tight
+      // courtyard stays framed from one side instead of flipping into a wall.
+      let lookWorldX = Number.isFinite(Number(pathData.followLookWorldX)) ? Number(pathData.followLookWorldX) : followWorldX * 0.8;
+      if (portrait && Number.isFinite(numPath("followLookWorldXPortrait"))) lookWorldX = numPath("followLookWorldXPortrait");
       const lookAhead = Number(pathData.followLookAhead) > 0 ? Number(pathData.followLookAhead) : 3.0;
       pos.copy(carPosition).addScaledVector(_back, followDist);
       pos.x = carPosition.x + followWorldX;
       pos.y = carPosition.y + followUp + Math.sin(clamp(pitch, -0.7, 0.7)) * 0.45;
+      if (Number.isFinite(numPath("followCamZ"))) pos.z = numPath("followCamZ");
       pos.x = clamp(pos.x, boundsMin.x, boundsMax.x);
       pos.y = clamp(pos.y, 0.9, Math.max(boundsMax.y, 3.2));
       pos.z = clamp(pos.z, boundsMin.z, boundsMax.z);
@@ -629,6 +649,7 @@ export function mountSplatPlayer(root) {
       _look.copy(carPosition).addScaledVector(_tan, lookAhead);
       _look.x = carPosition.x + lookWorldX;
       _look.y = carPosition.y + followLookY;
+      if (Number.isFinite(numPath("followLookZ"))) _look.z = numPath("followLookZ");
       camera.lookAt(_look);
       camera.updateMatrixWorld(true);
       return;
@@ -1113,6 +1134,18 @@ export function mountSplatPlayer(root) {
       if (!b.isEmpty()) box.union(b);
     });
     return box;
+  }
+
+  function snapFeetToFloor(root, floorY) {
+    if (!root || !Number.isFinite(floorY)) return;
+    root.updateMatrixWorld(true);
+    const box = bodyBox(root);
+    if (!Number.isFinite(box.min.y)) return;
+    const dy = floorY - box.min.y;
+    if (Math.abs(dy) > 0.0005) {
+      root.position.y += dy;
+      root.updateMatrixWorld(true);
+    }
   }
 
   function applyHeldCamera() {
@@ -1775,7 +1808,8 @@ export function mountSplatPlayer(root) {
         natural = built.natural || 1.2;
       }
       crowdRoot.add(root);
-      const u0 = (i + 0.15) / Math.max(peds.length, 1);
+      const startU = Number(item.startU);
+      const u0 = Number.isFinite(startU) ? startU - Math.floor(startU) : (i + 0.15) / Math.max(peds.length, 1);
       movers.push({
         kind: "pedestrian",
         id: item.id || root.name,
@@ -1876,6 +1910,7 @@ export function mountSplatPlayer(root) {
         applyWalkPose(mover.limbs, mover.animTime, 1);
         plantMoverFeet(mover);
       }
+      if (mover.kind === "pedestrian") snapFeetToFloor(mover.root, tmpP.y);
       if (mover.wheels && mover.wheels.length && dt > 0) {
         for (const wheel of mover.wheels) {
           wheel.spin += (mover.speed / Math.max(wheel.radius, 0.12)) * dt;
@@ -2102,6 +2137,9 @@ export function mountSplatPlayer(root) {
         yaw = 0;
         pitch = 0.12;
         setPathU(0);
+        // Autoplay before warm-up so the transport already reads Pause
+        // on the first visible frame, not Play.
+        playPath();
         poseAvatarAndCamera();
       }
       // A couple of warm-up frames so the first visible image isn't empty.
@@ -2110,6 +2148,7 @@ export function mountSplatPlayer(root) {
         if (pathCurve) poseAvatarAndCamera();
         else applyCamera();
         renderFrame();
+        syncTransport();
         await new Promise((r) => {
           let done = false;
           const finish = () => { if (!done) { done = true; r(); } };
@@ -2120,8 +2159,8 @@ export function mountSplatPlayer(root) {
       }
       stats.loadMs = performance.now() - t0;
       ready = true;
-      // Start walking as soon as the preview is up; Pause still stops it.
-      if (pathCurve) playPath();
+      if (pathCurve && !playing) playPath();
+      else syncTransport();
     } catch (err) {
       if (gen !== openGen) return;
       console.error(err);
