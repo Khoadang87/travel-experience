@@ -478,6 +478,10 @@ export function mountVideoWalkPlayer(root) {
       video.addEventListener("error", () => { clearTimeout(to); rej(new Error("Video failed to load.")); }, { once: true });
     });
     if (!duration) duration = video.duration || 0;
+    const lay = layoutVideo();
+    // Landscape stages crop a tall portrait frame; bias slightly upward so
+    // storefronts and the clock stay in view instead of mid-bodies only.
+    look.panY = lay.maxY * 0.35;
     layoutVideo();
     setTimeLabel();
     drawMap();

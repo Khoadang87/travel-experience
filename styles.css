@@ -400,7 +400,8 @@ body.player-css-fs .player-panel.is-fullscreen {
   pointer-events: none;
   background: #101010;
 }
-.videowalk-minimap {
+.stage canvas.videowalk-minimap,
+.videowalk-stage .videowalk-minimap {
   position: absolute;
   right: 8px;
   top: 8px;
@@ -410,6 +411,9 @@ body.player-css-fs .player-panel.is-fullscreen {
   z-index: 2;
   touch-action: none;
   pointer-events: auto;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
 }
 .videowalk-explore {
   background: #161410;
