@@ -1,5 +1,5 @@
 import { Map, Marker, setWorkerUrl } from "maplibre-gl";
-import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360, FLAT_BUSINESS, PLACEHOLDER_SPLAT, STREET_SPLAT, LUDLOW_SPLAT, GROVE_SPLAT, FARMERS_SPLAT } from "./shared.js";
+import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360, FLAT_BUSINESS, PLACEHOLDER_SPLAT, STREET_SPLAT, LUDLOW_SPLAT, GROVE_SPLAT, FARMERS_SPLAT, bindCredits } from "./shared.js";
 
 import { mountPlayer } from "./player.js";
 import { mountSplatPlayer } from "./splat-player.js";
@@ -57,6 +57,8 @@ function setMode(next) {
   }
   document.getElementById("mode-badge").textContent = next === "street" ? "Street map" : "Globe";
   document.body.dataset.mode = next;
+  const back = document.getElementById("btn-globe");
+  if (back) back.hidden = next !== "street";
   setPinVisibility();
 }
 
@@ -164,7 +166,8 @@ function openSplatPin(pin) {
 }
 
 function openPin(pin) {
-  document.getElementById("pin-card").hidden = false;
+  hidePinCard();
+  closePlaces();
   document.getElementById("pin-name").textContent = pin.name;
   document.getElementById("pin-blurb").textContent = pin.blurb;
   const src = document.getElementById("pin-source");
@@ -183,7 +186,6 @@ function openPin(pin) {
   if (pin.videoWalk) {
     if (window.__tgPlayer) window.__tgPlayer.close({ silent: true });
     if (window.__tgSplatPlayer) window.__tgSplatPlayer.close({ silent: true });
-    const splatPin = pin;
     fetch(pin.videoWalk, { cache: "no-cache" })
       .then((r) => {
         if (!r.ok) throw new Error("Video walk failed to load");
@@ -191,18 +193,16 @@ function openPin(pin) {
       })
       .then((walk) => {
         videoWalkPlayer.open({
-          title: pin.name,
+          title: walk.title || pin.name,
           src: walk.src,
           credit: walk.credit,
+          creditDetails: walk.creditDetails,
           duration: walk.duration,
           spots: walk.spots,
           path: walk.path,
           overscale: walk.overscale,
           ambience: "media/videowalk/ambience-standin.m4a",
           onClose: hidePinCard,
-          onViewSplat: splatPin.splat
-            ? () => openSplatPin(splatPin)
-            : undefined,
         });
       })
       .catch((err) => {
@@ -371,8 +371,71 @@ async function boot() {
   map.on("zoomend", syncMode);
 }
 
+
+function placeKindLabel(pin) {
+  if (pin.videoWalk) return "Video walk";
+  if (pin.splat) return "3D preview";
+  if (pin.demo) return "Example";
+  if (pin.flat) return "Video";
+  return "360 preview";
+}
+
+function closePlaces() {
+  const panel = document.getElementById("places-panel");
+  if (panel) panel.hidden = true;
+}
+
+function openPlaces() {
+  const panel = document.getElementById("places-panel");
+  const grid = document.getElementById("place-grid");
+  if (!panel || !grid) return;
+  grid.innerHTML = "";
+  for (const pin of pins || []) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "place-card";
+    btn.setAttribute("aria-label", pin.name);
+    const img = document.createElement("img");
+    img.src = pin.thumb || "media/sample-360-poster.jpg";
+    img.alt = "";
+    const body = document.createElement("div");
+    body.className = "place-body";
+    const kind = document.createElement("span");
+    kind.className = "place-kind";
+    kind.textContent = placeKindLabel(pin);
+    const h = document.createElement("h3");
+    h.textContent = pin.name;
+    const p = document.createElement("p");
+    const blurb = pin.blurb || "";
+    p.textContent = blurb.split(/(?<=\.)\s/)[0] || blurb;
+    body.append(kind, h, p);
+    btn.append(img, body);
+    btn.addEventListener("click", () => {
+      closePlaces();
+      hidePinCard();
+      closeViewers();
+      if (map) {
+        map.flyTo({
+          center: [pin.lng, pin.lat],
+          zoom: Math.max(STREET_ZOOM + 3.6, 16.2),
+          pitch: 42,
+          bearing: 0,
+          essential: true,
+          duration: 1200,
+        });
+      }
+      openPin(pin);
+    });
+    grid.appendChild(btn);
+  }
+  panel.hidden = false;
+  const close = document.getElementById("places-close");
+  if (close) close.focus();
+}
+
 document.getElementById("btn-wof").addEventListener("click", () => {
   hidePinCard();
+  closePlaces();
   flyToPrimaryPins();
 });
 
@@ -380,64 +443,21 @@ document.getElementById("btn-all-pins").addEventListener("click", () => {
   hidePinCard();
   closeViewers();
   flyToAllPins();
-});
-
-document.getElementById("btn-ludlow").addEventListener("click", () => {
-  const pin = (pins || []).find((p) => p.id === "ludlow-courtyard-splat");
-  if (!pin) return;
-  hidePinCard();
-  closeViewers();
-  setMode("street");
-  map.flyTo({
-    center: [pin.lng, pin.lat],
-    zoom: Math.max(STREET_ZOOM + 3.6, 16.2),
-    pitch: 42,
-    bearing: 0,
-    essential: true,
-    duration: 1600,
-  });
-  openPin(pin);
-});
-
-document.getElementById("btn-grove").addEventListener("click", () => {
-  const pin = (pins || []).find((p) => p.id === "grove-kane-scan-splat");
-  if (!pin) return;
-  hidePinCard();
-  closeViewers();
-  setMode("street");
-  map.flyTo({
-    center: [pin.lng, pin.lat],
-    zoom: Math.max(STREET_ZOOM + 3.6, 16.2),
-    pitch: 42,
-    bearing: 0,
-    essential: true,
-    duration: 1600,
-  });
-  openPin(pin);
-});
-
-document.getElementById("btn-farmers").addEventListener("click", () => {
-  const pin = (pins || []).find((p) => p.id === "farmers-kane-scan-splat");
-  if (!pin) return;
-  hidePinCard();
-  closeViewers();
-  setMode("street");
-  map.flyTo({
-    center: [pin.lng, pin.lat],
-    zoom: Math.max(STREET_ZOOM + 3.6, 16.2),
-    pitch: 42,
-    bearing: 0,
-    essential: true,
-    duration: 1600,
-  });
-  openPin(pin);
+  openPlaces();
 });
 
 document.getElementById("btn-globe").addEventListener("click", () => {
   hidePinCard();
   closeViewers();
+  closePlaces();
   map.flyTo({ center: [-40, 20], zoom: 1.5, pitch: 0, bearing: 0, essential: true, duration: 1400 });
 });
+
+document.getElementById("places-close")?.addEventListener("click", closePlaces);
+document.getElementById("places-panel")?.addEventListener("click", (e) => {
+  if (e.target && e.target.id === "places-panel") closePlaces();
+});
+
 
 boot().catch((err) => {
   document.getElementById("map-status").textContent = "Error: " + err.message;
@@ -457,4 +477,10 @@ window.__tgOpenPin = (id) => {
   const pin = (pins || []).find((p) => p.id === id);
   if (pin) openPin(pin);
 };
+window.__tgOpenSplatPin = (id) => {
+  const pin = (pins || []).find((p) => p.id === id);
+  if (pin) openSplatPin(pin);
+};
+window.__tgOpenPlaces = openPlaces;
+bindCredits();
 window.__tgSample360 = SAMPLE_360;

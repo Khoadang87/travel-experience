@@ -14,7 +14,7 @@ async function shot(page, name) {
 const PRIMARY_PIN_NAMES = ["TCL Chinese Theatre", "Dolby Theatre"];
 
 async function goToWalk(page) {
-  await page.getByRole("button", { name: "Go to Walk of Fame" }).click();
+  await page.getByRole("button", { name: "Start at the Walk of Fame" }).click();
   await page.waitForFunction(() => {
     const map = window.__tgMap;
     return map && map.getZoom() >= 15 && document.body.dataset.mode === "street" && window.__tgStreetFitted === true;
@@ -48,8 +48,8 @@ test("globe renders, street zoom and pins open the 360 player, joystick works", 
 
   await goToWalk(page);
   await page.waitForTimeout(1500);
-  await expect(page.locator("#mode-badge")).toHaveText("Street map");
-  await expect(page.locator(".map-pin")).toHaveCount(12);
+  await expect(page.locator("body")).toHaveAttribute("data-mode", "street");
+  await expect(page.locator(".map-pin")).toHaveCount(14);
   await expect(page.getByRole("button", { name: "TCL Chinese Theatre" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Dolby Theatre" })).toBeVisible();
   await shot(page, "02-street-pins.png");
@@ -117,7 +117,7 @@ test("globe renders, street zoom and pins open the 360 player, joystick works", 
   });
   expect(mid).toBeGreaterThan(1);
   await shot(page, "04-player-look-scrub.png");
-  await page.getByRole("button", { name: "Close player" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
   await expect(page.locator("#player-root .player-shell")).toBeHidden();
   await expect(page.locator("#pin-card")).toBeHidden();
 });
@@ -217,7 +217,7 @@ test("Move stick walks forward/back and turns left/right from one stick", async 
   expect(afterDrag).toBeGreaterThan(beforeDrag + 0.05);
 
   await shot(page, "13-move-stick.png");
-  await page.getByRole("button", { name: "Close player" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
   await expect(page.locator("#player-root .player-shell")).toBeHidden();
 });
 
@@ -284,7 +284,7 @@ test("Move stick walks forward/back while the clip is PLAYING (pause-while-walki
   await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, 0));
 
   await shot(page, "14-move-stick-while-playing.png");
-  await page.getByRole("button", { name: "Close player" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
   await expect(page.locator("#player-root .player-shell")).toBeHidden();
 });
 
@@ -341,7 +341,7 @@ test("clip stays still until the Move stick walks", async ({ page }) => {
   expect(rate).toBe(0.5);
 
   await shot(page, "17-still-until-you-walk.png");
-  await page.getByRole("button", { name: "Close player" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
   await expect(page.locator("#player-root .player-shell")).toBeHidden();
 });
 
@@ -360,7 +360,7 @@ test("flat video demo pin plays on a curved screen, not the 360 sphere", async (
   expect(rate).toBe(0.5);
   await page.waitForTimeout(1500);
   await shot(page, "12-flat-curved-screen.png");
-  await page.getByRole("button", { name: "Close player" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
   await expect(page.locator("#player-root .player-shell")).toBeHidden();
 });
 
@@ -401,7 +401,7 @@ test("trial watermark and cap, one trial per creator, submission window open/clo
   expect(t).toBeGreaterThanOrEqual(2.8);
   expect(t).toBeLessThanOrEqual(3.2);
   await shot(page, "07-trial-cap.png");
-  await page.getByRole("button", { name: "Close player" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
 
   // Second submit with same email must not grant another trial.
   await page.getByLabel("Clip title").fill("Second clip");
@@ -459,7 +459,7 @@ test("phone street view leaves primary pins tappable and dismisses the pin card"
     await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
     await goToWalk(page);
     await page.waitForTimeout(500);
-    await expect(page.locator(".map-pin")).toHaveCount(12);
+    await expect(page.locator(".map-pin")).toHaveCount(14);
     const hud = await page.locator(".hud").boundingBox();
     const header = await page.locator("header.top").boundingBox();
     for (const name of PRIMARY_PIN_NAMES) {
@@ -479,37 +479,29 @@ test("phone street view leaves primary pins tappable and dismisses the pin card"
 
   await page.getByRole("button", { name: "TCL Chinese Theatre" }).click();
   await expect(page.locator("#player-root .player-shell")).toBeVisible();
-  await expect(page.locator("#pin-card")).toBeVisible();
-  await expect(page.locator("#pin-card-close")).toBeVisible();
+  await expect(page.locator("#pin-card")).toBeHidden();
   await expect(page.locator("#player-root [data-sample-banner]")).toContainText("360 stand-in");
   await expect(page.locator("[data-credit]")).toHaveCount(0);
   await page.waitForFunction(() => window.__tgPlayer && window.__tgPlayer.video && window.__tgPlayer.video.readyState >= 2, null, { timeout: 20000 });
   await page.waitForTimeout(400);
   await shot(page, "19-phone-664-player.png");
-  await page.getByRole("button", { name: "Close player" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
   await expect(page.locator("#player-root .player-shell")).toBeHidden();
   await expect(page.locator("#pin-card")).toBeHidden();
   await shot(page, "20-phone-664-after-close.png");
 });
 
-test("See all pins fits Vine, Capitol, and the business pin on a phone", async ({ page }) => {
+test("See all places opens a list with Vine, Capitol, and the example pin on a phone", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/index.html");
   await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
-  await expect(page.getByRole("button", { name: "See all pins" })).toBeVisible();
-  await page.getByRole("button", { name: "See all pins" }).click();
+  await expect(page.getByRole("button", { name: "See all places" })).toBeVisible();
+  await page.getByRole("button", { name: "See all places" }).click();
+  await expect(page.locator("#places-panel")).toBeVisible();
   await page.waitForFunction(() => window.__tgAllPinsFitted === true, null, { timeout: 25000 });
-  await page.waitForTimeout(500);
-  const size = { width: 390, height: 844 };
-  for (const name of [/Hollywood Blvd and Vine/, /Capitol Records/, /Example business pin/]) {
-    const pin = page.getByRole("button", { name });
-    await expect(pin).toBeVisible();
-    const box = await pin.boundingBox();
-    expect(box, String(name) + " should be on screen").toBeTruthy();
-    expect(box.x + box.width).toBeGreaterThan(0);
-    expect(box.x).toBeLessThan(size.width);
-    expect(box.y + box.height).toBeGreaterThan(0);
-    expect(box.y).toBeLessThan(size.height);
+  for (const name of [/Hollywood Blvd and Vine/, /Capitol Records/, /Example business pin/, /The Grove/, /Farmers Market/, /Ludlow courtyard/]) {
+    const card = page.locator("#place-grid .place-card", { hasText: name });
+    await expect(card).toBeVisible();
   }
   await shot(page, "21-phone-844-all-pins.png");
 });
@@ -520,7 +512,7 @@ test("fullscreen button uses the Fullscreen API or an iOS CSS fallback", async (
   await goToWalk(page);
   await page.getByRole("button", { name: "TCL Chinese Theatre" }).click();
   await expect(page.locator("#player-root .player-shell")).toBeVisible();
-  await page.getByRole("button", { name: "Enter fullscreen" }).click();
+  await page.getByRole("button", { name: "Full screen" }).click();
   await page.waitForTimeout(500);
   const on = await page.evaluate(() => {
     const panel = document.querySelector("#player-root .player-panel");
@@ -612,7 +604,7 @@ test("existing pins keep their ids, coordinates, and 360/flat behaviour", async 
   await expect(page.locator("#player-root .player-shell")).toBeVisible();
   await expect(page.locator("#splat-root .player-shell")).toBeHidden();
   await expect(page.locator("#player-root [data-sample-banner]")).toContainText("360 stand-in");
-  await page.getByRole("button", { name: "Close player" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
   await expect(page.locator("#player-root .player-shell")).toBeHidden();
 });
 
@@ -623,8 +615,7 @@ test("splat pin opens the splat view and the test-asset credit is visible", asyn
   await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Test asset, not the real place");
   await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("CC0");
   await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("SharedTestModels");
-  await expect(page.getByRole("button", { name: "View 360 instead" })).toBeVisible();
-  await expect(page.locator("#player-root .player-shell")).toBeHidden();
+    await expect(page.locator("#player-root .player-shell")).toBeHidden();
   await shot(page, "30-splat-open.png");
 });
 
@@ -632,22 +623,20 @@ test("splat Close hides the splat view", async ({ page }) => {
   await page.goto("/index.html");
   await waitForMap(page);
   await openSplatPin(page);
-  await page.locator("#splat-root").getByRole("button", { name: "Close player" }).click();
+  await page.locator("#splat-root").getByRole("button", { name: "Close" }).click();
   await expect(page.locator("#splat-root .player-shell")).toBeHidden();
   await expect(page.locator("#player-root .player-shell")).toBeHidden();
   await expect(page.locator("#pin-card")).toBeHidden();
 });
 
-test("View 360 instead leaves the splat view and opens the 360 player", async ({ page }) => {
+test("a 360 pin still opens the 360 player with the stand-in credit", async ({ page }) => {
   await page.goto("/index.html");
   await waitForMap(page);
-  await openSplatPin(page);
-  await page.getByRole("button", { name: "View 360 instead" }).click();
-  await expect(page.locator("#splat-root .player-shell")).toBeHidden();
+  await page.evaluate(() => window.__tgOpenPin("tcl-chinese"));
   await expect(page.locator("#player-root .player-shell")).toBeVisible();
   await expect(page.locator("#player-root [data-sample-banner]")).toContainText("360 stand-in");
   await expect(page.locator("[data-fallback-note]")).toHaveCount(0);
-  await page.locator("#player-root").getByRole("button", { name: "Close player" }).click();
+  await page.locator("#player-root").getByRole("button", { name: "Close" }).click();
   await expect(page.locator("#player-root .player-shell")).toBeHidden();
 });
 
@@ -783,29 +772,7 @@ test("splat stage fills the leftover phone viewport under the controls", async (
   expect(layout.gapBelowControls).toBeLessThan(24);
   expect(layout.controlsTop).toBeGreaterThan(layout.stageTop + 200);
 
-  const btn = await page.evaluate(() => {
-    const el = document.querySelector("#splat-root [data-view-360]");
-    const panel = document.querySelector("#splat-root .player-panel");
-    const r = el.getBoundingClientRect();
-    const p = panel.getBoundingClientRect();
-    const styles = getComputedStyle(el);
-    return {
-      text: (el.textContent || "").replace(/\s+/g, " ").trim(),
-      width: r.width,
-      height: r.height,
-      left: r.left,
-      right: r.right,
-      panelRight: p.right,
-      whiteSpace: styles.whiteSpace,
-    };
-  });
-  expect(btn.text).toBe("View 360 instead");
-  expect(btn.whiteSpace).toBe("nowrap");
-  expect(btn.width).toBeGreaterThan(160);
-  expect(btn.height).toBeLessThan(44);
-  expect(btn.height).toBeGreaterThan(24);
-  expect(btn.left).toBeGreaterThanOrEqual(0);
-  expect(btn.right).toBeLessThanOrEqual(btn.panelRight + 1);
+  await expect(page.locator("#splat-root [data-view-360]")).toBeHidden();
 });
 
 
@@ -878,7 +845,6 @@ test("Ludlow courtyard splat loads with credit, autoplay walk, and pedestrians o
   test.setTimeout(300000);
   await page.goto("/index.html");
   await waitForMap(page);
-  await expect(page.getByRole("button", { name: "Ludlow courtyard" })).toBeVisible();
   await page.evaluate(() => window.__tgOpenPin("ludlow-courtyard-splat"));
   await expect(page.locator("#splat-root .player-shell")).toBeVisible();
   await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.ready === true, null, { timeout: 120000 });
@@ -976,7 +942,7 @@ test("Ludlow courtyard splat loads with credit, autoplay walk, and pedestrians o
   expect(after.walkMoved).toBeGreaterThan(0.25);
   expect(after.pedMoved).toBeGreaterThanOrEqual(2);
 
-  // Pause stops Kane and the crowd; Play starts them again.
+  // Pause stops the walker and the crowd; Play starts them again.
   // Click via the DOM: SwiftShader splat frames can keep the control from
   // counting as "stable" for Playwright's actionability checks.
   await expect(page.locator("#splat-root [data-play]")).toHaveText("Pause");
@@ -1002,16 +968,15 @@ test("Ludlow courtyard splat loads with credit, autoplay walk, and pedestrians o
 });
 
 
-test("Grove Kane test splat loads with credit, autoplay walk, no added people, and joysticks", async ({ page }) => {
+test("Grove test splat loads with credit, autoplay walk, no added people, and joysticks", async ({ page }) => {
   test.setTimeout(300000);
   await page.goto("/index.html");
   await waitForMap(page);
-  await expect(page.getByRole("button", { name: "The Grove (test)" })).toBeVisible();
-  await page.evaluate(() => window.__tgOpenPin("grove-kane-scan-splat"));
+  await page.evaluate(() => window.__tgOpenSplatPin("grove-kane-scan-splat"));
   await expect(page.locator("#splat-root .player-shell")).toBeVisible();
   await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.ready === true, null, { timeout: 120000 });
   await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.avatarReady === true, null, { timeout: 60000 });
-  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Kane's own iPhone footage");
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Private test footage");
   await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("The Grove");
   await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Bystanders appear smeared");
   await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Not a polished scan");
@@ -1066,16 +1031,16 @@ test("Grove Kane test splat loads with credit, autoplay walk, no added people, a
 });
 
 
-test("Farmers Market Kane test splat loads with credit, autoplay walk, no added people, and joysticks", async ({ page }) => {
+test("Farmers Market test splat loads with credit, autoplay walk, no added people, and joysticks", async ({ page }) => {
   test.setTimeout(300000);
   await page.goto("/index.html");
   await waitForMap(page);
   await expect(page.getByRole("button", { name: "Farmers Market (test)" })).toBeVisible();
-  await page.evaluate(() => window.__tgOpenPin("farmers-kane-scan-splat"));
+  await page.evaluate(() => window.__tgOpenSplatPin("farmers-kane-scan-splat"));
   await expect(page.locator("#splat-root .player-shell")).toBeVisible();
   await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.ready === true, null, { timeout: 120000 });
   await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.avatarReady === true, null, { timeout: 60000 });
-  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Kane's own iPhone footage");
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Private test footage");
   await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Farmers Market");
   await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Bystanders appear smeared");
   await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Not a polished scan");
@@ -1141,7 +1106,8 @@ test("Grove video walk opens by default, hold-up walks, release stops, no black 
   await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
   await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("Private test");
   await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("The Grove");
-  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("bystanders can be heard");
+  await page.locator("#videowalk-root [data-credits]").click();
+  await expect(page.locator("#videowalk-root [data-credit-details]")).toContainText("bystanders can be heard");
   await expect(page.locator("#videowalk-root [aria-label='Look joystick']")).toBeVisible();
   await expect(page.locator("#videowalk-root [aria-label='Move joystick: hold up to walk forward']")).toBeVisible();
   expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
@@ -1152,11 +1118,9 @@ test("Grove video walk opens by default, hold-up walks, release stops, no black 
   expect(mm.height).toBeGreaterThan(80);
   expect(mm.height).toBeLessThan(180);
 
-  await page.locator("#videowalk-root [data-explore]").click();
-  await expect(page.locator("#videowalk-root [data-explore-panel]")).toBeVisible();
+  await expect(page.locator("#videowalk-root [data-spots]")).toBeVisible();
   await expect(page.locator("#videowalk-root [data-spots]")).toContainText("The Cheesecake Factory");
   await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Revolve");
-  await page.locator("#videowalk-root [data-explore-close]").click();
 
   const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
   await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, -1));
@@ -1185,10 +1149,9 @@ test("Farmers Market video walk opens by default, hold-up walks, release stops, 
   await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
   await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("Farmers Market");
   await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("whole 52");
-  await page.locator("#videowalk-root [data-explore]").click();
+  await expect(page.locator("#videowalk-root [data-spots]")).toBeVisible();
   await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Clock tower");
   await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Gilmore arch");
-  await page.locator("#videowalk-root [data-explore-close]").click();
   expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
   const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
   await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, -1));
@@ -1267,7 +1230,7 @@ test("example business pin opens flat player with demo credit and offer link", a
   await shot(page, "15-business-demo-pin.png");
   // The pin card links to the sales page, not a Wikipedia source.
   await expect(page.locator("#pin-source")).toHaveAttribute("href", "/sales.html");
-  await page.getByRole("button", { name: "Close player" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
   await expect(page.locator("#player-root .player-shell")).toBeHidden();
   await expect(page.locator("#pin-card")).toBeHidden();
 });

@@ -11,15 +11,14 @@
 </head>
 <body data-page="creator">
   <header class="top">
-    <div class="brand">
+    <a class="brand" href="index.html">
       <strong>Walk of Fame Globe</strong>
-      <span>Prototype — 360 stand-in, not Hollywood</span>
-    </div>
-    <nav>
+      <span class="badge">Preview</span>
+    </a>
+    <nav aria-label="Primary">
       <a href="index.html">Map</a>
-      <a href="creator.html" aria-current="page">Submit</a>
       <a href="sales.html">For businesses</a>
-      <a href="admin.html">Admin</a>
+      <a href="creator.html" aria-current="page">Submit</a>
     </nav>
   </header>
   <main class="page">
@@ -68,5 +67,20 @@
   </main>
 <div id="player-root"></div>
   <script type="module" src="src/creator-app.js"></script>
+
+  <footer class="site-footer">
+    <button type="button" class="text-link" id="btn-credits">Credits</button>
+    <a href="admin.html">Admin</a>
+  </footer>
+  <div id="credits-dialog" class="credits-shell" hidden>
+    <div class="credits-panel" role="dialog" aria-modal="true" aria-labelledby="credits-title">
+      <div class="places-top">
+        <h2 id="credits-title">Credits</h2>
+        <button type="button" class="icon-btn" data-credits-close aria-label="Close">Close</button>
+      </div>
+      <div class="credits-body" id="credits-body"></div>
+    </div>
+  </div>
+  <script type="module" src="src/site-chrome.js"></script>
 </body>
 </html>

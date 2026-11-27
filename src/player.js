@@ -12,8 +12,8 @@ export function mountPlayer(root) {
             <h2 id="player-title">Pin</h2>
           </div>
           <div class="player-top-actions">
-            <button type="button" class="icon-btn" data-fs aria-label="Enter fullscreen">Full screen</button>
-            <button type="button" class="icon-btn" data-close aria-label="Close player">Close</button>
+            <button type="button" class="icon-btn" data-fs aria-label="Full screen">Full screen</button>
+            <button type="button" class="icon-btn" data-close aria-label="Close">Close</button>
           </div>
         </div>
         <p class="sample-banner" data-sample-banner></p>
@@ -23,8 +23,8 @@ export function mountPlayer(root) {
           <img data-poster alt="" hidden>
           <div class="watermark" data-watermark hidden></div>
           <div class="trial-end" data-trial-end hidden>Trial preview is capped at <span data-cap-label>45</span> seconds.</div>
-          <div class="look-hint">Move stick: walk — the clip moves only while you walk · Look stick: look around</div>
         </div>
+        <p class="look-hint">Hold Move to walk — the clip moves only while you walk. Use Look to look around.</p>
         <div class="player-controls">
           <div class="sticks">
             <div class="stick-wrap">
@@ -549,7 +549,7 @@ export function mountPlayer(root) {
   function syncFsButton() {
     const on = isFullscreen();
     fsBtn.textContent = on ? "Exit full screen" : "Full screen";
-    fsBtn.setAttribute("aria-label", on ? "Exit fullscreen" : "Enter fullscreen");
+    fsBtn.setAttribute("aria-label", on ? "Exit full screen" : "Full screen");
   }
 
   function enterCssFs() {

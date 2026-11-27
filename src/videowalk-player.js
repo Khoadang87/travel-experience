@@ -24,21 +24,22 @@ export function mountVideoWalkPlayer(root) {
       <div class="player-panel" role="dialog" aria-modal="true" aria-labelledby="videowalk-title">
         <div class="player-top">
           <div>
-            <p class="eyebrow" id="videowalk-kicker">Video walk (test)</p>
+            <p class="eyebrow" id="videowalk-kicker">Video walk · private test</p>
             <h2 id="videowalk-title">Pin</h2>
           </div>
           <div class="player-top-actions">
-            <button type="button" class="icon-btn" data-sound aria-label="Sound">🔇</button>
-            <button type="button" class="icon-btn" data-fs aria-label="Enter fullscreen">Full screen</button>
-            <button type="button" class="icon-btn" data-close aria-label="Close player">Close</button>
+            <button type="button" class="icon-btn" data-sound aria-label="Sound off">Sound off</button>
+            <button type="button" class="icon-btn" data-fs aria-label="Full screen">Full screen</button>
+            <button type="button" class="icon-btn" data-close aria-label="Close">Close</button>
           </div>
         </div>
-        <p class="sample-banner" data-sample-banner></p>
+        <p class="credit-line"><span data-sample-banner></span> <button type="button" class="text-link" data-credits>Credits</button></p>
+        <div class="credit-details" data-credit-details hidden></div>
         <div class="stage videowalk-stage" data-stage>
           <video data-video playsinline webkit-playsinline muted preload="auto"></video>
           <canvas class="videowalk-minimap" data-minimap width="120" height="120" aria-label="Approximate walk map: tap to jump"></canvas>
-          <div class="look-hint">Move stick up: walk · release: stop · drag or Look stick: look around · Explore: jump to a spot</div>
         </div>
+        <p class="look-caption">Hold Move up to walk. Release to stop. Drag or use Look to look around. You can also hold the Up arrow or W.</p>
         <div class="player-controls">
           <div class="sticks">
             <div class="stick-wrap">
@@ -59,19 +60,7 @@ export function mountVideoWalkPlayer(root) {
             <input type="range" min="0" max="1000" value="0" data-seek aria-label="Walk position">
             <span class="time" data-time>0:00 / 0:00</span>
           </div>
-          <div class="transport-actions">
-            <button type="button" class="text-btn" data-explore>Explore</button>
-            <button type="button" class="text-btn" data-view-splat>View splat instead</button>
-          </div>
-          <section class="videowalk-explore" data-explore-panel hidden>
-            <b>Explore</b>
-            <p>Choose a labeled spot, or drag the timeline and tap Go.</p>
-            <div class="videowalk-spots" data-spots></div>
-            <p>
-              <button type="button" class="text-btn" data-go>Go here</button>
-              <button type="button" class="text-btn" data-explore-close>Close</button>
-            </p>
-          </section>
+          <div class="videowalk-spots" data-spots></div>
         </div>
       </div>
     </div>
@@ -81,6 +70,8 @@ export function mountVideoWalkPlayer(root) {
   const panel = root.querySelector(".player-panel");
   const titleEl = root.querySelector("#videowalk-title");
   const banner = root.querySelector("[data-sample-banner]");
+  const detailsEl = root.querySelector("[data-credit-details]");
+  const creditsBtn = root.querySelector("[data-credits]");
   const stage = root.querySelector("[data-stage]");
   const video = root.querySelector("[data-video]");
   const mm = root.querySelector("[data-minimap]");
@@ -91,6 +82,7 @@ export function mountVideoWalkPlayer(root) {
   const exploreBtn = root.querySelector("[data-explore]");
   const explorePanel = root.querySelector("[data-explore-panel]");
   const exploreClose = root.querySelector("[data-explore-close]");
+  // Explore is now a visible chip row; these optional refs stay for older API checks.
   const spotsEl = root.querySelector("[data-spots]");
   const goBtn = root.querySelector("[data-go]");
   const viewSplatBtn = root.querySelector("[data-view-splat]");
@@ -244,8 +236,11 @@ export function mountVideoWalkPlayer(root) {
       b.textContent = s.label;
       b.dataset.t = String(s.t);
       b.addEventListener("click", () => {
-        explorePanel.hidden = true;
         jump(s.t);
+        root.querySelectorAll("[data-spots] .videowalk-spot").forEach((el) => {
+          if (el === b) el.setAttribute("aria-current", "true");
+          else el.removeAttribute("aria-current");
+        });
       });
       spotsEl.appendChild(b);
     }
@@ -384,20 +379,25 @@ export function mountVideoWalkPlayer(root) {
     seeking = false;
   });
 
-  exploreBtn.addEventListener("click", () => {
-    explorePanel.hidden = !explorePanel.hidden;
+  exploreBtn?.addEventListener("click", () => {
+    if (explorePanel) explorePanel.hidden = !explorePanel.hidden;
   });
-  exploreClose.addEventListener("click", () => { explorePanel.hidden = true; });
-  goBtn.addEventListener("click", () => {
-    explorePanel.hidden = true;
+  exploreClose?.addEventListener("click", () => { if (explorePanel) explorePanel.hidden = true; });
+  goBtn?.addEventListener("click", () => {
+    if (explorePanel) explorePanel.hidden = true;
     const d = duration || video.duration || 0;
     jump((Number(seek.value) / 1000) * d);
   });
 
+  creditsBtn?.addEventListener("click", () => {
+    if (!detailsEl) return;
+    detailsEl.hidden = !detailsEl.hidden;
+  });
+
   soundBtn.addEventListener("click", () => {
     soundOn = !soundOn;
-    soundBtn.textContent = soundOn ? "🔊" : "🔇";
-    soundBtn.setAttribute("aria-label", soundOn ? "Mute sound" : "Sound");
+    soundBtn.textContent = soundOn ? "Sound on" : "Sound off";
+    soundBtn.setAttribute("aria-label", soundOn ? "Sound on" : "Sound off");
     if (soundOn) {
       try { audio.currentTime = (video.currentTime || 0) % (audio.duration || 8); } catch (_) {}
       audio.play().catch(() => {});
@@ -407,7 +407,7 @@ export function mountVideoWalkPlayer(root) {
   });
 
   closeBtn.addEventListener("click", () => close());
-  viewSplatBtn.addEventListener("click", () => {
+  viewSplatBtn?.addEventListener("click", () => {
     const cb = onViewSplat;
     close({ silent: true });
     if (cb) cb();
@@ -442,20 +442,26 @@ export function mountVideoWalkPlayer(root) {
     onViewSplat = cfg.onViewSplat || null;
     titleEl.textContent = cfg.title || "Video walk";
     banner.textContent = cfg.credit || "";
+    if (detailsEl) {
+      detailsEl.textContent = cfg.creditDetails || "";
+      detailsEl.hidden = true;
+    }
+    if (creditsBtn) creditsBtn.hidden = !(cfg.credit || cfg.creditDetails);
     spots = Array.isArray(cfg.spots) ? cfg.spots : [];
     path = Array.isArray(cfg.path) ? cfg.path : [];
     overscale = Number(cfg.overscale) > 1 ? Number(cfg.overscale) : OVERSCALE;
     duration = Number(cfg.duration) || 0;
     soundOn = false;
-    soundBtn.textContent = "🔇";
+    soundBtn.textContent = "Sound off";
+    soundBtn.setAttribute("aria-label", "Sound off");
     look.panX = 0;
     look.panY = 0;
     usingProgMove = false;
     progMoveX = 0;
     progMoveY = 0;
     rate = 0;
-    explorePanel.hidden = true;
-    viewSplatBtn.hidden = !onViewSplat;
+    if (explorePanel) explorePanel.hidden = true;
+    if (viewSplatBtn) viewSplatBtn.hidden = true;
     renderSpots();
     checkStale();
     audio.src = cfg.ambience || "media/videowalk/ambience-standin.m4a";
@@ -517,7 +523,7 @@ export function mountVideoWalkPlayer(root) {
     get duration() { return duration || video.duration || 0; },
     get soundOn() { return soundOn; },
     get spots() { return spots.slice(); },
-    get exploreOpen() { return !explorePanel.hidden; },
+    get exploreOpen() { return true; },
     setMoveAxis(x, y) {
       usingProgMove = true;
       progMoveX = x;

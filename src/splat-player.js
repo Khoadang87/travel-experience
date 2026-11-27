@@ -22,19 +22,19 @@ export function mountSplatPlayer(root) {
       <div class="player-panel" role="dialog" aria-modal="true" aria-labelledby="splat-title">
         <div class="player-top">
           <div>
-            <p class="eyebrow" id="splat-kicker">Splat preview (test)</p>
+            <p class="eyebrow" id="splat-kicker">3D preview</p>
             <h2 id="splat-title">Pin</h2>
           </div>
           <div class="player-top-actions">
-            <button type="button" class="icon-btn" data-fs aria-label="Enter fullscreen">Full screen</button>
-            <button type="button" class="icon-btn" data-close aria-label="Close player">Close</button>
+            <button type="button" class="icon-btn" data-fs aria-label="Full screen">Full screen</button>
+            <button type="button" class="icon-btn" data-close aria-label="Close">Close</button>
           </div>
         </div>
         <p class="sample-banner" data-sample-banner></p>
         <div class="stage" data-stage>
           <canvas data-canvas></canvas>
-          <div class="look-hint">Look stick or drag: look around · Move stick: scrub the path · The character starts walking when the preview opens · Pause stops it</div>
         </div>
+        <p class="look-hint">Look stick or drag to look around. Move stick scrubs the path. The character starts walking when the preview opens; Pause stops it.</p>
         <div class="player-controls">
           <div class="sticks">
             <div class="stick-wrap">
@@ -60,7 +60,7 @@ export function mountSplatPlayer(root) {
             <span class="time" data-time>0:00 / 0:00</span>
           </div>
           <div class="transport-actions">
-            <button type="button" class="text-btn view-360-btn" data-view-360>View 360 instead</button>
+            <button type="button" class="text-btn view-360-btn" data-view-360 hidden>View 360 instead</button>
           </div>
         </div>
       </div>
@@ -247,7 +247,7 @@ export function mountSplatPlayer(root) {
   function syncFsButton() {
     const on = isFullscreen();
     fsBtn.textContent = on ? "Exit full screen" : "Full screen";
-    fsBtn.setAttribute("aria-label", on ? "Exit fullscreen" : "Enter fullscreen");
+    fsBtn.setAttribute("aria-label", on ? "Exit full screen" : "Full screen");
   }
   function enterCssFs() {
     panel.classList.add("is-fullscreen");
@@ -331,7 +331,7 @@ export function mountSplatPlayer(root) {
     renderer.setSize(w, h, false);
     camera.aspect = w / Math.max(1, h);
     // Tall phone stages have a tight horizontal FOV at 55° vertical, which
-    // previously pushed Kane out of the street follow frame.
+    // previously pushed the walker out of the street follow frame.
     camera.fov = streetFovForAspect(camera.aspect);
     camera.updateProjectionMatrix();
     ensureAvatarTarget();
@@ -492,7 +492,7 @@ export function mountSplatPlayer(root) {
         setPathU(playAnchorU + (pathSpeed / Math.max(pathLength, 0.001)) * elapsed);
         playAnchorMs = now;
         playAnchorU = pathU;
-        // Keep the crowd on the same clock as Kane; rAF dt is capped at
+        // Keep the crowd on the same clock as the walker; rAF dt is capped at
         // 0.08s and would leave pedestrians and cars almost still on a
         // slow GPU while the walker advances on the wall-clock cap.
         moverDt = elapsed;
@@ -631,7 +631,7 @@ export function mountSplatPlayer(root) {
     }
     if (followWorldX != null) {
       applyStreetFov();
-      // Street preview: sit east of Kane (world +X) so the lanes, cars,
+      // Street preview: sit east of the walker (world +X) so the lanes, cars,
       // and crosswalk people stay in a phone frame in both path directions.
       // A path may pin camera/look Z (followCamZ / followLookZ) so a tight
       // courtyard stays framed from one side instead of flipping into a wall.
@@ -1950,7 +1950,7 @@ export function mountSplatPlayer(root) {
     }
     origin.multiplyScalar(1 / n);
     origin.y += 0.7;
-    // Prefer a view that also catches Kane's walker if it is nearby.
+    // Prefer a view that also catches the walker if it is nearby.
     if (avatarRoot) {
       origin.lerp(avatarRoot.position.clone().setY(avatarRoot.position.y + 0.85), 0.25);
     }
@@ -2089,7 +2089,11 @@ export function mountSplatPlayer(root) {
     const credit = opts.credit || PLACEHOLDER_SPLAT;
     const url = opts.src || credit.src;
     titleEl.textContent = opts.title || credit.title || "Splat preview";
-    banner.innerHTML = `${escapeHtml(credit.credit)} <a href="${credit.commons}" target="_blank" rel="noopener">Source</a> · <a href="${credit.licenseUrl}" target="_blank" rel="noopener">${escapeHtml(credit.license)}</a>`;
+    const bits = [escapeHtml(credit.credit || "")];
+    if (credit.commons) bits.push(`<a href="${credit.commons}" target="_blank" rel="noopener">Source</a>`);
+    if (credit.license && credit.licenseUrl) bits.push(`<a href="${credit.licenseUrl}" target="_blank" rel="noopener">${escapeHtml(credit.license)}</a>`);
+    else if (credit.license) bits.push(escapeHtml(credit.license));
+    banner.innerHTML = bits.join(" · ");
 
     if (!detectWebGL2()) {
       fallback("Splat view needs WebGL2, which this browser doesn't provide, so this 360 stand-in is showing instead.");
