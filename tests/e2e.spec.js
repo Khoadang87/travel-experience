@@ -1130,6 +1130,99 @@ test("Farmers Market Kane test splat loads with credit, autoplay walk, no added 
   expect(after.cars).toBe(0);
 });
 
+
+test("Grove video walk opens by default, hold-up walks, release stops, no black edges", async ({ page }) => {
+  test.setTimeout(180000);
+  await page.goto("/index.html");
+  await waitForMap(page);
+  await page.evaluate(() => window.__tgOpenPin("grove-kane-scan-splat"));
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await expect(page.locator("#splat-root .player-shell")).toBeHidden();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("Private test");
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("The Grove");
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("bystanders can be heard");
+  await expect(page.locator("#videowalk-root [aria-label='Look joystick']")).toBeVisible();
+  await expect(page.locator("#videowalk-root [aria-label='Move joystick: hold up to walk forward']")).toBeVisible();
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+  await page.locator("#videowalk-root [data-explore]").click();
+  await expect(page.locator("#videowalk-root [data-explore-panel]")).toBeVisible();
+  await expect(page.locator("#videowalk-root [data-spots]")).toContainText("The Cheesecake Factory");
+  await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Revolve");
+  await page.locator("#videowalk-root [data-explore-close]").click();
+
+  const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, -1));
+  await page.waitForFunction((start) => window.__tgVideoWalk && window.__tgVideoWalk.currentTime > start + 0.35, t0, { timeout: 20000 });
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, 0));
+  const paused = await page.evaluate(() => ({ t: window.__tgVideoWalk.currentTime, playing: window.__tgVideoWalk.playing }));
+  expect(paused.t).toBeGreaterThan(t0 + 0.3);
+  expect(paused.playing).toBe(false);
+  await page.waitForTimeout(450);
+  const still = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  expect(Math.abs(still - paused.t)).toBeLessThan(0.15);
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+  await page.evaluate(() => window.__tgVideoWalk.setLookAxis(1, 0.6));
+  await page.waitForTimeout(400);
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+  await page.evaluate(() => window.__tgVideoWalk.setLookAxis(0, 0));
+});
+
+test("Farmers Market video walk opens by default, hold-up walks, release stops, no black edges", async ({ page }) => {
+  test.setTimeout(180000);
+  await page.goto("/index.html");
+  await waitForMap(page);
+  await page.evaluate(() => window.__tgOpenPin("farmers-kane-scan-splat"));
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await expect(page.locator("#splat-root .player-shell")).toBeHidden();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("Farmers Market");
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("whole 52");
+  await page.locator("#videowalk-root [data-explore]").click();
+  await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Clock tower");
+  await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Gilmore arch");
+  await page.locator("#videowalk-root [data-explore-close]").click();
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+  const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, -1));
+  await page.waitForFunction((start) => window.__tgVideoWalk && window.__tgVideoWalk.currentTime > start + 0.35, t0, { timeout: 20000 });
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, 0));
+  const paused = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.waitForTimeout(450);
+  const still = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  expect(Math.abs(still - paused)).toBeLessThan(0.15);
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+});
+
+test.describe("video walk phone viewport", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("Grove and Farmers video walks have no black edges on a phone-sized viewport", async ({ page }) => {
+    test.setTimeout(240000);
+    await page.goto("/index.html");
+    await waitForMap(page);
+    for (const id of ["grove-kane-scan-splat", "farmers-kane-scan-splat"]) {
+      await page.evaluate((pinId) => window.__tgOpenPin(pinId), id);
+      await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+      await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
+      expect(await page.evaluate(() => window.__tgVideoWalk.coversStage()), id + " covers").toBe(true);
+      const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+      await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, -1));
+      await page.waitForFunction((start) => window.__tgVideoWalk && window.__tgVideoWalk.currentTime > start + 0.3, t0, { timeout: 20000 });
+      await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, 0));
+      const paused = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+      await page.waitForTimeout(400);
+      const still = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+      expect(Math.abs(still - paused), id + " stopped").toBeLessThan(0.15);
+      await page.evaluate(() => window.__tgVideoWalk.setLookAxis(-1, 0.4));
+      await page.waitForTimeout(350);
+      expect(await page.evaluate(() => window.__tgVideoWalk.coversStage()), id + " after look").toBe(true);
+      await page.evaluate(() => window.__tgVideoWalk.setLookAxis(0, 0));
+      await page.evaluate(() => window.__tgVideoWalk.close({ silent: true }));
+    }
+  });
+});
+
 // Pre-existing failures, left unfixed: these locators expect href="/sales.html"
 // but the pages use href="sales.html". Moved to the end only so serial mode
 // still runs the tests after them. Assertions are unchanged.

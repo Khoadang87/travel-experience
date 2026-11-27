@@ -3,6 +3,7 @@ import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360, FLAT_BUSINES
 
 import { mountPlayer } from "./player.js";
 import { mountSplatPlayer } from "./splat-player.js";
+import { mountVideoWalkPlayer } from "./videowalk-player.js";
 
 setWorkerUrl("vendor/maplibre-gl-worker.mjs");
 
@@ -24,6 +25,7 @@ const PRIMARY_PIN_IDS = [
 
 const player = mountPlayer(document.querySelector("#player-root"));
 const splatPlayer = mountSplatPlayer(document.querySelector("#splat-root"));
+const videoWalkPlayer = mountVideoWalkPlayer(document.querySelector("#videowalk-root"));
 
 const map = new Map({
   container: "map",
@@ -115,8 +117,50 @@ function hidePinCard() {
 }
 
 function closeViewers(opts) {
+  if (window.__tgVideoWalk) window.__tgVideoWalk.close(opts);
   if (window.__tgSplatPlayer) window.__tgSplatPlayer.close(opts);
   if (window.__tgPlayer) window.__tgPlayer.close(opts);
+}
+
+
+function splatCreditFor(pin) {
+  return pin.id === "farmers-kane-scan-splat" || (pin.splat && String(pin.splat).includes("farmers-kane"))
+    ? FARMERS_SPLAT
+    : pin.id === "grove-kane-scan-splat" || (pin.splat && String(pin.splat).includes("grove-kane"))
+      ? GROVE_SPLAT
+      : pin.id === "ludlow-courtyard-splat" || (pin.splat && String(pin.splat).includes("ludlow-courtyard"))
+        ? LUDLOW_SPLAT
+        : pin.id === "street-intersection-splat" || (pin.splat && String(pin.splat).includes("street-intersection"))
+          ? STREET_SPLAT
+          : PLACEHOLDER_SPLAT;
+}
+
+function openSplatPin(pin) {
+  if (window.__tgPlayer) window.__tgPlayer.close({ silent: true });
+  if (window.__tgVideoWalk) window.__tgVideoWalk.close({ silent: true });
+  const splatCredit = splatCreditFor(pin);
+  splatPlayer.open({
+    title: pin.name,
+    src: pin.splat,
+    credit: splatCredit,
+    view: pin.splatView || splatCredit.view,
+    avatar: pin.splatAvatar || splatCredit.avatar,
+    path: pin.splatPath || splatCredit.path,
+    onClose: hidePinCard,
+    onFallback(note) {
+      player.open({
+        title: pin.name,
+        fallbackNote: note,
+        onClose: hidePinCard,
+      });
+    },
+    onView360() {
+      player.open({
+        title: pin.name,
+        onClose: hidePinCard,
+      });
+    },
+  });
 }
 
 function openPin(pin) {
@@ -136,43 +180,42 @@ function openPin(pin) {
     src.href = pin.sourceUrl;
     src.textContent = "Coordinates: Wikipedia — " + pin.sourceName;
   }
-  if (pin.splat) {
+  if (pin.videoWalk) {
     if (window.__tgPlayer) window.__tgPlayer.close({ silent: true });
-    const splatCredit =
-      pin.id === "farmers-kane-scan-splat" || (pin.splat && String(pin.splat).includes("farmers-kane"))
-        ? FARMERS_SPLAT
-        : pin.id === "grove-kane-scan-splat" || (pin.splat && String(pin.splat).includes("grove-kane"))
-          ? GROVE_SPLAT
-          : pin.id === "ludlow-courtyard-splat" || (pin.splat && String(pin.splat).includes("ludlow-courtyard"))
-            ? LUDLOW_SPLAT
-            : pin.id === "street-intersection-splat" || (pin.splat && String(pin.splat).includes("street-intersection"))
-              ? STREET_SPLAT
-              : PLACEHOLDER_SPLAT;
-    splatPlayer.open({
-      title: pin.name,
-      src: pin.splat,
-      credit: splatCredit,
-      view: pin.splatView || splatCredit.view,
-      avatar: pin.splatAvatar || splatCredit.avatar,
-      path: pin.splatPath || splatCredit.path,
-      onClose: hidePinCard,
-      onFallback(note) {
-        player.open({
+    if (window.__tgSplatPlayer) window.__tgSplatPlayer.close({ silent: true });
+    const splatPin = pin;
+    fetch(pin.videoWalk, { cache: "no-cache" })
+      .then((r) => {
+        if (!r.ok) throw new Error("Video walk failed to load");
+        return r.json();
+      })
+      .then((walk) => {
+        videoWalkPlayer.open({
           title: pin.name,
-          fallbackNote: note,
+          src: walk.src,
+          credit: walk.credit,
+          duration: walk.duration,
+          spots: walk.spots,
+          path: walk.path,
+          overscale: walk.overscale,
+          ambience: "media/videowalk/ambience-standin.m4a",
           onClose: hidePinCard,
+          onViewSplat: splatPin.splat
+            ? () => openSplatPin(splatPin)
+            : undefined,
         });
-      },
-      onView360() {
-        player.open({
-          title: pin.name,
-          onClose: hidePinCard,
-        });
-      },
-    });
+      })
+      .catch((err) => {
+        document.getElementById("map-status").textContent = "Error: " + err.message;
+      });
+    return;
+  }
+  if (pin.splat) {
+    openSplatPin(pin);
     return;
   }
   if (window.__tgSplatPlayer) window.__tgSplatPlayer.close({ silent: true });
+  if (window.__tgVideoWalk) window.__tgVideoWalk.close({ silent: true });
   player.open({
     title: pin.name,
     trial: false,

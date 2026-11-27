@@ -234,10 +234,10 @@
       "name": "The Grove (Kane's scan, test)",
       "kind": "splat",
       "lng": -118.3576,
-      "lat": 34.0720,
-      "sourceName": "Rough test scan from Kane's own footage — bystanders appear smeared",
+      "lat": 34.072,
+      "sourceName": "Rough test scan from Kane's own footage \u2014 bystanders appear smeared",
       "sourceUrl": "media/splat/GROVE-ATTRIBUTION.md",
-      "blurb": "A rough test Gaussian splat reconstructed from Kane's own iPhone footage of a walk at The Grove, Los Angeles. The same splat player, Look and Move joysticks, and glowing walker. No added 3D people — the scan is already busy, and bystanders appear smeared. Not a polished scan.",
+      "blurb": "A rough test Gaussian splat reconstructed from Kane's own iPhone footage of a walk at The Grove, Los Angeles. The same splat player, Look and Move joysticks, and glowing walker. No added 3D people \u2014 the scan is already busy, and bystanders appear smeared. Not a polished scan. Opens as a Hoi An-style video walk (hold the Move stick up to walk). A test splat of the same clip is still available from the player.",
       "splat": "media/splat/grove-kane-test.sog",
       "splatView": {
         "position": [
@@ -266,7 +266,8 @@
         "height": 1.7
       },
       "splatPath": "data/grove-path.json",
-      "label": "The Grove (test)"
+      "label": "The Grove (test)",
+      "videoWalk": "data/grove-videowalk.json"
     },
     {
       "id": "farmers-kane-scan-splat",
@@ -274,14 +275,14 @@
       "kind": "splat",
       "lng": -118.3608,
       "lat": 34.0719,
-      "sourceName": "Rough test scan from Kane's own footage — bystanders appear smeared",
+      "sourceName": "Rough test scan from Kane's own footage \u2014 bystanders appear smeared",
       "sourceUrl": "media/splat/FARMERS-ATTRIBUTION.md",
-      "blurb": "A rough test Gaussian splat reconstructed from Kane's own iPhone footage of a walk at the Original Farmers Market, Los Angeles (frames 1–67 of the clip). The same splat player, Look and Move joysticks, and glowing walker. No added 3D people — the scan is already busy, and bystanders appear smeared. Not a polished scan.",
+      "blurb": "A rough test Gaussian splat reconstructed from Kane's own iPhone footage of a walk at the Original Farmers Market, Los Angeles (frames 1\u201367 of the clip). The same splat player, Look and Move joysticks, and glowing walker. No added 3D people \u2014 the scan is already busy, and bystanders appear smeared. Not a polished scan. Opens as a Hoi An-style video walk (hold the Move stick up to walk). A test splat of the same clip is still available from the player.",
       "splat": "media/splat/farmers-kane-test.sog",
       "splatView": {
         "position": [
           4.82,
-          1.70,
+          1.7,
           12.08
         ],
         "lookAt": [
@@ -305,7 +306,8 @@
         "height": 1.7
       },
       "splatPath": "data/farmers-path.json",
-      "label": "Farmers Market (test)"
+      "label": "Farmers Market (test)",
+      "videoWalk": "data/farmers-videowalk.json"
     }
   ]
 }
