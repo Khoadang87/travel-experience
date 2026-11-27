@@ -400,7 +400,6 @@ function openPlaces() {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "place-card";
-    btn.setAttribute("aria-label", pin.name);
     const img = document.createElement("img");
     img.src = pin.thumb || "media/sample-360-poster.jpg";
     img.alt = "";
