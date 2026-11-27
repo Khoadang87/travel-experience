@@ -369,7 +369,14 @@ test("trial watermark and cap, one trial per creator, submission window open/clo
   await page.evaluate(() => {
     localStorage.removeItem("tg:trials");
     localStorage.removeItem("tg:submissions");
-    localStorage.removeItem("tg:settings");
+    // Keep the window open in this test even after the default end date.
+    localStorage.setItem(
+      "tg:settings",
+      JSON.stringify({
+        submissionWindowStart: "2026-11-19T00:00:00-08:00",
+        submissionWindowEnd: "2026-12-31T23:59:59-08:00",
+      })
+    );
   });
   await page.reload();
   await expect(page.locator("#window-status")).toHaveText(/OPEN/i, { timeout: 15000 });
