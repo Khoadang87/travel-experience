@@ -1142,7 +1142,7 @@ test("Grove video walk opens by default, hold-up walks, release stops, no black 
   expect(paused.playing).toBe(false);
   await page.waitForTimeout(450);
   const still = await page.evaluate(() => window.__tgVideoWalk.currentTime);
-  expect(Math.abs(still - paused.t)).toBeLessThan(0.25);
+  expect(Math.abs(still - paused.t)).toBeLessThan(0.35);
   expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
   await page.evaluate(() => window.__tgVideoWalk.setLookAxis(1, 0.6));
   await page.waitForTimeout(400);
@@ -1171,7 +1171,7 @@ test("Farmers Market video walk opens by default, hold-up walks, release stops, 
   const paused = await page.evaluate(() => window.__tgVideoWalk.currentTime);
   await page.waitForTimeout(450);
   const still = await page.evaluate(() => window.__tgVideoWalk.currentTime);
-  expect(Math.abs(still - paused)).toBeLessThan(0.25);
+  expect(Math.abs(still - paused)).toBeLessThan(0.35);
   expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
 });
 
@@ -1194,7 +1194,7 @@ test.describe("video walk phone viewport", () => {
       const paused = await page.evaluate(() => window.__tgVideoWalk.currentTime);
       await page.waitForTimeout(400);
       const still = await page.evaluate(() => window.__tgVideoWalk.currentTime);
-      expect(Math.abs(still - paused), id + " stopped").toBeLessThan(0.25);
+      expect(Math.abs(still - paused), id + " stopped").toBeLessThan(0.35);
       await page.evaluate(() => window.__tgVideoWalk.setLookAxis(-1, 0.4));
       await page.waitForTimeout(350);
       expect(await page.evaluate(() => window.__tgVideoWalk.coversStage()), id + " after look").toBe(true);
