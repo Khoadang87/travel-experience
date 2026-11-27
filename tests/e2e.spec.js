@@ -495,8 +495,10 @@ test("See all places opens a list with Vine, Capitol, and the example pin on a p
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/index.html");
   await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
-  await expect(page.getByRole("button", { name: "See all places" })).toBeVisible();
-  await page.getByRole("button", { name: "See all places" }).click();
+  await expect(page.getByRole("button", { name: "See all places" })).toBeHidden();
+  await page.getByRole("button", { name: "Open menu" }).click();
+  await expect(page.locator("#site-nav")).toBeVisible();
+  await page.locator("#site-nav").getByRole("link", { name: "Places" }).click();
   await expect(page.locator("#places-panel")).toBeVisible();
   await page.waitForFunction(() => window.__tgAllPinsFitted === true, null, { timeout: 25000 });
   for (const name of [/Hollywood Blvd and Vine/, /Capitol Records/, /Example business pin/, /The Grove/, /Farmers Market/, /Ludlow courtyard/]) {
