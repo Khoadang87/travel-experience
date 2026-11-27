@@ -15,10 +15,14 @@
       <strong>Walk of Fame Globe</strong>
       <span class="badge">Preview</span>
     </a>
-    <nav aria-label="Primary">
+    <button type="button" class="menu-btn" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">Menu</button>
+    <div class="nav-backdrop" id="nav-backdrop" hidden></div>
+    <nav id="site-nav" aria-label="Primary">
       <a href="index.html">Map</a>
+      <a class="nav-extra" href="index.html#places" data-open-places>Places</a>
       <a href="sales.html">For businesses</a>
       <a href="creator.html">Submit</a>
+      <button type="button" class="nav-extra nav-credits" data-open-credits>Credits</button>
     </nav>
   </header>
   <main class="page">

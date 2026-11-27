@@ -1,5 +1,5 @@
-import { Map, Marker, setWorkerUrl } from "maplibre-gl";
-import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360, FLAT_BUSINESS, PLACEHOLDER_SPLAT, STREET_SPLAT, LUDLOW_SPLAT, GROVE_SPLAT, FARMERS_SPLAT, bindCredits } from "./shared.js";
+import { Map, Marker, setWorkerUrl, AttributionControl } from "maplibre-gl";
+import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360, FLAT_BUSINESS, PLACEHOLDER_SPLAT, STREET_SPLAT, LUDLOW_SPLAT, GROVE_SPLAT, FARMERS_SPLAT } from "./shared.js";
 
 import { mountPlayer } from "./player.js";
 import { mountSplatPlayer } from "./splat-player.js";
@@ -33,9 +33,13 @@ const map = new Map({
   center: [-118.25, 34.05],
   zoom: 1.65,
   maxPitch: 85,
-  attributionControl: true,
+  attributionControl: false,
   canvasContextAttributes: { antialias: true },
 });
+map.addControl(
+  new AttributionControl({ compact: window.matchMedia("(max-width: 700px)").matches }),
+  "bottom-right",
+);
 
 let mode = "globe";
 let pins = [];
@@ -363,6 +367,8 @@ async function boot() {
     document.getElementById("map-status").textContent = "Globe ready";
     window.__tgMapReady = true;
     window.__tgMap = map;
+    collapseAttribution();
+    if (location.hash === "#places") showAllPlaces();
   }
   map.on("load", finishMap);
   map.on("idle", finishMap);
@@ -439,12 +445,22 @@ document.getElementById("btn-wof").addEventListener("click", () => {
   flyToPrimaryPins();
 });
 
-document.getElementById("btn-all-pins").addEventListener("click", () => {
+function collapseAttribution() {
+  if (!window.matchMedia("(max-width: 700px)").matches) return;
+  const el = document.querySelector(".maplibregl-ctrl-attrib");
+  if (!el) return;
+  el.removeAttribute("open");
+  el.classList.remove("maplibregl-compact-show");
+}
+
+function showAllPlaces() {
   hidePinCard();
   closeViewers();
   flyToAllPins();
   openPlaces();
-});
+}
+
+document.getElementById("btn-all-pins").addEventListener("click", showAllPlaces);
 
 document.getElementById("btn-globe").addEventListener("click", () => {
   hidePinCard();
@@ -481,6 +497,8 @@ window.__tgOpenSplatPin = (id) => {
   const pin = (pins || []).find((p) => p.id === id);
   if (pin) openSplatPin(pin);
 };
-window.__tgOpenPlaces = openPlaces;
-bindCredits();
+window.__tgOpenPlaces = showAllPlaces;
+window.addEventListener("hashchange", () => {
+  if (location.hash === "#places") showAllPlaces();
+});
 window.__tgSample360 = SAMPLE_360;

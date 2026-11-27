@@ -472,7 +472,7 @@ export function mountVideoWalkPlayer(root) {
     closed = false;
     ready = false;
     shell.hidden = false;
-    document.body.classList.add("videowalk-open");
+    document.body.classList.add("videowalk-open", "player-open");
     addEventListener("resize", onResize);
     addEventListener("keydown", onKeyDown);
     addEventListener("keyup", onKeyUp);
@@ -506,7 +506,7 @@ export function mountVideoWalkPlayer(root) {
     video.removeAttribute("src");
     video.load();
     shell.hidden = true;
-    document.body.classList.remove("videowalk-open");
+    document.body.classList.remove("videowalk-open", "player-open");
     removeEventListener("resize", onResize);
     removeEventListener("keydown", onKeyDown);
     removeEventListener("keyup", onKeyUp);
