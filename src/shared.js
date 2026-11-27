@@ -290,6 +290,32 @@ export const GROVE_SPLAT = {
   path: "data/grove-path.json",
 };
 
+
+
+// Original Farmers Market, Los Angeles — a rough test splat from
+// Kane's own iPhone footage (frames 1–67). Bystanders appear
+// smeared. Not a polished scan and not a third-party dataset.
+export const FARMERS_SPLAT = {
+  src: "media/splat/farmers-kane-test.sog",
+  title: "Farmers Market (Kane's scan, test)",
+  credit:
+    "Rough test scan from Kane's own iPhone footage at the Original Farmers Market, Los Angeles (frames 1–67). Bystanders appear smeared. Not a polished scan. Converted for this preview (SH0 SOG; see media/splat/FARMERS-ATTRIBUTION.md).",
+  commons: "media/splat/FARMERS-ATTRIBUTION.md",
+  license: "Private test — owner's footage",
+  licenseUrl: "media/splat/FARMERS-ATTRIBUTION.md",
+  view: {
+    position: [4.82, 1.70, 12.08],
+    lookAt: [1.33, 0.85, 6.73],
+    boundsMin: [-8.0, -1.5, -16.0],
+    boundsMax: [10.0, 12.0, 15.0],
+  },
+  avatar: {
+    kind: "simple",
+    height: 1.7,
+  },
+  path: "data/farmers-path.json",
+};
+
 export function currentPage() {
   const p = location.pathname;
   if (p.endsWith("creator.html")) return "creator";
