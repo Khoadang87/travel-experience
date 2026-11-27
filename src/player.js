@@ -511,7 +511,6 @@ export function mountPlayer(root) {
         if (pendingHi !== upgrade) return;
         const t = video.currentTime;
         const paused = video.paused;
-        const rate = video.playbackRate;
         upgrade.removeEventListener("canplaythrough", onReady);
         upgrade.removeEventListener("loadeddata", onReady);
         showPoster(clip.poster || "");
@@ -520,7 +519,8 @@ export function mountPlayer(root) {
           video.removeEventListener("loadeddata", resume);
           video.removeEventListener("canplay", resume);
           video.currentTime = t;
-          video.playbackRate = rate || 0.5;
+          // Don't copy a browser-reset rate of 1 from the just-swapped source.
+          video.playbackRate = 0.5;
           if (!paused) video.play().catch(() => {});
           hidePoster();
         };
