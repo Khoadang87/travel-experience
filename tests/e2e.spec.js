@@ -580,7 +580,7 @@ test("existing pins keep their ids, coordinates, and 360/flat behaviour", async 
       splat: p.splat || undefined,
     }))
   );
-  const splatIds = new Set(["splat-placeholder", "street-intersection-splat", "ludlow-courtyard-splat"]);
+  const splatIds = new Set(["splat-placeholder", "street-intersection-splat", "ludlow-courtyard-splat", "grove-kane-scan-splat"]);
   const withoutSplat = pins.filter((p) => !splatIds.has(p.id));
   expect(withoutSplat).toEqual(ORIGINAL_PINS);
   const splat = pins.find((p) => p.id === "splat-placeholder");
@@ -596,7 +596,12 @@ test("existing pins keep their ids, coordinates, and 360/flat behaviour", async 
   expect(ludlow.splat).toMatch(/ludlow-courtyard\.sog$/);
   expect(ludlow.lng).toBeCloseTo(-2.72001, 4);
   expect(ludlow.lat).toBeCloseTo(52.36789, 4);
-  expect(pins).toHaveLength(12);
+  const grove = pins.find((p) => p.id === "grove-kane-scan-splat");
+  expect(grove).toBeTruthy();
+  expect(grove.splat).toMatch(/grove-kane-test\.sog$/);
+  expect(grove.lng).toBeCloseTo(-118.3576, 4);
+  expect(grove.lat).toBeCloseTo(34.0720, 4);
+  expect(pins).toHaveLength(13);
 
   await page.evaluate(() => window.__tgOpenPin("tcl-chinese"));
   await expect(page.locator("#player-root .player-shell")).toBeVisible();
@@ -989,6 +994,70 @@ test("Ludlow courtyard splat loads with credit, autoplay walk, and pedestrians o
   await page.locator("#splat-root [data-play]").evaluate((el) => el.click());
   await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.playing === true, null, { timeout: 5000 });
   await expect(page.locator("#splat-root [data-play]")).toHaveText("Pause");
+});
+
+
+test("Grove Kane test splat loads with credit, autoplay walk, no added people, and joysticks", async ({ page }) => {
+  test.setTimeout(300000);
+  await page.goto("/index.html");
+  await waitForMap(page);
+  await expect(page.getByRole("button", { name: "The Grove (test)" })).toBeVisible();
+  await page.evaluate(() => window.__tgOpenPin("grove-kane-scan-splat"));
+  await expect(page.locator("#splat-root .player-shell")).toBeVisible();
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.ready === true, null, { timeout: 120000 });
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.avatarReady === true, null, { timeout: 60000 });
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Kane's own iPhone footage");
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("The Grove");
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Bystanders appear smeared");
+  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Not a polished scan");
+  await expect(page.locator("#splat-root .look-hint")).toContainText("starts walking when the preview opens");
+  await expect(page.locator("#splat-root [aria-label='Look joystick']")).toBeVisible();
+  await expect(page.locator("#splat-root [aria-label='Move joystick: scrub the character along the path']")).toBeVisible();
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.playing === true && window.__tgSplatPlayer.anim === "walk", null, { timeout: 5000 });
+  await expect(page.locator("#splat-root [data-play]")).toHaveText("Pause");
+
+  const start = await page.evaluate(() => ({
+    u: window.__tgSplatPlayer.pathU,
+    animTime: window.__tgSplatPlayer.animTime,
+    peds: window.__tgSplatPlayer.pedestrians.length,
+    cars: window.__tgSplatPlayer.cars.length,
+    you: window.__tgSplatPlayer.avatarPosition,
+    playLabel: document.querySelector("#splat-root [data-play]")?.textContent,
+  }));
+  expect(start.playLabel).toBe("Pause");
+  expect(start.peds).toBe(0);
+  expect(start.cars).toBe(0);
+  expect(start.you.x).toBeGreaterThan(-10);
+  expect(start.you.x).toBeLessThan(8);
+  expect(start.you.y).toBeGreaterThan(-1.5);
+  expect(start.you.y).toBeLessThan(1.5);
+  expect(start.you.z).toBeGreaterThan(-14);
+  expect(start.you.z).toBeLessThan(12);
+
+  await page.waitForFunction(() => {
+    const p = window.__tgSplatPlayer;
+    if (!p || p.playing !== true) return false;
+    if (!window.__tgGroveStart) {
+      window.__tgGroveStart = { u: p.pathU, t: p.animTime };
+      return false;
+    }
+    return p.pathU > window.__tgGroveStart.u + 0.04 && p.animTime > window.__tgGroveStart.t + 0.3;
+  }, null, { timeout: 90000 });
+
+  const after = await page.evaluate(() => {
+    const p = window.__tgSplatPlayer;
+    const s = window.__tgGroveStart;
+    return {
+      pathMoved: p.pathU - s.u,
+      walkMoved: p.animTime - s.t,
+      peds: p.pedestrians.length,
+      cars: p.cars.length,
+    };
+  });
+  expect(after.pathMoved).toBeGreaterThan(0.03);
+  expect(after.walkMoved).toBeGreaterThan(0.25);
+  expect(after.peds).toBe(0);
+  expect(after.cars).toBe(0);
 });
 
 // Pre-existing failures, left unfixed: these locators expect href="/sales.html"

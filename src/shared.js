@@ -264,6 +264,32 @@ export const LUDLOW_SPLAT = {
   path: "data/ludlow-path.json",
 };
 
+
+
+// The Grove, Los Angeles — a rough test splat from Kane's own iPhone
+// footage. Bystanders appear smeared. Not a polished scan and not a
+// third-party dataset.
+export const GROVE_SPLAT = {
+  src: "media/splat/grove-kane-test.sog",
+  title: "The Grove (Kane's scan, test)",
+  credit:
+    "Rough test scan from Kane's own iPhone footage at The Grove, Los Angeles. Bystanders appear smeared. Not a polished scan. Converted for this preview (SH0 SOG; see media/splat/GROVE-ATTRIBUTION.md).",
+  commons: "media/splat/GROVE-ATTRIBUTION.md",
+  license: "Private test — owner's footage",
+  licenseUrl: "media/splat/GROVE-ATTRIBUTION.md",
+  view: {
+    position: [1.65, 1.85, 0.75],
+    lookAt: [3.25, 0.99, -5.23],
+    boundsMin: [-10.0, -1.5, -14.0],
+    boundsMax: [8.0, 12.0, 12.0],
+  },
+  avatar: {
+    kind: "simple",
+    height: 1.7,
+  },
+  path: "data/grove-path.json",
+};
+
 export function currentPage() {
   const p = location.pathname;
   if (p.endsWith("creator.html")) return "creator";

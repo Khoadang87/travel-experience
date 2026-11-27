@@ -1,0 +1,154 @@
+{
+  "id": "grove-kane-scan-walker",
+  "closed": true,
+  "floorY": -0.27,
+  "speed": 0.8,
+  "followDist": 3.2,
+  "followDistPortrait": 3.8,
+  "followUp": 1.85,
+  "followUpPortrait": 2.15,
+  "followLookY": 0.9,
+  "followLookAhead": 2.2,
+  "phoneFov": 80,
+  "boundsMin": [
+    -10.0,
+    -1.5,
+    -14.0
+  ],
+  "boundsMax": [
+    8.0,
+    12.0,
+    12.0
+  ],
+  "lighting": {
+    "fill": 1.1,
+    "rim": 0.55,
+    "hemi": 0.85,
+    "envIntensity": 1.05
+  },
+  "notes": "Kane walks an out-and-back along the real iPhone path near t=25\u201330 s (frames 0099\u20130123), the stretch that looked best in the test scan. No added 3D people or cars \u2014 the scan is already busy, and bystanders in the reconstruction appear smeared. The follow camera stays behind him along the sidewalk, starting near the t\u224825 s pose pulled back so Kane is in frame. Path and splat share a Y-up metric frame (COLMAP Rx 180\u00b0, scale \u2248 1.966 so 1 unit \u2248 1 m, floor near y = 0). Rough test scan only.",
+  "points": [
+    [
+      2.473,
+      -0.268,
+      -2.346
+    ],
+    [
+      2.66,
+      -0.24,
+      -2.729
+    ],
+    [
+      2.788,
+      -0.142,
+      -3.135
+    ],
+    [
+      2.862,
+      -0.052,
+      -3.62
+    ],
+    [
+      3.032,
+      -0.057,
+      -4.04
+    ],
+    [
+      3.172,
+      0.0,
+      -4.396
+    ],
+    [
+      3.222,
+      0.018,
+      -4.772
+    ],
+    [
+      3.328,
+      -0.03,
+      -5.101
+    ],
+    [
+      3.398,
+      0.005,
+      -5.442
+    ],
+    [
+      3.401,
+      0.063,
+      -5.847
+    ],
+    [
+      3.493,
+      0.06,
+      -6.223
+    ],
+    [
+      3.593,
+      0.113,
+      -6.617
+    ],
+    [
+      3.601,
+      0.156,
+      -7.068
+    ],
+    [
+      3.593,
+      0.113,
+      -6.617
+    ],
+    [
+      3.493,
+      0.06,
+      -6.223
+    ],
+    [
+      3.401,
+      0.063,
+      -5.847
+    ],
+    [
+      3.398,
+      0.005,
+      -5.442
+    ],
+    [
+      3.328,
+      -0.03,
+      -5.101
+    ],
+    [
+      3.222,
+      0.018,
+      -4.772
+    ],
+    [
+      3.172,
+      0.0,
+      -4.396
+    ],
+    [
+      3.032,
+      -0.057,
+      -4.04
+    ],
+    [
+      2.862,
+      -0.052,
+      -3.62
+    ],
+    [
+      2.788,
+      -0.142,
+      -3.135
+    ],
+    [
+      2.66,
+      -0.24,
+      -2.729
+    ]
+  ],
+  "pedestrians": [],
+  "cars": []
+}

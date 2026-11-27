@@ -228,6 +228,45 @@
       },
       "splatPath": "data/ludlow-path.json",
       "label": "Ludlow courtyard (test)"
+    },
+    {
+      "id": "grove-kane-scan-splat",
+      "name": "The Grove (Kane's scan, test)",
+      "kind": "splat",
+      "lng": -118.3576,
+      "lat": 34.0720,
+      "sourceName": "Rough test scan from Kane's own footage — bystanders appear smeared",
+      "sourceUrl": "media/splat/GROVE-ATTRIBUTION.md",
+      "blurb": "A rough test Gaussian splat reconstructed from Kane's own iPhone footage of a walk at The Grove, Los Angeles. The same splat player, Look and Move joysticks, and glowing walker. No added 3D people — the scan is already busy, and bystanders appear smeared. Not a polished scan.",
+      "splat": "media/splat/grove-kane-test.sog",
+      "splatView": {
+        "position": [
+          1.65,
+          1.85,
+          0.75
+        ],
+        "lookAt": [
+          3.25,
+          0.99,
+          -5.23
+        ],
+        "boundsMin": [
+          -10.0,
+          -1.5,
+          -14.0
+        ],
+        "boundsMax": [
+          8.0,
+          12.0,
+          12.0
+        ]
+      },
+      "splatAvatar": {
+        "kind": "simple",
+        "height": 1.7
+      },
+      "splatPath": "data/grove-path.json",
+      "label": "The Grove (test)"
     }
   ]
 }
