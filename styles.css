@@ -810,3 +810,162 @@ body.player-css-fs .player-panel.is-fullscreen {
     white-space: nowrap;
   }
 }
+
+
+/* Phone (and short landscape) players: full-bleed stage with overlaid chrome. */
+@media (max-width: 700px), (max-height: 500px) and (max-width: 1000px) {
+  .player-shell {
+    padding: 0;
+    background: #111;
+  }
+  .player-panel {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto 1fr auto auto;
+    width: 100%;
+    height: 100dvh;
+    height: 100svh;
+    max-height: 100dvh;
+    max-height: 100svh;
+    border: 0;
+    border-radius: 0;
+    background: #111;
+    overflow: hidden;
+  }
+  .stage {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    position: relative;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    margin: 0;
+    border-radius: 0;
+  }
+  .player-top,
+  .credit-line,
+  .credit-details,
+  .sample-banner,
+  .credit,
+  .offer-line,
+  .look-hint,
+  .look-caption,
+  .player-controls {
+    position: relative;
+    z-index: 4;
+    min-width: 0;
+  }
+  .player-top {
+    grid-column: 1;
+    grid-row: 1;
+    padding: max(10px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) 10px max(12px, env(safe-area-inset-left, 0px));
+    background: linear-gradient(to bottom, rgba(20, 18, 16, 0.82), rgba(20, 18, 16, 0.28) 75%, transparent);
+    align-items: flex-start;
+  }
+  .player-top .eyebrow,
+  #player-title, #splat-title, #videowalk-title {
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+  }
+  .credit-line,
+  .sample-banner,
+  .credit {
+    grid-column: 1;
+    grid-row: 2;
+    margin: 0 max(12px, env(safe-area-inset-right, 0px)) 8px max(12px, env(safe-area-inset-left, 0px));
+    color: #f4f0ea;
+    background: rgba(20, 18, 16, 0.62);
+    text-shadow: none;
+    max-height: 4.6em;
+    overflow: auto;
+  }
+  .credit-line { color: #f4f0ea; }
+  .credit-line .text-link { color: #c8ebe4; }
+  .offer-line,
+  .credit-details {
+    grid-column: 1;
+    grid-row: 3;
+    margin: 0 max(12px, env(safe-area-inset-right, 0px)) 8px max(12px, env(safe-area-inset-left, 0px));
+  }
+  .look-hint,
+  .look-caption {
+    grid-column: 1;
+    grid-row: 5;
+    margin: 0 max(12px, env(safe-area-inset-right, 0px)) 8px max(12px, env(safe-area-inset-left, 0px));
+    color: #fff;
+    background: rgba(20, 18, 16, 0.62);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    padding: 8px 10px;
+    position: relative;
+  }
+  .player-controls {
+    grid-column: 1;
+    grid-row: 6;
+    padding: 4px max(12px, env(safe-area-inset-right, 0px)) max(12px, calc(env(safe-area-inset-bottom, 0px) + 8px)) max(12px, env(safe-area-inset-left, 0px));
+    background: linear-gradient(to top, rgba(20, 18, 16, 0.82), rgba(20, 18, 16, 0.28) 70%, transparent);
+    gap: 8px;
+  }
+  .sticks {
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 4px;
+    pointer-events: auto;
+  }
+  .stick-wrap { color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7); }
+  .stick {
+    width: 96px;
+    height: 96px;
+    background: rgba(247, 244, 239, 0.92);
+    border-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  }
+  .videowalk-spots {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    margin: 0;
+    padding: 0 0 2px;
+  }
+  .videowalk-spots .text-btn,
+  .videowalk-spots .videowalk-spot {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    background: rgba(247, 244, 239, 0.92);
+    color: var(--ink);
+  }
+  .stage canvas.videowalk-minimap,
+  .videowalk-stage .videowalk-minimap {
+    top: max(72px, calc(env(safe-area-inset-top, 0px) + 64px));
+    right: max(8px, env(safe-area-inset-right, 0px));
+  }
+  .player-controls .time { color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); }
+}
+
+
+@media (max-height: 500px) and (max-width: 1000px) {
+  .stick { width: 72px; height: 72px; }
+  .stage canvas.videowalk-minimap,
+  .videowalk-stage .videowalk-minimap {
+    width: 72px;
+    height: 72px;
+    top: max(52px, calc(env(safe-area-inset-top, 0px) + 44px));
+  }
+  #player-title, #splat-title, #videowalk-title { font-size: 16px; }
+  .look-hint, .look-caption {
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 6px 8px;
+    margin-bottom: 6px;
+  }
+  .credit-line, .sample-banner, .credit { max-height: 2.8em; }
+  .player-controls { padding-top: 2px; gap: 6px; }
+}

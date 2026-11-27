@@ -770,10 +770,11 @@ test("splat stage fills the leftover phone viewport under the controls", async (
       gapBelowControls: p.bottom - c.bottom,
     };
   });
-  // Credit line, hint under the stage, and 44px targets take some height;
-  // the stage should still fill the leftover phone viewport.
-  expect(layout.stageHeight).toBeGreaterThan(320);
-  expect(layout.gapBelowControls).toBeLessThan(24);
+  // Phone players are full-bleed: the stage fills the viewport and the
+  // sticks overlay it instead of sitting in a reserved block below.
+  expect(layout.stageHeight).toBeGreaterThan(layout.viewport.h - 8);
+  expect(layout.stageTop).toBeLessThan(2);
+  expect(layout.controlsBottom).toBeLessThanOrEqual(layout.viewport.h + 1);
   expect(layout.controlsTop).toBeGreaterThan(layout.stageTop + 200);
 
   await expect(page.locator("#splat-root [data-view-360]")).toBeHidden();
@@ -1199,6 +1200,74 @@ test.describe("video walk phone viewport", () => {
 // Pre-existing failures, left unfixed: these locators expect href="/sales.html"
 // but the pages use href="sales.html". Moved to the end only so serial mode
 // still runs the tests after them. Assertions are unchanged.
+
+
+test("phone player sticks stay inside a full-bleed stage at common iPhone sizes", async ({ page }) => {
+  test.setTimeout(360000);
+  const sizes = [
+    { width: 375, height: 667 },
+    { width: 390, height: 844 },
+    { width: 430, height: 932 },
+    { width: 844, height: 390 },
+  ];
+  function assertInside(result, label) {
+    expect(result.stageFills, label + " stage " + JSON.stringify(result.stage)).toBeTruthy();
+    expect(result.allIn, label + " sticks " + JSON.stringify(result.inside)).toBeTruthy();
+  }
+  async function measure(page, root, vp) {
+    return page.evaluate(({ root, vp }) => {
+      const sticks = [...document.querySelectorAll(root + " .stick")];
+      const stage = document.querySelector(root + " .stage");
+      if (!stage) return { stageFills: false, allIn: false, stage: null, inside: [] };
+      const s = stage.getBoundingClientRect();
+      const inside = sticks.map((el) => {
+        const r = el.getBoundingClientRect();
+        return {
+          ok: r.width >= 44 && r.height >= 44 && r.left >= -0.5 && r.top >= -0.5 && r.right <= vp.w + 0.5 && r.bottom <= vp.h + 0.5,
+          r: { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height), right: Math.round(r.right), bottom: Math.round(r.bottom) },
+        };
+      });
+      return {
+        stage: { x: Math.round(s.x), y: Math.round(s.y), w: Math.round(s.width), h: Math.round(s.height) },
+        vp,
+        inside,
+        allIn: inside.length > 0 && inside.every((item) => item.ok),
+        stageFills: Math.abs(s.width - vp.w) < 2 && Math.abs(s.height - vp.h) < 2 && s.top < 2 && s.left < 2,
+      };
+    }, { root, vp });
+  }
+
+  await page.goto("/index.html");
+  await waitForMap(page);
+
+  for (const size of sizes) {
+    await page.setViewportSize(size);
+    await page.evaluate(() => window.__tgOpenPin("grove-kane-scan-splat"));
+    await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+    await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+    assertInside(await measure(page, "#videowalk-root", { w: size.width, h: size.height }), `Grove ${size.width}x${size.height}`);
+    await page.evaluate(() => window.__tgVideoWalk.close({ silent: true }));
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => window.__tgOpenPin("farmers-kane-scan-splat"));
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+  assertInside(await measure(page, "#videowalk-root", { w: 390, h: 844 }), "Farmers 390x844");
+  await page.evaluate(() => window.__tgVideoWalk.close({ silent: true }));
+
+  await page.evaluate(() => window.__tgOpenPin("tcl-chinese"));
+  await expect(page.locator("#player-root .player-shell")).toBeVisible();
+  await page.waitForTimeout(800);
+  assertInside(await measure(page, "#player-root", { w: 390, h: 844 }), "360 390x844");
+  await page.evaluate(() => window.__tgPlayer.close({ silent: true }));
+
+  await page.evaluate(() => window.__tgOpenSplatPin("grove-kane-scan-splat"));
+  await expect(page.locator("#splat-root .player-shell")).toBeVisible();
+  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.ready === true, { timeout: 180000 });
+  assertInside(await measure(page, "#splat-root", { w: 390, h: 844 }), "splat 390x844");
+  await page.evaluate(() => window.__tgSplatPlayer.close({ silent: true }));
+});
 
 test("example business pin opens flat player with demo credit and offer link", async ({ page }) => {
   await page.goto("/index.html");
