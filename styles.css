@@ -17,6 +17,7 @@
   --target: 44px;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { height: 100%; margin: 0; }
 body {
   font-family: var(--font);
@@ -164,7 +165,16 @@ button.primary:hover, a.primary:hover { background: var(--accent-hover); border-
   font-size: 13px;
   color: var(--muted);
 }
-.chip-row, .btn-row, .sample-strip, .legal-note { display: none; }
+.chip-row, .btn-row { display: none; }
+.sample-strip, .legal-note {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+}
 
 .map-pin {
   display: flex;
