@@ -5,7 +5,7 @@ import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 import { SparkRenderer, SplatMesh } from "@sparkjsdev/spark";
 import { detectWebGL2 } from "./webgl2.js";
-import { PLACEHOLDER_SPLAT } from "./shared.js";
+import { PLACEHOLDER_SPLAT, bindFadeHint } from "./shared.js";
 import { resolveStreetModel, collectWheels, WALK_DESIGN_SPEED } from "./street-models.js";
 
 const DEG = Math.PI / 180;
@@ -34,10 +34,13 @@ export function mountSplatPlayer(root) {
         <div class="stage" data-stage>
           <canvas data-canvas></canvas>
         </div>
-        <p class="look-hint">Look stick or drag to look around. Move stick scrubs the path. The character starts walking when the preview opens; Pause stops it.</p>
+        <p class="look-hint" data-look-hint>
+          <span class="hint-phone">Drag to look, hold stick to walk</span>
+          <span class="hint-desktop">Look stick or drag to look around. Move stick scrubs the path. The character starts walking when the preview opens; Pause stops it.</span>
+        </p>
         <div class="player-controls">
           <div class="sticks">
-            <div class="stick-wrap">
+            <div class="stick-wrap stick-wrap-look">
               <div class="stick" data-stick="look" role="application" aria-label="Look joystick">
                 <div class="stick-knob"></div>
               </div>
@@ -78,6 +81,7 @@ export function mountSplatPlayer(root) {
   const seek = root.querySelector("[data-seek]");
   const timeEl = root.querySelector("[data-time]");
   const panel = root.querySelector(".player-panel");
+  const markHintUsed = bindFadeHint(root.querySelector("[data-look-hint]"));
 
   let renderer = null;
   let scene = null;
@@ -197,16 +201,22 @@ export function mountSplatPlayer(root) {
     };
     el.addEventListener("pointerdown", (e) => {
       pid = e.pointerId;
-      el.setPointerCapture(pid);
+      try { el.setPointerCapture(pid); } catch (_) {}
       move(e.clientX, e.clientY);
       e.preventDefault();
+      e.stopPropagation();
+      markHintUsed();
     });
+    const endIf = (e) => {
+      if (pid != null && e.pointerId !== pid) return;
+      end();
+    };
     el.addEventListener("pointermove", (e) => {
       if (pid !== e.pointerId) return;
       move(e.clientX, e.clientY);
     });
-    el.addEventListener("pointerup", end);
-    el.addEventListener("pointercancel", end);
+    el.addEventListener("pointerup", endIf);
+    el.addEventListener("pointercancel", endIf);
   }
 
   bindStick(root.querySelector('[data-stick="look"]'), (x, y) => {
@@ -216,14 +226,20 @@ export function mountSplatPlayer(root) {
     moveAxis = { x, y };
   });
 
+  let dragId = null;
   canvas.addEventListener("pointerdown", (e) => {
+    if (e.button != null && e.button !== 0) return;
+    if (dragId != null) return;
+    dragId = e.pointerId;
     dragging = true;
     lastX = e.clientX;
     lastY = e.clientY;
-    canvas.setPointerCapture(e.pointerId);
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+    markHintUsed();
   });
   canvas.addEventListener("pointermove", (e) => {
-    if (!dragging) return;
+    if (dragId !== e.pointerId) return;
     const dx = e.clientX - lastX;
     const dy = e.clientY - lastY;
     lastX = e.clientX;
@@ -232,7 +248,9 @@ export function mountSplatPlayer(root) {
     pitch = clamp(pitch + dy * 0.2 * DEG, -1.2, 1.2);
     applyCamera();
   });
-  const stopDrag = () => {
+  const stopDrag = (e) => {
+    if (dragId != null && e && e.pointerId !== dragId) return;
+    dragId = null;
     dragging = false;
   };
   canvas.addEventListener("pointerup", stopDrag);
@@ -2067,6 +2085,7 @@ export function mountSplatPlayer(root) {
     lookAxis = { x: 0, y: 0 };
     moveAxis = { x: 0, y: 0 };
     dragging = false;
+    dragId = null;
     if (opts && opts.silent) return;
     const cb = onCloseCb;
     onCloseCb = null;
@@ -2238,6 +2257,12 @@ export function mountSplatPlayer(root) {
     },
     get pathU() {
       return pathU;
+    },
+    get yaw() {
+      return yaw;
+    },
+    get pitch() {
+      return pitch;
     },
     get pathLength() {
       return pathLength;

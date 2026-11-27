@@ -351,3 +351,27 @@ export function bindCredits() {
     if (e.key === "Escape" && !dialog.hidden) close();
   });
 }
+
+const LOOK_HINT_KEY = "tg:look-hint-used";
+
+/** Fade the look/walk hint after first stick or look-drag use. */
+export function bindFadeHint(el) {
+  if (!el) return () => {};
+  let used = false;
+  try { used = sessionStorage.getItem(LOOK_HINT_KEY) === "1"; } catch (_) {}
+  if (used) {
+    el.classList.add("is-faded");
+    el.setAttribute("aria-hidden", "true");
+    return () => {};
+  }
+  let marked = false;
+  return function markHintUsed() {
+    if (marked) return;
+    marked = true;
+    try { sessionStorage.setItem(LOOK_HINT_KEY, "1"); } catch (_) {}
+    window.setTimeout(() => {
+      el.classList.add("is-faded");
+      el.setAttribute("aria-hidden", "true");
+    }, 1400);
+  };
+}

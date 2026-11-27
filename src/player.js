@@ -1,4 +1,4 @@
-import { DEFAULT_360, FLAT, FLAT_BUSINESS } from "./shared.js";
+import { DEFAULT_360, FLAT, FLAT_BUSINESS, bindFadeHint } from "./shared.js";
 
 const DEG = Math.PI / 180;
 
@@ -24,10 +24,13 @@ export function mountPlayer(root) {
           <div class="watermark" data-watermark hidden></div>
           <div class="trial-end" data-trial-end hidden>Trial preview is capped at <span data-cap-label>45</span> seconds.</div>
         </div>
-        <p class="look-hint">Hold Move to walk — the clip moves only while you walk. Use Look to look around.</p>
+        <p class="look-hint" data-look-hint>
+          <span class="hint-phone">Drag to look, hold stick to walk</span>
+          <span class="hint-desktop">Hold Move to walk — the clip moves only while you walk. Use Look to look around.</span>
+        </p>
         <div class="player-controls">
           <div class="sticks">
-            <div class="stick-wrap">
+            <div class="stick-wrap stick-wrap-look">
               <div class="stick" data-stick="look" role="application" aria-label="Look joystick">
                 <div class="stick-knob"></div>
               </div>
@@ -70,6 +73,7 @@ export function mountPlayer(root) {
   const fsBtn = root.querySelector("[data-fs]");
   const panel = root.querySelector(".player-panel");
   const posterEl = root.querySelector("[data-poster]");
+  const markHintUsed = bindFadeHint(root.querySelector("[data-look-hint]"));
 
   const video = document.createElement("video");
   video.playsInline = true;
@@ -359,16 +363,22 @@ export function mountPlayer(root) {
     };
     el.addEventListener("pointerdown", (e) => {
       pid = e.pointerId;
-      el.setPointerCapture(pid);
+      try { el.setPointerCapture(pid); } catch (_) {}
       move(e.clientX, e.clientY);
       e.preventDefault();
+      e.stopPropagation();
+      markHintUsed();
     });
+    const endIf = (e) => {
+      if (pid != null && e.pointerId !== pid) return;
+      end();
+    };
     el.addEventListener("pointermove", (e) => {
       if (pid !== e.pointerId) return;
       move(e.clientX, e.clientY);
     });
-    el.addEventListener("pointerup", end);
-    el.addEventListener("pointercancel", end);
+    el.addEventListener("pointerup", endIf);
+    el.addEventListener("pointercancel", endIf);
   }
 
   bindStick(root.querySelector('[data-stick="look"]'), (x, y) => {
@@ -379,16 +389,22 @@ export function mountPlayer(root) {
     walkAxis = -y;
   });
 
+  let dragId = null;
   canvas.addEventListener("pointerdown", (e) => {
+    if (e.button != null && e.button !== 0) return;
+    if (dragId != null) return;
+    dragId = e.pointerId;
     dragging = true;
     lastX = e.clientX;
     lastY = e.clientY;
     dragVelX = 0;
     dragVelY = 0;
-    canvas.setPointerCapture(e.pointerId);
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+    markHintUsed();
   });
   canvas.addEventListener("pointermove", (e) => {
-    if (!dragging) return;
+    if (dragId !== e.pointerId) return;
     const dx = e.clientX - lastX;
     const dy = e.clientY - lastY;
     lastX = e.clientX;
@@ -400,7 +416,9 @@ export function mountPlayer(root) {
     dragVelX = dragVelX * 0.55 + stepX * 0.45;
     dragVelY = dragVelY * 0.55 + stepY * 0.45;
   });
-  const stopDrag = () => {
+  const stopDrag = (e) => {
+    if (dragId != null && e && e.pointerId !== dragId) return;
+    dragId = null;
     dragging = false;
   };
   canvas.addEventListener("pointerup", stopDrag);

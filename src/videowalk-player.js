@@ -1,3 +1,5 @@
+import { bindFadeHint } from "./shared.js";
+
 // Hoi An-style video walk for flat portrait clips.
 // Hold-to-walk, Explore, mini-map, stale-cache guard, and the sound
 // toggle follow cities/hoian/walk-w27.js (commit 16996dd, 31 Oct 2026).
@@ -5,7 +7,7 @@
 
 const VER = "vw1";
 const DEADZONE = 0.2;
-const OVERSCALE = 1.2;
+const OVERSCALE = 1.28;
 
 function clamp(v, a, b) {
   return Math.max(a, Math.min(b, v));
@@ -39,10 +41,13 @@ export function mountVideoWalkPlayer(root) {
           <video data-video playsinline webkit-playsinline muted preload="auto"></video>
           <canvas class="videowalk-minimap" data-minimap width="120" height="120" aria-label="Approximate walk map: tap to jump"></canvas>
         </div>
-        <p class="look-caption">Hold Move up to walk. Release to stop. Drag or use Look to look around. You can also hold the Up arrow or W.</p>
+        <p class="look-caption" data-look-hint>
+          <span class="hint-phone">Drag to look, hold stick to walk</span>
+          <span class="hint-desktop">Hold Move up to walk. Release to stop. Drag or use Look to look around. You can also hold the Up arrow or W.</span>
+        </p>
         <div class="player-controls">
           <div class="sticks">
-            <div class="stick-wrap">
+            <div class="stick-wrap stick-wrap-look">
               <div class="stick" data-stick="look" role="application" aria-label="Look joystick">
                 <div class="stick-knob"></div>
               </div>
@@ -92,6 +97,7 @@ export function mountVideoWalkPlayer(root) {
   const moveStick = root.querySelector('[data-stick="move"]');
   const lookKnob = lookStick.querySelector(".stick-knob");
   const moveKnob = moveStick.querySelector(".stick-knob");
+  const markHintUsed = bindFadeHint(root.querySelector("[data-look-hint]"));
 
   video.muted = true;
   video.defaultMuted = true;
@@ -287,6 +293,7 @@ export function mountVideoWalkPlayer(root) {
   }
 
   function stickStart(state, el, e) {
+    markHintUsed();
     const r = el.getBoundingClientRect();
     state.id = e.pointerId;
     state.cx = r.left + r.width / 2;
@@ -332,11 +339,17 @@ export function mountVideoWalkPlayer(root) {
   bindStick(lookStick, lookJoy);
 
   stage.addEventListener("pointerdown", (e) => {
-    if (e.target.closest && e.target.closest("canvas,button,a,input")) return;
+    if (e.button != null && e.button !== 0) return;
+    if (look.drag) return;
+    if (e.target.closest && e.target.closest("canvas,button,a,input,.stick,.stick-wrap,.videowalk-spots")) return;
     look.drag = { id: e.pointerId, x: e.clientX, y: e.clientY };
+    try { stage.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+    markHintUsed();
   });
   stage.addEventListener("pointermove", (e) => {
     if (!look.drag || look.drag.id !== e.pointerId) return;
+    e.preventDefault();
     const lay = layoutVideo();
     look.panX = clamp(look.panX + (e.clientX - look.drag.x), -lay.maxX, lay.maxX);
     look.panY = clamp(look.panY + (e.clientY - look.drag.y), -lay.maxY, lay.maxY);
@@ -537,6 +550,7 @@ export function mountVideoWalkPlayer(root) {
     jump,
     coversStage,
     layout: layoutVideo,
+    get pan() { return { x: look.panX, y: look.panY }; },
   };
   window.__tgVideoWalk = api;
   return api;
