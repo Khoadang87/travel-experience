@@ -1218,16 +1218,21 @@ test("phone player sticks stay inside a full-bleed stage at common iPhone sizes"
     { width: 844, height: 390 },
   ];
   function assertInside(result, label) {
+    expect(result.lookHidden, label + " look stick should be hidden").toBeTruthy();
+    expect(result.moveCount, label + " should have exactly one Move stick").toBe(1);
     expect(result.stageFills, label + " stage " + JSON.stringify(result.stage)).toBeTruthy();
     expect(result.allIn, label + " sticks " + JSON.stringify(result.inside)).toBeTruthy();
   }
   async function measure(page, root, vp) {
     return page.evaluate(({ root, vp }) => {
-      const sticks = [...document.querySelectorAll(root + " .stick")];
+      const look = document.querySelector(root + ' [data-stick="look"]');
+      const moves = [...document.querySelectorAll(root + ' [data-stick="move"]')];
       const stage = document.querySelector(root + " .stage");
-      if (!stage) return { stageFills: false, allIn: false, stage: null, inside: [] };
+      if (!stage) return { stageFills: false, allIn: false, stage: null, inside: [], lookHidden: false, moveCount: 0 };
       const s = stage.getBoundingClientRect();
-      const inside = sticks.map((el) => {
+      const lookStyle = look ? getComputedStyle(look.closest(".stick-wrap") || look) : null;
+      const lookHidden = !look || lookStyle.display === "none" || lookStyle.visibility === "hidden";
+      const inside = moves.map((el) => {
         const r = el.getBoundingClientRect();
         return {
           ok: r.width >= 44 && r.height >= 44 && r.left >= -0.5 && r.top >= -0.5 && r.right <= vp.w + 0.5 && r.bottom <= vp.h + 0.5,
@@ -1240,41 +1245,150 @@ test("phone player sticks stay inside a full-bleed stage at common iPhone sizes"
         inside,
         allIn: inside.length > 0 && inside.every((item) => item.ok),
         stageFills: Math.abs(s.width - vp.w) < 2 && Math.abs(s.height - vp.h) < 2 && s.top < 2 && s.left < 2,
+        lookHidden,
+        moveCount: moves.length,
       };
     }, { root, vp });
+  }
+  async function dispatchPointer(page, selector, type, opts) {
+    await page.evaluate(({ selector, type, opts }) => {
+      const el = document.querySelector(selector);
+      el.dispatchEvent(new PointerEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        pointerId: opts.pointerId,
+        pointerType: opts.pointerType || "touch",
+        clientX: opts.x,
+        clientY: opts.y,
+        buttons: type === "pointerup" || type === "pointercancel" ? 0 : 1,
+        isPrimary: opts.pointerId === 1,
+      }));
+    }, { selector, type, opts });
+  }
+  async function centerOf(page, selector) {
+    return page.evaluate((selector) => {
+      const r = document.querySelector(selector).getBoundingClientRect();
+      return { x: r.x + r.width / 2, y: r.y + r.height / 2, top: r.y + 8, left: r.x, right: r.right, bottom: r.bottom, w: r.width, h: r.height };
+    }, selector);
   }
 
   await page.goto("/index.html");
   await waitForMap(page);
+  await page.evaluate(() => sessionStorage.removeItem("tg:look-hint-used"));
 
   for (const size of sizes) {
     await page.setViewportSize(size);
     await page.evaluate(() => window.__tgOpenPin("grove-kane-scan-splat"));
     await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
     await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+    await expect(page.locator("#videowalk-root [data-stick='look']")).toBeHidden();
+    await expect(page.locator("#videowalk-root [data-stick='move']")).toBeVisible();
+    await expect(page.locator("#videowalk-root [data-look-hint] .hint-phone")).toHaveText("Drag to look, hold stick to walk");
     assertInside(await measure(page, "#videowalk-root", { w: size.width, h: size.height }), `Grove ${size.width}x${size.height}`);
     await page.evaluate(() => window.__tgVideoWalk.close({ silent: true }));
   }
 
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => window.__tgOpenPin("grove-kane-scan-splat"));
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+  const vwPan0 = await page.evaluate(() => window.__tgVideoWalk.pan);
+  const stageC = await centerOf(page, "#videowalk-root [data-stage]");
+  await dispatchPointer(page, "#videowalk-root [data-stage]", "pointerdown", { pointerId: 21, x: stageC.x, y: stageC.y });
+  await dispatchPointer(page, "#videowalk-root [data-stage]", "pointermove", { pointerId: 21, x: stageC.x + 48, y: stageC.y + 36 });
+  await dispatchPointer(page, "#videowalk-root [data-stage]", "pointerup", { pointerId: 21, x: stageC.x + 48, y: stageC.y + 36 });
+  const vwPan1 = await page.evaluate(() => window.__tgVideoWalk.pan);
+  expect(Math.abs(vwPan1.x - vwPan0.x), "videowalk drag yaw/panX " + JSON.stringify({ vwPan0, vwPan1 })).toBeGreaterThan(8);
+  expect(Math.abs(vwPan1.y - vwPan0.y), "videowalk drag pitch/panY " + JSON.stringify({ vwPan0, vwPan1 })).toBeGreaterThan(8);
+
+  const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  const panBeforeBoth = await page.evaluate(() => window.__tgVideoWalk.pan);
+  const stickC = await centerOf(page, "#videowalk-root [data-stick='move']");
+  const stageC2 = await centerOf(page, "#videowalk-root [data-stage]");
+  await dispatchPointer(page, "#videowalk-root [data-stick='move']", "pointerdown", { pointerId: 31, x: stickC.x, y: stickC.top });
+  await dispatchPointer(page, "#videowalk-root [data-stage]", "pointerdown", { pointerId: 32, x: stageC2.x, y: stageC2.y });
+  await dispatchPointer(page, "#videowalk-root [data-stage]", "pointermove", { pointerId: 32, x: stageC2.x - 40, y: stageC2.y - 28 });
+  await page.waitForFunction((start) => window.__tgVideoWalk && window.__tgVideoWalk.currentTime > start + 0.3, t0, { timeout: 20000 });
+  const both = await page.evaluate(() => ({ t: window.__tgVideoWalk.currentTime, pan: window.__tgVideoWalk.pan }));
+  expect(both.t).toBeGreaterThan(t0 + 0.3);
+  expect(Math.abs(both.pan.x - panBeforeBoth.x) + Math.abs(both.pan.y - panBeforeBoth.y), "stick+drag pan " + JSON.stringify({ panBeforeBoth, pan: both.pan })).toBeGreaterThan(8);
+  await dispatchPointer(page, "#videowalk-root [data-stick='move']", "pointerup", { pointerId: 31, x: stickC.x, y: stickC.top });
+  await dispatchPointer(page, "#videowalk-root [data-stage]", "pointerup", { pointerId: 32, x: stageC2.x - 40, y: stageC2.y - 28 });
+  await page.evaluate(() => window.__tgVideoWalk.close({ silent: true }));
+
   await page.evaluate(() => window.__tgOpenPin("farmers-kane-scan-splat"));
   await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
   await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+  await expect(page.locator("#videowalk-root [data-stick='look']")).toBeHidden();
   assertInside(await measure(page, "#videowalk-root", { w: 390, h: 844 }), "Farmers 390x844");
   await page.evaluate(() => window.__tgVideoWalk.close({ silent: true }));
 
+  await page.evaluate(() => sessionStorage.removeItem("tg:look-hint-used"));
   await page.evaluate(() => window.__tgOpenPin("tcl-chinese"));
   await expect(page.locator("#player-root .player-shell")).toBeVisible();
   await page.waitForTimeout(800);
+  await expect(page.locator("#player-root [data-stick='look']")).toBeHidden();
+  await expect(page.locator("#player-root [data-stick='move']")).toBeVisible();
+  await expect(page.locator("#player-root [data-look-hint] .hint-phone")).toHaveText("Drag to look, hold stick to walk");
   assertInside(await measure(page, "#player-root", { w: 390, h: 844 }), "360 390x844");
+  const yaw0 = await page.evaluate(() => ({ yaw: window.__tgPlayer.yaw, pitch: window.__tgPlayer.pitch }));
+  const pStage = await centerOf(page, "#player-root [data-canvas]");
+  await dispatchPointer(page, "#player-root [data-canvas]", "pointerdown", { pointerId: 41, x: pStage.x, y: pStage.y });
+  await dispatchPointer(page, "#player-root [data-canvas]", "pointermove", { pointerId: 41, x: pStage.x + 50, y: pStage.y + 40 });
+  await dispatchPointer(page, "#player-root [data-canvas]", "pointerup", { pointerId: 41, x: pStage.x + 50, y: pStage.y + 40 });
+  const yaw1 = await page.evaluate(() => ({ yaw: window.__tgPlayer.yaw, pitch: window.__tgPlayer.pitch }));
+  expect(Math.abs(yaw1.yaw - yaw0.yaw), "360 drag yaw " + JSON.stringify({ yaw0, yaw1 })).toBeGreaterThan(0.02);
+  expect(Math.abs(yaw1.pitch - yaw0.pitch), "360 drag pitch " + JSON.stringify({ yaw0, yaw1 })).toBeGreaterThan(0.02);
+
+  const time360 = await page.evaluate(() => window.__tgPlayer.currentTime);
+  const yawBeforeBoth = await page.evaluate(() => ({ yaw: window.__tgPlayer.yaw, pitch: window.__tgPlayer.pitch }));
+  const move360 = await centerOf(page, "#player-root [data-stick='move']");
+  const pStage2 = await centerOf(page, "#player-root [data-canvas]");
+  await dispatchPointer(page, "#player-root [data-stick='move']", "pointerdown", { pointerId: 51, x: move360.x, y: move360.top });
+  await dispatchPointer(page, "#player-root [data-canvas]", "pointerdown", { pointerId: 52, x: pStage2.x, y: pStage2.y });
+  await dispatchPointer(page, "#player-root [data-canvas]", "pointermove", { pointerId: 52, x: pStage2.x - 45, y: pStage2.y - 30 });
+  await page.waitForTimeout(700);
+  const both360 = await page.evaluate(() => ({ t: window.__tgPlayer.currentTime, yaw: window.__tgPlayer.yaw, pitch: window.__tgPlayer.pitch }));
+  expect(Math.abs(both360.yaw - yawBeforeBoth.yaw) + Math.abs(both360.pitch - yawBeforeBoth.pitch), "360 stick+drag look").toBeGreaterThan(0.02);
+  expect(both360.t, "360 stick+drag should also walk").toBeGreaterThan(time360 + 0.15);
+  await dispatchPointer(page, "#player-root [data-stick='move']", "pointerup", { pointerId: 51, x: move360.x, y: move360.top });
+  await dispatchPointer(page, "#player-root [data-canvas]", "pointerup", { pointerId: 52, x: pStage2.x - 45, y: pStage2.y - 30 });
   await page.evaluate(() => window.__tgPlayer.close({ silent: true }));
 
+  await page.evaluate(() => sessionStorage.removeItem("tg:look-hint-used"));
   await page.evaluate(() => window.__tgOpenSplatPin("grove-kane-scan-splat"));
   await expect(page.locator("#splat-root .player-shell")).toBeVisible();
   await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.ready === true, { timeout: 180000 });
+  await expect(page.locator("#splat-root [data-stick='look']")).toBeHidden();
+  await expect(page.locator("#splat-root [data-stick='move']")).toBeVisible();
+  await expect(page.locator("#splat-root [data-look-hint] .hint-phone")).toHaveText("Drag to look, hold stick to walk");
   assertInside(await measure(page, "#splat-root", { w: 390, h: 844 }), "splat 390x844");
+  const sYaw0 = await page.evaluate(() => ({ yaw: window.__tgSplatPlayer.yaw, pitch: window.__tgSplatPlayer.pitch }));
+  const sStage = await centerOf(page, "#splat-root [data-canvas]");
+  await dispatchPointer(page, "#splat-root [data-canvas]", "pointerdown", { pointerId: 61, x: sStage.x, y: sStage.y });
+  await dispatchPointer(page, "#splat-root [data-canvas]", "pointermove", { pointerId: 61, x: sStage.x + 50, y: sStage.y + 40 });
+  await dispatchPointer(page, "#splat-root [data-canvas]", "pointerup", { pointerId: 61, x: sStage.x + 50, y: sStage.y + 40 });
+  const sYaw1 = await page.evaluate(() => ({ yaw: window.__tgSplatPlayer.yaw, pitch: window.__tgSplatPlayer.pitch }));
+  expect(Math.abs(sYaw1.yaw - sYaw0.yaw), "splat drag yaw " + JSON.stringify({ sYaw0, sYaw1 })).toBeGreaterThan(0.02);
+  expect(Math.abs(sYaw1.pitch - sYaw0.pitch), "splat drag pitch " + JSON.stringify({ sYaw0, sYaw1 })).toBeGreaterThan(0.02);
+
+  const u0 = await page.evaluate(() => window.__tgSplatPlayer.pathU);
+  const sYawBefore = await page.evaluate(() => ({ yaw: window.__tgSplatPlayer.yaw, pitch: window.__tgSplatPlayer.pitch }));
+  const moveSplat = await centerOf(page, "#splat-root [data-stick='move']");
+  const sStage2 = await centerOf(page, "#splat-root [data-canvas]");
+  await dispatchPointer(page, "#splat-root [data-stick='move']", "pointerdown", { pointerId: 71, x: moveSplat.x, y: moveSplat.top });
+  await dispatchPointer(page, "#splat-root [data-canvas]", "pointerdown", { pointerId: 72, x: sStage2.x, y: sStage2.y });
+  await dispatchPointer(page, "#splat-root [data-canvas]", "pointermove", { pointerId: 72, x: sStage2.x - 45, y: sStage2.y - 30 });
+  await page.waitForTimeout(500);
+  const bothSplat = await page.evaluate(() => ({ u: window.__tgSplatPlayer.pathU, yaw: window.__tgSplatPlayer.yaw, pitch: window.__tgSplatPlayer.pitch }));
+  expect(Math.abs(bothSplat.yaw - sYawBefore.yaw) + Math.abs(bothSplat.pitch - sYawBefore.pitch), "splat stick+drag look").toBeGreaterThan(0.02);
+  expect(Math.abs(bothSplat.u - u0), "splat stick+drag should also move along the path").toBeGreaterThan(0.001);
+  await dispatchPointer(page, "#splat-root [data-stick='move']", "pointerup", { pointerId: 71, x: moveSplat.x, y: moveSplat.top });
+  await dispatchPointer(page, "#splat-root [data-canvas]", "pointerup", { pointerId: 72, x: sStage2.x - 45, y: sStage2.y - 30 });
   await page.evaluate(() => window.__tgSplatPlayer.close({ silent: true }));
 });
+
 
 test("example business pin opens flat player with demo credit and offer link", async ({ page }) => {
   await page.goto("/index.html");
