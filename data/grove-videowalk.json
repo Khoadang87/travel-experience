@@ -1,9 +1,9 @@
 {
   "id": "grove-kane-videowalk",
-  "title": "The Grove (Kane's scan, test)",
+  "title": "The Grove",
   "src": "media/videowalk/grove-kane-test.mp4",
   "duration": 35.27,
-  "credit": "Private test \u2014 Kane's own iPhone footage of a walk at The Grove, Los Angeles. Flat video, not 360. Clip audio was stripped because bystanders can be heard. Look-around is a modest pan inside the frame.",
+  "credit": "Private test footage at The Grove, Los Angeles. Audio is off.",
   "sourceUrl": "media/videowalk/ATTRIBUTION.md",
   "overscale": 1.2,
   "spots": [
@@ -600,5 +600,6 @@
       "y": 6.0
     }
   ],
-  "pathNote": "Approximate path from the COLMAP camera track of this clip. The first seconds sit at the first registered frame."
+  "pathNote": "Approximate path from the COLMAP camera track of this clip. The first seconds sit at the first registered frame.",
+  "creditDetails": "Flat video, not 360. Look-around is a modest pan inside the frame. Clip audio was omitted because bystanders can be heard."
 }

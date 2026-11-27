@@ -247,7 +247,7 @@ export const LUDLOW_SPLAT = {
   src: "media/splat/ludlow-courtyard.sog",
   title: "Ludlow courtyard (test)",
   credit:
-    "Quality Square, Ludlow, UK. Gaussian splat by ijenko (XGRIDS LixelKity K1), CC BY 4.0. Cropped and converted for this preview (1,859,892 Gaussians, SOG v2; see media/splat/LUDLOW-ATTRIBUTION.md). No endorsement implied.",
+    "Quality Square, Ludlow, UK. Gaussian splat by ijenko (XGRIDS LixelKity K1), CC BY 4.0. Cropped and converted for this preview. No endorsement implied.",
   commons: "https://superspl.at/scene/ca36efcc",
   license: "CC BY 4.0",
   licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
@@ -266,17 +266,16 @@ export const LUDLOW_SPLAT = {
 
 
 
-// The Grove, Los Angeles — a rough test splat from Kane's own iPhone
-// footage. Bystanders appear smeared. Not a polished scan and not a
-// third-party dataset.
+// The Grove, Los Angeles — a rough test splat from private test footage.
+// Bystanders appear smeared. Not a polished scan and not a third-party dataset.
 export const GROVE_SPLAT = {
   src: "media/splat/grove-kane-test.sog",
-  title: "The Grove (Kane's scan, test)",
+  title: "The Grove",
   credit:
-    "Rough test scan from Kane's own iPhone footage at The Grove, Los Angeles. Bystanders appear smeared. Not a polished scan. Converted for this preview (SH0 SOG; see media/splat/GROVE-ATTRIBUTION.md).",
-  commons: "media/splat/GROVE-ATTRIBUTION.md",
-  license: "Private test — owner's footage",
-  licenseUrl: "media/splat/GROVE-ATTRIBUTION.md",
+    "Private test footage at The Grove, Los Angeles. Rough test reconstruction. Bystanders appear smeared. Not a polished scan.",
+  commons: "",
+  license: "Private test footage",
+  licenseUrl: "",
   view: {
     position: [1.65, 1.85, 0.75],
     lookAt: [3.25, 0.99, -5.23],
@@ -293,16 +292,16 @@ export const GROVE_SPLAT = {
 
 
 // Original Farmers Market, Los Angeles — a rough test splat from
-// Kane's own iPhone footage (frames 1–67). Bystanders appear
-// smeared. Not a polished scan and not a third-party dataset.
+// private test footage (frames 1–67). Bystanders appear smeared.
+// Not a polished scan and not a third-party dataset.
 export const FARMERS_SPLAT = {
   src: "media/splat/farmers-kane-test.sog",
-  title: "Farmers Market (Kane's scan, test)",
+  title: "Farmers Market",
   credit:
-    "Rough test scan from Kane's own iPhone footage at the Original Farmers Market, Los Angeles (frames 1–67). Bystanders appear smeared. Not a polished scan. Converted for this preview (SH0 SOG; see media/splat/FARMERS-ATTRIBUTION.md).",
-  commons: "media/splat/FARMERS-ATTRIBUTION.md",
-  license: "Private test — owner's footage",
-  licenseUrl: "media/splat/FARMERS-ATTRIBUTION.md",
+    "Private test footage at the Original Farmers Market, Los Angeles (frames 1–67). Rough test reconstruction. Bystanders appear smeared. Not a polished scan.",
+  commons: "",
+  license: "Private test footage",
+  licenseUrl: "",
   view: {
     position: [4.82, 1.70, 12.08],
     lookAt: [1.33, 0.85, 6.73],
@@ -321,4 +320,34 @@ export function currentPage() {
   if (p.endsWith("creator.html")) return "creator";
   if (p.endsWith("admin.html")) return "admin";
   return "map";
+}
+
+
+export const SITE_CREDITS_HTML = `
+  <p>Map tiles from OpenFreeMap. Map data © OpenStreetMap contributors.</p>
+  <p>Pin coordinates are taken from Wikipedia pages linked on each place, where a source is shown.</p>
+  <h3>360 stand-in</h3>
+  <p>Some Walk of Fame pins play a labeled 360 stand-in of Anıtkabir, Ankara — 360TR, CC BY 3.0. It is not Hollywood Walk of Fame footage and not creator footage. The same credit is shown whenever that clip plays.</p>
+  <h3>Video walks and 3D previews</h3>
+  <p>The Grove and Farmers Market walks use private test footage. Audio was omitted because bystanders can be heard. Other 3D previews credit their source licenses (CC0 or CC BY 4.0) in the player when they are open.</p>
+`;
+
+export function bindCredits() {
+  const dialog = document.getElementById("credits-dialog");
+  const body = document.getElementById("credits-body");
+  const openBtn = document.getElementById("btn-credits");
+  if (!dialog || !body) return;
+  if (!body.innerHTML.trim()) body.innerHTML = SITE_CREDITS_HTML;
+  function open() {
+    dialog.hidden = false;
+    const close = dialog.querySelector("[data-credits-close]");
+    if (close) close.focus();
+  }
+  function close() { dialog.hidden = true; }
+  if (openBtn) openBtn.addEventListener("click", open);
+  dialog.querySelectorAll("[data-credits-close]").forEach((b) => b.addEventListener("click", close));
+  dialog.addEventListener("click", (e) => { if (e.target === dialog) close(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !dialog.hidden) close();
+  });
 }

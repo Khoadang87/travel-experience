@@ -26,7 +26,7 @@
     "hemi": 0.85,
     "envIntensity": 1.05
   },
-  "notes": "Kane walks an out-and-back along the real iPhone path near t=25\u201330 s (frames 0099\u20130123), the stretch that looked best in the test scan. No added 3D people or cars \u2014 the scan is already busy, and bystanders in the reconstruction appear smeared. The follow camera stays behind him along the sidewalk, starting near the t\u224825 s pose pulled back so Kane is in frame. Path and splat share a Y-up metric frame (COLMAP Rx 180\u00b0, scale \u2248 1.966 so 1 unit \u2248 1 m, floor near y = 0). Rough test scan only.",
+  "notes": "The walker follows an out-and-back along the real iPhone path near t=25\u201330 s (frames 0099\u20130123), the stretch that looked best in the test scan. No added 3D people or cars \u2014 the scan is already busy, and bystanders in the reconstruction appear smeared. The follow camera stays behind him along the sidewalk, starting near the t\u224825 s pose pulled back so the walker is in frame. Path and splat share a Y-up metric frame (COLMAP Rx 180\u00b0, scale \u2248 1.966 so 1 unit \u2248 1 m, floor near y = 0). Rough test scan only.",
   "points": [
     [
       2.473,

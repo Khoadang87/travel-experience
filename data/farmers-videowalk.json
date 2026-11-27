@@ -1,9 +1,9 @@
 {
   "id": "farmers-kane-videowalk",
-  "title": "Farmers Market (Kane's scan, test)",
+  "title": "Farmers Market",
   "src": "media/videowalk/farmers-kane-test.mp4",
   "duration": 52.0,
-  "credit": "Private test \u2014 Kane's own iPhone footage of a walk at the Original Farmers Market, Los Angeles (whole 52 s clip). Flat video, not 360. Clip audio was stripped because bystanders can be heard. Look-around is a modest pan inside the frame.",
+  "credit": "Private test footage at the Original Farmers Market, Los Angeles (the whole 52-second clip). Audio is off.",
   "sourceUrl": "media/videowalk/ATTRIBUTION.md",
   "overscale": 1.2,
   "spots": [
@@ -550,5 +550,6 @@
       "approx": true
     }
   ],
-  "pathNote": "Approximate path. The first ~22 s follow the frames 1\u201367 COLMAP track; the rest is a straight continuation and is marked approximate."
+  "pathNote": "Approximate path. The first ~22 s follow the frames 1–67 COLMAP track; the rest is a straight continuation and is marked approximate.",
+  "creditDetails": "Flat video, not 360. Look-around is a modest pan inside the frame. Clip audio was omitted because bystanders can be heard."
 }

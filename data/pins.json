@@ -19,7 +19,8 @@
       "sourceName": "Grauman's Chinese Theatre",
       "sourceUrl": "https://en.wikipedia.org/wiki/Grauman%27s_Chinese_Theatre",
       "blurb": "Historic movie palace at 6925 Hollywood Blvd. Pins here are on the public sidewalk in front of the theatre, not inside.",
-      "label": "TCL Chinese Theatre"
+      "label": "TCL Chinese Theatre",
+      "thumb": "media/thumbs/tcl-chinese.jpg"
     },
     {
       "id": "dolby",
@@ -30,7 +31,8 @@
       "sourceName": "Dolby Theatre",
       "sourceUrl": "https://en.wikipedia.org/wiki/Dolby_Theatre",
       "blurb": "Home of the Academy Awards, at Hollywood Blvd and Highland Ave. Sidewalk pin only.",
-      "label": "Dolby Theatre"
+      "label": "Dolby Theatre",
+      "thumb": "media/thumbs/dolby.jpg"
     },
     {
       "id": "star-roosevelt",
@@ -41,7 +43,8 @@
       "sourceName": "Hollywood Roosevelt Hotel",
       "sourceUrl": "https://en.wikipedia.org/wiki/Hollywood_Roosevelt_Hotel",
       "blurb": "Wikipedia notes the blocks outside the Chinese Theatre and the Roosevelt as prime Walk of Fame star locations.",
-      "label": "Roosevelt"
+      "label": "Roosevelt",
+      "thumb": "media/thumbs/roosevelt.jpg"
     },
     {
       "id": "star-el-capitan",
@@ -52,7 +55,8 @@
       "sourceName": "El Capitan Theatre",
       "sourceUrl": "https://en.wikipedia.org/wiki/El_Capitan_Theatre",
       "blurb": "Sidewalk stars along Hollywood Blvd at El Capitan Theatre, across from the Chinese / Highland cluster.",
-      "label": "El Capitan"
+      "label": "El Capitan",
+      "thumb": "media/thumbs/el-capitan.jpg"
     },
     {
       "id": "star-egyptian",
@@ -63,7 +67,8 @@
       "sourceName": "Grauman's Egyptian Theatre",
       "sourceUrl": "https://en.wikipedia.org/wiki/Grauman%27s_Egyptian_Theatre",
       "blurb": "Mid-boulevard star segment near Grauman's Egyptian Theatre.",
-      "label": "Egyptian"
+      "label": "Egyptian",
+      "thumb": "media/thumbs/egyptian.jpg"
     },
     {
       "id": "star-hollywood-vine",
@@ -74,7 +79,8 @@
       "sourceName": "Hollywood and Vine",
       "sourceUrl": "https://en.wikipedia.org/wiki/Hollywood_and_Vine",
       "blurb": "The Hollywood Blvd and Vine Street crossing, a well-known stretch of the Walk of Fame.",
-      "label": "Hollywood & Vine"
+      "label": "Hollywood & Vine",
+      "thumb": "media/thumbs/hollywood-vine.jpg"
     },
     {
       "id": "star-capitol",
@@ -85,42 +91,45 @@
       "sourceName": "Capitol Records Building",
       "sourceUrl": "https://en.wikipedia.org/wiki/Capitol_Records_Building",
       "blurb": "Walk of Fame stars also run along Vine Street. This pin is at the Capitol Records Building.",
-      "label": "Capitol Records"
+      "label": "Capitol Records",
+      "thumb": "media/thumbs/capitol.jpg"
     },
     {
       "id": "wof-corner-flat",
-      "name": "Walk of Fame corner \u2014 flat video demo",
+      "name": "Walk of Fame corner — flat video demo",
       "kind": "star-segment",
       "lng": -118.3431,
       "lat": 34.1019,
       "sourceName": "Hollywood Walk of Fame",
       "sourceUrl": "https://en.wikipedia.org/wiki/Hollywood_Walk_of_Fame",
-      "blurb": "One small corner of the Walk of Fame on Hollywood Blvd, west of the Chinese Theatre. Flat video shown on a curved screen \u2014 a demo of turning flat footage into a 360-style view.",
+      "blurb": "One small corner of the Walk of Fame on Hollywood Blvd, west of the Chinese Theatre. Flat video shown on a curved screen — a demo of turning flat footage into a 360-style view.",
       "flat": true,
-      "label": "Flat video demo"
+      "label": "Flat video demo",
+      "thumb": "media/thumbs/wof-flat.jpg"
     },
     {
       "id": "business-demo",
-      "name": "Example business pin \u2014 your business here",
+      "name": "Example business pin — your business here",
       "kind": "business",
       "lng": -118.331,
       "lat": 34.1012,
       "sourceName": "Example business pin",
       "sourceUrl": "sales.html",
-      "blurb": "EXAMPLE \u2014 not a real business and not a paid listing. This is what a buyer's pin looks like: a 60-second clip of their location on the globe for 1 year, with their name and a link (the demo clip here is a 30-second excerpt). Tap it to see the clip, and the sales page for prices and the free 45-second preview.",
+      "blurb": "EXAMPLE — not a real business and not a paid listing. This is what a buyer's pin looks like: a 60-second clip of their location on the globe for 1 year, with their name and a link (the demo clip here is a 30-second excerpt). Tap it to see the clip, and the sales page for prices and the free 45-second preview.",
       "flat": true,
       "demo": true,
-      "label": "Example pin"
+      "label": "Example pin",
+      "thumb": "media/thumbs/business-demo.jpg"
     },
     {
       "id": "splat-placeholder",
-      "name": "Splat preview (test)",
+      "name": "Kyoto room",
       "kind": "splat",
       "lng": -118.3458,
       "lat": 34.1023,
-      "sourceName": "Test asset, not the real place \u2014 SharedTestModels (raymondyfei), kyoto_room, CC0 1.0",
+      "sourceName": "Test asset, not the real place — SharedTestModels (raymondyfei), kyoto_room, CC0 1.0",
       "sourceUrl": "https://github.com/raymondyfei/SharedTestModels",
-      "blurb": "Test asset, not the real place. A Gaussian splat of a Kyoto room (CC0) opened in a 3D viewer \u2014 not a walk of a Hollywood street and not a capture of this pin's surroundings.",
+      "blurb": "Test asset, not the real place. A Gaussian splat of a Kyoto room (CC0) opened in a 3D viewer — not a walk of a Hollywood street and not a capture of this pin's surroundings.",
       "splat": "media/splat/kyoto-room.sog",
       "splatView": {
         "position": [
@@ -149,15 +158,16 @@
         "height": 1.7
       },
       "splatPath": "data/splat-path.json",
-      "label": "Splat preview (test)"
+      "label": "Kyoto room",
+      "thumb": "media/thumbs/kyoto.jpg"
     },
     {
       "id": "street-intersection-splat",
-      "name": "Street intersection (test)",
+      "name": "Street intersection",
       "kind": "splat",
       "lng": -118.3495,
       "lat": 34.1048,
-      "sourceName": "Test asset, not the real place \u2014 cfahlgren1 street splat, CC BY 4.0 (not an official Tesla asset)",
+      "sourceName": "Test asset, not the real place — cfahlgren1 street splat, CC BY 4.0 (not an official Tesla asset)",
       "sourceUrl": "https://huggingface.co/datasets/cfahlgren1/tesla-fsd-street-splat",
       "blurb": "Test asset, not the real place and not an official Tesla asset. A 3D Gaussian splat of a suburban street intersection (cfahlgren1, from Tesla FSD dashcam footage, CC BY 4.0). A soft-glow walker marks 'you' among realistic CC0 people and cars on the sidewalks and in the lanes. Converted and downsampled for this preview.",
       "splat": "media/splat/street-intersection.sog",
@@ -188,15 +198,16 @@
         "height": 1.7
       },
       "splatPath": "data/street-path.json",
-      "label": "Street intersection (test)"
+      "label": "Street intersection",
+      "thumb": "media/thumbs/street.jpg"
     },
     {
       "id": "ludlow-courtyard-splat",
-      "name": "Ludlow courtyard (test)",
+      "name": "Ludlow courtyard",
       "kind": "splat",
       "lng": -2.72001,
       "lat": 52.36789,
-      "sourceName": "Quality Square, Ludlow, UK \u2014 ijenko courtyard splat, CC BY 4.0",
+      "sourceName": "Quality Square, Ludlow, UK — ijenko courtyard splat, CC BY 4.0",
       "sourceUrl": "https://superspl.at/scene/ca36efcc",
       "blurb": "A 3D Gaussian splat of Quality Square in Ludlow, Shropshire, UK (ijenko, XGRIDS LixelKity K1, CC BY 4.0). A soft-glow walker marks 'you' among realistic CC0 people on the cobbles. The parked car is part of the scan. Cropped and converted for this preview; see media/splat/LUDLOW-ATTRIBUTION.md.",
       "splat": "media/splat/ludlow-courtyard.sog",
@@ -227,17 +238,18 @@
         "height": 1.7
       },
       "splatPath": "data/ludlow-path.json",
-      "label": "Ludlow courtyard (test)"
+      "label": "Ludlow courtyard",
+      "thumb": "media/thumbs/ludlow.jpg"
     },
     {
       "id": "grove-kane-scan-splat",
-      "name": "The Grove (Kane's scan, test)",
+      "name": "The Grove",
       "kind": "splat",
       "lng": -118.3576,
       "lat": 34.072,
-      "sourceName": "Rough test scan from Kane's own footage \u2014 bystanders appear smeared",
-      "sourceUrl": "media/splat/GROVE-ATTRIBUTION.md",
-      "blurb": "A rough test Gaussian splat reconstructed from Kane's own iPhone footage of a walk at The Grove, Los Angeles. The same splat player, Look and Move joysticks, and glowing walker. No added 3D people \u2014 the scan is already busy, and bystanders appear smeared. Not a polished scan. Opens as a Hoi An-style video walk (hold the Move stick up to walk). A test splat of the same clip is still available from the player.",
+      "sourceName": "Private test footage",
+      "sourceUrl": "",
+      "blurb": "A video walk through The Grove, Los Angeles, from private test footage. Hold Move up to walk. Flat video, not 360. Audio is off because bystanders can be heard.",
       "splat": "media/splat/grove-kane-test.sog",
       "splatView": {
         "position": [
@@ -266,18 +278,19 @@
         "height": 1.7
       },
       "splatPath": "data/grove-path.json",
-      "label": "The Grove (test)",
-      "videoWalk": "data/grove-videowalk.json"
+      "label": "The Grove",
+      "videoWalk": "data/grove-videowalk.json",
+      "thumb": "media/thumbs/grove.jpg"
     },
     {
       "id": "farmers-kane-scan-splat",
-      "name": "Farmers Market (Kane's scan, test)",
+      "name": "Farmers Market",
       "kind": "splat",
       "lng": -118.3608,
       "lat": 34.0719,
-      "sourceName": "Rough test scan from Kane's own footage \u2014 bystanders appear smeared",
-      "sourceUrl": "media/splat/FARMERS-ATTRIBUTION.md",
-      "blurb": "A rough test Gaussian splat reconstructed from Kane's own iPhone footage of a walk at the Original Farmers Market, Los Angeles (frames 1\u201367 of the clip). The same splat player, Look and Move joysticks, and glowing walker. No added 3D people \u2014 the scan is already busy, and bystanders appear smeared. Not a polished scan. Opens as a Hoi An-style video walk (hold the Move stick up to walk). A test splat of the same clip is still available from the player.",
+      "sourceName": "Private test footage",
+      "sourceUrl": "",
+      "blurb": "A video walk through the Original Farmers Market, Los Angeles, from private test footage (the whole 52-second clip). Hold Move up to walk. Flat video, not 360. Audio is off because bystanders can be heard.",
       "splat": "media/splat/farmers-kane-test.sog",
       "splatView": {
         "position": [
@@ -306,8 +319,9 @@
         "height": 1.7
       },
       "splatPath": "data/farmers-path.json",
-      "label": "Farmers Market (test)",
-      "videoWalk": "data/farmers-videowalk.json"
+      "label": "Farmers Market",
+      "videoWalk": "data/farmers-videowalk.json",
+      "thumb": "media/thumbs/farmers.jpg"
     }
   ]
 }

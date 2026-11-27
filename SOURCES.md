@@ -163,7 +163,7 @@ removed from the current tree and must not be served.
   Downloaded without an account. Not Mixamo, not an official Tesla asset.
 - These replace only the glowing procedural pedestrians and cars in the
   street intersection preview. The Kyoto-room walker and its crowd stay
-  the procedural soft-glow figures. Kane's "you" walker on the street is
+  the procedural soft-glow figures. The "you" walker on the street is
   still the procedural pictogram.
 - Loading uses vendored three@0.187.0 add-ons (GLTFLoader, KTX2Loader,
   SkeletonUtils, MeshoptDecoder, Basis transcoder). See `vendor/NOTICE.txt`.
