@@ -168,7 +168,7 @@ export function currentPage() {
 export const SITE_CREDITS_HTML = `
   <p>Map tiles from OpenFreeMap. Map data © OpenStreetMap contributors.</p>
   <h3>Video walks</h3>
-  <p>The Grove, Farmers Market, and café counter walks use private test footage at those places in Los Angeles. Audio was omitted because bystanders can be heard.</p>
+  <p>The Grove, Farmers Market, café counter, and Tom Bradley International Terminal (LAX) walks use private test footage at those places in Los Angeles. Audio was omitted because bystanders can be heard.</p>
   <h3>Creator trial preview</h3>
   <p>The free creator-trial preview uses a labeled 360 stand-in of Anıtkabir, Ankara — 360TR, CC BY 3.0. It is not footage from this map and not a creator upload. The same credit is shown whenever that clip plays.</p>
 `;

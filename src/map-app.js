@@ -17,6 +17,7 @@ const PRIMARY_PIN_IDS = [
   "grove-kane-scan-splat",
   "farmers-kane-scan-splat",
   "cafe-first-street-walk",
+  "grove-trolley-walk",
 ];
 
 const isExplore = document.body.dataset.page === "explore";

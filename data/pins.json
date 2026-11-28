@@ -1,5 +1,5 @@
 {
-  "source": "Preview pin positions for The Grove, the Original Farmers Market, and a café counter near 1st Street, Los Angeles.",
+  "source": "Preview pin positions for The Grove, the Original Farmers Market, a café counter near 1st Street, and Tom Bradley International Terminal at LAX, Los Angeles.",
   "area": {
     "name": "The Grove and Farmers Market",
     "center": [
@@ -7,7 +7,7 @@
       34.07195
     ],
     "streetZoom": 16.4,
-    "note": "The preview walks are at The Grove, the Original Farmers Market, and a café on 1st Street in Los Angeles."
+    "note": "Most preview walks are at The Grove and the Original Farmers Market in Los Angeles. One more is at Tom Bradley International Terminal, LAX."
   },
   "pins": [
     {
@@ -63,6 +63,42 @@
       "creatorHandle": "la.walker",
       "durationLabel": "0:23",
       "durationSec": 23
+    },
+    {
+      "id": "grove-trolley-walk",
+      "name": "The Grove, trolley street",
+      "kind": "videowalk",
+      "lng": -118.3595,
+      "lat": 34.0723,
+      "sourceName": "Private test footage",
+      "sourceUrl": "",
+      "blurb": "A video walk along the trolley street at The Grove, Los Angeles, from private test footage (the whole 153-second clip). Hold Move up to walk. Flat video, not 360. Audio is off because bystanders can be heard.",
+      "label": "Trolley street",
+      "videoWalk": "data/grove-trolley-videowalk.json",
+      "thumb": "media/thumbs/grove-trolley.jpg",
+      "city": "Los Angeles",
+      "type": "Video walk",
+      "creatorHandle": "la.walker",
+      "durationLabel": "2:33",
+      "durationSec": 153
+    },
+    {
+      "id": "lax-bradley-walk",
+      "name": "Tom Bradley International Terminal, LAX",
+      "kind": "videowalk",
+      "lng": -118.4081,
+      "lat": 33.9439,
+      "sourceName": "Private test footage",
+      "sourceUrl": "",
+      "blurb": "A video walk at Tom Bradley International Terminal, Los Angeles International Airport, from private test footage (trimmed to a 154-second continuous walk). Hold Move up to walk. Flat video, not 360. Audio is off because travelers and staff can be heard.",
+      "label": "Tom Bradley, LAX",
+      "videoWalk": "data/lax-bradley-videowalk.json",
+      "thumb": "media/thumbs/lax-bradley.jpg",
+      "city": "Los Angeles",
+      "type": "Video walk",
+      "creatorHandle": "lax.walker",
+      "durationLabel": "2:34",
+      "durationSec": 154
     }
   ]
 }
