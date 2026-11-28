@@ -740,19 +740,53 @@ body.player-open { overflow: hidden; }
   width: 100%;
   height: 100%;
   max-width: none;
+  max-height: none;
   border-radius: 0;
-  padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
 }
-body.player-css-fs .player-shell { padding: 0; }
-body.player-css-fs .player-panel.is-fullscreen {
+body.player-css-fs,
+body.player-css-fs-lock {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+body.player-css-fs-lock {
   position: fixed;
   inset: 0;
-  width: 100dvw;
-  height: 100dvh;
-  max-height: none;
-  z-index: 80;
-  border-radius: 0;
+  width: 100%;
 }
+body.player-css-fs .top,
+body.player-css-fs .hud,
+body.player-css-fs .site-footer,
+body.player-css-fs #map,
+body.player-css-fs .nav-backdrop,
+body.player-css-fs #site-nav {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+body.player-css-fs .player-shell {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: #111;
+  z-index: 90;
+}
+body.player-css-fs .player-panel.is-fullscreen {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+  border: 0;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+}
+.fs-exit-btn {
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 700;
+}
+.fs-exit-btn[hidden] { display: none !important; }
 .stage [data-poster] {
   position: absolute;
   inset: 0;

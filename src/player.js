@@ -1,4 +1,5 @@
 import { DEFAULT_360, bindFadeHint } from "./shared.js";
+import { bindPlayerFullscreen } from "./fullscreen.js";
 
 const DEG = Math.PI / 180;
 
@@ -12,7 +13,8 @@ export function mountPlayer(root) {
             <h2 id="player-title">Pin</h2>
           </div>
           <div class="player-top-actions">
-            <button type="button" class="icon-btn" data-fs aria-label="Full screen">Full screen</button>
+            <button type="button" class="icon-btn" data-fs aria-label="Full screen" aria-pressed="false">Full screen</button>
+            <button type="button" class="icon-btn fs-exit-btn" data-fs-exit hidden aria-label="Exit full screen">✕</button>
             <button type="button" class="icon-btn" data-close aria-label="Close">Close</button>
           </div>
         </div>
@@ -457,7 +459,10 @@ export function mountPlayer(root) {
 
   function onKey(e) {
     if (shell.hidden) return;
-    if (e.key === "Escape") close();
+    if (e.key === "Escape") {
+      if (fullscreen.isActive()) fullscreen.exit();
+      else close();
+    }
     if (e.key === "ArrowLeft") yaw += 4 * DEG;
     if (e.key === "ArrowRight") yaw -= 4 * DEG;
     if (e.key === "ArrowUp") pitch = clamp(pitch + 3 * DEG, -80 * DEG, 80 * DEG);
@@ -556,82 +561,12 @@ export function mountPlayer(root) {
     }
   }
 
-  function fsElement() {
-    return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || null;
-  }
-
-  function isFullscreen() {
-    return fsElement() === panel || panel.classList.contains("is-fullscreen");
-  }
-
-  function syncFsButton() {
-    const on = isFullscreen();
-    fsBtn.textContent = on ? "Exit full screen" : "Full screen";
-    fsBtn.setAttribute("aria-label", on ? "Exit full screen" : "Full screen");
-  }
-
-  function enterCssFs() {
-    panel.classList.add("is-fullscreen");
-    document.body.classList.add("player-css-fs");
-    resize();
-    syncFsButton();
-  }
-
-  function leaveCssFs() {
-    panel.classList.remove("is-fullscreen");
-    document.body.classList.remove("player-css-fs");
-    resize();
-    syncFsButton();
-  }
-
-  function requestFullscreen() {
-    const fn =
-      panel.requestFullscreen ||
-      panel.webkitRequestFullscreen ||
-      panel.webkitRequestFullScreen ||
-      panel.mozRequestFullScreen ||
-      panel.msRequestFullscreen;
-    if (typeof fn === "function") {
-      const result = fn.call(panel);
-      if (result && typeof result.catch === "function") {
-        result.catch(() => enterCssFs());
-      }
-      // iOS may silently no-op; fall back shortly if we didn't enter.
-      setTimeout(() => {
-        if (!isFullscreen()) enterCssFs();
-      }, 300);
-    } else {
-      enterCssFs();
-    }
-    syncFsButton();
-  }
-
-  function exitFullscreen(silent) {
-    if (panel.classList.contains("is-fullscreen")) leaveCssFs();
-    const fn =
-      document.exitFullscreen ||
-      document.webkitExitFullscreen ||
-      document.webkitCancelFullScreen ||
-      document.mozCancelFullScreen ||
-      document.msExitFullscreen;
-    if (fsElement() && typeof fn === "function") {
-      const result = fn.call(document);
-      if (result && typeof result.catch === "function") result.catch(() => {});
-    }
-    if (!silent) syncFsButton();
-  }
-
-  function toggleFullscreen() {
-    if (isFullscreen()) exitFullscreen();
-    else requestFullscreen();
-  }
-
-  fsBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    toggleFullscreen();
+  const fullscreen = bindPlayerFullscreen({
+    panel,
+    button: fsBtn,
+    exitButton: root.querySelector("[data-fs-exit]"),
+    onLayout: resize,
   });
-  document.addEventListener("fullscreenchange", syncFsButton);
-  document.addEventListener("webkitfullscreenchange", syncFsButton);
 
   async function open(opts = {}) {
 
@@ -706,7 +641,7 @@ export function mountPlayer(root) {
   function close(opts) {
     video.pause();
     cancelPendingHi();
-    exitFullscreen(true);
+    fullscreen.exit(true);
     shell.hidden = true;
     document.body.classList.remove("player-open");
     if (opts && opts.silent) return;

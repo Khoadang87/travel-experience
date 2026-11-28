@@ -1,4 +1,5 @@
 import { bindFadeHint } from "./shared.js";
+import { bindPlayerFullscreen } from "./fullscreen.js";
 
 // Hoi An-style video walk for flat portrait clips.
 // Hold-to-walk, Explore, mini-map, stale-cache guard, and the sound
@@ -31,7 +32,8 @@ export function mountVideoWalkPlayer(root) {
           </div>
           <div class="player-top-actions">
             <button type="button" class="icon-btn" data-sound aria-label="Sound off">Sound off</button>
-            <button type="button" class="icon-btn" data-fs aria-label="Full screen">Full screen</button>
+            <button type="button" class="icon-btn" data-fs aria-label="Full screen" aria-pressed="false">Full screen</button>
+            <button type="button" class="icon-btn fs-exit-btn" data-fs-exit hidden aria-label="Exit full screen">✕</button>
             <button type="button" class="icon-btn" data-close aria-label="Close">Close</button>
           </div>
         </div>
@@ -426,69 +428,12 @@ export function mountVideoWalkPlayer(root) {
     if (cb) cb();
   });
 
-  function fsElement() {
-    return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || null;
-  }
-  function isFullscreen() {
-    return fsElement() === panel || panel.classList.contains("is-fullscreen");
-  }
-  function syncFsButton() {
-    const on = isFullscreen();
-    fsBtn.textContent = on ? "Exit full screen" : "Full screen";
-    fsBtn.setAttribute("aria-label", on ? "Exit full screen" : "Full screen");
-  }
-  function enterCssFs() {
-    panel.classList.add("is-fullscreen");
-    document.body.classList.add("player-css-fs");
-    onResize();
-    syncFsButton();
-  }
-  function leaveCssFs() {
-    panel.classList.remove("is-fullscreen");
-    document.body.classList.remove("player-css-fs");
-    onResize();
-    syncFsButton();
-  }
-  function requestFullscreen() {
-    const fn =
-      panel.requestFullscreen ||
-      panel.webkitRequestFullscreen ||
-      panel.webkitRequestFullScreen ||
-      panel.mozRequestFullScreen ||
-      panel.msRequestFullscreen;
-    if (typeof fn === "function") {
-      const result = fn.call(panel);
-      if (result && typeof result.catch === "function") result.catch(() => enterCssFs());
-      setTimeout(() => { if (!isFullscreen()) enterCssFs(); }, 300);
-    } else {
-      enterCssFs();
-    }
-    syncFsButton();
-  }
-  function exitFullscreen(silent) {
-    if (panel.classList.contains("is-fullscreen")) leaveCssFs();
-    const fn =
-      document.exitFullscreen ||
-      document.webkitExitFullscreen ||
-      document.webkitCancelFullScreen ||
-      document.mozCancelFullScreen ||
-      document.msExitFullscreen;
-    if (fsElement() && typeof fn === "function") {
-      const result = fn.call(document);
-      if (result && typeof result.catch === "function") result.catch(() => {});
-    }
-    if (!silent) syncFsButton();
-  }
-  function toggleFullscreen() {
-    if (isFullscreen()) exitFullscreen();
-    else requestFullscreen();
-  }
-  fsBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    toggleFullscreen();
+  const fullscreen = bindPlayerFullscreen({
+    panel,
+    button: fsBtn,
+    exitButton: root.querySelector("[data-fs-exit]"),
+    onLayout: onResize,
   });
-  document.addEventListener("fullscreenchange", syncFsButton);
-  document.addEventListener("webkitfullscreenchange", syncFsButton);
 
   function checkStale() {
     fetch("media/videowalk/ver.txt?" + Date.now(), { cache: "no-store" })
@@ -580,7 +525,7 @@ export function mountVideoWalkPlayer(root) {
     removeEventListener("resize", onResize);
     removeEventListener("keydown", onKeyDown);
     removeEventListener("keyup", onKeyUp);
-    exitFullscreen(true);
+    fullscreen.exit(true);
     if (!silent && onClose) onClose();
   }
 
