@@ -85,6 +85,35 @@ frame (1.2×) and pans inside it so black edges are never shown.
   keyframes, faststart, no audio, GPS/metadata stripped). File:
   `grove-trolley-walk.mp4`, 52,470,354 bytes (about 50.0 MB).
 
+## The Grove, trolley street — wider view (AI preview) (added 28 November 2026)
+
+- **Footage:** an 8-second segment of the same private iPhone 15 walk along
+  the trolley street at The Grove described above (about 2:10–2:18 of the
+  published 2:33 clip). Place is unchanged: about 34.0723 N, 118.3595 W.
+  The full 2:33 walk file was not altered.
+- **What changed:** the edges of this short segment were extended with AI so
+  drag-to-look can move farther before hitting the edge of the footage. This
+  is not a 360 capture. The real camera frame sits in the centre of the
+  picture (720×1280 inside a 1080×1920 canvas, about 25% new border on each
+  side). At the player's wider look range (overscale 1.92, versus 1.28 on
+  the other walks), the view at full pan still shows mostly the real frame.
+- **Model and tool:** FLUX.1 Fill [dev] outpaint, run on the free Hugging
+  Face Space `multimodalart/flux-fill-outpaint` (/inpaint, 20 steps, Custom
+  66% resize). Five keyframes (0, 2, 4, 6, and 7.9 s) were generated there
+  and composited back onto every frame on this machine (OpenCV: SIFT
+  registration, homographies, a short crossfade, colour and grain match,
+  and a 28 px / 90 px feather on the real frame). One invented sign in a
+  fill was painted out before compositing; a garbled banner extension in
+  another was masked. Cost $0; no paid API or key. It is a test preview,
+  not a finished production treatment.
+- **Encoding:** same family of settings as the other walks, scaled to
+  960×1706 so the real centre stays close to the usual 640×1136 sharpness
+  (H.264 High, yuv420p, 24 fps, CRF 30, 0.5 s keyframes, faststart, no
+  audio, metadata stripped). File: `grove-trolley-wide-preview.mp4`,
+  3,609,683 bytes (about 3.4 MB). The player loops this short clip.
+- **UI:** the walk is labelled “Edges extended with AI”. It shares the
+  trolley-street map circle with the full walk (a grouped card).
+
 ## Tom Bradley International Terminal, LAX (added 27 November 2026)
 
 - **Footage:** the site owner's own iPhone 15 clip, filmed 26 November

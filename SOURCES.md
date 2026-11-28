@@ -29,6 +29,10 @@ Checked 19–22 November 2026. No accounts were created and no one was contacted
   Tom Bradley International Terminal at LAX: private test footage. Audio is
   off because bystanders can be heard. Details are in
   `media/videowalk/ATTRIBUTION.md`.
+- Trolley-street wider-view preview: the same private walk, 8-second segment
+  (about 2:10–2:18 of the 2:33 clip), edges extended with FLUX.1 Fill [dev]
+  via the free Hugging Face Space `multimodalart/flux-fill-outpaint`. See
+  the same attribution file.
 - Tom Bradley wider-view preview: the same private walk, 8-second segment,
   edges extended with FLUX.1 Fill [dev] via the free Hugging Face Space
   `multimodalart/flux-fill-outpaint`. See the same attribution file.
