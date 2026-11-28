@@ -1,6 +1,6 @@
 # Grove and Farmers Market video walks — attribution
 
-These are private test video walks built from Kane's own iPhone
+These are private test video walks built from the site owner's own iPhone
 footage. They are not 360° captures and not live views. No
 endorsement by The Grove, the Original Farmers Market, their
 stores, or anyone appearing in the footage is implied. The clips
@@ -8,10 +8,10 @@ are not published under a Creative Commons or other public licence.
 
 ## Footage
 
-- **The Grove:** Kane's iPhone 15 clip (`clip1.mov`), about 35
+- **The Grove:** the site owner's own iPhone 15 clip (`clip1.mov`), about 35
   seconds, portrait 1080×1920 after rotation, filmed 26 November
   2026 at about 34.0720 N, 118.3576 W.
-- **Original Farmers Market:** Kane's iPhone 15 clip (`clip2.mov`),
+- **Original Farmers Market:** the site owner's own iPhone 15 clip (`clip2.mov`),
   about 52 seconds (the whole clip), same device, about 34.0719 N,
   118.3608 W.
 
