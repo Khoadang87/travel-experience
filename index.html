@@ -7,8 +7,6 @@
   <meta name="description" content="Walk of Fame Globe is a preview of walks and places you can explore on a globe, then walk through as a street clip.">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="preload" as="image" href="media/sample-360-poster.jpg">
-  <link rel="preload" as="fetch" href="media/sample-360-low.mp4" crossorigin>
   <title>Walk of Fame Globe — preview</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="vendor/maplibre-gl.css">
@@ -30,7 +28,7 @@
       <button type="button" class="nav-extra nav-credits" data-open-credits>Credits</button>
     </nav>
   </header>
-  <div id="map" role="application" aria-label="Interactive globe and Hollywood Walk of Fame street map"></div>
+  <div id="map" role="application" aria-label="Interactive globe and Los Angeles street map"></div>
   <div class="hud" id="map-controls" role="region" aria-label="Map controls">
     <div id="adbar" hidden></div>
     <div class="sr-only" aria-live="polite">
@@ -40,7 +38,7 @@
     <div class="dock">
       <p class="dock-lead">Explore places on the globe, then hold Move to walk through a street clip.</p>
       <div class="dock-actions">
-        <button type="button" class="primary" id="btn-wof">Start at the Walk of Fame</button>
+        <button type="button" class="primary" id="btn-wof">Start at The Grove</button>
         <button type="button" class="ghost" id="btn-all-pins">See all places</button>
         <button type="button" class="ghost" id="btn-globe" hidden>Back to globe</button>
       </div>

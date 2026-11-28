@@ -5,7 +5,7 @@ import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 import { SparkRenderer, SplatMesh } from "@sparkjsdev/spark";
 import { detectWebGL2 } from "./webgl2.js";
-import { PLACEHOLDER_SPLAT, bindFadeHint } from "./shared.js";
+import { bindFadeHint } from "./shared.js";
 import { resolveStreetModel, collectWheels, WALK_DESIGN_SPEED } from "./street-models.js";
 
 const DEG = Math.PI / 180;
@@ -2105,7 +2105,7 @@ export function mountSplatPlayer(root) {
     onFallbackCb = typeof opts.onFallback === "function" ? opts.onFallback : null;
     onView360Cb = typeof opts.onView360 === "function" ? opts.onView360 : null;
 
-    const credit = opts.credit || PLACEHOLDER_SPLAT;
+    const credit = opts.credit || { credit: "", commons: "", license: "", licenseUrl: "" };
     const url = opts.src || credit.src;
     titleEl.textContent = opts.title || credit.title || "Splat preview";
     const bits = [escapeHtml(credit.credit || "")];

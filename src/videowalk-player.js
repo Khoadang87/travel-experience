@@ -426,12 +426,69 @@ export function mountVideoWalkPlayer(root) {
     if (cb) cb();
   });
 
-  fsBtn.addEventListener("click", async () => {
-    try {
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else if (panel.requestFullscreen) await panel.requestFullscreen();
-    } catch (_) {}
+  function fsElement() {
+    return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || null;
+  }
+  function isFullscreen() {
+    return fsElement() === panel || panel.classList.contains("is-fullscreen");
+  }
+  function syncFsButton() {
+    const on = isFullscreen();
+    fsBtn.textContent = on ? "Exit full screen" : "Full screen";
+    fsBtn.setAttribute("aria-label", on ? "Exit full screen" : "Full screen");
+  }
+  function enterCssFs() {
+    panel.classList.add("is-fullscreen");
+    document.body.classList.add("player-css-fs");
+    onResize();
+    syncFsButton();
+  }
+  function leaveCssFs() {
+    panel.classList.remove("is-fullscreen");
+    document.body.classList.remove("player-css-fs");
+    onResize();
+    syncFsButton();
+  }
+  function requestFullscreen() {
+    const fn =
+      panel.requestFullscreen ||
+      panel.webkitRequestFullscreen ||
+      panel.webkitRequestFullScreen ||
+      panel.mozRequestFullScreen ||
+      panel.msRequestFullscreen;
+    if (typeof fn === "function") {
+      const result = fn.call(panel);
+      if (result && typeof result.catch === "function") result.catch(() => enterCssFs());
+      setTimeout(() => { if (!isFullscreen()) enterCssFs(); }, 300);
+    } else {
+      enterCssFs();
+    }
+    syncFsButton();
+  }
+  function exitFullscreen(silent) {
+    if (panel.classList.contains("is-fullscreen")) leaveCssFs();
+    const fn =
+      document.exitFullscreen ||
+      document.webkitExitFullscreen ||
+      document.webkitCancelFullScreen ||
+      document.mozCancelFullScreen ||
+      document.msExitFullscreen;
+    if (fsElement() && typeof fn === "function") {
+      const result = fn.call(document);
+      if (result && typeof result.catch === "function") result.catch(() => {});
+    }
+    if (!silent) syncFsButton();
+  }
+  function toggleFullscreen() {
+    if (isFullscreen()) exitFullscreen();
+    else requestFullscreen();
+  }
+  fsBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleFullscreen();
   });
+  document.addEventListener("fullscreenchange", syncFsButton);
+  document.addEventListener("webkitfullscreenchange", syncFsButton);
 
   function checkStale() {
     fetch("media/videowalk/ver.txt?" + Date.now(), { cache: "no-store" })
@@ -523,7 +580,7 @@ export function mountVideoWalkPlayer(root) {
     removeEventListener("resize", onResize);
     removeEventListener("keydown", onKeyDown);
     removeEventListener("keyup", onKeyUp);
-    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    exitFullscreen(true);
     if (!silent && onClose) onClose();
   }
 

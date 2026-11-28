@@ -1,4 +1,4 @@
-import { DEFAULT_360, FLAT, FLAT_BUSINESS, bindFadeHint } from "./shared.js";
+import { DEFAULT_360, bindFadeHint } from "./shared.js";
 
 const DEG = Math.PI / 180;
 
@@ -640,7 +640,7 @@ export function mountPlayer(root) {
     flatMode = Boolean(opts.flat);
     // A pin may override the clip (demo / flat). Default is DEFAULT_360
     // (licensed stand-in on main).
-    const clip = opts.clip || (flatMode ? FLAT : DEFAULT_360);
+    const clip = opts.clip || DEFAULT_360;
     mesh.visible = !flatMode;
     meshFlat.visible = flatMode;
     trialCap = Number(opts.trialCap || 45);

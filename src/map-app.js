@@ -1,5 +1,5 @@
 import { Map, Marker, setWorkerUrl, AttributionControl } from "maplibre-gl";
-import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360, FLAT_BUSINESS, PLACEHOLDER_SPLAT, STREET_SPLAT, LUDLOW_SPLAT, GROVE_SPLAT, FARMERS_SPLAT } from "./shared.js";
+import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360 } from "./shared.js";
 
 import { mountPlayer } from "./player.js";
 import { mountSplatPlayer } from "./splat-player.js";
@@ -9,18 +9,13 @@ setWorkerUrl("vendor/maplibre-gl-worker.mjs");
 
 const STREET_ZOOM = 12.6;
 const STREET_EXIT = 12.15;
-const WOF_PITCH = 42;
-const WOF_BEARING = -18;
-// Primary cluster: TCL / Dolby / nearby star segments and the flat demo.
-// Vine, Capitol, and the mid-boulevard business pin stay on the map but
-// may sit off-screen until the visitor pans — the phone viewport cannot
-// show the whole Walk at a tappable size.
+const STREET_PITCH = 42;
+const STREET_BEARING = -18;
+// The two remaining LA walks sit next to each other; fit both so they
+// stay tappable together on a phone.
 const PRIMARY_PIN_IDS = [
-  "tcl-chinese",
-  "dolby",
-  "star-roosevelt",
-  "star-el-capitan",
-  "wof-corner-flat",
+  "grove-kane-scan-splat",
+  "farmers-kane-scan-splat",
 ];
 
 const player = mountPlayer(document.querySelector("#player-root"));
@@ -30,7 +25,7 @@ const videoWalkPlayer = mountVideoWalkPlayer(document.querySelector("#videowalk-
 const map = new Map({
   container: "map",
   style: "https://tiles.openfreemap.org/styles/liberty",
-  center: [-118.25, 34.05],
+  center: [-118.3592, 34.07195],
   zoom: 1.65,
   maxPitch: 85,
   attributionControl: false,
@@ -129,29 +124,23 @@ function closeViewers(opts) {
 }
 
 
-function splatCreditFor(pin) {
-  return pin.id === "farmers-kane-scan-splat" || (pin.splat && String(pin.splat).includes("farmers-kane"))
-    ? FARMERS_SPLAT
-    : pin.id === "grove-kane-scan-splat" || (pin.splat && String(pin.splat).includes("grove-kane"))
-      ? GROVE_SPLAT
-      : pin.id === "ludlow-courtyard-splat" || (pin.splat && String(pin.splat).includes("ludlow-courtyard"))
-        ? LUDLOW_SPLAT
-        : pin.id === "street-intersection-splat" || (pin.splat && String(pin.splat).includes("street-intersection"))
-          ? STREET_SPLAT
-          : PLACEHOLDER_SPLAT;
-}
-
 function openSplatPin(pin) {
+  // Shared splat player stays mounted, but this preview has no splat pins.
+  if (!pin || !pin.splat) return;
   if (window.__tgPlayer) window.__tgPlayer.close({ silent: true });
   if (window.__tgVideoWalk) window.__tgVideoWalk.close({ silent: true });
-  const splatCredit = splatCreditFor(pin);
   splatPlayer.open({
     title: pin.name,
     src: pin.splat,
-    credit: splatCredit,
-    view: pin.splatView || splatCredit.view,
-    avatar: pin.splatAvatar || splatCredit.avatar,
-    path: pin.splatPath || splatCredit.path,
+    credit: {
+      credit: pin.sourceName || "",
+      commons: pin.sourceUrl || "",
+      license: "",
+      licenseUrl: "",
+    },
+    view: pin.splatView,
+    avatar: pin.splatAvatar,
+    path: pin.splatPath,
     onClose: hidePinCard,
     onFallback(note) {
       player.open({
@@ -175,17 +164,12 @@ function openPin(pin) {
   document.getElementById("pin-name").textContent = pin.name;
   document.getElementById("pin-blurb").textContent = pin.blurb;
   const src = document.getElementById("pin-source");
-  if (pin.demo) {
-    // The demo pin is not a Wikipedia landmark: its card links to the
-    // sales page instead of a coordinates source.
-    src.href = "sales.html";
-    src.textContent = "Example pin — see what a business pin includes and what it costs";
-  } else if (pin.splat) {
+  if (pin.sourceUrl) {
     src.href = pin.sourceUrl;
-    src.textContent = pin.sourceName;
+    src.textContent = pin.sourceName || pin.sourceUrl;
   } else {
-    src.href = pin.sourceUrl;
-    src.textContent = "Coordinates: Wikipedia — " + pin.sourceName;
+    src.removeAttribute("href");
+    src.textContent = pin.sourceName || "";
   }
   if (pin.videoWalk) {
     if (window.__tgPlayer) window.__tgPlayer.close({ silent: true });
@@ -224,9 +208,7 @@ function openPin(pin) {
     title: pin.name,
     trial: false,
     flat: Boolean(pin.flat),
-    // Demo pin only: rights-cleared flat clip with demo credit, plus
-    // the offer line pointing at the sales page. Never the 360 stand-in.
-    clip: pin.demo ? FLAT_BUSINESS : undefined,
+    clip: pin.clip,
     offer: Boolean(pin.demo),
     onClose: hidePinCard,
   });
@@ -268,11 +250,11 @@ function flyToPrimaryPins() {
     ],
     {
       padding: hudPadding(),
-      pitch: WOF_PITCH,
-      bearing: WOF_BEARING,
+      pitch: STREET_PITCH,
+      bearing: STREET_BEARING,
       duration: 1800,
       essential: true,
-      maxZoom: 17.4,
+      maxZoom: 16.8,
     }
   );
   map.once("moveend", () => {
@@ -305,8 +287,8 @@ function flyToPinSet(ids, { all = false, maxZoom = 17.4, markAll = false } = {})
     ],
     {
       padding: hudPadding(),
-      pitch: WOF_PITCH,
-      bearing: WOF_BEARING,
+      pitch: STREET_PITCH,
+      bearing: STREET_BEARING,
       duration: 1800,
       essential: true,
       maxZoom,
@@ -320,22 +302,7 @@ function flyToPinSet(ids, { all = false, maxZoom = 17.4, markAll = false } = {})
 }
 
 function flyToAllPins() {
-  // Vine, Capitol, and the business pin sit east of the primary cluster.
-  // This wider fit is a separate control so the default "Go to Walk of
-  // Fame" view can stay zoomed in enough for TCL/Dolby to stay tappable.
-  // Only include pins near that Hollywood cluster — a far pin would
-  // otherwise zoom the map out to a continent and hide the Walk of
-  // Fame pins on a phone.
-  const origin = (pins || []).find((p) => p.id === "tcl-chinese") || (pins || [])[0];
-  const localIds = (pins || [])
-    .filter((p) => {
-      if (!origin) return true;
-      const dlat = p.lat - origin.lat;
-      const dlng = (p.lng - origin.lng) * Math.cos((origin.lat * Math.PI) / 180);
-      return Math.hypot(dlat, dlng) < 0.5;
-    })
-    .map((p) => p.id);
-  flyToPinSet(localIds, { all: false, markAll: true, maxZoom: 16.2 });
+  flyToPinSet((pins || []).map((p) => p.id), { all: true, markAll: true, maxZoom: 16.8 });
 }
 
 async function boot() {
