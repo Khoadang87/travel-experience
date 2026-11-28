@@ -18,9 +18,16 @@ const PRIMARY_PIN_IDS = [
   "farmers-kane-scan-splat",
 ];
 
-const player = mountPlayer(document.querySelector("#player-root"));
-const splatPlayer = mountSplatPlayer(document.querySelector("#splat-root"));
-const videoWalkPlayer = mountVideoWalkPlayer(document.querySelector("#videowalk-root"));
+const isExplore = document.body.dataset.page === "explore";
+const player = (!isExplore && document.querySelector("#player-root"))
+  ? mountPlayer(document.querySelector("#player-root"))
+  : null;
+const splatPlayer = (!isExplore && document.querySelector("#splat-root"))
+  ? mountSplatPlayer(document.querySelector("#splat-root"))
+  : null;
+const videoWalkPlayer = (!isExplore && document.querySelector("#videowalk-root"))
+  ? mountVideoWalkPlayer(document.querySelector("#videowalk-root"))
+  : null;
 
 const map = new Map({
   container: "map",
@@ -41,8 +48,12 @@ let pins = [];
 const markers = [];
 
 function setPinVisibility() {
+  const showAllZooms = document.body.dataset.page === "explore";
   for (const marker of markers) {
-    marker.getElement().style.display = mode === "street" ? "" : "none";
+    const el = marker.getElement();
+    const hiddenByFilter = el.dataset.filtered === "1";
+    const hiddenByMode = !showAllZooms && mode !== "street";
+    el.style.display = hiddenByFilter || hiddenByMode ? "none" : "";
   }
 }
 
@@ -159,6 +170,10 @@ function openSplatPin(pin) {
 }
 
 function openPin(pin) {
+  if (document.body.dataset.page === "explore" && pin && pin.id) {
+    location.href = "walk.html?id=" + encodeURIComponent(pin.id);
+    return;
+  }
   hidePinCard();
   closePlaces();
   document.getElementById("pin-name").textContent = pin.name;
@@ -217,12 +232,19 @@ function openPin(pin) {
 function hudPadding() {
   const header = document.querySelector("header.top");
   const hud = document.querySelector(".hud");
+  const sheet = document.querySelector("#explore-panel");
   const top = Math.ceil((header ? header.getBoundingClientRect().height : 48) + 10);
-  const bottom = Math.ceil((hud ? hud.getBoundingClientRect().height : 160) + 12);
+  const phone = window.matchMedia("(max-width: 800px)").matches;
+  let bottom = Math.ceil((hud ? hud.getBoundingClientRect().height : 160) + 12);
+  let left = 28;
+  if (sheet && document.body.dataset.page === "explore") {
+    if (phone) bottom = Math.max(bottom, Math.ceil(sheet.getBoundingClientRect().height + 20));
+    else left = Math.max(left, 420);
+  }
   return {
     top: Math.max(44, top),
     bottom: Math.max(88, bottom),
-    left: 28,
+    left,
     right: 28,
   };
 }
@@ -315,13 +337,13 @@ async function boot() {
   const cfg = getConfig(base);
   const ads = adsState(cfg);
   const adbar = document.getElementById("adbar");
-  if (ads.adsLive) {
+  if (adbar && ads.adsLive && document.body.dataset.page !== "explore") {
     adbar.hidden = false;
     adbar.textContent =
       "Ad placeholder (not a real ad network). Ads would turn on after the free-to-start period, on " +
       formatPT(ads.adsStart) +
       ". This bar is a mock.";
-  } else {
+  } else if (adbar) {
     adbar.hidden = true;
   }
 
@@ -331,10 +353,15 @@ async function boot() {
     map.setProjection({ type: "globe" });
     addPins();
     syncMode();
-    document.getElementById("map-status").textContent = "Globe ready";
+    const status = document.getElementById("map-status");
+    if (status) status.textContent = "Map ready";
     window.__tgMapReady = true;
     window.__tgMap = map;
     collapseAttribution();
+    if (document.body.dataset.page === "explore") {
+      setupExploreList();
+      flyToPrimaryPins();
+    }
     if (location.hash === "#places") showAllPlaces();
   }
   map.on("load", finishMap);
@@ -405,7 +432,92 @@ function openPlaces() {
   if (close) close.focus();
 }
 
-document.getElementById("btn-wof").addEventListener("click", () => {
+
+function setupExploreList() {
+  if (window.__tgExploreReady) return;
+  const citySel = document.getElementById("filter-city");
+  const typeSel = document.getElementById("filter-type");
+  const list = document.getElementById("explore-list");
+  const empty = document.getElementById("explore-empty");
+  const sheet = document.getElementById("explore-panel");
+  const toggle = document.getElementById("sheet-toggle");
+  if (!citySel || !typeSel || !list) return;
+
+  const cities = [...new Set(pins.map((p) => p.city).filter(Boolean))].sort();
+  const types = [...new Set(pins.map((p) => p.type || placeKindLabel(p)).filter(Boolean))].sort();
+  for (const city of cities) {
+    const opt = document.createElement("option");
+    opt.value = city;
+    opt.textContent = city;
+    citySel.appendChild(opt);
+  }
+  for (const type of types) {
+    const opt = document.createElement("option");
+    opt.value = type;
+    opt.textContent = type;
+    typeSel.appendChild(opt);
+  }
+
+  function visiblePins() {
+    const city = citySel.value;
+    const type = typeSel.value;
+    return (pins || []).filter((p) => {
+      if (city && p.city !== city) return false;
+      if (type && (p.type || placeKindLabel(p)) !== type) return false;
+      return true;
+    });
+  }
+
+  function render() {
+    const shown = visiblePins();
+    const shownIds = new Set(shown.map((p) => p.id));
+    list.innerHTML = "";
+    for (const pin of shown) {
+      const a = document.createElement("a");
+      a.className = "walk-card";
+      a.href = "walk.html?id=" + encodeURIComponent(pin.id);
+      const img = document.createElement("img");
+      img.src = pin.thumb || "";
+      img.alt = "";
+      const body = document.createElement("div");
+      body.className = "walk-card-body";
+      const h = document.createElement("h3");
+      h.textContent = pin.name;
+      const meta = document.createElement("p");
+      meta.textContent = [pin.city, pin.type || placeKindLabel(pin), pin.durationLabel].filter(Boolean).join(" · ");
+      const handle = document.createElement("p");
+      handle.textContent = pin.creatorHandle ? "@" + pin.creatorHandle : "";
+      body.append(h, meta, handle);
+      a.append(img, body);
+      list.appendChild(a);
+    }
+    if (empty) empty.hidden = shown.length > 0;
+    for (const marker of markers) {
+      const id = marker.getElement().dataset.pinId;
+      marker.getElement().dataset.filtered = shownIds.has(id) ? "0" : "1";
+    }
+    setPinVisibility();
+    if (toggle) {
+      const phone = window.matchMedia("(max-width: 800px)").matches;
+      toggle.hidden = !phone;
+      toggle.textContent = sheet && sheet.classList.contains("sheet-open") ? "Show fewer walks" : "Show more walks";
+    }
+  }
+
+  citySel.addEventListener("change", render);
+  typeSel.addEventListener("change", render);
+  if (toggle && sheet) {
+    toggle.addEventListener("click", () => {
+      sheet.classList.toggle("sheet-open");
+      toggle.textContent = sheet.classList.contains("sheet-open") ? "Show fewer walks" : "Show more walks";
+    });
+  }
+  render();
+  window.__tgExploreList = list;
+  window.__tgExploreReady = true;
+}
+
+document.getElementById("btn-wof")?.addEventListener("click", () => {
   hidePinCard();
   closePlaces();
   flyToPrimaryPins();
@@ -426,9 +538,9 @@ function showAllPlaces() {
   openPlaces();
 }
 
-document.getElementById("btn-all-pins").addEventListener("click", showAllPlaces);
+document.getElementById("btn-all-pins")?.addEventListener("click", showAllPlaces);
 
-document.getElementById("btn-globe").addEventListener("click", () => {
+document.getElementById("btn-globe")?.addEventListener("click", () => {
   hidePinCard();
   closeViewers();
   closePlaces();
@@ -446,7 +558,7 @@ boot().catch((err) => {
   console.error(err);
 });
 
-document.getElementById("pin-card-close").addEventListener("click", (e) => {
+document.getElementById("pin-card-close")?.addEventListener("click", (e) => {
   e.stopPropagation();
   hidePinCard();
   closeViewers();

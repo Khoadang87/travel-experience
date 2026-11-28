@@ -10,29 +10,32 @@
   <meta name="theme-color" content="#1e5a54">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Walk of Fame Globe">
+  <meta name="apple-mobile-web-app-title" content="{{SITE_NAME}}">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Admin — Walk of Fame Globe</title>
+  <title>Admin — {{SITE_NAME}}</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="official.css">
 </head>
 <body data-page="admin">
   <header class="top">
     <a class="brand" href="index.html">
-      <strong>Walk of Fame Globe</strong>
+      <strong>{{SITE_NAME}}</strong>
       <span class="badge">Preview</span>
     </a>
     <button type="button" class="menu-btn" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">Menu</button>
     <div class="nav-backdrop" id="nav-backdrop" hidden></div>
     <nav id="site-nav" aria-label="Primary">
-      <a href="index.html">Map</a>
-      <a class="nav-extra" href="index.html#places" data-open-places>Places</a>
-      <a href="sales.html">For businesses</a>
-      <a href="creator.html">Submit</a>
-      <button type="button" class="nav-extra nav-credits" data-open-credits>Credits</button>
+      <a href="index.html">Home</a>
+      <a href="explore.html">Explore</a>
+      <a href="upload.html">Share your walk</a>
+      <a href="me.html">My walks</a>
+      <a href="login.html">Log in</a>
+      <a class="nav-signup" href="signup.html">Sign up</a>
     </nav>
   </header>
   <main class="page">
     <h1>Monetization settings</h1>
+    <p class="muted">Internal preview page — not linked from the official site navigation.</p>
     <p class="lead">Local mock only. These controls do not connect to an ad network, payments, or email. Dates are shown and stored as Pacific Time.</p>
     <p id="live-window"></p>
     <p id="live-ads"></p>

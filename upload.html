@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Upload a walk you filmed. In this preview the file is never uploaded and the form is not saved.">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#1e5a54">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="{{SITE_NAME}}">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Share your walk — {{SITE_NAME}}</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="official.css">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css">
+</head>
+<body class="page-doc">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="top">
+    <a class="brand" href="index.html">
+      <strong>{{SITE_NAME}}</strong>
+      <span class="badge">Preview</span>
+    </a>
+    <button type="button" class="menu-btn" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">Menu</button>
+    <div class="nav-backdrop" id="nav-backdrop" hidden></div>
+    <nav id="site-nav" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="explore.html">Explore</a>
+      <a href="upload.html" aria-current="page">Share your walk</a>
+      <a href="me.html">My walks</a>
+      <a href="login.html">Log in</a>
+      <a class="nav-signup" href="signup.html">Sign up</a>
+    </nav>
+  </header>
+  <p class="preview-banner" role="status"><strong>Preview:</strong> {{SITE_PREVIEW_NOTE}}</p>
+
+  <main id="main" class="wrap-narrow">
+    <div class="form-card">
+      <h1>Share your walk</h1>
+      <p class="subhead">{{SITE_PREVIEW_NOTE}} Your video is previewed only on this device and is never uploaded.</p>
+      <ol class="stepper" id="upload-stepper" aria-label="Upload steps"></ol>
+      <form id="upload-form" novalidate>
+        <section class="upload-step" data-step="1" aria-labelledby="step-1-title">
+          <h2 id="step-1-title">1. Pick a video</h2>
+          <div class="field">
+            <label for="upload-file">Video file</label>
+            <input id="upload-file" name="video" type="file" accept="video/*">
+            <p class="field-error" id="upload-file-error" role="alert"></p>
+          </div>
+          <div class="upload-preview" id="upload-preview" hidden>
+            <video id="upload-video" controls playsinline></video>
+            <p id="upload-file-name"></p>
+          </div>
+        </section>
+        <section class="upload-step" data-step="2" hidden aria-labelledby="step-2-title">
+          <h2 id="step-2-title">2. Drop a pin</h2>
+          <p>This preview cannot read a location from the video file. Drop a pin on the map or use the Los Angeles walk area.</p>
+          <div id="upload-map" role="application" aria-label="Map for placing your walk"></div>
+          <p id="upload-pin-label">No pin yet.</p>
+          <p><button type="button" class="ghost" id="btn-use-la">Use the Los Angeles walk area</button></p>
+          <p class="field-error" id="upload-pin-error" role="alert"></p>
+        </section>
+        <section class="upload-step" data-step="3" hidden aria-labelledby="step-3-title">
+          <h2 id="step-3-title">3. Title and details</h2>
+          <div class="field">
+            <label for="upload-title">Title</label>
+            <input id="upload-title" name="title" type="text" maxlength="80" required>
+            <p class="field-error" id="upload-title-error" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="upload-desc">Description</label>
+            <textarea id="upload-desc" name="description" maxlength="500"></textarea>
+          </div>
+          <div class="field">
+            <label for="upload-tags">Tags</label>
+            <input id="upload-tags" name="tags" type="text" placeholder="for example: Los Angeles, market, daytime">
+          </div>
+        </section>
+        <section class="upload-step" data-step="4" hidden aria-labelledby="step-4-title">
+          <h2 id="step-4-title">4. Rights and consent</h2>
+          <div class="checklist">
+            <label><input type="checkbox" id="consent-filmed" name="filmed"> I filmed this walk myself.</label>
+            <label><input type="checkbox" id="consent-people" name="people"> I have consent for recognizable faces and voices, or none appear.</label>
+            <label><input type="checkbox" id="consent-music" name="music"> This clip does not use copyrighted music I do not have rights to.</label>
+          </div>
+          <p class="field-error" id="upload-consent-error" role="alert"></p>
+        </section>
+        <section class="upload-step" data-step="5" hidden aria-labelledby="step-5-title">
+          <h2 id="step-5-title">5. Review</h2>
+          <dl class="review-dl" id="upload-review"></dl>
+          <p>{{SITE_STORAGE_NOTE}}</p>
+        </section>
+        <section class="upload-step" data-step="6" hidden aria-labelledby="step-6-title">
+          <div class="success-panel" id="upload-success">
+            <h2 id="step-6-title">Submitted for review (preview, not saved)</h2>
+            <p>{{SITE_NOT_SAVED}}. The video file was not uploaded. A demo card may appear on My walks in this browser only.</p>
+            <p><a class="primary" href="me.html">View My walks</a> <a class="ghost" href="explore.html">Back to the map</a></p>
+          </div>
+        </section>
+        <div class="form-actions" id="upload-nav">
+          <button type="button" class="ghost" id="btn-back">Back</button>
+          <button type="button" class="primary" id="btn-next">Continue</button>
+        </div>
+      </form>
+    </div>
+  </main>
+  <footer class="site-footer official-footer">
+    <div class="footer-grid">
+      <div>
+        <h2>{{SITE_NAME}}</h2>
+        <p class="footer-note">{{SITE_PREVIEW_NOTE}} {{SITE_STORAGE_NOTE}}</p>
+      </div>
+      <div>
+        <h2>Walks</h2>
+        <ul>
+          <li><a href="explore.html">Explore the map</a></li>
+          <li><a href="upload.html">Share your walk</a></li>
+          <li><a href="me.html">My walks</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>About</h2>
+        <ul>
+          <li><a href="about.html">About <span class="draft">Draft</span></a></li>
+          <li><a href="guidelines.html">Guidelines <span class="draft">Draft</span></a></li>
+          <li><a href="privacy.html">Privacy <span class="draft">Draft</span></a></li>
+          <li><a href="terms.html">Terms <span class="draft">Draft</span></a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+  <script type="importmap">
+  {
+    "imports": {
+      "maplibre-gl": "./vendor/maplibre-gl.mjs",
+      "three": "./vendor/three.module.js",
+      "three/addons/": "./vendor/three/addons/",
+      "@sparkjsdev/spark": "./vendor/spark.module.js"
+    }
+  }
+  </script>
+  <script type="module" src="src/site-chrome.js"></script>
+  <script type="module" src="src/upload-app.js"></script>
+</body>
+</html>

@@ -4,85 +4,121 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex">
-  <meta name="description" content="Walk of Fame Globe is a preview of walks and places you can explore on a globe, then walk through as a street clip.">
+  <meta name="description" content="{{SITE_TAGLINE}}. Explore filmed street walks on a map, then hold Move to walk through a clip.">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#1e5a54">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Walk of Fame Globe">
+  <meta name="apple-mobile-web-app-title" content="{{SITE_NAME}}">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Walk of Fame Globe — preview</title>
+  <title>{{SITE_NAME}} — {{SITE_TAGLINE}}</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="official.css">
   <link rel="stylesheet" href="vendor/maplibre-gl.css">
 </head>
-<body data-page="map">
-  <a class="skip-link" href="#map-controls">Skip to map controls</a>
+<body class="page-doc">
+  <a class="skip-link" href="#main">Skip to content</a>
   <header class="top">
     <a class="brand" href="index.html">
-      <strong>Walk of Fame Globe</strong>
+      <strong>{{SITE_NAME}}</strong>
       <span class="badge">Preview</span>
     </a>
     <button type="button" class="menu-btn" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">Menu</button>
     <div class="nav-backdrop" id="nav-backdrop" hidden></div>
     <nav id="site-nav" aria-label="Primary">
-      <a href="index.html" aria-current="page">Map</a>
-      <a class="nav-extra" href="index.html#places" data-open-places>Places</a>
-      <a href="sales.html">For businesses</a>
-      <a href="creator.html">Submit</a>
-      <button type="button" class="nav-extra nav-credits" data-open-credits>Credits</button>
+      <a href="index.html" aria-current="page">Home</a>
+      <a href="explore.html">Explore</a>
+      <a href="upload.html">Share your walk</a>
+      <a href="me.html">My walks</a>
+      <a href="login.html">Log in</a>
+      <a class="nav-signup" href="signup.html">Sign up</a>
     </nav>
   </header>
-  <div id="map" role="application" aria-label="Interactive globe and Los Angeles street map"></div>
-  <div class="hud" id="map-controls" role="region" aria-label="Map controls">
-    <div id="adbar" hidden></div>
-    <div class="sr-only" aria-live="polite">
-      <span id="mode-badge">Globe</span>
-      <span id="map-status">Loading map…</span>
-    </div>
-    <div class="dock">
-      <p class="dock-lead">Explore places on the globe, then hold Move to walk through a street clip.</p>
-      <div class="dock-actions">
-        <button type="button" class="primary" id="btn-wof">Start at The Grove</button>
-        <button type="button" class="ghost" id="btn-all-pins">See all places</button>
-        <button type="button" class="ghost" id="btn-globe" hidden>Back to globe</button>
+  <p class="preview-banner" role="status"><strong>Preview:</strong> {{SITE_PREVIEW_NOTE}}</p>
+
+  <main id="main">
+    <section class="hero wrap">
+      <div class="hero-copy">
+        <h1>{{SITE_TAGLINE}}</h1>
+        <p class="lede">A preview of an official travel site where people explore real streets and share walks they filmed themselves.</p>
+        <div class="hero-actions">
+          <a class="primary" href="explore.html">Explore the map</a>
+          <a class="ghost" href="upload.html">Share your walk</a>
+        </div>
+      </div>
+      <div class="hero-map-wrap" aria-label="Globe preview of walk locations">
+        <div id="hero-map" role="application" aria-label="Interactive globe showing walk locations"></div>
+      </div>
+    </section>
+    <section class="section wrap" aria-labelledby="featured-title">
+      <h2 id="featured-title">Featured walks</h2>
+      <div class="walk-row" id="featured-row">
+        <a class="walk-card" href="walk.html?id=grove-kane-scan-splat">
+          <img src="media/thumbs/grove.jpg" alt="">
+          <div class="walk-card-body">
+            <h3>The Grove</h3>
+            <p>Los Angeles · Video walk · 0:35</p>
+            <p>@la.walker</p>
+          </div>
+        </a>
+        <a class="walk-card" href="walk.html?id=farmers-kane-scan-splat">
+          <img src="media/thumbs/farmers.jpg" alt="">
+          <div class="walk-card-body">
+            <h3>Farmers Market</h3>
+            <p>Los Angeles · Video walk · 0:52</p>
+            <p>@market.days</p>
+          </div>
+        </a>
+      </div>
+    </section>
+    <section class="section wrap" aria-labelledby="how-title">
+      <h2 id="how-title">How it works</h2>
+      <div class="steps">
+        <article class="step">
+          <span class="step-n" aria-hidden="true">1</span>
+          <h3>Explore the map</h3>
+          <p>Find walks filmed on real streets and open one from a pin or the list.</p>
+        </article>
+        <article class="step">
+          <span class="step-n" aria-hidden="true">2</span>
+          <h3>Take the walk</h3>
+          <p>Hold the Move stick to walk forward, and drag to look around. On a phone, that is the whole control set.</p>
+        </article>
+        <article class="step">
+          <span class="step-n" aria-hidden="true">3</span>
+          <h3>Share your walk</h3>
+          <p>Upload a clip you filmed. In this preview the file never leaves your device, and the form is not saved.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer official-footer">
+    <div class="footer-grid">
+      <div>
+        <h2>{{SITE_NAME}}</h2>
+        <p class="footer-note">{{SITE_PREVIEW_NOTE}} {{SITE_STORAGE_NOTE}}</p>
+      </div>
+      <div>
+        <h2>Walks</h2>
+        <ul>
+          <li><a href="explore.html">Explore the map</a></li>
+          <li><a href="upload.html">Share your walk</a></li>
+          <li><a href="me.html">My walks</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>About</h2>
+        <ul>
+          <li><a href="about.html">About <span class="draft">Draft</span></a></li>
+          <li><a href="guidelines.html">Guidelines <span class="draft">Draft</span></a></li>
+          <li><a href="privacy.html">Privacy <span class="draft">Draft</span></a></li>
+          <li><a href="terms.html">Terms <span class="draft">Draft</span></a></li>
+        </ul>
       </div>
     </div>
-  </div>
-  <div id="places-panel" class="places-panel" hidden role="dialog" aria-modal="true" aria-labelledby="places-title">
-    <div class="places-sheet">
-      <div class="places-top">
-        <h2 id="places-title">Places</h2>
-        <button type="button" class="icon-btn" id="places-close" aria-label="Close">Close</button>
-      </div>
-      <div class="place-grid" id="place-grid"></div>
-    </div>
-  </div>
-  <div id="credits-dialog" class="credits-shell" hidden>
-    <div class="credits-panel" role="dialog" aria-modal="true" aria-labelledby="credits-title">
-      <div class="places-top">
-        <h2 id="credits-title">Credits</h2>
-        <button type="button" class="icon-btn" data-credits-close aria-label="Close">Close</button>
-      </div>
-      <div class="credits-body" id="credits-body"></div>
-    </div>
-  </div>
-  <aside id="pin-card" class="card" hidden>
-    <div class="pin-card-top">
-      <h2 id="pin-name"></h2>
-      <button type="button" class="icon-btn" id="pin-card-close" aria-label="Close">Close</button>
-    </div>
-    <p id="pin-blurb" class="muted"></p>
-    <p><a id="pin-source" href="#" target="_blank" rel="noopener"></a></p>
-  </aside>
-  <footer class="site-footer">
-    <button type="button" class="text-link" id="btn-credits">Credits</button>
-    <a href="admin.html">Admin</a>
   </footer>
-  <div id="player-root"></div>
-  <div id="splat-root"></div>
-  <div id="videowalk-root"></div>
   <script type="importmap">
   {
     "imports": {
@@ -94,6 +130,6 @@
   }
   </script>
   <script type="module" src="src/site-chrome.js"></script>
-  <script type="module" src="src/map-app.js"></script>
+  <script type="module" src="src/home-app.js"></script>
 </body>
 </html>

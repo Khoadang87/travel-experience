@@ -4,96 +4,80 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex">
+  <meta name="description" content="The business sales preview has moved to the About page.">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#1e5a54">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Walk of Fame Globe">
+  <meta name="apple-mobile-web-app-title" content="{{SITE_NAME}}">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>For Hollywood businesses — Walk of Fame Globe</title>
+  <title>For businesses has moved — {{SITE_NAME}}</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="official.css">
+  <meta http-equiv="refresh" content="0; url=about.html">
+  <link rel="canonical" href="about.html">
 </head>
-<body data-page="sales">
+<body class="page-doc">
+  <a class="skip-link" href="#main">Skip to content</a>
   <header class="top">
     <a class="brand" href="index.html">
-      <strong>Walk of Fame Globe</strong>
+      <strong>{{SITE_NAME}}</strong>
       <span class="badge">Preview</span>
     </a>
     <button type="button" class="menu-btn" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">Menu</button>
     <div class="nav-backdrop" id="nav-backdrop" hidden></div>
     <nav id="site-nav" aria-label="Primary">
-      <a href="index.html">Map</a>
-      <a class="nav-extra" href="index.html#places" data-open-places>Places</a>
-      <a href="sales.html" aria-current="page">For businesses</a>
-      <a href="creator.html">Submit</a>
-      <button type="button" class="nav-extra nav-credits" data-open-credits>Credits</button>
+      <a href="index.html">Home</a>
+      <a href="explore.html">Explore</a>
+      <a href="upload.html">Share your walk</a>
+      <a href="me.html">My walks</a>
+      <a href="login.html">Log in</a>
+      <a class="nav-signup" href="signup.html">Sign up</a>
     </nav>
   </header>
-  <main class="page">
-    <h1>Put your business on the Walk of Fame Globe</h1>
-    <p class="lead">People explore Hollywood Boulevard on our globe, zoom to the street map, and tap pins to walk the sidewalk in 360°. A pin puts your business on that walk — with your name and a link to your site or booking page.</p>
+  <p class="preview-banner" role="status"><strong>Preview:</strong> {{SITE_PREVIEW_NOTE}}</p>
 
-    <p class="sample-strip">Demo of the offer: this page shows what a business pin would cost and include. No business has bought a pin yet, and the prices below are working figures to review — not validated sales. Nothing on this page charges you or signs you up.</p>
-
-    <h2>What a buyer gets</h2>
-    <div class="card">
-      <ul>
-        <li>A <strong>60-second clip pin</strong> of your location — your own 360 footage, or flat footage shown on a curved screen in the 360 player.</li>
-        <li>Live on the globe for <strong>1 year</strong>, with your business name, a short description, and a link to your site or booking page.</li>
-        <li>Steerable viewing: visitors look around with the joystick and walk the clip forward and back at a slow stroll.</li>
-        <li>See a walk in action: <a href="index.html">open the map</a> and tap <strong>Start at The Grove</strong> to view the Los Angeles walks currently on this preview.</li>
-      </ul>
-    </div>
-
-    <h2>Prices</h2>
-    <div class="fees">
-      <div class="fee">
-        <span class="tiny">Standard pin</span>
-        <strong id="price-standard">$250</strong>
-        <span class="tiny">60-second clip pin, live for 1 year, with your name and link · figure to review</span>
-      </div>
-      <div class="fee">
-        <span class="tiny">Featured pin</span>
-        <strong id="price-featured">$500</strong>
-        <span class="tiny">Everything in Standard, plus a gold highlighted pin and top placement in the pin list · figure to review</span>
-      </div>
-    </div>
-    <p class="tiny">Working prices being tested — figure to review, not validated yet. No real payment is taken on this site.</p>
-
-    <h2>Try it free first</h2>
-    <div class="card">
-      <p><strong>Free 45-second preview:</strong> we&rsquo;ll make a free 45-second preview of your location. You only pay if you want the full pin.</p>
-      <p><a class="primary" href="creator.html" style="display:inline-block; text-decoration:none;">Request a free preview</a></p>
-      <p class="tiny">The request goes through the submission form on this site. This prototype is a mock: nothing is uploaded to a server, emailed, or charged — the form records your request in this browser only, and the preview uses a labeled 360 stand-in (Anıtkabir, Ankara — 360TR, CC BY 3.0), not your footage and not Hollywood footage, until a real preview is made for you.</p>
-    </div>
-
-    <h2>How it works</h2>
-    <div class="card">
-      <ol>
-        <li><strong>Request a free preview</strong> — send your location and footage through the submission form. We make a 45-second watermarked preview of your spot.</li>
-        <li><strong>Review your preview</strong> — open it on the map, walk it with the joystick, and decide if it shows your business the way you want.</li>
-        <li><strong>Pay only if you want the full pin</strong> — Standard $250 or Featured $500 (figure to review), live for 1 year. If you don&rsquo;t want it, the preview simply expires.</li>
-      </ol>
-    </div>
-
-    <p class="muted"><a href="index.html">Back to the map</a> · <a href="creator.html">Submit a clip</a></p>
+  <main id="main" class="wrap-narrow moved-page">
+    <h1>This page has moved</h1>
+    <p>The older business sales page is retired in this official-site preview. See <a href="about.html">About</a> for what this preview covers. Business listings are not part of this draft.</p>
   </main>
-
-  <footer class="site-footer">
-    <button type="button" class="text-link" id="btn-credits">Credits</button>
-    <a href="admin.html">Admin</a>
-  </footer>
-  <div id="credits-dialog" class="credits-shell" hidden>
-    <div class="credits-panel" role="dialog" aria-modal="true" aria-labelledby="credits-title">
-      <div class="places-top">
-        <h2 id="credits-title">Credits</h2>
-        <button type="button" class="icon-btn" data-credits-close aria-label="Close">Close</button>
+  <footer class="site-footer official-footer">
+    <div class="footer-grid">
+      <div>
+        <h2>{{SITE_NAME}}</h2>
+        <p class="footer-note">{{SITE_PREVIEW_NOTE}} {{SITE_STORAGE_NOTE}}</p>
       </div>
-      <div class="credits-body" id="credits-body"></div>
+      <div>
+        <h2>Walks</h2>
+        <ul>
+          <li><a href="explore.html">Explore the map</a></li>
+          <li><a href="upload.html">Share your walk</a></li>
+          <li><a href="me.html">My walks</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>About</h2>
+        <ul>
+          <li><a href="about.html">About <span class="draft">Draft</span></a></li>
+          <li><a href="guidelines.html">Guidelines <span class="draft">Draft</span></a></li>
+          <li><a href="privacy.html">Privacy <span class="draft">Draft</span></a></li>
+          <li><a href="terms.html">Terms <span class="draft">Draft</span></a></li>
+        </ul>
+      </div>
     </div>
-  </div>
+  </footer>
+  <script type="importmap">
+  {
+    "imports": {
+      "maplibre-gl": "./vendor/maplibre-gl.mjs",
+      "three": "./vendor/three.module.js",
+      "three/addons/": "./vendor/three/addons/",
+      "@sparkjsdev/spark": "./vendor/spark.module.js"
+    }
+  }
+  </script>
   <script type="module" src="src/site-chrome.js"></script>
 </body>
 </html>
