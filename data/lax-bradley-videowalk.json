@@ -1,0 +1,39 @@
+{
+  "id": "lax-bradley-videowalk",
+  "title": "Tom Bradley International Terminal, LAX",
+  "src": "media/videowalk/lax-bradley-walk.mp4",
+  "duration": 154.0,
+  "credit": "Private test footage at Tom Bradley International Terminal, Los Angeles International Airport (trimmed to a 154-second continuous walk). Audio is off.",
+  "sourceUrl": "media/videowalk/ATTRIBUTION.md",
+  "overscale": 1.28,
+  "spots": [
+    {
+      "id": "bradley-sign",
+      "t": 0.0,
+      "label": "Tom Bradley sign"
+    },
+    {
+      "id": "crosswalk",
+      "t": 16.0,
+      "label": "Curbside crosswalk"
+    },
+    {
+      "id": "doors",
+      "t": 28.0,
+      "label": "Terminal doors"
+    },
+    {
+      "id": "hall",
+      "t": 70.0,
+      "label": "Terminal hall"
+    },
+    {
+      "id": "checkpoint-a",
+      "t": 140.0,
+      "label": "Checkpoint A"
+    }
+  ],
+  "path": [],
+  "pathNote": "No route map for this clip: it is a filmed walk, not a surveyed path, so the mini-map is hidden.",
+  "creditDetails": "Flat video, not 360. The clip starts at the curbside sign and walks into the terminal. The last few seconds of the source were trimmed because the camera got close to people and went briefly out of focus. Clip audio was omitted because travelers and staff can be heard. Place: iPhone GPS about 33.9439 N, 118.4081 W (±6 m), inside the Tom Bradley International Terminal area. The terminal name is also on the building in the opening frames. Travelers and staff appear in the frame and have not been asked about public display; check consent before any public launch."
+}

@@ -1,0 +1,39 @@
+{
+  "id": "grove-trolley-videowalk",
+  "title": "The Grove, trolley street",
+  "src": "media/videowalk/grove-trolley-walk.mp4",
+  "duration": 153.27,
+  "credit": "Private test footage along the trolley street at The Grove, Los Angeles (the whole 153-second clip). Audio is off.",
+  "sourceUrl": "media/videowalk/ATTRIBUTION.md",
+  "overscale": 1.28,
+  "spots": [
+    {
+      "id": "tracks-start",
+      "t": 0.0,
+      "label": "Trolley tracks (start)"
+    },
+    {
+      "id": "holiday-house",
+      "t": 20.0,
+      "label": "Holiday house"
+    },
+    {
+      "id": "shops",
+      "t": 60.0,
+      "label": "Shops"
+    },
+    {
+      "id": "holiday-trees",
+      "t": 90.0,
+      "label": "Holiday trees"
+    },
+    {
+      "id": "apple-store",
+      "t": 140.0,
+      "label": "Apple Store"
+    }
+  ],
+  "path": [],
+  "pathNote": "No route map for this clip: it is a filmed walk, not a surveyed path, so the mini-map is hidden.",
+  "creditDetails": "Flat video, not 360. This is a walk along the trolley street at The Grove, past the holiday house and toward the Apple Store. Clip audio was omitted because bystanders can be heard. Place: iPhone GPS about 34.0723 N, 118.3595 W (±22 m) at the west end of The Grove, next to the Original Farmers Market. The trolley tracks, holiday house, Apple Store, and Charlotte Tilbury storefront are visible in the frames. People on the street appear in the frame and have not been asked about public display; check consent before any public launch."
+}
