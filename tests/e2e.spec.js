@@ -236,7 +236,7 @@ test("See all places opens a list with The Grove and Farmers Market on a phone",
   await shot(page, "21-phone-844-all-pins.png");
 });
 
-test("fullscreen button uses the Fullscreen API or an iOS CSS fallback", async ({ page }) => {
+test("desktop fullscreen button uses the Fullscreen API or a CSS fallback", async ({ page }) => {
   await page.goto("/index.html");
   await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
   await goToWalk(page);
@@ -268,7 +268,31 @@ test("fullscreen button uses the Fullscreen API or an iOS CSS fallback", async (
   expect(off).toBeFalsy();
 });
 
-test("pseudo-fullscreen fallback covers the viewport when the Fullscreen API is missing", async ({ page }) => {
+test("phone walk has no Full screen button and Close leaves the player", async ({ page }) => {
+  test.setTimeout(180000);
+  const sizes = [
+    { width: 390, height: 844 },
+    { width: 844, height: 390 },
+  ];
+  await page.goto("/index.html");
+  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
+  for (const size of sizes) {
+    await page.setViewportSize(size);
+    await page.evaluate(() => window.__tgOpenPin("grove-kane-scan-splat"));
+    await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+    await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+    await expect(page.locator("#videowalk-root [data-fs]")).toBeHidden();
+    await expect(page.locator("#videowalk-root [data-fs-exit]")).toBeHidden();
+    await expect(page.locator("#videowalk-root").getByRole("button", { name: /Full screen/i })).toHaveCount(0);
+    const closeBtn = page.locator("#videowalk-root [data-close]");
+    await expect(closeBtn).toBeVisible();
+    await expect(closeBtn).toHaveText("Close");
+    await closeBtn.click();
+    await expect(page.locator("#videowalk-root .player-shell")).toBeHidden();
+  }
+});
+
+test("desktop CSS fallback covers the viewport when the Fullscreen API is missing", async ({ page }) => {
   test.setTimeout(180000);
   await page.addInitScript(() => {
     const hide = (obj, key) => {
@@ -288,7 +312,7 @@ test("pseudo-fullscreen fallback covers the viewport when the Fullscreen API is 
     hide(Element.prototype, "webkitRequestFullscreen");
     hide(Element.prototype, "webkitRequestFullScreen");
   });
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/index.html");
   await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
   await goToWalk(page);
