@@ -464,6 +464,7 @@ export function mountVideoWalkPlayer(root) {
     if (creditsBtn) creditsBtn.hidden = !(cfg.credit || cfg.creditDetails);
     spots = Array.isArray(cfg.spots) ? cfg.spots : [];
     path = Array.isArray(cfg.path) ? cfg.path : [];
+    mm.hidden = !path.length;
     overscale = Number(cfg.overscale) > 1 ? Number(cfg.overscale) : OVERSCALE;
     duration = Number(cfg.duration) || 0;
     soundOn = false;

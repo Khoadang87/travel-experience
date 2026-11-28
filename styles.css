@@ -1109,3 +1109,6 @@ body.player-css-fs .player-panel.is-fullscreen {
   .credit-line, .sample-banner, .credit { max-height: 2.8em; }
   .player-controls { padding-top: 2px; gap: 6px; }
 }
+
+/* A walk with no route (indoor clips) hides the empty mini-map. */
+.videowalk-minimap[hidden] { display: none !important; }

@@ -1,5 +1,5 @@
 {
-  "source": "Preview pin positions for The Grove and the Original Farmers Market, Los Angeles.",
+  "source": "Preview pin positions for The Grove, the Original Farmers Market, and a café counter near 1st Street, Los Angeles.",
   "area": {
     "name": "The Grove and Farmers Market",
     "center": [
@@ -7,7 +7,7 @@
       34.07195
     ],
     "streetZoom": 16.4,
-    "note": "The remaining preview walks are at The Grove and the Original Farmers Market in Los Angeles."
+    "note": "The preview walks are at The Grove, the Original Farmers Market, and a café on 1st Street in Los Angeles."
   },
   "pins": [
     {
@@ -45,6 +45,24 @@
       "creatorHandle": "market.days",
       "durationLabel": "0:52",
       "durationSec": 52
+    },
+    {
+      "id": "cafe-first-street-walk",
+      "name": "Café counter, 1st Street",
+      "kind": "videowalk",
+      "lng": -118.3598,
+      "lat": 34.0725,
+      "sourceName": "Private test footage",
+      "sourceUrl": "",
+      "blurb": "A short indoor pass along a café counter near 1st Street at The Grove and Farmers Market, Los Angeles, from private test footage. Hold Move up to walk. Flat video, not 360. Audio is off because staff and customers can be heard.",
+      "label": "Café counter",
+      "videoWalk": "data/cafe-videowalk.json",
+      "thumb": "media/thumbs/cafe.jpg",
+      "city": "Los Angeles",
+      "type": "Video walk",
+      "creatorHandle": "la.walker",
+      "durationLabel": "0:23",
+      "durationSec": 23
     }
   ]
 }

@@ -11,11 +11,12 @@ const STREET_ZOOM = 12.6;
 const STREET_EXIT = 12.15;
 const STREET_PITCH = 42;
 const STREET_BEARING = -18;
-// The two remaining LA walks sit next to each other; fit both so they
-// stay tappable together on a phone.
+// The LA walks sit next to each other; fit them all so they stay
+// tappable together on a phone.
 const PRIMARY_PIN_IDS = [
   "grove-kane-scan-splat",
   "farmers-kane-scan-splat",
+  "cafe-first-street-walk",
 ];
 
 const isExplore = document.body.dataset.page === "explore";
