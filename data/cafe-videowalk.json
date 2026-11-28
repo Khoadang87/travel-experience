@@ -1,0 +1,39 @@
+{
+  "id": "cafe-counter-videowalk",
+  "title": "Café counter, 1st Street",
+  "src": "media/videowalk/cafe-counter-walk.mp4",
+  "duration": 22.83,
+  "credit": "Private test footage inside a café near 1st Street at The Grove / Farmers Market, Los Angeles (the whole 23-second clip). Audio is off.",
+  "sourceUrl": "media/videowalk/ATTRIBUTION.md",
+  "overscale": 1.28,
+  "spots": [
+    {
+      "id": "shelves",
+      "t": 0.0,
+      "label": "Shelves (start)"
+    },
+    {
+      "id": "menu-boards",
+      "t": 5.0,
+      "label": "Menu boards"
+    },
+    {
+      "id": "machines",
+      "t": 8.0,
+      "label": "Counter machines"
+    },
+    {
+      "id": "pillar",
+      "t": 10.5,
+      "label": "By the pillar"
+    },
+    {
+      "id": "back-shelves",
+      "t": 20.0,
+      "label": "Back to the shelves"
+    }
+  ],
+  "path": [],
+  "pathNote": "No route map for this clip: it is an indoor sweep along a counter, not a path through streets.",
+  "creditDetails": "Flat video, not 360. This is a short indoor pass along a café counter, not a street walk, so the mini-map is hidden. Clip audio was omitted because staff and customers can be heard. Place: iPhone GPS about 34.0725 N, 118.3598 W (±12 m)."
+}
