@@ -37,11 +37,10 @@ export function mountVideoWalkPlayer(root) {
             <button type="button" class="icon-btn" data-close aria-label="Close">Close</button>
           </div>
         </div>
-        <p class="credit-line"><span data-sample-banner></span> <button type="button" class="text-link" data-credits>Credits</button></p>
+        <p class="credit-line"><span data-sample-banner></span> <span class="ai-edge-note" data-ai-edge-note hidden>Edges extended with AI</span> <button type="button" class="text-link" data-credits>Credits</button></p>
         <div class="credit-details" data-credit-details hidden></div>
         <div class="stage videowalk-stage" data-stage>
           <video data-video playsinline webkit-playsinline muted preload="auto"></video>
-          <p class="ai-edge-note" data-ai-edge-note hidden>Edges extended with AI</p>
           <canvas class="videowalk-minimap" data-minimap width="120" height="120" aria-label="Approximate walk map: tap to jump"></canvas>
         </div>
         <p class="look-caption" data-look-hint>
