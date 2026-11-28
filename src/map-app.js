@@ -465,6 +465,12 @@ function setupExploreList() {
       const handle = document.createElement("p");
       handle.textContent = pin.creatorHandle ? "@" + pin.creatorHandle : "";
       body.append(h, meta, handle);
+      if (pin.badge) {
+        const badge = document.createElement("p");
+        badge.className = "ai-edge-note";
+        badge.textContent = pin.badge;
+        body.appendChild(badge);
+      }
       a.append(img, body);
       list.appendChild(a);
     }

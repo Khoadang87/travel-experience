@@ -1,5 +1,5 @@
 {
-  "source": "Preview pin positions for The Grove, the Original Farmers Market, a café counter near 1st Street, and Tom Bradley International Terminal at LAX, Los Angeles.",
+  "source": "Preview pin positions for The Grove, the Original Farmers Market, a caf\u00e9 counter near 1st Street, and Tom Bradley International Terminal at LAX, Los Angeles.",
   "area": {
     "name": "The Grove and Farmers Market",
     "center": [
@@ -48,14 +48,14 @@
     },
     {
       "id": "cafe-first-street-walk",
-      "name": "Café counter, 1st Street",
+      "name": "Caf\u00e9 counter, 1st Street",
       "kind": "videowalk",
       "lng": -118.3598,
       "lat": 34.0725,
       "sourceName": "Private test footage",
       "sourceUrl": "",
-      "blurb": "A short indoor pass along a café counter near 1st Street at The Grove and Farmers Market, Los Angeles, from private test footage. Hold Move up to walk. Flat video, not 360. Audio is off because staff and customers can be heard.",
-      "label": "Café counter",
+      "blurb": "A short indoor pass along a caf\u00e9 counter near 1st Street at The Grove and Farmers Market, Los Angeles, from private test footage. Hold Move up to walk. Flat video, not 360. Audio is off because staff and customers can be heard.",
+      "label": "Caf\u00e9 counter",
       "videoWalk": "data/cafe-videowalk.json",
       "thumb": "media/thumbs/cafe.jpg",
       "city": "Los Angeles",
@@ -98,7 +98,34 @@
       "type": "Video walk",
       "creatorHandle": "lax.walker",
       "durationLabel": "2:34",
-      "durationSec": 154
+      "durationSec": 154,
+      "relatedWalk": {
+        "id": "lax-bradley-wide-preview",
+        "label": "Try a short wider-view preview (edges extended with AI)"
+      }
+    },
+    {
+      "id": "lax-bradley-wide-preview",
+      "name": "Tom Bradley International Terminal, LAX \u2014 wider view (AI preview)",
+      "kind": "videowalk",
+      "lng": -118.4081,
+      "lat": 33.9439,
+      "sourceName": "Private test footage, edges extended with AI",
+      "sourceUrl": "",
+      "blurb": "An 8-second preview of the Tom Bradley walk with a wider view. The edges were extended with AI; the real camera frame is in the centre. Hold Move up to walk (it loops). Drag farther than on the full walk to look into the extended border. Flat video, not 360. Audio is off because travelers and staff can be heard. The full 2:34 walk is unchanged and listed separately.",
+      "label": "Tom Bradley, wider view",
+      "videoWalk": "data/lax-bradley-wide-preview.json",
+      "thumb": "media/thumbs/lax-bradley-wide.jpg",
+      "city": "Los Angeles",
+      "type": "Video walk",
+      "creatorHandle": "lax.walker",
+      "durationLabel": "0:08",
+      "durationSec": 8,
+      "badge": "Edges extended with AI",
+      "relatedWalk": {
+        "id": "lax-bradley-walk",
+        "label": "Open the full 2:34 walk"
+      }
     }
   ]
 }

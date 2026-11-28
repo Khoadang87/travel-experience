@@ -2,7 +2,7 @@
 
 A preview of an official travel site where people explore real streets filmed by travelers, then share walks they filmed themselves. The visible name is an interim placeholder until the official brand is decided (see `src/site-config.js`).
 
-The current preview has video walks at The Grove, the Original Farmers Market, a café counter on 1st Street, and Tom Bradley International Terminal at LAX. Forms are front-end only. There are no real accounts, uploads, payments, ads, or emails. Success screens say “Preview: not saved.” Optional demo state stays in this browser’s localStorage only, and the UI says so.
+The current preview has video walks at The Grove, the Original Farmers Market, a café counter on 1st Street, and Tom Bradley International Terminal at LAX, plus a short wider-view AI preview of the Tom Bradley walk. Forms are front-end only. There are no real accounts, uploads, payments, ads, or emails. Success screens say “Preview: not saved.” Optional demo state stays in this browser’s localStorage only, and the UI says so.
 
 The site is marked `noindex` (`robots.txt` Disallow: / and a robots meta tag on every page). Do not merge unlicensed media to `main` — Render auto-deploys `main`.
 
@@ -21,7 +21,7 @@ The site is marked `noindex` (`robots.txt` Disallow: / and a robots meta tag on 
 ## What the walks do
 
 - Rotatable MapLibre globe using free OpenFreeMap tiles (no API key).
-- Explore the map to a street view fitted to the Grove-area walks. A fifth walk is at Tom Bradley International Terminal, LAX.
+- Explore the map to a street view fitted to the Grove-area walks. Two walks share the Tom Bradley International Terminal, LAX circle: the full 2:34 walk, and an 8-second wider-view preview whose edges were extended with AI (labelled in the UI). The preview loops, and drag-to-look is widened so you can look into the extended border; at full pan the view is still mostly the real camera frame.
 - Each walk opens in the player: hold the Move stick up to walk, and drag on the stage to look around. On a phone there is no Full screen button; Close leaves the walk.
 
 ## Run locally

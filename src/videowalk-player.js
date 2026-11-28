@@ -41,6 +41,7 @@ export function mountVideoWalkPlayer(root) {
         <div class="credit-details" data-credit-details hidden></div>
         <div class="stage videowalk-stage" data-stage>
           <video data-video playsinline webkit-playsinline muted preload="auto"></video>
+          <p class="ai-edge-note" data-ai-edge-note hidden>Edges extended with AI</p>
           <canvas class="videowalk-minimap" data-minimap width="120" height="120" aria-label="Approximate walk map: tap to jump"></canvas>
         </div>
         <p class="look-caption" data-look-hint>
@@ -120,6 +121,7 @@ export function mountVideoWalkPlayer(root) {
   let spots = [];
   let path = [];
   let overscale = OVERSCALE;
+  let loopWalk = false;
   let onClose = null;
   let onViewSplat = null;
   let seeking = false;
@@ -263,7 +265,7 @@ export function mountVideoWalkPlayer(root) {
     rate += (want - rate) * Math.min(1, dt * 8);
     const d = duration || video.duration || 0;
     const p = video.currentTime || 0;
-    if (d && p >= d - 0.08) {
+    if (d && p >= d - 0.08 && !loopWalk) {
       if (!video.paused) video.pause();
     } else if (want > 0) {
       const r = Math.max(0.5, Math.min(1, want));
@@ -466,7 +468,15 @@ export function mountVideoWalkPlayer(root) {
     path = Array.isArray(cfg.path) ? cfg.path : [];
     mm.hidden = !path.length;
     overscale = Number(cfg.overscale) > 1 ? Number(cfg.overscale) : OVERSCALE;
+    loopWalk = Boolean(cfg.loop);
+    video.loop = loopWalk;
     duration = Number(cfg.duration) || 0;
+    const note = root.querySelector("[data-ai-edge-note]");
+    if (note) {
+      const text = cfg.badge || "";
+      note.textContent = text;
+      note.hidden = !text;
+    }
     soundOn = false;
     soundBtn.textContent = "Sound off";
     soundBtn.setAttribute("aria-label", "Sound off");
@@ -554,6 +564,8 @@ export function mountVideoWalkPlayer(root) {
     coversStage,
     layout: layoutVideo,
     get pan() { return { x: look.panX, y: look.panY }; },
+    get overscale() { return overscale; },
+    get loop() { return loopWalk; },
   };
   window.__tgVideoWalk = api;
   return api;

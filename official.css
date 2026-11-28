@@ -461,3 +461,17 @@ body[data-page="explore"] .explore-empty {
 .gps-edit { margin: 8px 0 12px; }
 .gps-edit summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--accent); font-size: 14px; }
 .gps-edit-fields { display: grid; gap: 8px; margin-top: 4px; }
+
+.ai-edge-note {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--muted);
+}
+.walk-card .ai-edge-note,
+.pin-reveal .ai-edge-note {
+  margin: 2px 0 0;
+  font-size: 11px;
+}
+#walk-badge.ai-edge-note { margin: 0 0 8px; }
+#walk-related { margin: 0 0 12px; font-size: 14px; }

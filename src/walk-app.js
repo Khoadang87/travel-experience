@@ -68,6 +68,8 @@ function startWalk() {
     spots: currentWalk.spots,
     path: currentWalk.path,
     overscale: currentWalk.overscale,
+    loop: currentWalk.loop,
+    badge: currentWalk.badge || currentPin.badge,
     ambience: "media/videowalk/ambience-standin.m4a",
     onClose() {},
   });
@@ -99,6 +101,25 @@ async function boot() {
   const bits = [pin.city, pin.type, pin.durationLabel].filter(Boolean);
   document.getElementById("walk-meta").textContent = bits.join(" · ");
   document.getElementById("walk-blurb").textContent = pin.blurb || "";
+  const badge = document.getElementById("walk-badge");
+  if (badge) {
+    const text = pin.badge || "";
+    badge.textContent = text;
+    badge.hidden = !text;
+  }
+  const related = document.getElementById("walk-related");
+  if (related) {
+    related.innerHTML = "";
+    if (pin.relatedWalk && pin.relatedWalk.id) {
+      const a = document.createElement("a");
+      a.href = "walk.html?id=" + encodeURIComponent(pin.relatedWalk.id);
+      a.textContent = pin.relatedWalk.label || "Related walk";
+      related.appendChild(a);
+      related.hidden = false;
+    } else {
+      related.hidden = true;
+    }
+  }
   article.hidden = false;
 
   if (pin.videoWalk) {

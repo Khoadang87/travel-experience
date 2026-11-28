@@ -79,7 +79,8 @@ export function createPinReveal(map, { onOpen } = {}) {
     }
     const list = document.createElement("ul");
     list.className = "pin-reveal-list";
-    for (const entry of group) {
+    const ordered = group.slice().sort((a, b) => entries.indexOf(a) - entries.indexOf(b));
+    for (const entry of ordered) {
       const li = document.createElement("li");
       const title = document.createElement("strong");
       title.className = "pin-reveal-title";
@@ -91,6 +92,12 @@ export function createPinReveal(map, { onOpen } = {}) {
         m.className = "pin-reveal-meta";
         m.textContent = meta;
         li.appendChild(m);
+      }
+      if (entry.pin.badge) {
+        const b = document.createElement("span");
+        b.className = "ai-edge-note";
+        b.textContent = entry.pin.badge;
+        li.appendChild(b);
       }
       const open = document.createElement("a");
       open.className = "primary pin-reveal-open";
