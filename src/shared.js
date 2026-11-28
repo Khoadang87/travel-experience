@@ -157,70 +157,62 @@ export const SAMPLE_360 = {
 export const PRIVATE_TEST = false;
 export const DEFAULT_360 = SAMPLE_360;
 
-// Flat-video demo: a real Walk of Fame clip shown on a curved screen
-// inside the 360 player. Flat footage, not true 360. Pexels License.
-export const FLAT = {
-  src: "media/walk-of-fame-flat.mp4",
-  srcLow: "media/walk-of-fame-flat-low.mp4",
-  poster: "media/walk-of-fame-flat-poster.jpg",
-  title: "Walk of Fame corner — flat video on a curved screen",
-  credit:
-    "Flat video demo: people walking the Hollywood Walk of Fame — Dimitri Baret, Pexels License (free to use). Shown on a curved screen; flat footage, not true 360.",
-  commons: "https://www.pexels.com/video/walk-of-fame-in-los-angeles-13560787/",
-  license: "Pexels License",
-  licenseUrl: "https://www.pexels.com/license/",
-};
-
-// Example business pin: the same rights-cleared Pexels flat clip as FLAT,
-// credited as an example of what a buyer's 60-second pin looks like.
-export const FLAT_BUSINESS = {
-  src: "media/walk-of-fame-flat.mp4",
-  srcLow: "media/walk-of-fame-flat-low.mp4",
-  poster: "media/walk-of-fame-flat-poster.jpg",
-  title: "Example business pin — your business here",
-  credit:
-    "EXAMPLE business pin — demo only, not a real listing: this is how a buyer's 60-second clip would appear — the demo clip here is a 30-second excerpt. Same free-to-use Pexels clip (Dimitri Baret, Pexels License) shown on a curved screen; flat footage, not true 360.",
-  commons: "https://www.pexels.com/video/walk-of-fame-in-los-angeles-13560787/",
-  license: "Pexels License",
-  licenseUrl: "https://www.pexels.com/license/",
-};
-
-
-// Placeholder Gaussian splat — a CC0 test room, not a Hollywood location
-// and not a capture of the pin's real surroundings.
-export const PLACEHOLDER_SPLAT = {
-  src: "media/splat/kyoto-room.sog",
-  title: "Splat preview (test)",
-  credit:
-    "Test asset, not the real place. Kyoto room Gaussian splat from SharedTestModels (raymondyfei), CC0 1.0.",
-  commons: "https://github.com/raymondyfei/SharedTestModels",
-  license: "CC0 1.0",
-  licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
-  // Interior start pose, worked out from the decoded SOG means: drop
-  // sparse log-range outliers, take the dense room (about 6.5 × 3.4 × 7.6),
-  // floor near y = 0, eye height 1.52, looking toward the +Z wall (the
-  // densest mid-height face). A later real capture should set its own
-  // splatView / view rather than reuse these numbers.
-  view: {
-    position: [-0.19, 1.52, -2.56],
-    lookAt: [-0.19, 1.4, 1.15],
-    boundsMin: [-2.66, 0.9, -5.6],
-    boundsMax: [2.96, 2.2, 0.95],
-  },
-  // Per-pin avatar and path. A later real capture should set its own.
-  avatar: {
-    src: "media/avatar/ToyCar.glb",
-    // Official ToyCar is ~3.8 cm long after its baked 0.0001 node scale.
-    // 15× makes a ~0.58 m toy/RC car, visible in the room but clear of the bed.
-    scale: 15,
-    length: 0.58,
-  },
-  path: "data/splat-path.json",
-};
-
 export function currentPage() {
   const p = location.pathname;
   if (p.endsWith("creator.html")) return "creator";
   if (p.endsWith("admin.html")) return "admin";
   return "map";
+}
+
+
+export const SITE_CREDITS_HTML = `
+  <p>Map tiles from OpenFreeMap. Map data © OpenStreetMap contributors.</p>
+  <h3>Video walks</h3>
+  <p>The Grove, Farmers Market, café counter, and Tom Bradley International Terminal (LAX) walks use private test footage at those places in Los Angeles. Audio was omitted because bystanders can be heard.</p>
+  <h3>Creator trial preview</h3>
+  <p>The free creator-trial preview uses a labeled 360 stand-in of Anıtkabir, Ankara — 360TR, CC BY 3.0. It is not footage from this map and not a creator upload. The same credit is shown whenever that clip plays.</p>
+`;
+
+export function bindCredits() {
+  const dialog = document.getElementById("credits-dialog");
+  const body = document.getElementById("credits-body");
+  const openBtn = document.getElementById("btn-credits");
+  if (!dialog || !body) return;
+  if (!body.innerHTML.trim()) body.innerHTML = SITE_CREDITS_HTML;
+  function open() {
+    dialog.hidden = false;
+    const close = dialog.querySelector("[data-credits-close]");
+    if (close) close.focus();
+  }
+  function close() { dialog.hidden = true; }
+  if (openBtn) openBtn.addEventListener("click", open);
+  dialog.querySelectorAll("[data-credits-close]").forEach((b) => b.addEventListener("click", close));
+  dialog.addEventListener("click", (e) => { if (e.target === dialog) close(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !dialog.hidden) close();
+  });
+}
+
+const LOOK_HINT_KEY = "tg:look-hint-used";
+
+/** Fade the look/walk hint after first stick or look-drag use. */
+export function bindFadeHint(el) {
+  if (!el) return () => {};
+  let used = false;
+  try { used = sessionStorage.getItem(LOOK_HINT_KEY) === "1"; } catch (_) {}
+  if (used) {
+    el.classList.add("is-faded");
+    el.setAttribute("aria-hidden", "true");
+    return () => {};
+  }
+  let marked = false;
+  return function markHintUsed() {
+    if (marked) return;
+    marked = true;
+    try { sessionStorage.setItem(LOOK_HINT_KEY, "1"); } catch (_) {}
+    window.setTimeout(() => {
+      el.classList.add("is-faded");
+      el.setAttribute("aria-hidden", "true");
+    }, 1400);
+  };
 }

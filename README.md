@@ -1,30 +1,28 @@
-# Walk of Fame Globe (prototype)
+# LA Walks Preview
 
-A first working prototype of the travel-experience scope: a WebGL globe that zooms into a 2D street map of the Hollywood Walk of Fame, with clickable pins and a 360 player. There are no real payments, ads, emails, or accounts.
+A preview of an official travel site where people explore real streets filmed by travelers, then share walks they filmed themselves. The visible name is an interim placeholder until the official brand is decided (see `src/site-config.js`).
+
+The current preview has video walks at The Grove, the Original Farmers Market, a café counter on 1st Street, and Tom Bradley International Terminal at LAX, plus short wider-view AI previews of the trolley-street walk and the Tom Bradley walk. Forms are front-end only. There are no real accounts, uploads, payments, ads, or emails. Success screens say “Preview: not saved.” Optional demo state stays in this browser’s localStorage only, and the UI says so.
 
 The site is marked `noindex` (`robots.txt` Disallow: / and a robots meta tag on every page). Do not merge unlicensed media to `main` — Render auto-deploys `main`.
 
-## What it does
+## Pages
+
+- Home (`index.html`): hero globe, featured walks, how it works.
+- Explore (`explore.html`): map, filters, and a list / bottom sheet.
+- Walk detail (`walk.html`): player, placeholder creator handle, location, length, and explore spots.
+- Sign up / Log in: front-end validation only; Google and Apple buttons are disabled and labeled coming soon.
+- Share your walk (`upload.html`): multi-step preview flow; the file is never uploaded. When a video is picked, the browser reads its location on this device only (`src/video-gps.js`: QuickTime `com.apple.quicktime.location.ISO6709` and the MP4 `©xyz` atom; the 3GPP `loci` atom is not read). The pin on step 2 is placed there with a “Location detected from your video” note, and it can be dragged, moved by typing coordinates, or reset. With no location in the file (some phones remove it when a video is picked from Photos), the creator pins manually. “Look up place name” is optional and sends only the pin's coordinates to OpenStreetMap Nominatim (no key); it is never called automatically.
+- Map pins (home globe, explore globe and street zoom; `src/pin-reveal.js`): each walk is a small circle with no visible name. Tap or click shows a card with the title and an Open walk link; tap elsewhere or press Escape hides it. Circles are keyboard focusable buttons with the walk name as `aria-label`, and the hit area is 44 px (36 px on desktop with a mouse). Circles closer than one hit area share one card that lists every walk there.
+- My walks (`me.html`): empty and demo-session states.
+- About, Guidelines, Privacy, and Terms: draft placeholders.
+- The older creator submission and business sales pages redirect to Share your walk and About. `admin.html` remains an unlinked internal mock.
+
+## What the walks do
 
 - Rotatable MapLibre globe using free OpenFreeMap tiles (no API key).
-- Zoom, or tap **Go to Walk of Fame**, to a 2D street map fitted to the TCL Chinese Theatre / Dolby Theatre cluster (with padding for the on-screen HUD).
-- Pins at TCL Chinese Theatre, Dolby Theatre, star segments along the boulevard, a flat-video demo, and an example business pin. Coordinates come from English Wikipedia (see `data/pins.json`).
-- Each pin opens a 360 player with drag-to-look, an on-screen Look stick, and a Move stick: push up/down to walk forward/back, left/right to turn. The clip opens paused and only moves while you walk with the Move stick (or press Play) — when you stop, the scene stops.
-- Creator form (mock): a one-week submission window with a countdown, one free 45-second watermarked trial render per creator email in this browser, and placement fees shown as $25 / $39 (figure to review).
-- Business sales page: Standard / Featured pins shown as $250 / $500 (figure to review). No real payment is taken.
-- Admin panel: free-to-start period of about two months with no ads, then a mock ad banner; creator revenue-share percent is a placeholder labeled to review.
-
-## Sample 360 footage
-
-No clearly licensed Hollywood Boulevard 360 video was found on Wikimedia Commons or Pexels. The player uses a labeled stand-in:
-
-- Source: [Anıtkabir 360 walking video](https://commons.wikimedia.org/wiki/File:An%C4%B1tkabir_(%20Atat%C3%BCrk%20)_360_Derece_Video_Panorama_Gezinti_-_360_Degree_Video.webm) by 360TR
-- License: [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)
-- Local file: a 22-second, 1280×682, muted excerpt in `media/sample-360.mp4` (see `media/LICENSE.txt`)
-
-The app never presents this clip as Walk of Fame footage or as a creator submission.
-
-A separate flat-video demo uses a Pexels License clip of the Walk of Fame (Dimitri Baret) on a curved screen — flat footage, not true 360.
+- Explore the map to a street view fitted to the Grove-area walks. Two walks share the trolley-street circle at The Grove, and two share the Tom Bradley International Terminal, LAX circle: in each case the full walk and an 8-second wider-view preview whose edges were extended with AI (labelled in the UI). Those previews loop, and drag-to-look is widened so you can look into the extended border; at full pan the view is still mostly the real camera frame.
+- Each walk opens in the player: hold the Move stick up to walk, and drag on the stage to look around. On a phone there is no Full screen button; Close leaves the walk.
 
 ## Run locally
 
@@ -33,9 +31,9 @@ npm install
 npm start
 ```
 
-`npm start` builds a self-contained `site/` folder (HTML, JS, vendored MapLibre/three.js, and the sample 360 clip) and serves it at http://127.0.0.1:8765/.
+`npm start` builds a self-contained `site/` folder (HTML, JS, vendored MapLibre/three.js, and media) and serves it at http://127.0.0.1:8765/.
 
-Then open http://127.0.0.1:8765/ in a desktop browser. Phone Safari works with the same UI (touch joysticks, `playsinline` video) once the phone can reach the server.
+Then open http://127.0.0.1:8765/ in a desktop browser. Phone Safari works with the same UI (touch stick, `playsinline` video) once the phone can reach the server.
 
 ```bash
 npm test

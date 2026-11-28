@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Explore filmed street walks on the map, with a list and simple filters.">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#1e5a54">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="LA Walks Preview">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Explore the map — LA Walks Preview</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="official.css">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css">
+</head>
+<body data-page="explore">
+  <a class="skip-link" href="#explore-panel">Skip to content</a>
+  <header class="top">
+    <a class="brand" href="index.html">
+      <strong>LA Walks Preview</strong>
+      <span class="badge">Preview</span>
+    </a>
+    <button type="button" class="menu-btn" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">Menu</button>
+    <div class="nav-backdrop" id="nav-backdrop" hidden></div>
+    <nav id="site-nav" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="explore.html" aria-current="page">Explore</a>
+      <a href="upload.html">Share your walk</a>
+      <a href="me.html">My walks</a>
+      <a href="login.html">Log in</a>
+      <a class="nav-signup" href="signup.html">Sign up</a>
+    </nav>
+  </header>
+  <p class="preview-banner" role="status"><strong>Preview:</strong> This is a preview of the official site. Forms are front-end only and are not saved to a server.</p>
+
+  <div id="map" role="application" aria-label="Map of available walks"></div>
+  <div class="sr-only" aria-live="polite">
+    <span id="mode-badge">Street map</span>
+    <span id="map-status">Loading map…</span>
+  </div>
+  <section class="explore-panel" id="explore-panel" aria-labelledby="explore-heading">
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <div class="explore-filters">
+      <h2 id="explore-heading" class="sr-only">Walks on the map</h2>
+      <label>City
+        <select id="filter-city" autocomplete="off">
+          <option value="">All cities</option>
+        </select>
+      </label>
+      <label>Type
+        <select id="filter-type" autocomplete="off">
+          <option value="">All types</option>
+        </select>
+      </label>
+    </div>
+    <button type="button" class="sheet-toggle" id="sheet-toggle" hidden>Show more walks</button>
+    <div class="explore-list" id="explore-list"></div>
+    <p class="explore-empty" id="explore-empty" hidden>No walks match those filters in this preview.</p>
+  </section>
+  <div id="player-root" hidden></div>
+  <div id="splat-root" hidden></div>
+  <div id="videowalk-root" hidden></div>
+  <div id="pin-card" hidden></div>
+  <div id="places-panel" hidden></div>
+  <div id="adbar" hidden></div>
+  <button type="button" id="btn-wof" hidden>Fit walks</button>
+  <button type="button" id="btn-all-pins" hidden>See all places</button>
+  <button type="button" id="btn-globe" hidden>World view</button>
+  <script type="importmap">
+  {
+    "imports": {
+      "maplibre-gl": "./vendor/maplibre-gl.mjs",
+      "three": "./vendor/three.module.js",
+      "three/addons/": "./vendor/three/addons/",
+      "@sparkjsdev/spark": "./vendor/spark.module.js"
+    }
+  }
+  </script>
+  <script type="module" src="src/site-chrome.js"></script>
+  <script type="module" src="src/map-app.js"></script>
+</body>
+</html>

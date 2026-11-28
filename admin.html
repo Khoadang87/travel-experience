@@ -6,24 +6,36 @@
   <meta name="robots" content="noindex">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <title>Admin — Walk of Fame Globe</title>
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#1e5a54">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="LA Walks Preview">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Admin — LA Walks Preview</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="official.css">
 </head>
 <body data-page="admin">
   <header class="top">
-    <div class="brand">
-      <strong>Walk of Fame Globe</strong>
-      <span>Prototype — 360 stand-in, not Hollywood</span>
-    </div>
-    <nav>
-      <a href="index.html">Map</a>
-      <a href="creator.html">Submit</a>
-      <a href="sales.html">For businesses</a>
-      <a href="admin.html" aria-current="page">Admin</a>
+    <a class="brand" href="index.html">
+      <strong>LA Walks Preview</strong>
+      <span class="badge">Preview</span>
+    </a>
+    <button type="button" class="menu-btn" id="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">Menu</button>
+    <div class="nav-backdrop" id="nav-backdrop" hidden></div>
+    <nav id="site-nav" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="explore.html">Explore</a>
+      <a href="upload.html">Share your walk</a>
+      <a href="me.html">My walks</a>
+      <a href="login.html">Log in</a>
+      <a class="nav-signup" href="signup.html">Sign up</a>
     </nav>
   </header>
   <main class="page">
     <h1>Monetization settings</h1>
+    <p class="muted">Internal preview page — not linked from the official site navigation.</p>
     <p class="lead">Local mock only. These controls do not connect to an ad network, payments, or email. Dates are shown and stored as Pacific Time.</p>
     <p id="live-window"></p>
     <p id="live-ads"></p>
@@ -48,5 +60,20 @@
     <p id="admin-status"></p>
   </main>
   <script type="module" src="src/admin-app.js"></script>
+
+  <footer class="site-footer">
+    <button type="button" class="text-link" id="btn-credits">Credits</button>
+    <a href="admin.html" aria-current="page">Admin</a>
+  </footer>
+  <div id="credits-dialog" class="credits-shell" hidden>
+    <div class="credits-panel" role="dialog" aria-modal="true" aria-labelledby="credits-title">
+      <div class="places-top">
+        <h2 id="credits-title">Credits</h2>
+        <button type="button" class="icon-btn" data-credits-close aria-label="Close">Close</button>
+      </div>
+      <div class="credits-body" id="credits-body"></div>
+    </div>
+  </div>
+  <script type="module" src="src/site-chrome.js"></script>
 </body>
 </html>

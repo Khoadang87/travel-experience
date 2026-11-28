@@ -11,14 +11,37 @@ async function shot(page, name) {
   return file;
 }
 
-const PRIMARY_PIN_NAMES = ["TCL Chinese Theatre", "Dolby Theatre"];
+const PRIMARY_PIN_NAMES = ["The Grove", "Farmers Market", "Café counter, 1st Street", "The Grove, trolley street"];
 
 async function goToWalk(page) {
-  await page.getByRole("button", { name: "Go to Walk of Fame" }).click();
-  await page.waitForFunction(() => {
-    const map = window.__tgMap;
-    return map && map.getZoom() >= 15 && document.body.dataset.mode === "street" && window.__tgStreetFitted === true;
-  }, null, { timeout: 25000 });
+  if (!page.url().includes("explore.html")) {
+    await page.goto("/explore.html");
+  }
+  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
+  await page.waitForFunction(() => window.__tgStreetFitted === true, null, { timeout: 25000 });
+}
+
+async function openWalk(page, id = "grove-kane-scan-splat") {
+  await page.goto("/walk.html?id=" + id);
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+}
+
+async function visibleKane(page) {
+  return page.evaluate(() => {
+    const hits = [];
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const text = walker.currentNode.textContent || "";
+      if (/kane/i.test(text)) {
+        const parent = walker.currentNode.parentElement;
+        const style = parent ? getComputedStyle(parent) : null;
+        const hidden = !parent || style.display === "none" || style.visibility === "hidden" || parent.hidden || parent.closest("[hidden]");
+        if (!hidden) hits.push(text.trim().slice(0, 160));
+      }
+    }
+    return hits;
+  });
 }
 
 function boxesOverlap(a, b) {
@@ -38,391 +61,68 @@ async function jumpToPin(page, id) {
 
 test.describe.configure({ mode: "serial" });
 
-test("globe renders, street zoom and pins open the 360 player, joystick works", async ({ page }) => {
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
+test("explore map fits the walks and pins open the Grove video walk", async ({ page }) => {
+  await goToWalk(page);
   const canvas = page.locator("#map .maplibregl-canvas, #map canvas").first();
   await expect(canvas).toBeVisible();
-  await page.waitForTimeout(2000);
-  await shot(page, "01-globe.png");
-
-  await goToWalk(page);
   await page.waitForTimeout(1500);
-  await expect(page.locator("#mode-badge")).toHaveText("Street map");
-  await expect(page.locator(".map-pin")).toHaveCount(10);
-  await expect(page.getByRole("button", { name: "TCL Chinese Theatre" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Dolby Theatre" })).toBeVisible();
+  await expect(page.locator("body")).toHaveAttribute("data-mode", "street");
+  await expect(page.locator(".map-dot")).toHaveCount(7);
+  await expect(page.getByRole("button", { name: "The Grove", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Farmers Market" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Café counter" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "The Grove, trolley street", exact: true })).toBeVisible();
   await shot(page, "02-street-pins.png");
 
-  await page.getByRole("button", { name: "TCL Chinese Theatre" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeVisible();
-  await expect(page.locator("#player-root [data-sample-banner]")).toContainText("360 stand-in");
-  await expect(page.locator("#player-root [data-sample-banner]")).toContainText("not Hollywood");
-  await expect(page.locator("#player-root [data-sample-banner]")).toContainText("not creator");
-  await expect(page.locator("#player-root [data-sample-banner]")).toContainText("CC BY 3.0");
-  await page.waitForFunction(() => window.__tgPlayer && window.__tgPlayer.video && window.__tgPlayer.video.readyState >= 2, null, { timeout: 20000 });
-  const standinSrc = await page.evaluate(() => window.__tgPlayer.video.currentSrc);
-  expect(standinSrc).toMatch(/sample-360(-low)?\.mp4/);
-  expect(standinSrc).not.toContain("hollywood-360");
-  await expect(page.locator("[data-poster]")).toHaveAttribute("src", /sample-360-poster/);
-  await expect(page.getByRole("button", { name: /fullscreen/i })).toBeVisible();
-  const hollywoodRate = await page.evaluate(() => window.__tgPlayer.video.playbackRate);
-  expect(hollywoodRate).toBe(0.5);
+  await page.getByRole("button", { name: "The Grove", exact: true }).click();
+  await expect(page.locator(".pin-reveal")).toContainText("The Grove");
+  await page.getByRole("link", { name: "Open walk: The Grove", exact: true }).click();
+  await page.waitForURL(/walk\.html\?id=/);
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await expect(page.locator("#player-root .player-shell")).toBeHidden();
+  await expect(page.locator("#splat-root .player-shell")).toBeHidden();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("Private test");
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("The Grove");
+  await expect(page.locator("#videowalk-root [data-stick='move']")).toBeVisible();
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
   await page.waitForTimeout(800);
   await shot(page, "03-player-open.png");
 
-  const before = await page.evaluate(() => ({
-    yaw: window.__tgPlayer.yaw,
-    time: window.__tgPlayer.currentTime,
-  }));
-  await page.evaluate(() => {
-    window.__tgPlayer.setYaw(window.__tgPlayer.yaw - 1.0);
-  });
-  const moveStick = page.locator('#player-root [data-stick="move"]');
-  const box = await moveStick.boundingBox();
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.mouse.move(box.x + box.width / 2, box.y + 8, { steps: 8 });
-  await page.waitForTimeout(700);
-  await page.mouse.up();
-  const after = await page.evaluate(() => ({
-    yaw: window.__tgPlayer.yaw,
-    time: window.__tgPlayer.currentTime,
-  }));
-  expect(Math.abs(after.yaw - before.yaw)).toBeGreaterThan(0.2);
-  // Move stick pulled down (negative screen y is up; we moved down toward bottom) should scrub backward or stay near start;
-  // also force a scrub via API if the clip just started.
-  await page.evaluate(() => {
-    window.__tgPlayer.setWalkAxis(0);
-    window.__tgPlayer.setLookAxis(0, 0);
-  });
-  await page.waitForFunction(() => {
-    const v = window.__tgPlayer && window.__tgPlayer.video;
-    return v && Number.isFinite(v.duration) && v.duration > 5 && v.readyState >= 2;
-  });
-  const mid = await page.evaluate(async () => {
-    const p = window.__tgPlayer;
-    p.video.pause();
-    const target = Math.min(8, p.maxTime() * 0.4);
-    await new Promise((resolve) => {
-      const done = () => {
-        p.video.removeEventListener("seeked", done);
-        resolve();
-      };
-      p.video.addEventListener("seeked", done);
-      p.setCurrentTime(target);
-      setTimeout(done, 1000);
-    });
-    return p.currentTime;
-  });
-  expect(mid).toBeGreaterThan(1);
+  const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, -1));
+  await page.waitForFunction((start) => window.__tgVideoWalk && window.__tgVideoWalk.currentTime > start + 0.35, t0, { timeout: 20000 });
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, 0));
+  const pan0 = await page.evaluate(() => window.__tgVideoWalk.pan);
+  await page.evaluate(() => window.__tgVideoWalk.setLookAxis(1, 0.6));
+  await page.waitForTimeout(400);
+  const pan1 = await page.evaluate(() => window.__tgVideoWalk.pan);
+  expect(Math.abs(pan1.x - pan0.x) + Math.abs(pan1.y - pan0.y)).toBeGreaterThan(1);
+  await page.evaluate(() => window.__tgVideoWalk.setLookAxis(0, 0));
   await shot(page, "04-player-look-scrub.png");
-  await page.getByRole("button", { name: "Close player" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeHidden();
+  await page.getByRole("button", { name: "Close" }).click();
+  await expect(page.locator("#videowalk-root .player-shell")).toBeHidden();
   await expect(page.locator("#pin-card")).toBeHidden();
 });
 
-test("Move stick walks forward/back and turns left/right from one stick", async ({ page }) => {
+test("home page uses the interim brand, featured walks, and how-it-works", async ({ page }) => {
   await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
-  await goToWalk(page);
-  await page.getByRole("button", { name: "TCL Chinese Theatre" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeVisible();
-  await page.waitForFunction(() => window.__tgPlayer && window.__tgPlayer.video && window.__tgPlayer.video.readyState >= 2, null, { timeout: 20000 });
-  await expect(page.locator('#player-root [data-stick="move"]')).toBeVisible();
-  await expect(page.locator("#player-root .look-hint")).toContainText("the clip moves only while you walk");
-
-  // Pause so the clip's own playback doesn't move currentTime while we measure.
-  const start = await page.evaluate(async () => {
-    const p = window.__tgPlayer;
-    p.video.pause();
-    const target = Math.min(10, p.maxTime() * 0.4);
-    await new Promise((resolve) => {
-      const done = () => {
-        p.video.removeEventListener("seeked", done);
-        resolve();
-      };
-      p.video.addEventListener("seeked", done);
-      p.setCurrentTime(target);
-      setTimeout(done, 1000);
-    });
-    return { time: p.currentTime, yaw: p.yaw };
-  });
-  expect(start.time).toBeGreaterThan(1);
-
-  // Push the Move stick up (API y=-1): walk forward.
-  // (Settle the stick to zero before each direction: the ease-out
-  // makes reversing direction slower than starting from rest.)
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, 0));
-  await page.waitForTimeout(800);
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, -1));
-  await page.waitForTimeout(1500);
-  const fwd = await page.evaluate(() => window.__tgPlayer.currentTime);
-  expect(fwd).toBeGreaterThan(start.time + 0.1);
-
-  // Push it down (y=+1): walk back.
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, 0));
-  await page.waitForTimeout(800);
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, 1));
-  await page.waitForTimeout(1500);
-  const back = await page.evaluate(() => window.__tgPlayer.currentTime);
-  expect(back).toBeLessThan(fwd - 0.1);
-
-  // Push it left (x=-1): turn left (yaw increases).
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, 0));
-  await page.waitForTimeout(800);
-  const yawBeforeLeft = await page.evaluate(() => window.__tgPlayer.yaw);
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(-1, 0));
-  await page.waitForTimeout(1500);
-  const yawLeft = await page.evaluate(() => window.__tgPlayer.yaw);
-  expect(yawLeft).toBeGreaterThan(yawBeforeLeft + 0.15);
-
-  // Push it right (x=+1): turn right (yaw decreases).
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, 0));
-  await page.waitForTimeout(800);
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(1, 0));
-  await page.waitForTimeout(1500);
-  const yawRight = await page.evaluate(() => window.__tgPlayer.yaw);
-  expect(yawRight).toBeLessThan(yawLeft - 0.15);
-
-  // Release: movement eases to a stop and stays stopped. (The ease-out
-  // takes ~15 animation frames, so wait a full second before sampling.)
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, 0));
-  await page.waitForTimeout(1000);
-  const rest = await page.evaluate(() => ({ time: window.__tgPlayer.currentTime, yaw: window.__tgPlayer.yaw }));
-  await page.waitForTimeout(500);
-  const rest2 = await page.evaluate(() => ({ time: window.__tgPlayer.currentTime, yaw: window.__tgPlayer.yaw }));
-  expect(Math.abs(rest2.time - rest.time)).toBeLessThan(0.05);
-  expect(Math.abs(rest2.yaw - rest.yaw)).toBeLessThan(0.01);
-
-  // Keyboard A/D turn the same way as the stick.
-  const yawBeforeKey = await page.evaluate(() => window.__tgPlayer.yaw);
-  await page.keyboard.press("a");
-  const yawA = await page.evaluate(() => window.__tgPlayer.yaw);
-  expect(yawA).toBeGreaterThan(yawBeforeKey);
-  await page.keyboard.press("d");
-  const yawD = await page.evaluate(() => window.__tgPlayer.yaw);
-  expect(yawD).toBeLessThan(yawA);
-
-  // Real pointer drag on the Move stick, up: walks forward.
-  const moveStick = page.locator('#player-root [data-stick="move"]');
-  const box = await moveStick.boundingBox();
-  const beforeDrag = await page.evaluate(() => window.__tgPlayer.currentTime);
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.mouse.move(box.x + box.width / 2, box.y + 8, { steps: 8 });
-  await page.waitForTimeout(800);
-  await page.mouse.up();
-  const afterDrag = await page.evaluate(() => window.__tgPlayer.currentTime);
-  expect(afterDrag).toBeGreaterThan(beforeDrag + 0.05);
-
-  await shot(page, "13-move-stick.png");
-  await page.getByRole("button", { name: "Close player" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeHidden();
-});
-
-test("Move stick walks forward/back while the clip is PLAYING (pause-while-walking)", async ({ page }) => {
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
-  await goToWalk(page);
-  await page.getByRole("button", { name: "TCL Chinese Theatre" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeVisible();
-  await page.waitForFunction(() => window.__tgPlayer && window.__tgPlayer.video && window.__tgPlayer.video.readyState >= 2, null, { timeout: 20000 });
-
-  // The clip must be playing for this test: forward micro-seeks are
-  // absorbed by the media engine while it plays, which is the bug
-  // this test guards (Move-up did nothing live while playing).
-  await page.evaluate(() => window.__tgPlayer.video.play().catch(() => {}));
-  await page.waitForFunction(() => window.__tgPlayer && !window.__tgPlayer.video.paused, null, { timeout: 10000 });
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, 0));
-  await page.waitForTimeout(500);
-
-  // Baseline: no input, 2s. At 0.5x the clip advances ~1.0s.
-  const b0 = await page.evaluate(() => window.__tgPlayer.currentTime);
-  await page.waitForTimeout(2000);
-  const b1 = await page.evaluate(() => window.__tgPlayer.currentTime);
-  const baseline = b1 - b0;
-  expect(baseline).toBeGreaterThan(0.5);
-  expect(baseline).toBeLessThan(1.5);
-
-  // Move stick up while playing: must advance clearly faster than the
-  // no-input baseline over the same 2s hold (scrub ~0.9 clip-s per
-  // wall-s on top of nothing, since the video pauses while walking),
-  // and the video must be paused during the hold.
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, -1));
-  await page.waitForTimeout(300);
-  const pausedDuringUp = await page.evaluate(() => window.__tgPlayer.video.paused);
-  expect(pausedDuringUp).toBe(true);
-  const u0 = await page.evaluate(() => window.__tgPlayer.currentTime);
-  await page.waitForTimeout(2000);
-  const u1 = await page.evaluate(() => window.__tgPlayer.currentTime);
-  expect(u1 - u0).toBeGreaterThan(baseline + 0.5);
-
-  // Release: playback resumes because it was playing before the walk.
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, 0));
-  await page.waitForFunction(() => window.__tgPlayer && !window.__tgPlayer.video.paused, null, { timeout: 5000 });
-
-  // Move stick down while playing: must rewind, and pause during the hold.
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, 1));
-  await page.waitForTimeout(300);
-  const pausedDuringDown = await page.evaluate(() => window.__tgPlayer.video.paused);
-  expect(pausedDuringDown).toBe(true);
-  const d0 = await page.evaluate(() => window.__tgPlayer.currentTime);
-  await page.waitForTimeout(2000);
-  const d1 = await page.evaluate(() => window.__tgPlayer.currentTime);
-  expect(d1).toBeLessThan(d0 - 0.5);
-
-  // Release again: playback resumes.
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, 0));
-  await page.waitForFunction(() => window.__tgPlayer && !window.__tgPlayer.video.paused, null, { timeout: 5000 });
-
-  // Turning only must NOT pause the clip.
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(1, 0));
-  await page.waitForTimeout(800);
-  const pausedWhileTurning = await page.evaluate(() => window.__tgPlayer.video.paused);
-  expect(pausedWhileTurning).toBe(false);
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, 0));
-
-  await shot(page, "14-move-stick-while-playing.png");
-  await page.getByRole("button", { name: "Close player" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeHidden();
-});
-
-test("clip stays still until the Move stick walks", async ({ page }) => {
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
-  await goToWalk(page);
-  await page.getByRole("button", { name: "TCL Chinese Theatre" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeVisible();
-  await page.waitForFunction(() => window.__tgPlayer && window.__tgPlayer.video && window.__tgPlayer.video.readyState >= 2, null, { timeout: 20000 });
-
-  // Opens paused at the start, and stays still with no input.
-  expect(await page.evaluate(() => window.__tgPlayer.video.paused)).toBe(true);
-  const t0 = await page.evaluate(() => window.__tgPlayer.currentTime);
-  expect(t0).toBeLessThan(0.5);
-  await page.waitForTimeout(2000);
-  const tStill = await page.evaluate(() => window.__tgPlayer.currentTime);
-  expect(tStill).toBeLessThan(0.5);
-  expect(await page.evaluate(() => window.__tgPlayer.video.paused)).toBe(true);
-
-  // Move stick up: the clip scrubs forward while the video stays paused.
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, -1));
-  await page.waitForTimeout(1500);
-  const tWalk = await page.evaluate(() => window.__tgPlayer.currentTime);
-  expect(tWalk).toBeGreaterThan(tStill + 0.3);
-  expect(await page.evaluate(() => window.__tgPlayer.video.paused)).toBe(true);
-
-  // Release: the clip stops advancing and stays paused.
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, 0));
-  await page.waitForTimeout(1000);
-  const r0 = await page.evaluate(() => window.__tgPlayer.currentTime);
-  await page.waitForTimeout(500);
-  const r1 = await page.evaluate(() => window.__tgPlayer.currentTime);
-  expect(Math.abs(r1 - r0)).toBeLessThan(0.05);
-  expect(await page.evaluate(() => window.__tgPlayer.video.paused)).toBe(true);
-
-  // Look stick still turns the view while the clip is paused.
-  const yawBefore = await page.evaluate(() => window.__tgPlayer.yaw);
-  await page.evaluate(() => window.__tgPlayer.setLookAxis(1, 0));
-  await page.waitForTimeout(1500);
-  await page.evaluate(() => window.__tgPlayer.setLookAxis(0, 0));
-  const yawAfter = await page.evaluate(() => window.__tgPlayer.yaw);
-  expect(Math.abs(yawAfter - yawBefore)).toBeGreaterThan(0.15);
-
-  // Play button is the explicit opt-in: the clip plays at half speed.
-  await page.getByRole("button", { name: "Play", exact: true }).click();
-  await page.waitForFunction(() => window.__tgPlayer && !window.__tgPlayer.video.paused, null, { timeout: 5000 });
-  const p0 = await page.evaluate(() => window.__tgPlayer.currentTime);
-  await page.waitForTimeout(2000);
-  const p1 = await page.evaluate(() => window.__tgPlayer.currentTime);
-  expect(p1 - p0).toBeGreaterThan(0.5);
-  expect(p1 - p0).toBeLessThan(1.5);
-  const rate = await page.evaluate(() => window.__tgPlayer.video.playbackRate);
-  expect(rate).toBe(0.5);
-
-  await shot(page, "17-still-until-you-walk.png");
-  await page.getByRole("button", { name: "Close player" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeHidden();
-});
-
-test("flat video demo pin plays on a curved screen, not the 360 sphere", async ({ page }) => {
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
-  await goToWalk(page);
-  await page.getByRole("button", { name: "Walk of Fame corner — flat video demo" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeVisible();
-  await expect(page.locator("#player-root [data-sample-banner]")).toContainText("flat footage");
-  await expect(page.locator("#player-root [data-sample-banner]")).toContainText("not true 360");
-  await page.waitForFunction(() => window.__tgPlayer && window.__tgPlayer.video && window.__tgPlayer.video.readyState >= 2, null, { timeout: 20000 });
-  const src = await page.evaluate(() => window.__tgPlayer.video.currentSrc);
-  expect(src).toMatch(/walk-of-fame-flat(-low)?\.mp4/);
-  const rate = await page.evaluate(() => window.__tgPlayer.video.playbackRate);
-  expect(rate).toBe(0.5);
-  await page.waitForTimeout(1500);
-  await shot(page, "12-flat-curved-screen.png");
-  await page.getByRole("button", { name: "Close player" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeHidden();
-});
-
-test("trial watermark and cap, one trial per creator, submission window open/closed", async ({ page }) => {
-  await page.goto("/creator.html?trialCap=3");
-  await page.evaluate(() => {
-    localStorage.removeItem("tg:trials");
-    localStorage.removeItem("tg:submissions");
-    localStorage.removeItem("tg:settings");
-  });
-  await page.reload();
-  await expect(page.locator("#window-status")).toHaveText(/OPEN/i, { timeout: 15000 });
-  await shot(page, "05-creator-window-open.png");
-  await expect(page.locator("#fee-360")).toContainText("$25");
-  await expect(page.locator("#fee-spatial")).toContainText("$39");
-  await expect(page.getByText("figure to review").first()).toBeVisible();
-
-  await page.getByLabel("Name").fill("Test Creator");
-  await page.getByLabel(/Email/).fill("creator@example.com");
-  await page.getByLabel("Clip title").fill("Sidewalk test");
-  await page.locator('input[name="license"]').check();
-  await page.getByRole("button", { name: /Submit and start free trial/ }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeVisible();
-  await expect(page.locator("[data-watermark]")).toBeVisible();
-  await expect(page.locator("[data-watermark]")).toContainText("TRIAL PREVIEW");
-  await expect(page.locator("[data-watermark]")).toContainText("not creator footage");
-  await page.waitForFunction(() => window.__tgPlayer && window.__tgPlayer.trial === true && window.__tgPlayer.trialCap === 3);
-  await shot(page, "06-trial-watermark.png");
-
-  await page.evaluate(() => {
-    const p = window.__tgPlayer;
-    p.setCurrentTime(2.95);
-    p.video.play();
-  });
-  await page.waitForFunction(() => window.__tgPlayer && window.__tgPlayer.capped === true, null, { timeout: 10000 });
-  await expect(page.locator("[data-trial-end]")).toBeVisible();
-  const t = await page.evaluate(() => window.__tgPlayer.currentTime);
-  expect(t).toBeGreaterThanOrEqual(2.8);
-  expect(t).toBeLessThanOrEqual(3.2);
-  await shot(page, "07-trial-cap.png");
-  await page.getByRole("button", { name: "Close player" }).click();
-
-  // Second submit with same email must not grant another trial.
-  await page.getByLabel("Clip title").fill("Second clip");
-  await page.getByRole("button", { name: /Submit and start free trial/ }).click();
-  await expect(page.locator("#form-notice")).toContainText(/already used the one free trial/i);
-  await expect(page.locator("#player-root .player-shell")).toBeHidden();
-
-  // Close the window via localStorage override and verify the form locks.
-  await page.evaluate(() => {
-    localStorage.setItem(
-      "tg:settings",
-      JSON.stringify({
-        submissionWindowStart: "2026-11-01T00:00:00-08:00",
-        submissionWindowEnd: "2026-11-07T23:59:59-08:00",
-      })
-    );
-  });
-  await page.reload();
-  await expect(page.locator("#window-status")).toHaveText(/CLOSED/i, { timeout: 15000 });
-  await expect(page.getByRole("button", { name: /Submit and start free trial/ })).toBeDisabled();
-  await shot(page, "08-creator-window-closed.png");
+  await expect(page.locator("header .brand")).toContainText("LA Walks Preview");
+  await expect(page.locator("h1")).toHaveText("Walk real streets, filmed by real travelers");
+  await expect(page.getByRole("link", { name: "Explore the map" }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: "Share your walk" }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Featured walks" })).toBeVisible();
+  await expect(page.locator("#featured-row")).toContainText("The Grove");
+  await expect(page.locator("#featured-row")).toContainText("Farmers Market");
+  await expect(page.getByRole("heading", { name: "How it works" })).toBeVisible();
+  await expect(page.locator("footer")).toContainText("About");
+  await expect(page.locator("footer")).toContainText("Guidelines");
+  await expect(page.locator("footer")).toContainText("Privacy");
+  await expect(page.locator("footer")).toContainText("Terms");
+  await expect(page.locator("body")).not.toContainText("Walk of Fame Globe");
+  expect(await visibleKane(page)).toEqual([]);
+  await page.waitForFunction(() => window.__tgHomeMapReady === true, null, { timeout: 40000 });
+  await shot(page, "01-home.png");
 });
 
 test("admin monetization panel shows free period, ads toggle, and revenue share placeholder", async ({ page }) => {
@@ -434,16 +134,7 @@ test("admin monetization panel shows free period, ads toggle, and revenue share 
   await expect(page.locator("#live-ads")).toContainText(/Ads would be ON/i);
   await shot(page, "09-admin-ads-preview.png");
 
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
-  await expect(page.locator("#adbar")).toBeVisible();
-  await expect(page.locator("#adbar")).toContainText(/Ad placeholder/i);
-  await shot(page, "10-map-ad-placeholder.png");
-
-  // phone-sized viewport (screenshot only; tappable-pin checks live in the test below)
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
   await goToWalk(page);
   await page.waitForTimeout(800);
   await shot(page, "11-phone-street.png");
@@ -455,15 +146,13 @@ test("phone street view leaves primary pins tappable and dismisses the pin card"
     { width: 390, height: 664, shotName: "18-phone-664-street.png" },
   ]) {
     await page.setViewportSize(size);
-    await page.goto("/index.html");
-    await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
     await goToWalk(page);
     await page.waitForTimeout(500);
-    await expect(page.locator(".map-pin")).toHaveCount(10);
-    const hud = await page.locator(".hud").boundingBox();
+    await expect(page.locator(".map-dot")).toHaveCount(7);
+    const hud = await page.locator("#explore-panel").boundingBox();
     const header = await page.locator("header.top").boundingBox();
     for (const name of PRIMARY_PIN_NAMES) {
-      const pin = page.getByRole("button", { name });
+      const pin = page.getByRole("button", { name, exact: true });
       await expect(pin).toBeVisible();
       const box = await pin.boundingBox();
       expect(box, name + " should have a box at " + size.width + "x" + size.height).toBeTruthy();
@@ -477,53 +166,44 @@ test("phone street view leaves primary pins tappable and dismisses the pin card"
     await shot(page, size.shotName);
   }
 
-  await page.getByRole("button", { name: "TCL Chinese Theatre" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeVisible();
-  await expect(page.locator("#pin-card")).toBeVisible();
-  await expect(page.locator("#pin-card-close")).toBeVisible();
-  await expect(page.locator("#player-root [data-sample-banner]")).toContainText("360 stand-in");
-  await expect(page.locator("[data-credit]")).toHaveCount(0);
-  await page.waitForFunction(() => window.__tgPlayer && window.__tgPlayer.video && window.__tgPlayer.video.readyState >= 2, null, { timeout: 20000 });
+  await page.getByRole("button", { name: "The Grove", exact: true }).click();
+  await page.getByRole("link", { name: "Open walk: The Grove", exact: true }).click();
+  await page.waitForURL(/walk\.html\?id=/);
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("The Grove");
   await page.waitForTimeout(400);
   await shot(page, "19-phone-664-player.png");
-  await page.getByRole("button", { name: "Close player" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeHidden();
-  await expect(page.locator("#pin-card")).toBeHidden();
+  await page.getByRole("button", { name: "Close" }).click();
+  await expect(page.locator("#videowalk-root .player-shell")).toBeHidden();
+  await expect(page.getByRole("heading", { name: "The Grove" })).toBeVisible();
   await shot(page, "20-phone-664-after-close.png");
 });
 
-test("See all pins fits Vine, Capitol, and the business pin on a phone", async ({ page }) => {
+test("explore list on a phone shows the seven walks and filters", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
-  await expect(page.getByRole("button", { name: "See all pins" })).toBeVisible();
-  await page.getByRole("button", { name: "See all pins" }).click();
-  await page.waitForFunction(() => window.__tgAllPinsFitted === true, null, { timeout: 25000 });
-  await page.waitForTimeout(500);
-  const size = { width: 390, height: 844 };
-  for (const name of [/Hollywood Blvd and Vine/, /Capitol Records/, /Example business pin/]) {
-    const pin = page.getByRole("button", { name });
-    await expect(pin).toBeVisible();
-    const box = await pin.boundingBox();
-    expect(box, String(name) + " should be on screen").toBeTruthy();
-    expect(box.x + box.width).toBeGreaterThan(0);
-    expect(box.x).toBeLessThan(size.width);
-    expect(box.y + box.height).toBeGreaterThan(0);
-    expect(box.y).toBeLessThan(size.height);
+  await goToWalk(page);
+  await expect(page.locator("#explore-list .walk-card")).toHaveCount(7);
+  for (const name of ["The Grove", "The Grove, trolley street", "The Grove, trolley street — wider view (AI preview)", "Farmers Market", "Café counter, 1st Street", "Tom Bradley International Terminal, LAX", "Tom Bradley International Terminal, LAX — wider view (AI preview)"]) {
+    const card = page.locator("#explore-list .walk-card", { has: page.getByRole("heading", { name, exact: true }) });
+    await expect(card).toBeVisible();
   }
+  await expect(page.locator("#explore-list")).not.toContainText("Walk of Fame");
+  await expect(page.locator("#explore-list")).not.toContainText("Ludlow");
+  await expect(page.locator("#explore-list")).not.toContainText("Example business");
+  await expect(page.locator("#filter-city")).toContainText("Los Angeles");
+  await expect(page.locator("#filter-type")).toContainText("Video walk");
+  await page.locator("#filter-city").selectOption("Los Angeles");
+  await expect(page.locator("#explore-list .walk-card")).toHaveCount(7);
   await shot(page, "21-phone-844-all-pins.png");
 });
 
-test("fullscreen button uses the Fullscreen API or an iOS CSS fallback", async ({ page }) => {
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
-  await goToWalk(page);
-  await page.getByRole("button", { name: "TCL Chinese Theatre" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeVisible();
-  await page.getByRole("button", { name: "Enter fullscreen" }).click();
+test("desktop fullscreen button uses the Fullscreen API or a CSS fallback", async ({ page }) => {
+  await openWalk(page);
+  await page.locator("#videowalk-root [data-fs]").click();
   await page.waitForTimeout(500);
   const on = await page.evaluate(() => {
-    const panel = document.querySelector("#player-root .player-panel");
+    const panel = document.querySelector("#videowalk-root .player-panel");
     return (
       document.fullscreenElement === panel ||
       document.webkitFullscreenElement === panel ||
@@ -532,10 +212,10 @@ test("fullscreen button uses the Fullscreen API or an iOS CSS fallback", async (
   });
   expect(on).toBeTruthy();
   await shot(page, "22-desktop-fullscreen.png");
-  await page.getByRole("button", { name: /Exit full/i }).click();
+  await page.locator("#videowalk-root [data-fs]").click();
   await page.waitForTimeout(300);
   const off = await page.evaluate(() => {
-    const panel = document.querySelector("#player-root .player-panel");
+    const panel = document.querySelector("#videowalk-root .player-panel");
     return (
       document.fullscreenElement === panel ||
       document.webkitFullscreenElement === panel ||
@@ -545,289 +225,479 @@ test("fullscreen button uses the Fullscreen API or an iOS CSS fallback", async (
   expect(off).toBeFalsy();
 });
 
-const ORIGINAL_PINS = [
-  { id: "tcl-chinese", lng: -118.34097222, lat: 34.10194444 },
-  { id: "dolby", lng: -118.34027778, lat: 34.10277778 },
-  { id: "star-roosevelt", lng: -118.34166667, lat: 34.10111111 },
-  { id: "star-el-capitan", lng: -118.339722, lat: 34.101111 },
-  { id: "star-egyptian", lng: -118.33638889, lat: 34.10083333 },
-  { id: "star-hollywood-vine", lng: -118.32666667, lat: 34.10166667 },
-  { id: "star-capitol", lng: -118.326189, lat: 34.103085 },
-  { id: "wof-corner-flat", lng: -118.3431, lat: 34.1019, flat: true },
-  { id: "business-demo", lng: -118.331, lat: 34.1012, flat: true, demo: true },
+test("phone walk has no Full screen button and Close leaves the player", async ({ page }) => {
+  test.setTimeout(180000);
+  const sizes = [
+    { width: 390, height: 844 },
+    { width: 844, height: 390 },
+  ];
+  for (const size of sizes) {
+    await page.setViewportSize(size);
+    await openWalk(page);
+    await expect(page.locator("#videowalk-root [data-fs]")).toBeHidden();
+    await expect(page.locator("#videowalk-root [data-fs-exit]")).toBeHidden();
+    await expect(page.locator("#videowalk-root").getByRole("button", { name: /Full screen/i })).toHaveCount(0);
+    const closeBtn = page.locator("#videowalk-root [data-close]");
+    await expect(closeBtn).toBeVisible();
+    await expect(closeBtn).toHaveText("Close");
+    await closeBtn.click();
+    await expect(page.locator("#videowalk-root .player-shell")).toBeHidden();
+  }
+});
+
+test("desktop CSS fallback covers the viewport when the Fullscreen API is missing", async ({ page }) => {
+  test.setTimeout(180000);
+  await page.addInitScript(() => {
+    const hide = (obj, key) => {
+      try {
+        Object.defineProperty(obj, key, { configurable: true, writable: true, value: undefined });
+      } catch (_) {
+        try { obj[key] = undefined; } catch (_) {}
+      }
+    };
+    hide(Document.prototype, "fullscreenEnabled");
+    hide(Document.prototype, "webkitFullscreenEnabled");
+    hide(Document.prototype, "fullscreenElement");
+    hide(Document.prototype, "webkitFullscreenElement");
+    hide(Document.prototype, "exitFullscreen");
+    hide(Document.prototype, "webkitExitFullscreen");
+    hide(Element.prototype, "requestFullscreen");
+    hide(Element.prototype, "webkitRequestFullscreen");
+    hide(Element.prototype, "webkitRequestFullScreen");
+  });
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await openWalk(page);
+
+  const fsBtn = page.locator("#videowalk-root [data-fs]");
+  const exitBtn = page.locator("#videowalk-root [data-fs-exit]");
+  await expect(fsBtn).toHaveText("Full screen");
+  await expect(fsBtn).toHaveAttribute("aria-pressed", "false");
+  await expect(exitBtn).toBeHidden();
+
+  await fsBtn.click();
+  await expect(page.locator("#videowalk-root .player-panel")).toHaveClass(/is-fullscreen/);
+  await expect.poll(async () => page.evaluate(() => document.body.classList.contains("player-css-fs"))).toBeTruthy();
+  await expect(fsBtn).toHaveText("Exit full screen");
+  await expect(fsBtn).toHaveAttribute("aria-pressed", "true");
+  await expect(exitBtn).toBeVisible();
+
+  const covered = await page.evaluate(() => {
+    const vp = { w: window.innerWidth, h: window.innerHeight };
+    const shell = document.querySelector("#videowalk-root .player-shell").getBoundingClientRect();
+    const stick = document.querySelector("#videowalk-root [data-stick='move']").getBoundingClientRect();
+    return {
+      vp,
+      shell: { x: Math.round(shell.x), y: Math.round(shell.y), w: Math.round(shell.width), h: Math.round(shell.height) },
+      covers: Math.abs(shell.width - vp.w) < 2 && Math.abs(shell.height - vp.h) < 4 && shell.top < 2 && shell.left < 2,
+      stickInside: stick.width >= 44 && stick.left >= -0.5 && stick.top >= -0.5 && stick.right <= vp.w + 0.5 && stick.bottom <= vp.h + 0.5,
+    };
+  });
+  expect(covered.covers, "player should cover the viewport " + JSON.stringify(covered)).toBeTruthy();
+  expect(covered.stickInside, "Move stick should stay inside the viewport " + JSON.stringify(covered)).toBeTruthy();
+
+  await exitBtn.click();
+  await expect(page.locator("#videowalk-root .player-panel")).not.toHaveClass(/is-fullscreen/);
+  await expect.poll(async () => page.evaluate(() => document.body.classList.contains("player-css-fs"))).toBeFalsy();
+  await expect(fsBtn).toHaveText("Full screen");
+  await expect(fsBtn).toHaveAttribute("aria-pressed", "false");
+  await expect(exitBtn).toBeHidden();
+
+  await fsBtn.click();
+  await expect(page.locator("#videowalk-root .player-panel")).toHaveClass(/is-fullscreen/);
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#videowalk-root .player-panel")).not.toHaveClass(/is-fullscreen/);
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+});
+
+const REMAINING_PINS = [
+  { id: "grove-kane-scan-splat", lng: -118.3576, lat: 34.072, videoWalk: "data/grove-videowalk.json" },
+  { id: "farmers-kane-scan-splat", lng: -118.3608, lat: 34.0719, videoWalk: "data/farmers-videowalk.json" },
+  { id: "cafe-first-street-walk", lng: -118.3598, lat: 34.0725, videoWalk: "data/cafe-videowalk.json" },
+  { id: "grove-trolley-walk", lng: -118.3595, lat: 34.0723, videoWalk: "data/grove-trolley-videowalk.json" },
+  { id: "grove-trolley-wide-preview", lng: -118.3595, lat: 34.0723, videoWalk: "data/grove-trolley-wide-preview.json" },
+  { id: "lax-bradley-walk", lng: -118.4081, lat: 33.9439, videoWalk: "data/lax-bradley-videowalk.json" },
+  { id: "lax-bradley-wide-preview", lng: -118.4081, lat: 33.9439, videoWalk: "data/lax-bradley-wide-preview.json" },
 ];
 
 async function waitForMap(page) {
   await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
 }
 
-async function openSplatPin(page) {
-  await page.evaluate(() => window.__tgOpenPin("splat-placeholder"));
-  await expect(page.locator("#splat-root .player-shell")).toBeVisible();
-  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.ready === true, null, { timeout: 60000 });
-}
-
-test("existing pins keep their ids, coordinates, and 360/flat behaviour", async ({ page }) => {
-  await page.goto("/index.html");
-  await waitForMap(page);
+test("remaining pins keep their ids, coordinates, and video-walk behaviour", async ({ page }) => {
+  await goToWalk(page);
   const pins = await page.evaluate(() =>
     (window.__tgPins || []).map((p) => ({
       id: p.id,
       lng: p.lng,
       lat: p.lat,
-      flat: p.flat || undefined,
-      demo: p.demo || undefined,
+      videoWalk: p.videoWalk || undefined,
       splat: p.splat || undefined,
     }))
   );
-  const withoutSplat = pins.filter((p) => p.id !== "splat-placeholder");
-  expect(withoutSplat).toEqual(ORIGINAL_PINS);
-  const splat = pins.find((p) => p.id === "splat-placeholder");
-  expect(splat).toBeTruthy();
-  expect(splat.splat).toMatch(/kyoto-room\.sog$/);
-  expect(pins).toHaveLength(10);
+  expect(pins).toHaveLength(7);
+  expect(pins.map((p) => p.id)).toEqual(REMAINING_PINS.map((p) => p.id));
+  for (const expected of REMAINING_PINS) {
+    const got = pins.find((p) => p.id === expected.id);
+    expect(got).toBeTruthy();
+    expect(got.lng).toBeCloseTo(expected.lng, 4);
+    expect(got.lat).toBeCloseTo(expected.lat, 4);
+    expect(got.videoWalk).toBe(expected.videoWalk);
+    expect(got.splat).toBeUndefined();
+  }
 
-  await page.evaluate(() => window.__tgOpenPin("tcl-chinese"));
-  await expect(page.locator("#player-root .player-shell")).toBeVisible();
-  await expect(page.locator("#splat-root .player-shell")).toBeHidden();
-  await expect(page.locator("#player-root [data-sample-banner]")).toContainText("360 stand-in");
-  await page.getByRole("button", { name: "Close player" }).click();
+  await openWalk(page, "grove-kane-scan-splat");
   await expect(page.locator("#player-root .player-shell")).toBeHidden();
-});
-
-test("splat pin opens the splat view and the test-asset credit is visible", async ({ page }) => {
-  await page.goto("/index.html");
-  await waitForMap(page);
-  await openSplatPin(page);
-  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("Test asset, not the real place");
-  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("CC0");
-  await expect(page.locator("#splat-root [data-sample-banner]")).toContainText("SharedTestModels");
-  await expect(page.getByRole("button", { name: "View 360 instead" })).toBeVisible();
-  await expect(page.locator("#player-root .player-shell")).toBeHidden();
-  await shot(page, "30-splat-open.png");
-});
-
-test("splat Close hides the splat view", async ({ page }) => {
-  await page.goto("/index.html");
-  await waitForMap(page);
-  await openSplatPin(page);
-  await page.locator("#splat-root").getByRole("button", { name: "Close player" }).click();
   await expect(page.locator("#splat-root .player-shell")).toBeHidden();
-  await expect(page.locator("#player-root .player-shell")).toBeHidden();
-  await expect(page.locator("#pin-card")).toBeHidden();
-});
-
-test("View 360 instead leaves the splat view and opens the 360 player", async ({ page }) => {
-  await page.goto("/index.html");
-  await waitForMap(page);
-  await openSplatPin(page);
-  await page.getByRole("button", { name: "View 360 instead" }).click();
-  await expect(page.locator("#splat-root .player-shell")).toBeHidden();
-  await expect(page.locator("#player-root .player-shell")).toBeVisible();
-  await expect(page.locator("#player-root [data-sample-banner]")).toContainText("360 stand-in");
-  await expect(page.locator("[data-fallback-note]")).toHaveCount(0);
-  await page.locator("#player-root").getByRole("button", { name: "Close player" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeHidden();
-});
-
-test("forced WebGL2 failure falls back to the 360 player with a banner note", async ({ page }) => {
-  await page.addInitScript(() => {
-    window.__tgForceNoWebGL2 = true;
-  });
-  await page.goto("/index.html");
-  await waitForMap(page);
-  await page.evaluate(() => window.__tgOpenPin("splat-placeholder"));
-  await expect(page.locator("#player-root .player-shell")).toBeVisible({ timeout: 20000 });
-  await expect(page.locator("#splat-root .player-shell")).toBeHidden();
-  await expect(page.locator("[data-fallback-note]")).toContainText("WebGL2");
-  await expect(page.locator("#player-root [data-sample-banner]")).toContainText("360 stand-in");
-  await expect(page.locator("#player-root [data-sample-banner]")).toContainText("showing instead");
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("The Grove");
+  await expect(page.locator("#walk-handle")).toContainText("@la.walker");
+  await page.getByRole("button", { name: "Close" }).click();
+  await expect(page.locator("#videowalk-root .player-shell")).toBeHidden();
 });
 
 
-test("splat avatar car loads, play/pause/seek follow the path, and stays in bounds", async ({ page }) => {
+test("Grove video walk opens by default, hold-up walks, release stops, no black edges", async ({ page }) => {
   test.setTimeout(180000);
-  await page.goto("/index.html");
-  await waitForMap(page);
-  await openSplatPin(page);
-  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.avatarReady === true, null, { timeout: 60000 });
-  await expect(page.locator("#splat-root [data-play]")).toBeVisible();
-  await expect(page.locator("#splat-root [data-seek]")).toBeVisible();
-  await expect(page.locator("#splat-root .look-hint")).toContainText("Play drives the car");
+  await openWalk(page, "grove-kane-scan-splat");
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await expect(page.locator("#splat-root .player-shell")).toBeHidden();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("Private test");
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("The Grove");
+  await page.locator("#videowalk-root [data-credits]").click();
+  await expect(page.locator("#videowalk-root [data-credit-details]")).toContainText("bystanders can be heard");
+  await expect(page.locator("#videowalk-root [aria-label='Look joystick']")).toBeVisible();
+  await expect(page.locator("#videowalk-root [aria-label='Move joystick: hold up to walk forward']")).toBeVisible();
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+  const mm = await page.locator("#videowalk-root .videowalk-minimap").boundingBox();
+  expect(mm).toBeTruthy();
+  expect(mm.width).toBeGreaterThan(80);
+  expect(mm.width).toBeLessThan(180);
+  expect(mm.height).toBeGreaterThan(80);
+  expect(mm.height).toBeLessThan(180);
 
-  const start = await page.evaluate(() => ({
-    u: window.__tgSplatPlayer.pathU,
-    pos: window.__tgSplatPlayer.carPosition,
-    playing: window.__tgSplatPlayer.playing,
-    bounds: window.__tgSplatPlayer.bounds,
-  }));
-  expect(start.playing).toBe(false);
-  expect(start.u).toBeCloseTo(0, 3);
+  await expect(page.locator("#videowalk-root [data-spots]")).toBeVisible();
+  await expect(page.locator("#videowalk-root [data-spots]")).toContainText("The Cheesecake Factory");
+  await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Revolve");
 
-  // Start a little into the path so Play has room before the end, then use the
-  // Play/Pause controls. Also call the test hook so a finished path can't
-  // retrigger play when the button label flips.
-  await page.evaluate(() => window.__tgSplatPlayer.seek(0.08));
-  await page.locator("#splat-root").getByRole("button", { name: "Play path" }).click();
-  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.playing === true, null, { timeout: 5000 });
-  await page.waitForFunction(() => window.__tgSplatPlayer && window.__tgSplatPlayer.pathU > 0.11, null, { timeout: 15000 });
-  const midPlay = await page.evaluate(() => ({
-    u: window.__tgSplatPlayer.pathU,
-    pos: window.__tgSplatPlayer.carPosition,
-    playing: window.__tgSplatPlayer.playing,
-  }));
-  expect(midPlay.playing).toBe(true);
-  expect(midPlay.u).toBeGreaterThan(0.11);
-  expect(Math.hypot(midPlay.pos.x - start.pos.x, midPlay.pos.z - start.pos.z)).toBeGreaterThan(0.05);
+  const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, -1));
+  await page.waitForFunction((start) => window.__tgVideoWalk && window.__tgVideoWalk.currentTime > start + 0.35, t0, { timeout: 20000 });
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, 0));
+  const paused = await page.evaluate(() => ({ t: window.__tgVideoWalk.currentTime, playing: window.__tgVideoWalk.playing }));
+  expect(paused.t).toBeGreaterThan(t0 + 0.3);
+  expect(paused.playing).toBe(false);
+  await page.waitForTimeout(450);
+  const still = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  expect(Math.abs(still - paused.t)).toBeLessThan(0.35);
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+  await page.evaluate(() => window.__tgVideoWalk.setLookAxis(1, 0.6));
+  await page.waitForTimeout(400);
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+  await page.evaluate(() => window.__tgVideoWalk.setLookAxis(0, 0));
+});
 
-  await page.evaluate(() => window.__tgSplatPlayer.pause());
-  const pauseLabel = page.locator("#splat-root").getByRole("button", { name: "Play path" });
-  await expect(pauseLabel).toBeVisible();
-  const pausedAt = await page.evaluate(() => ({
-    u: window.__tgSplatPlayer.pathU,
-    playing: window.__tgSplatPlayer.playing,
-  }));
-  expect(pausedAt.playing).toBe(false);
-  await new Promise((r) => setTimeout(r, 1200));
-  const still = await page.evaluate(() => window.__tgSplatPlayer.pathU);
-  expect(Math.abs(still - pausedAt.u)).toBeLessThan(0.002);
+test("Farmers Market video walk opens by default, hold-up walks, release stops, no black edges", async ({ page }) => {
+  test.setTimeout(180000);
+  await openWalk(page, "farmers-kane-scan-splat");
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await expect(page.locator("#splat-root .player-shell")).toBeHidden();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("Farmers Market");
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("whole 52");
+  await expect(page.locator("#videowalk-root [data-spots]")).toBeVisible();
+  await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Clock tower");
+  await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Gilmore arch");
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+  const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, -1));
+  await page.waitForFunction((start) => window.__tgVideoWalk && window.__tgVideoWalk.currentTime > start + 0.35, t0, { timeout: 20000 });
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, 0));
+  const paused = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.waitForTimeout(450);
+  const still = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  expect(Math.abs(still - paused)).toBeLessThan(0.35);
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+});
 
-  await page.evaluate(() => window.__tgSplatPlayer.seek(0.5));
-  const sought = await page.evaluate(() => ({
-    u: window.__tgSplatPlayer.pathU,
-    pos: window.__tgSplatPlayer.carPosition,
-  }));
-  expect(sought.u).toBeCloseTo(0.5, 2);
-  expect(Math.hypot(sought.pos.x - start.pos.x, sought.pos.z - start.pos.z)).toBeGreaterThan(0.2);
+test("Café counter video walk opens, hides the empty mini-map, walks and stops", async ({ page }) => {
+  test.setTimeout(180000);
+  await openWalk(page, "cafe-first-street-walk");
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("café");
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("whole 23");
+  await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Menu boards");
+  await expect(page.locator("#videowalk-root .videowalk-minimap")).toBeHidden();
+  await expect(page.locator("#walk-handle")).toContainText("@la.walker");
+  await page.locator("#videowalk-root [data-credits]").click();
+  await expect(page.locator("#videowalk-root [data-credit-details]")).toContainText("staff and customers can be heard");
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+  const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, -1));
+  await page.waitForFunction((start) => window.__tgVideoWalk && window.__tgVideoWalk.currentTime > start + 0.35, t0, { timeout: 20000 });
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, 0));
+  const paused = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.waitForTimeout(450);
+  const still = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  expect(Math.abs(still - paused)).toBeLessThan(0.35);
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+});
 
-  const boundsCheck = await page.evaluate(() => {
-    const b = window.__tgSplatPlayer.bounds;
-    const out = [];
-    for (let i = 0; i <= 40; i++) {
-      window.__tgSplatPlayer.seek(i / 40);
-      const p = window.__tgSplatPlayer.carPosition;
-      const inside =
-        p.x >= b.min[0] && p.x <= b.max[0] &&
-        p.y >= b.min[1] && p.y <= b.max[1] &&
-        p.z >= b.min[2] && p.z <= b.max[2];
-      if (!inside) out.push({ u: i / 40, p, b });
+
+test("Grove trolley walk opens, hides the empty mini-map, walks and stops", async ({ page }) => {
+  test.setTimeout(180000);
+  await openWalk(page, "grove-trolley-walk");
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("trolley street");
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("whole 153");
+  await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Holiday house");
+  await expect(page.locator("#videowalk-root .videowalk-minimap")).toBeHidden();
+  await expect(page.locator("#walk-handle")).toContainText("@la.walker");
+  await page.locator("#videowalk-root [data-credits]").click();
+  await expect(page.locator("#videowalk-root [data-credit-details]")).toContainText("bystanders can be heard");
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+  const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, -1));
+  await page.waitForFunction((start) => window.__tgVideoWalk && window.__tgVideoWalk.currentTime > start + 0.35, t0, { timeout: 20000 });
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, 0));
+  const paused = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.waitForTimeout(450);
+  const still = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  expect(Math.abs(still - paused)).toBeLessThan(0.35);
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+});
+
+test("Tom Bradley LAX walk opens, hides the empty mini-map, walks and stops", async ({ page }) => {
+  test.setTimeout(180000);
+  await openWalk(page, "lax-bradley-walk");
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("Tom Bradley International Terminal");
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("154-second");
+  await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Tom Bradley sign");
+  await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Checkpoint A");
+  await expect(page.locator("#videowalk-root .videowalk-minimap")).toBeHidden();
+  await expect(page.locator("#walk-handle")).toContainText("@lax.walker");
+  await page.locator("#videowalk-root [data-credits]").click();
+  await expect(page.locator("#videowalk-root [data-credit-details]")).toContainText("Travelers and staff appear");
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+  const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, -1));
+  await page.waitForFunction((start) => window.__tgVideoWalk && window.__tgVideoWalk.currentTime > start + 0.35, t0, { timeout: 20000 });
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, 0));
+  const paused = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.waitForTimeout(450);
+  const still = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  expect(Math.abs(still - paused)).toBeLessThan(0.35);
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+});
+
+test.describe("video walk phone viewport", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("All video walks have no black edges on a phone-sized viewport", async ({ page }) => {
+    test.setTimeout(360000);
+    for (const id of ["grove-kane-scan-splat", "farmers-kane-scan-splat", "cafe-first-street-walk", "grove-trolley-walk", "grove-trolley-wide-preview", "lax-bradley-walk", "lax-bradley-wide-preview"]) {
+      await openWalk(page, id);
+      expect(await page.evaluate(() => window.__tgVideoWalk.coversStage()), id + " covers").toBe(true);
+      const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+      await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, -1));
+      await page.waitForFunction((start) => window.__tgVideoWalk && window.__tgVideoWalk.currentTime > start + 0.3, t0, { timeout: 20000 });
+      await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, 0));
+      const paused = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+      await page.waitForTimeout(400);
+      const still = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+      expect(Math.abs(still - paused), id + " stopped").toBeLessThan(0.35);
+      await page.evaluate(() => window.__tgVideoWalk.setLookAxis(-1, 0.4));
+      await page.waitForTimeout(350);
+      expect(await page.evaluate(() => window.__tgVideoWalk.coversStage()), id + " after look").toBe(true);
+      await page.evaluate(() => window.__tgVideoWalk.setLookAxis(0, 0));
+      await page.evaluate(() => window.__tgVideoWalk.close({ silent: true }));
     }
-    return { ok: out.length === 0, out };
   });
-  expect(boundsCheck.ok, JSON.stringify(boundsCheck.out.slice(0, 3))).toBeTruthy();
 });
 
-test("splat stage fills the leftover phone viewport under the controls", async ({ page }) => {
-  test.setTimeout(180000);
+
+test("phone player sticks stay inside a full-bleed stage at common iPhone sizes", async ({ page }) => {
+  test.setTimeout(360000);
+  const sizes = [
+    { width: 375, height: 667 },
+    { width: 390, height: 844 },
+    { width: 430, height: 932 },
+    { width: 844, height: 390 },
+  ];
+  function assertInside(result, label) {
+    expect(result.lookHidden, label + " look stick should be hidden").toBeTruthy();
+    expect(result.moveCount, label + " should have exactly one Move stick").toBe(1);
+    expect(result.stageFills, label + " stage " + JSON.stringify(result.stage)).toBeTruthy();
+    expect(result.allIn, label + " sticks " + JSON.stringify(result.inside)).toBeTruthy();
+  }
+  async function measure(page, root, vp) {
+    return page.evaluate(({ root, vp }) => {
+      const look = document.querySelector(root + ' [data-stick="look"]');
+      const moves = [...document.querySelectorAll(root + ' [data-stick="move"]')];
+      const stage = document.querySelector(root + " .stage");
+      if (!stage) return { stageFills: false, allIn: false, stage: null, inside: [], lookHidden: false, moveCount: 0 };
+      const s = stage.getBoundingClientRect();
+      const lookStyle = look ? getComputedStyle(look.closest(".stick-wrap") || look) : null;
+      const lookHidden = !look || lookStyle.display === "none" || lookStyle.visibility === "hidden";
+      const inside = moves.map((el) => {
+        const r = el.getBoundingClientRect();
+        return {
+          ok: r.width >= 44 && r.height >= 44 && r.left >= -0.5 && r.top >= -0.5 && r.right <= vp.w + 0.5 && r.bottom <= vp.h + 0.5,
+          r: { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height), right: Math.round(r.right), bottom: Math.round(r.bottom) },
+        };
+      });
+      return {
+        stage: { x: Math.round(s.x), y: Math.round(s.y), w: Math.round(s.width), h: Math.round(s.height) },
+        vp,
+        inside,
+        allIn: inside.length > 0 && inside.every((item) => item.ok),
+        stageFills: Math.abs(s.width - vp.w) < 2 && Math.abs(s.height - vp.h) < 2 && s.top < 2 && s.left < 2,
+        lookHidden,
+        moveCount: moves.length,
+      };
+    }, { root, vp });
+  }
+  async function dispatchPointer(page, selector, type, opts) {
+    await page.evaluate(({ selector, type, opts }) => {
+      const el = document.querySelector(selector);
+      el.dispatchEvent(new PointerEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        pointerId: opts.pointerId,
+        pointerType: opts.pointerType || "touch",
+        clientX: opts.x,
+        clientY: opts.y,
+        buttons: type === "pointerup" || type === "pointercancel" ? 0 : 1,
+        isPrimary: opts.pointerId === 1,
+      }));
+    }, { selector, type, opts });
+  }
+  async function centerOf(page, selector) {
+    return page.evaluate((selector) => {
+      const r = document.querySelector(selector).getBoundingClientRect();
+      return { x: r.x + r.width / 2, y: r.y + r.height / 2, top: r.y + 8, left: r.x, right: r.right, bottom: r.bottom, w: r.width, h: r.height };
+    }, selector);
+  }
+
+  await page.setViewportSize(sizes[0]);
+  await openWalk(page, "grove-kane-scan-splat");
+  await page.evaluate(() => sessionStorage.removeItem("tg:look-hint-used"));
+
+  for (const size of sizes) {
+    await page.setViewportSize(size);
+    if (size != sizes[0]) await openWalk(page, "grove-kane-scan-splat");
+    await expect(page.locator("#videowalk-root [data-stick='look']")).toBeHidden();
+    await expect(page.locator("#videowalk-root [data-stick='move']")).toBeVisible();
+    await expect(page.locator("#videowalk-root [data-look-hint] .hint-phone")).toHaveText("Drag to look, hold stick to walk");
+    assertInside(await measure(page, "#videowalk-root", { w: size.width, h: size.height }), `Grove ${size.width}x${size.height}`);
+    await page.evaluate(() => window.__tgVideoWalk.close({ silent: true }));
+  }
+
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/index.html");
-  await waitForMap(page);
-  await openSplatPin(page);
-  const layout = await page.evaluate(() => {
-    const stage = document.querySelector("#splat-root .stage");
-    const controls = document.querySelector("#splat-root .player-controls");
-    const panel = document.querySelector("#splat-root .player-panel");
-    const s = stage.getBoundingClientRect();
-    const c = controls.getBoundingClientRect();
-    const p = panel.getBoundingClientRect();
-    return {
-      stageHeight: s.height,
-      stageTop: s.top,
-      controlsTop: c.top,
-      controlsBottom: c.bottom,
-      panelBottom: p.bottom,
-      viewport: { w: window.innerWidth, h: window.innerHeight },
-      gapBelowControls: p.bottom - c.bottom,
-    };
-  });
-  expect(layout.stageHeight).toBeGreaterThan(450);
-  expect(layout.gapBelowControls).toBeLessThan(24);
-  expect(layout.controlsTop).toBeGreaterThan(layout.stageTop + 200);
+  await openWalk(page, "grove-kane-scan-splat");
+  const vwPan0 = await page.evaluate(() => window.__tgVideoWalk.pan);
+  const stageC = await centerOf(page, "#videowalk-root [data-stage]");
+  await dispatchPointer(page, "#videowalk-root [data-stage]", "pointerdown", { pointerId: 21, x: stageC.x, y: stageC.y });
+  await dispatchPointer(page, "#videowalk-root [data-stage]", "pointermove", { pointerId: 21, x: stageC.x + 48, y: stageC.y + 36 });
+  await dispatchPointer(page, "#videowalk-root [data-stage]", "pointerup", { pointerId: 21, x: stageC.x + 48, y: stageC.y + 36 });
+  const vwPan1 = await page.evaluate(() => window.__tgVideoWalk.pan);
+  expect(Math.abs(vwPan1.x - vwPan0.x), "videowalk drag yaw/panX " + JSON.stringify({ vwPan0, vwPan1 })).toBeGreaterThan(8);
+  expect(Math.abs(vwPan1.y - vwPan0.y), "videowalk drag pitch/panY " + JSON.stringify({ vwPan0, vwPan1 })).toBeGreaterThan(8);
 
-  const btn = await page.evaluate(() => {
-    const el = document.querySelector("#splat-root [data-view-360]");
-    const panel = document.querySelector("#splat-root .player-panel");
-    const r = el.getBoundingClientRect();
-    const p = panel.getBoundingClientRect();
-    const styles = getComputedStyle(el);
-    return {
-      text: (el.textContent || "").replace(/\s+/g, " ").trim(),
-      width: r.width,
-      height: r.height,
-      left: r.left,
-      right: r.right,
-      panelRight: p.right,
-      whiteSpace: styles.whiteSpace,
-    };
-  });
-  expect(btn.text).toBe("View 360 instead");
-  expect(btn.whiteSpace).toBe("nowrap");
-  expect(btn.width).toBeGreaterThan(160);
-  expect(btn.height).toBeLessThan(44);
-  expect(btn.height).toBeGreaterThan(24);
-  expect(btn.left).toBeGreaterThanOrEqual(0);
-  expect(btn.right).toBeLessThanOrEqual(btn.panelRight + 1);
+  const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  const panBeforeBoth = await page.evaluate(() => window.__tgVideoWalk.pan);
+  const stickC = await centerOf(page, "#videowalk-root [data-stick='move']");
+  const stageC2 = await centerOf(page, "#videowalk-root [data-stage]");
+  await dispatchPointer(page, "#videowalk-root [data-stick='move']", "pointerdown", { pointerId: 31, x: stickC.x, y: stickC.top });
+  await dispatchPointer(page, "#videowalk-root [data-stage]", "pointerdown", { pointerId: 32, x: stageC2.x, y: stageC2.y });
+  await dispatchPointer(page, "#videowalk-root [data-stage]", "pointermove", { pointerId: 32, x: stageC2.x - 40, y: stageC2.y - 28 });
+  await page.waitForFunction((start) => window.__tgVideoWalk && window.__tgVideoWalk.currentTime > start + 0.3, t0, { timeout: 20000 });
+  const both = await page.evaluate(() => ({ t: window.__tgVideoWalk.currentTime, pan: window.__tgVideoWalk.pan }));
+  expect(both.t).toBeGreaterThan(t0 + 0.3);
+  expect(Math.abs(both.pan.x - panBeforeBoth.x) + Math.abs(both.pan.y - panBeforeBoth.y), "stick+drag pan " + JSON.stringify({ panBeforeBoth, pan: both.pan })).toBeGreaterThan(8);
+  await dispatchPointer(page, "#videowalk-root [data-stick='move']", "pointerup", { pointerId: 31, x: stickC.x, y: stickC.top });
+  await dispatchPointer(page, "#videowalk-root [data-stage]", "pointerup", { pointerId: 32, x: stageC2.x - 40, y: stageC2.y - 28 });
+  await page.evaluate(() => window.__tgVideoWalk.close({ silent: true }));
+
+  await openWalk(page, "farmers-kane-scan-splat");
+  await expect(page.locator("#videowalk-root [data-stick='look']")).toBeHidden();
+  assertInside(await measure(page, "#videowalk-root", { w: 390, h: 844 }), "Farmers 390x844");
+  await page.evaluate(() => window.__tgVideoWalk.close({ silent: true }));
 });
 
-// Pre-existing failures, left unfixed: these locators expect href="/sales.html"
-// but the pages use href="sales.html". Moved to the end only so serial mode
-// still runs the tests after them. Assertions are unchanged.
-
-test("example business pin opens flat player with demo credit and offer link", async ({ page }) => {
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
-  await goToWalk(page);
-  // Gold "Example pin" is mid-boulevard, east of the primary cluster, so pan to it first.
-  await jumpToPin(page, "business-demo");
-  await expect(page.getByRole("button", { name: "Example business pin — your business here" })).toBeVisible();
-  await page.getByRole("button", { name: "Example business pin — your business here" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeVisible();
-  // Demo credit, not the 360 test clip and never a real business name.
-  await expect(page.locator("#player-root [data-sample-banner]")).toContainText("EXAMPLE business pin");
-  await expect(page.locator("#player-root [data-sample-banner]")).toContainText("demo only, not a real listing");
-  await expect(page.locator("#player-root [data-sample-banner]")).not.toContainText("R1's Travels");
-  await expect(page.locator("[data-offer]")).toBeVisible();
-  await expect(page.locator("[data-offer]")).toContainText("See what a business pin includes");
-  await expect(page.locator("[data-offer] a")).toHaveAttribute("href", "/sales.html");
-  await page.waitForFunction(() => window.__tgPlayer && window.__tgPlayer.video && window.__tgPlayer.video.readyState >= 2, null, { timeout: 20000 });
-  const src = await page.evaluate(() => window.__tgPlayer.video.currentSrc);
-  expect(src).toMatch(/walk-of-fame-flat(-low)?\.mp4/);
-  expect(src).not.toContain("hollywood-360.mp4");
-  expect(src).not.toContain("sample-360.mp4");
-  const rate = await page.evaluate(() => window.__tgPlayer.video.playbackRate);
-  expect(rate).toBe(0.5);
-  // Move stick still works in flat mode (walk forward).
-  const t0 = await page.evaluate(() => window.__tgPlayer.currentTime);
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, -1));
-  await page.waitForTimeout(1200);
-  await page.evaluate(() => window.__tgPlayer.setMoveAxis(0, 0));
-  const t1 = await page.evaluate(() => window.__tgPlayer.currentTime);
-  expect(t1).toBeGreaterThan(t0);
-  await shot(page, "15-business-demo-pin.png");
-  // The pin card links to the sales page, not a Wikipedia source.
-  await expect(page.locator("#pin-source")).toHaveAttribute("href", "/sales.html");
-  await page.getByRole("button", { name: "Close player" }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeHidden();
-  await expect(page.locator("#pin-card")).toBeHidden();
+test("sign up validates fields and shows a preview-not-saved success", async ({ page }) => {
+  await page.goto("/signup.html");
+  await expect(page.getByRole("button", { name: /Continue with Google/i })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Continue with Apple/i })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Continue with Google/i })).toContainText(/Coming soon/i);
+  await page.getByRole("button", { name: "Create preview session" }).click();
+  await expect(page.locator("#signup-email-error")).toContainText("Enter your email");
+  await page.locator("#signup-email").fill("not-an-email");
+  await page.locator("#signup-password").fill("short");
+  await page.getByRole("button", { name: "Create preview session" }).click();
+  await expect(page.locator("#signup-email-error")).toContainText("valid email");
+  await expect(page.locator("#signup-password-error")).toContainText("8 characters");
+  await page.locator("#signup-email").fill("preview@example.com");
+  await page.locator("#signup-password").fill("password1");
+  await page.getByRole("button", { name: "Create preview session" }).click();
+  await expect(page.locator("#signup-success")).toBeVisible();
+  await expect(page.locator("#signup-success")).toContainText("Preview: not saved");
+  expect(await visibleKane(page)).toEqual([]);
+  await shot(page, "30-signup-success.png");
 });
 
-test("sales page loads with both prices, free preview, and honest demo note", async ({ page }) => {
-  await page.goto("/sales.html");
-  await expect(page.locator("h1")).toContainText("Put your business on the Walk of Fame Globe");
-  await expect(page.locator("#price-standard")).toHaveText("$250");
-  await expect(page.locator("#price-featured")).toHaveText("$500");
-  await expect(page.getByText("figure to review").first()).toBeVisible();
-  await expect(page.locator('header nav a[href="/sales.html"]')).toHaveText("For businesses");
-  await expect(page.getByText("Free 45-second preview")).toBeVisible();
-  await expect(page.getByText("you only pay if you want the full pin")).toBeVisible();
-  await expect(page.getByText("No business has bought a pin yet")).toBeVisible();
-  await expect(page.locator('a[href="/creator.html"]', { hasText: "Request a free preview" })).toBeVisible();
-  await expect(page.locator('a[href="/index.html"]', { hasText: "Back to the map" })).toBeVisible();
-  // Linked from the map HUD.
-  await page.goto("/index.html");
-  await expect(page.locator('.btn-row a[href="/sales.html"]')).toHaveText("For businesses");
-  await expect(page.locator('header nav a[href="/sales.html"]')).toHaveText("For businesses");
-  await shot(page, "16-sales-page.png");
+test("upload flow previews a local file and ends as preview not saved", async ({ page }) => {
+  test.setTimeout(120000);
+  await page.goto("/upload.html");
+  const video = require("path").join(__dirname, "..", "media", "sample-360.mp4");
+  await page.locator("#upload-file").setInputFiles(video);
+  await expect(page.locator("#upload-preview")).toBeVisible();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Use the Los Angeles walk area" }).click();
+  await expect(page.locator("#upload-pin-label")).toContainText("Los Angeles");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.locator("#upload-title").fill("Morning market walk");
+  await page.locator("#upload-desc").fill("A preview clip that stays on this device.");
+  await page.locator("#upload-tags").fill("Los Angeles, market");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.locator("#consent-filmed").check();
+  await page.locator("#consent-people").check();
+  await page.locator("#consent-music").check();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.locator("#upload-review")).toContainText("Morning market walk");
+  await expect(page.locator("#upload-review")).toContainText("not uploaded");
+  await page.getByRole("button", { name: "Submit for review" }).click();
+  await expect(page.locator("#upload-success")).toContainText("Submitted for review (preview, not saved)");
+  await shot(page, "31-upload-success.png");
+});
+
+test("my walks shows empty and demo states", async ({ page }) => {
+  await page.goto("/me.html");
+  await page.evaluate(() => {
+    localStorage.removeItem("tg:demo-session");
+    localStorage.removeItem("tg:demo-walks");
+  });
+  await page.reload();
+  await expect(page.getByText("No preview session in this browser yet.")).toBeVisible();
+  await page.getByRole("button", { name: "Show a demo profile" }).click();
+  await expect(page.locator("#profile-hello")).toContainText("preview session");
+  await expect(page.locator("#profile-walks")).toContainText("Preview: not saved");
+  await page.getByRole("button", { name: "Clear demo state in this browser" }).click();
+  await expect(page.getByText("No preview session in this browser yet.")).toBeVisible();
+});
+
+test("retired creator and sales pages point to the new official flows", async ({ page }) => {
+  await page.goto("/creator.html", { waitUntil: "domcontentloaded" });
+  await page.waitForURL(/upload\.html/);
+  await expect(page.locator("h1")).toContainText("Share your walk");
+  await page.goto("/sales.html", { waitUntil: "domcontentloaded" });
+  await page.waitForURL(/about\.html/);
+  await expect(page.locator("h1")).toHaveText("About");
+  await expect(page.locator(".draft-flag")).toHaveText("Draft");
 });
 
 test("robots.txt and pages are marked noindex", async ({ page, request }) => {
@@ -836,9 +706,26 @@ test("robots.txt and pages are marked noindex", async ({ page, request }) => {
   const body = await robots.text();
   expect(body).toMatch(/User-agent:\s*\*/i);
   expect(body).toMatch(/Disallow:\s*\//);
-  for (const pathName of ["/index.html", "/creator.html", "/admin.html", "/sales.html"]) {
+  const pages = [
+    "/index.html",
+    "/explore.html",
+    "/walk.html?id=grove-kane-scan-splat",
+    "/signup.html",
+    "/login.html",
+    "/upload.html",
+    "/me.html",
+    "/about.html",
+    "/guidelines.html",
+    "/privacy.html",
+    "/terms.html",
+    "/creator.html",
+    "/sales.html",
+    "/admin.html",
+  ];
+  for (const pathName of pages) {
     await page.goto(pathName);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex");
-    await expect(page.locator('header nav a[href="/sales.html"]')).toHaveText("For businesses");
+    const text = await page.locator("body").innerText();
+    expect(text, pathName + " should not use the old site name").not.toContain("Walk of Fame Globe");
   }
 });

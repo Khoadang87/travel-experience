@@ -1,0 +1,15 @@
+{
+  "id": "lax-bradley-wide-preview",
+  "title": "Tom Bradley International Terminal, LAX \u2014 wider view (AI preview)",
+  "src": "media/videowalk/lax-bradley-wide-preview.mp4",
+  "duration": 8.0,
+  "loop": true,
+  "overscale": 1.92,
+  "badge": "Edges extended with AI",
+  "credit": "Private test footage at Tom Bradley International Terminal, LAX. An 8-second preview with edges extended with AI so you can look a little farther. The clip loops. Audio is off.",
+  "sourceUrl": "media/videowalk/ATTRIBUTION.md",
+  "spots": [],
+  "path": [],
+  "pathNote": "No route map for this short preview: the mini-map is hidden.",
+  "creditDetails": "Flat video, not 360. This is an 8-second segment of the Tom Bradley walk (about 1:52\u20132:00 of the full clip) whose edges were extended with AI so drag-to-look can move farther before hitting the edge of the footage. The real camera frame sits in the centre, about two-thirds of the picture; the border around it was generated. Model: FLUX.1 Fill [dev], run on the free Hugging Face Space multimodalart/flux-fill-outpaint. It is a test preview, not a finished production treatment, and not a 360 capture. The clip loops. Clip audio was omitted because travelers and staff can be heard. The full 2:34 walk is a separate entry and was not altered. Place: same as that walk, about 33.9439 N, 118.4081 W. Travelers and staff appear in the frame and have not been asked about public display; check consent before any public launch."
+}

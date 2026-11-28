@@ -1,5 +1,5 @@
-Sample 360 footage (stand-in — not Hollywood, not creator footage)
-==================================================================
+Sample 360 footage (stand-in — not map footage, not creator footage)
+====================================================================
 
 File: sample-360.mp4 (and sample-360-poster.jpg)
 
@@ -12,99 +12,35 @@ This is a short, downscaled, muted excerpt of:
   License URL: https://creativecommons.org/licenses/by/3.0/
   Original: 3840×2048 equirectangular walking 360 video, recorded at Anıtkabir, Ankara.
   This excerpt: about 22 seconds starting ~00:20, scaled to 1280×682, H.264, no audio,
-  used as a labeled stand-in in the 360 player.
+  used as a labeled stand-in for the creator-trial preview.
 
-This is the clip the player serves. It is not Hollywood Walk of Fame footage
-and is not creator-submitted video. The app labels it as a stand-in on screen.
+The app never presents this clip as footage from a map pin or as a creator upload.
+The same credit is shown whenever the clip plays.
 
 Attribution to show in the app:
   360 stand-in (not Hollywood Walk of Fame, not creator footage):
   Anıtkabir, Ankara — 360TR, CC BY 3.0.
 
-Flat-video demo (curved screen — not true 360)
-================================================
+Lower-resolution first-load encode
+==================================
 
-File: walk-of-fame-flat.mp4 (and walk-of-fame-flat-poster.jpg)
+File: sample-360-low.mp4
 
-  “Walk of Fame in Los Angeles” — slow-motion video of people walking
-  along the Hollywood Walk of Fame
-  Source: https://www.pexels.com/video/walk-of-fame-in-los-angeles-13560787/
-  Author: Dimitri Baret
-  License: Pexels License (free to use, no attribution required;
-  credited here anyway)
-  License URL: https://www.pexels.com/license/
-  This file: 30-second excerpt (starting ~00:05) of the 55-second
-  original, scaled to 1280×540, H.264, 23.98 fps, no audio, for the
-  prototype. Shown on a curved screen inside
-  the 360 player as a demo of turning flat footage into a 360-style
-  view. It is flat footage, not true 360, and the app labels it so.
+A smaller, faststart (moov-at-front) H.264 encode of the same source clip,
+used only to show a first frame faster. The player then upgrades to the
+full-resolution file. Same author and license (360TR, CC BY 3.0).
 
-This is also the clip used by the example business pin (same file,
-credited as a demo listing).
+Video walks
+===========
+
+The Grove, Farmers Market, café counter, and LAX Tom Bradley walks and their attribution live under
+media/videowalk/. See media/videowalk/ATTRIBUTION.md.
 
 Files no longer in this tree
 ============================
 
-The unlicensed YouTube test clips previously stored as hollywood-360.mp4
-and hollywood-360-2d-converted.mp4 (and their posters) were removed from
-the project going forward. They must not be served. Git history may still
-contain them; they are not part of the current tree.
-
-Lower-resolution first-load encodes
-===================================
-
-Files: sample-360-low.mp4 and walk-of-fame-flat-low.mp4
-
-These are smaller, faststart (moov-at-front) H.264 encodes of the same
-source clips above, used only to show a first frame faster. The player
-then upgrades to the full-resolution file. Same authors and licenses
-as the corresponding full files (360TR, CC BY 3.0; Dimitri Baret,
-Pexels License).
-
-2D -> 360 AI fill-in tests (unlisted test pages, not linked from the map)
-=========================================================================
-
-Files: wof-ai360.mp4, wof-ai360-low.mp4, wof-ai360-poster.jpg (test v1)
-       wof-ai360-v2.mp4, wof-ai360-v2-low.mp4, wof-ai360-v2-poster.jpg (test v2)
-
-  Front: excerpt of "Walk of Fame in Los Angeles" by Dimitri Baret, Pexels
-  License (https://www.pexels.com/license/).
-  Surround: AI-generated 360 panorama (DiT360 Hugging Face Space); in v2 the
-  sidewalk band is animated with the Wan 2.2 image-to-video Hugging Face Space.
-  Not true 360 footage. See SOURCES.md for details.
-
-Placeholder Gaussian splat (test asset — not a real place)
-==========================================================
-
-File: splat/kyoto-room.sog
-Licence text: splat/LICENSE.txt (upstream CC0 1.0)
-
-  “kyoto_room” from SharedTestModels
-  Source: https://github.com/raymondyfei/SharedTestModels
-  Author: raymondyfei
-  License: CC0 1.0 Universal
-  License URL: https://creativecommons.org/publicdomain/zero/1.0/
-
-  This file is the 0_0 SOG LOD level of kyoto_room, packaged as a single
-  .sog ZIP (meta.json + webp channels at the archive root), 500,000
-  Gaussians. It is a test placeholder for the splat viewer. It is not a
-  capture of Hollywood Walk of Fame or of the map pin's real surroundings.
-  The app labels it: “Test asset, not the real place.”
-
-Placeholder avatar (ToyCar)
-==========================
-
-File: avatar/ToyCar.glb
-Licence text: avatar/LICENSE.md (upstream)
-
-  “ToyCar” from the Khronos glTF Sample Assets
-  Source: https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/ToyCar
-  Authors: Guido Odendahl (initial car model); Eric Chadwick (extensions and
-  scene composition)
-  License: CC0 1.0 Universal
-  License URL: https://creativecommons.org/publicdomain/zero/1.0/
-
-  Official glTF-Binary was 5,422,412 bytes. The file in this tree was
-  recompressed with glTF-Transform (WebP textures, quantization, unused
-  sample cameras removed) to 2,973,624 bytes. Same CC0 model. Used as a
-  stylized avatar in the splat room, not as a real car at the map pin.
+Walk of Fame 360/flat demos, unlisted AI-360 test pages, splat previews
+(including Kyoto, Street intersection, Ludlow, and the Grove/Farmers test
+scans), thumbs for removed pins, and street-crowd models were removed from
+the current tree. Git history may still contain them; they are not part of
+the current tree and must not be served.

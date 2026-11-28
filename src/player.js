@@ -1,4 +1,5 @@
-import { DEFAULT_360, FLAT, FLAT_BUSINESS } from "./shared.js";
+import { DEFAULT_360, bindFadeHint } from "./shared.js";
+import { bindPlayerFullscreen } from "./fullscreen.js";
 
 const DEG = Math.PI / 180;
 
@@ -12,8 +13,9 @@ export function mountPlayer(root) {
             <h2 id="player-title">Pin</h2>
           </div>
           <div class="player-top-actions">
-            <button type="button" class="icon-btn" data-fs aria-label="Enter fullscreen">Full screen</button>
-            <button type="button" class="icon-btn" data-close aria-label="Close player">Close</button>
+            <button type="button" class="icon-btn" data-fs aria-label="Full screen" aria-pressed="false">Full screen</button>
+            <button type="button" class="icon-btn fs-exit-btn" data-fs-exit hidden aria-label="Exit full screen">✕</button>
+            <button type="button" class="icon-btn" data-close aria-label="Close">Close</button>
           </div>
         </div>
         <p class="sample-banner" data-sample-banner></p>
@@ -23,11 +25,14 @@ export function mountPlayer(root) {
           <img data-poster alt="" hidden>
           <div class="watermark" data-watermark hidden></div>
           <div class="trial-end" data-trial-end hidden>Trial preview is capped at <span data-cap-label>45</span> seconds.</div>
-          <div class="look-hint">Move stick: walk — the clip moves only while you walk · Look stick: look around</div>
         </div>
+        <p class="look-hint" data-look-hint>
+          <span class="hint-phone">Drag to look, hold stick to walk</span>
+          <span class="hint-desktop">Hold Move to walk — the clip moves only while you walk. Use Look to look around.</span>
+        </p>
         <div class="player-controls">
           <div class="sticks">
-            <div class="stick-wrap">
+            <div class="stick-wrap stick-wrap-look">
               <div class="stick" data-stick="look" role="application" aria-label="Look joystick">
                 <div class="stick-knob"></div>
               </div>
@@ -70,6 +75,7 @@ export function mountPlayer(root) {
   const fsBtn = root.querySelector("[data-fs]");
   const panel = root.querySelector(".player-panel");
   const posterEl = root.querySelector("[data-poster]");
+  const markHintUsed = bindFadeHint(root.querySelector("[data-look-hint]"));
 
   const video = document.createElement("video");
   video.playsInline = true;
@@ -359,16 +365,22 @@ export function mountPlayer(root) {
     };
     el.addEventListener("pointerdown", (e) => {
       pid = e.pointerId;
-      el.setPointerCapture(pid);
+      try { el.setPointerCapture(pid); } catch (_) {}
       move(e.clientX, e.clientY);
       e.preventDefault();
+      e.stopPropagation();
+      markHintUsed();
     });
+    const endIf = (e) => {
+      if (pid != null && e.pointerId !== pid) return;
+      end();
+    };
     el.addEventListener("pointermove", (e) => {
       if (pid !== e.pointerId) return;
       move(e.clientX, e.clientY);
     });
-    el.addEventListener("pointerup", end);
-    el.addEventListener("pointercancel", end);
+    el.addEventListener("pointerup", endIf);
+    el.addEventListener("pointercancel", endIf);
   }
 
   bindStick(root.querySelector('[data-stick="look"]'), (x, y) => {
@@ -379,16 +391,22 @@ export function mountPlayer(root) {
     walkAxis = -y;
   });
 
+  let dragId = null;
   canvas.addEventListener("pointerdown", (e) => {
+    if (e.button != null && e.button !== 0) return;
+    if (dragId != null) return;
+    dragId = e.pointerId;
     dragging = true;
     lastX = e.clientX;
     lastY = e.clientY;
     dragVelX = 0;
     dragVelY = 0;
-    canvas.setPointerCapture(e.pointerId);
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+    markHintUsed();
   });
   canvas.addEventListener("pointermove", (e) => {
-    if (!dragging) return;
+    if (dragId !== e.pointerId) return;
     const dx = e.clientX - lastX;
     const dy = e.clientY - lastY;
     lastX = e.clientX;
@@ -400,7 +418,9 @@ export function mountPlayer(root) {
     dragVelX = dragVelX * 0.55 + stepX * 0.45;
     dragVelY = dragVelY * 0.55 + stepY * 0.45;
   });
-  const stopDrag = () => {
+  const stopDrag = (e) => {
+    if (dragId != null && e && e.pointerId !== dragId) return;
+    dragId = null;
     dragging = false;
   };
   canvas.addEventListener("pointerup", stopDrag);
@@ -439,7 +459,10 @@ export function mountPlayer(root) {
 
   function onKey(e) {
     if (shell.hidden) return;
-    if (e.key === "Escape") close();
+    if (e.key === "Escape") {
+      if (fullscreen.isActive()) fullscreen.exit();
+      else close();
+    }
     if (e.key === "ArrowLeft") yaw += 4 * DEG;
     if (e.key === "ArrowRight") yaw -= 4 * DEG;
     if (e.key === "ArrowUp") pitch = clamp(pitch + 3 * DEG, -80 * DEG, 80 * DEG);
@@ -511,7 +534,6 @@ export function mountPlayer(root) {
         if (pendingHi !== upgrade) return;
         const t = video.currentTime;
         const paused = video.paused;
-        const rate = video.playbackRate;
         upgrade.removeEventListener("canplaythrough", onReady);
         upgrade.removeEventListener("loadeddata", onReady);
         showPoster(clip.poster || "");
@@ -520,7 +542,8 @@ export function mountPlayer(root) {
           video.removeEventListener("loadeddata", resume);
           video.removeEventListener("canplay", resume);
           video.currentTime = t;
-          video.playbackRate = rate || 0.5;
+          // Don't copy a browser-reset rate of 1 from the just-swapped source.
+          video.playbackRate = 0.5;
           if (!paused) video.play().catch(() => {});
           hidePoster();
         };
@@ -538,82 +561,12 @@ export function mountPlayer(root) {
     }
   }
 
-  function fsElement() {
-    return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || null;
-  }
-
-  function isFullscreen() {
-    return fsElement() === panel || panel.classList.contains("is-fullscreen");
-  }
-
-  function syncFsButton() {
-    const on = isFullscreen();
-    fsBtn.textContent = on ? "Exit full screen" : "Full screen";
-    fsBtn.setAttribute("aria-label", on ? "Exit fullscreen" : "Enter fullscreen");
-  }
-
-  function enterCssFs() {
-    panel.classList.add("is-fullscreen");
-    document.body.classList.add("player-css-fs");
-    resize();
-    syncFsButton();
-  }
-
-  function leaveCssFs() {
-    panel.classList.remove("is-fullscreen");
-    document.body.classList.remove("player-css-fs");
-    resize();
-    syncFsButton();
-  }
-
-  function requestFullscreen() {
-    const fn =
-      panel.requestFullscreen ||
-      panel.webkitRequestFullscreen ||
-      panel.webkitRequestFullScreen ||
-      panel.mozRequestFullScreen ||
-      panel.msRequestFullscreen;
-    if (typeof fn === "function") {
-      const result = fn.call(panel);
-      if (result && typeof result.catch === "function") {
-        result.catch(() => enterCssFs());
-      }
-      // iOS may silently no-op; fall back shortly if we didn't enter.
-      setTimeout(() => {
-        if (!isFullscreen()) enterCssFs();
-      }, 300);
-    } else {
-      enterCssFs();
-    }
-    syncFsButton();
-  }
-
-  function exitFullscreen(silent) {
-    if (panel.classList.contains("is-fullscreen")) leaveCssFs();
-    const fn =
-      document.exitFullscreen ||
-      document.webkitExitFullscreen ||
-      document.webkitCancelFullScreen ||
-      document.mozCancelFullScreen ||
-      document.msExitFullscreen;
-    if (fsElement() && typeof fn === "function") {
-      const result = fn.call(document);
-      if (result && typeof result.catch === "function") result.catch(() => {});
-    }
-    if (!silent) syncFsButton();
-  }
-
-  function toggleFullscreen() {
-    if (isFullscreen()) exitFullscreen();
-    else requestFullscreen();
-  }
-
-  fsBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    toggleFullscreen();
+  const fullscreen = bindPlayerFullscreen({
+    panel,
+    button: fsBtn,
+    exitButton: root.querySelector("[data-fs-exit]"),
+    onLayout: resize,
   });
-  document.addEventListener("fullscreenchange", syncFsButton);
-  document.addEventListener("webkitfullscreenchange", syncFsButton);
 
   async function open(opts = {}) {
 
@@ -622,7 +575,7 @@ export function mountPlayer(root) {
     flatMode = Boolean(opts.flat);
     // A pin may override the clip (demo / flat). Default is DEFAULT_360
     // (licensed stand-in on main).
-    const clip = opts.clip || (flatMode ? FLAT : DEFAULT_360);
+    const clip = opts.clip || DEFAULT_360;
     mesh.visible = !flatMode;
     meshFlat.visible = flatMode;
     trialCap = Number(opts.trialCap || 45);
@@ -688,7 +641,7 @@ export function mountPlayer(root) {
   function close(opts) {
     video.pause();
     cancelPendingHi();
-    exitFullscreen(true);
+    fullscreen.exit(true);
     shell.hidden = true;
     document.body.classList.remove("player-open");
     if (opts && opts.silent) return;
