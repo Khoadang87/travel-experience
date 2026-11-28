@@ -11,7 +11,7 @@ async function shot(page, name) {
   return file;
 }
 
-const PRIMARY_PIN_NAMES = ["The Grove", "Farmers Market", "Café counter, 1st Street"];
+const PRIMARY_PIN_NAMES = ["The Grove", "Farmers Market", "Café counter, 1st Street", "The Grove, trolley street"];
 
 async function goToWalk(page) {
   if (!page.url().includes("explore.html")) {
@@ -67,10 +67,11 @@ test("explore map fits the walks and pins open the Grove video walk", async ({ p
   await expect(canvas).toBeVisible();
   await page.waitForTimeout(1500);
   await expect(page.locator("body")).toHaveAttribute("data-mode", "street");
-  await expect(page.locator(".map-pin")).toHaveCount(3);
+  await expect(page.locator(".map-pin")).toHaveCount(5);
   await expect(page.getByRole("button", { name: "The Grove", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Farmers Market" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Café counter" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "The Grove, trolley street" })).toBeVisible();
   await shot(page, "02-street-pins.png");
 
   await page.getByRole("button", { name: "The Grove", exact: true }).click();
@@ -145,7 +146,7 @@ test("phone street view leaves primary pins tappable and dismisses the pin card"
     await page.setViewportSize(size);
     await goToWalk(page);
     await page.waitForTimeout(500);
-    await expect(page.locator(".map-pin")).toHaveCount(3);
+    await expect(page.locator(".map-pin")).toHaveCount(5);
     const hud = await page.locator("#explore-panel").boundingBox();
     const header = await page.locator("header.top").boundingBox();
     for (const name of PRIMARY_PIN_NAMES) {
@@ -176,12 +177,12 @@ test("phone street view leaves primary pins tappable and dismisses the pin card"
   await shot(page, "20-phone-664-after-close.png");
 });
 
-test("explore list on a phone shows the three walks and filters", async ({ page }) => {
+test("explore list on a phone shows the five walks and filters", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await goToWalk(page);
-  await expect(page.locator("#explore-list .walk-card")).toHaveCount(3);
-  for (const name of [/The Grove/, /Farmers Market/, /Café counter/]) {
-    const card = page.locator("#explore-list .walk-card", { hasText: name });
+  await expect(page.locator("#explore-list .walk-card")).toHaveCount(5);
+  for (const name of ["The Grove", "The Grove, trolley street", "Farmers Market", "Café counter, 1st Street", "Tom Bradley International Terminal, LAX"]) {
+    const card = page.locator("#explore-list .walk-card", { has: page.getByRole("heading", { name, exact: true }) });
     await expect(card).toBeVisible();
   }
   await expect(page.locator("#explore-list")).not.toContainText("Walk of Fame");
@@ -190,7 +191,7 @@ test("explore list on a phone shows the three walks and filters", async ({ page 
   await expect(page.locator("#filter-city")).toContainText("Los Angeles");
   await expect(page.locator("#filter-type")).toContainText("Video walk");
   await page.locator("#filter-city").selectOption("Los Angeles");
-  await expect(page.locator("#explore-list .walk-card")).toHaveCount(3);
+  await expect(page.locator("#explore-list .walk-card")).toHaveCount(5);
   await shot(page, "21-phone-844-all-pins.png");
 });
 
@@ -309,6 +310,8 @@ const REMAINING_PINS = [
   { id: "grove-kane-scan-splat", lng: -118.3576, lat: 34.072, videoWalk: "data/grove-videowalk.json" },
   { id: "farmers-kane-scan-splat", lng: -118.3608, lat: 34.0719, videoWalk: "data/farmers-videowalk.json" },
   { id: "cafe-first-street-walk", lng: -118.3598, lat: 34.0725, videoWalk: "data/cafe-videowalk.json" },
+  { id: "grove-trolley-walk", lng: -118.3595, lat: 34.0723, videoWalk: "data/grove-trolley-videowalk.json" },
+  { id: "lax-bradley-walk", lng: -118.4081, lat: 33.9439, videoWalk: "data/lax-bradley-videowalk.json" },
 ];
 
 async function waitForMap(page) {
@@ -326,7 +329,7 @@ test("remaining pins keep their ids, coordinates, and video-walk behaviour", asy
       splat: p.splat || undefined,
     }))
   );
-  expect(pins).toHaveLength(3);
+  expect(pins).toHaveLength(5);
   expect(pins.map((p) => p.id)).toEqual(REMAINING_PINS.map((p) => p.id));
   for (const expected of REMAINING_PINS) {
     const got = pins.find((p) => p.id === expected.id);
@@ -435,12 +438,62 @@ test("Café counter video walk opens, hides the empty mini-map, walks and stops"
   expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
 });
 
+
+test("Grove trolley walk opens, hides the empty mini-map, walks and stops", async ({ page }) => {
+  test.setTimeout(180000);
+  await openWalk(page, "grove-trolley-walk");
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("trolley street");
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("whole 153");
+  await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Holiday house");
+  await expect(page.locator("#videowalk-root .videowalk-minimap")).toBeHidden();
+  await expect(page.locator("#walk-handle")).toContainText("@la.walker");
+  await page.locator("#videowalk-root [data-credits]").click();
+  await expect(page.locator("#videowalk-root [data-credit-details]")).toContainText("bystanders can be heard");
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+  const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, -1));
+  await page.waitForFunction((start) => window.__tgVideoWalk && window.__tgVideoWalk.currentTime > start + 0.35, t0, { timeout: 20000 });
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, 0));
+  const paused = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.waitForTimeout(450);
+  const still = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  expect(Math.abs(still - paused)).toBeLessThan(0.35);
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+});
+
+test("Tom Bradley LAX walk opens, hides the empty mini-map, walks and stops", async ({ page }) => {
+  test.setTimeout(180000);
+  await openWalk(page, "lax-bradley-walk");
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("Tom Bradley International Terminal");
+  await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("154-second");
+  await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Tom Bradley sign");
+  await expect(page.locator("#videowalk-root [data-spots]")).toContainText("Checkpoint A");
+  await expect(page.locator("#videowalk-root .videowalk-minimap")).toBeHidden();
+  await expect(page.locator("#walk-handle")).toContainText("@lax.walker");
+  await page.locator("#videowalk-root [data-credits]").click();
+  await expect(page.locator("#videowalk-root [data-credit-details]")).toContainText("Travelers and staff appear");
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+  const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, -1));
+  await page.waitForFunction((start) => window.__tgVideoWalk && window.__tgVideoWalk.currentTime > start + 0.35, t0, { timeout: 20000 });
+  await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, 0));
+  const paused = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  await page.waitForTimeout(450);
+  const still = await page.evaluate(() => window.__tgVideoWalk.currentTime);
+  expect(Math.abs(still - paused)).toBeLessThan(0.35);
+  expect(await page.evaluate(() => window.__tgVideoWalk.coversStage())).toBe(true);
+});
+
 test.describe("video walk phone viewport", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("All three video walks have no black edges on a phone-sized viewport", async ({ page }) => {
-    test.setTimeout(240000);
-    for (const id of ["grove-kane-scan-splat", "farmers-kane-scan-splat", "cafe-first-street-walk"]) {
+  test("All five video walks have no black edges on a phone-sized viewport", async ({ page }) => {
+    test.setTimeout(360000);
+    for (const id of ["grove-kane-scan-splat", "farmers-kane-scan-splat", "cafe-first-street-walk", "grove-trolley-walk", "lax-bradley-walk"]) {
       await openWalk(page, id);
       expect(await page.evaluate(() => window.__tgVideoWalk.coversStage()), id + " covers").toBe(true);
       const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);

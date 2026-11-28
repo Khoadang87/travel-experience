@@ -66,3 +66,44 @@ frame (1.2×) and pans inside it so black edges are never shown.
 - **Encoding:** same recipe as above (640×1136 H.264, CRF 28, 0.5 s
   keyframes, faststart, no audio, GPS/metadata stripped). File:
   `cafe-counter-walk.mp4`, 4,399,730 bytes (about 4.2 MB).
+
+## The Grove, trolley street (added 27 November 2026)
+
+- **Footage:** the site owner's own iPhone 15 clip, about 153 seconds
+  (the whole clip), filmed 26 November 2026 along the trolley street at
+  The Grove, Los Angeles. Place comes from the clip's own GPS tag: about
+  34.0723 N, 118.3595 W, horizontal accuracy about 22 m, at the west end
+  of The Grove next to the Original Farmers Market. The trolley tracks,
+  holiday house, Apple Store, and Charlotte Tilbury storefront are
+  visible in the frames, so the title uses The Grove. No endorsement by
+  The Grove, its stores, or anyone in the footage is implied.
+- **What it is:** a continuous walk down the trolley street. It has no
+  route map, so the mini-map is hidden. People on the street appear in
+  the frame and have not been asked about public display; check consent
+  before any public launch.
+- **Encoding:** same recipe as above (640×1136 H.264, CRF 28, 0.5 s
+  keyframes, faststart, no audio, GPS/metadata stripped). File:
+  `grove-trolley-walk.mp4`, 52,470,354 bytes (about 50.0 MB).
+
+## Tom Bradley International Terminal, LAX (added 27 November 2026)
+
+- **Footage:** the site owner's own iPhone 15 clip, filmed 26 November
+  2026 at Los Angeles International Airport. Place comes from the
+  clip's own GPS tag: about 33.9439 N, 118.4081 W, horizontal accuracy
+  about 6 m, which falls inside the OpenStreetMap outline of Tom
+  Bradley International Terminal on World Way. The opening frames also
+  show the "TOM BRADLEY" lettering on the terminal. No endorsement by
+  the airport, airlines, or anyone in the footage is implied.
+- **Trim:** the source is about 159.5 seconds. The published walk uses
+  the first 154 seconds, cutting a brief out-of-focus close pass at the
+  end. The rest is one continuous walk from the curbside sign into the
+  terminal hall.
+- **What it is:** a walk from the curbside crosswalk through the doors
+  and along the hall toward checkpoint A. It has no route map, so the
+  mini-map is hidden. Travelers and staff appear in the frame and have
+  not been asked about public display; check consent before any public
+  launch.
+- **Encoding:** same recipe as above (640×1136 H.264, CRF 28, 0.5 s
+  keyframes, faststart, no audio, GPS/metadata stripped). File:
+  `lax-bradley-walk.mp4`, 35,499,459 bytes (about 33.9 MB).
+

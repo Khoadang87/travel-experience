@@ -25,8 +25,9 @@ Checked 19–22 November 2026. No accounts were created and no one was contacted
 
 ## Video walks
 
-- The Grove, the Original Farmers Market, and a café counter on 1st Street,
-  Los Angeles: private test footage. Audio is off because bystanders can be heard. Details are in
+- The Grove, the Original Farmers Market, a café counter on 1st Street, and
+  Tom Bradley International Terminal at LAX: private test footage. Audio is
+  off because bystanders can be heard. Details are in
   `media/videowalk/ATTRIBUTION.md`.
 
 ## Creator-trial 360 stand-in
