@@ -1,9 +1,9 @@
 // Shared Full screen control for the walk / 360 / splat players.
-// iPhone Safari does not support the Fullscreen API on non-video
-// elements (it may be missing, throw, or no-op). video.webkitEnterFullscreen
-// would hide our overlays and stick, so we never use it. If native
-// fullscreen is unavailable or does not actually enter, we use a CSS
-// "pseudo-fullscreen" that pins the player to the visual viewport.
+// The Full screen button is hidden on phone and coarse-pointer viewports
+// (the player is already full-bleed there). This helper is for desktop /
+// fine-pointer only. Prefer the native Fullscreen API; if it is missing
+// or does not actually enter, fall back to a CSS pseudo-fullscreen so
+// the desktop button never no-ops. Never use video.webkitEnterFullscreen.
 
 function nativeElement() {
   return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || null;
@@ -45,6 +45,10 @@ export function bindPlayerFullscreen({ panel, button, exitButton, onLayout }) {
   let cssOn = false;
   let enterTimer = 0;
   const shell = panel.closest(".player-shell") || panel;
+  // Keep in sync with the CSS that hides [data-fs] on phone / coarse / short landscape.
+  const hideMq = window.matchMedia(
+    "(max-width: 700px), (pointer: coarse), (max-height: 500px) and (max-width: 1000px)"
+  );
 
   function isActive() {
     return nativeElement() === panel || cssOn || panel.classList.contains("is-fullscreen");
@@ -215,6 +219,12 @@ export function bindPlayerFullscreen({ panel, button, exitButton, onLayout }) {
   document.addEventListener("keydown", onKey, true);
   document.addEventListener("fullscreenchange", onNativeChange);
   document.addEventListener("webkitfullscreenchange", onNativeChange);
+  function onHideChrome() {
+    if (hideMq.matches && isActive()) exit(true);
+  }
+  if (hideMq.addEventListener) hideMq.addEventListener("change", onHideChrome);
+  else if (hideMq.addListener) hideMq.addListener(onHideChrome);
+
   window.addEventListener("resize", onViewport);
   if (window.visualViewport) window.visualViewport.addEventListener("resize", onViewport);
 
@@ -234,6 +244,8 @@ export function bindPlayerFullscreen({ panel, button, exitButton, onLayout }) {
       document.removeEventListener("webkitfullscreenchange", onNativeChange);
       window.removeEventListener("resize", onViewport);
       if (window.visualViewport) window.visualViewport.removeEventListener("resize", onViewport);
+      if (hideMq.removeEventListener) hideMq.removeEventListener("change", onHideChrome);
+      else if (hideMq.removeListener) hideMq.removeListener(onHideChrome);
       if (cssOn) leaveCss();
     },
   };
