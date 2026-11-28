@@ -449,3 +449,15 @@ body[data-page="explore"] .explore-empty {
     bottom: 8px;
   }
 }
+
+/* Upload step 2: location auto-detect */
+.gps-note { margin: 4px 0 8px; font-size: 14px; color: var(--muted); }
+.gps-note:empty { display: none; }
+.gps-note.is-found { color: var(--accent); font-weight: 600; }
+.gps-note.is-none { color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+.gps-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 8px; }
+.gps-hint { font-size: 13px; color: var(--muted); margin: 0 0 8px; }
+.gps-place { margin: 0 0 8px; font-size: 14px; }
+.gps-edit { margin: 8px 0 12px; }
+.gps-edit summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--accent); font-size: 14px; }
+.gps-edit-fields { display: grid; gap: 8px; margin-top: 4px; }

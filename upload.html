@@ -55,13 +55,36 @@
             <video id="upload-video" controls playsinline></video>
             <p id="upload-file-name"></p>
           </div>
+          <p class="gps-note" id="upload-gps-step1" role="status" aria-live="polite"></p>
         </section>
         <section class="upload-step" data-step="2" hidden aria-labelledby="step-2-title">
-          <h2 id="step-2-title">2. Drop a pin</h2>
-          <p>This preview cannot read a location from the video file. Drop a pin on the map or use the Los Angeles walk area.</p>
-          <div id="upload-map" role="application" aria-label="Map for placing your walk"></div>
+          <h2 id="step-2-title">2. Place your walk</h2>
+          <p>If your video has a location saved in it, it is read here, on this device, and the pin is placed for you. The video is never uploaded.</p>
+          <p class="gps-note" id="upload-gps-status" role="status" aria-live="polite"></p>
+          <div id="upload-map" role="application" aria-label="Map for placing your walk. Tap the map or drag the pin to adjust it."></div>
           <p id="upload-pin-label">No pin yet.</p>
-          <p><button type="button" class="ghost" id="btn-use-la">Use the Los Angeles walk area</button></p>
+          <p class="gps-place" id="upload-place" role="status" aria-live="polite" hidden></p>
+          <div class="gps-actions">
+            <button type="button" class="ghost" id="btn-reset-detected" hidden>Reset to detected location</button>
+            <button type="button" class="ghost" id="btn-use-la">Use the Los Angeles walk area</button>
+            <button type="button" class="ghost" id="btn-lookup" aria-describedby="lookup-hint" hidden>Look up place name</button>
+          </div>
+          <p class="gps-hint" id="lookup-hint" hidden>Optional. This sends only the pin's coordinates (not your video) to OpenStreetMap's free Nominatim service.</p>
+          <details class="gps-edit" id="gps-edit">
+            <summary>Type coordinates instead</summary>
+            <div class="gps-edit-fields">
+              <div class="field">
+                <label for="pin-lat">Latitude</label>
+                <input id="pin-lat" type="text" inputmode="decimal" autocomplete="off" placeholder="34.07195">
+              </div>
+              <div class="field">
+                <label for="pin-lng">Longitude</label>
+                <input id="pin-lng" type="text" inputmode="decimal" autocomplete="off" placeholder="-118.3592">
+              </div>
+              <button type="button" class="ghost" id="btn-apply-coords">Move pin here</button>
+            </div>
+            <p class="field-error" id="pin-coords-error" role="alert"></p>
+          </details>
           <p class="field-error" id="upload-pin-error" role="alert"></p>
         </section>
         <section class="upload-step" data-step="3" hidden aria-labelledby="step-3-title">
