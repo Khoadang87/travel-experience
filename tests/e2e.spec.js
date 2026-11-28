@@ -67,11 +67,11 @@ test("explore map fits the walks and pins open the Grove video walk", async ({ p
   await expect(canvas).toBeVisible();
   await page.waitForTimeout(1500);
   await expect(page.locator("body")).toHaveAttribute("data-mode", "street");
-  await expect(page.locator(".map-dot")).toHaveCount(6);
+  await expect(page.locator(".map-dot")).toHaveCount(7);
   await expect(page.getByRole("button", { name: "The Grove", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Farmers Market" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Café counter" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "The Grove, trolley street" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "The Grove, trolley street", exact: true })).toBeVisible();
   await shot(page, "02-street-pins.png");
 
   await page.getByRole("button", { name: "The Grove", exact: true }).click();
@@ -148,7 +148,7 @@ test("phone street view leaves primary pins tappable and dismisses the pin card"
     await page.setViewportSize(size);
     await goToWalk(page);
     await page.waitForTimeout(500);
-    await expect(page.locator(".map-dot")).toHaveCount(6);
+    await expect(page.locator(".map-dot")).toHaveCount(7);
     const hud = await page.locator("#explore-panel").boundingBox();
     const header = await page.locator("header.top").boundingBox();
     for (const name of PRIMARY_PIN_NAMES) {
@@ -180,11 +180,11 @@ test("phone street view leaves primary pins tappable and dismisses the pin card"
   await shot(page, "20-phone-664-after-close.png");
 });
 
-test("explore list on a phone shows the six walks and filters", async ({ page }) => {
+test("explore list on a phone shows the seven walks and filters", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await goToWalk(page);
-  await expect(page.locator("#explore-list .walk-card")).toHaveCount(6);
-  for (const name of ["The Grove", "The Grove, trolley street", "Farmers Market", "Café counter, 1st Street", "Tom Bradley International Terminal, LAX", "Tom Bradley International Terminal, LAX — wider view (AI preview)"]) {
+  await expect(page.locator("#explore-list .walk-card")).toHaveCount(7);
+  for (const name of ["The Grove", "The Grove, trolley street", "The Grove, trolley street — wider view (AI preview)", "Farmers Market", "Café counter, 1st Street", "Tom Bradley International Terminal, LAX", "Tom Bradley International Terminal, LAX — wider view (AI preview)"]) {
     const card = page.locator("#explore-list .walk-card", { has: page.getByRole("heading", { name, exact: true }) });
     await expect(card).toBeVisible();
   }
@@ -194,7 +194,7 @@ test("explore list on a phone shows the six walks and filters", async ({ page })
   await expect(page.locator("#filter-city")).toContainText("Los Angeles");
   await expect(page.locator("#filter-type")).toContainText("Video walk");
   await page.locator("#filter-city").selectOption("Los Angeles");
-  await expect(page.locator("#explore-list .walk-card")).toHaveCount(6);
+  await expect(page.locator("#explore-list .walk-card")).toHaveCount(7);
   await shot(page, "21-phone-844-all-pins.png");
 });
 
@@ -314,6 +314,7 @@ const REMAINING_PINS = [
   { id: "farmers-kane-scan-splat", lng: -118.3608, lat: 34.0719, videoWalk: "data/farmers-videowalk.json" },
   { id: "cafe-first-street-walk", lng: -118.3598, lat: 34.0725, videoWalk: "data/cafe-videowalk.json" },
   { id: "grove-trolley-walk", lng: -118.3595, lat: 34.0723, videoWalk: "data/grove-trolley-videowalk.json" },
+  { id: "grove-trolley-wide-preview", lng: -118.3595, lat: 34.0723, videoWalk: "data/grove-trolley-wide-preview.json" },
   { id: "lax-bradley-walk", lng: -118.4081, lat: 33.9439, videoWalk: "data/lax-bradley-videowalk.json" },
   { id: "lax-bradley-wide-preview", lng: -118.4081, lat: 33.9439, videoWalk: "data/lax-bradley-wide-preview.json" },
 ];
@@ -333,7 +334,7 @@ test("remaining pins keep their ids, coordinates, and video-walk behaviour", asy
       splat: p.splat || undefined,
     }))
   );
-  expect(pins).toHaveLength(6);
+  expect(pins).toHaveLength(7);
   expect(pins.map((p) => p.id)).toEqual(REMAINING_PINS.map((p) => p.id));
   for (const expected of REMAINING_PINS) {
     const got = pins.find((p) => p.id === expected.id);
@@ -497,7 +498,7 @@ test.describe("video walk phone viewport", () => {
 
   test("All video walks have no black edges on a phone-sized viewport", async ({ page }) => {
     test.setTimeout(360000);
-    for (const id of ["grove-kane-scan-splat", "farmers-kane-scan-splat", "cafe-first-street-walk", "grove-trolley-walk", "lax-bradley-walk", "lax-bradley-wide-preview"]) {
+    for (const id of ["grove-kane-scan-splat", "farmers-kane-scan-splat", "cafe-first-street-walk", "grove-trolley-walk", "grove-trolley-wide-preview", "lax-bradley-walk", "lax-bradley-wide-preview"]) {
       await openWalk(page, id);
       expect(await page.evaluate(() => window.__tgVideoWalk.coversStage()), id + " covers").toBe(true);
       const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);

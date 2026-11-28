@@ -37,9 +37,9 @@ async function centerOf(locator) {
 test("explore circles show no name until tapped; tap reveals, tap elsewhere hides", async ({ page }) => {
   await exploreReady(page);
   const dots = page.locator(".map-dot");
-  await expect(dots).toHaveCount(6);
+  await expect(dots).toHaveCount(7);
   await expect(page.locator(".map-pin")).toHaveCount(0);
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 7; i++) {
     const el = dots.nth(i);
     expect((await el.innerText()).trim(), "dot " + i + " has no visible text").toBe("");
     expect(await el.getAttribute("aria-label")).toBeTruthy();
@@ -102,8 +102,8 @@ test.describe("phone", () => {
   test("circles have 44 px hit areas; close pins list both walks; each opens its own walk", async ({ page }) => {
     await exploreReady(page);
     const dots = page.locator(".map-dot");
-    await expect(dots).toHaveCount(6);
-    for (let i = 0; i < 6; i++) {
+    await expect(dots).toHaveCount(7);
+    for (let i = 0; i < 7; i++) {
       const box = await dots.nth(i).boundingBox();
       expect(box.width, "dot " + i + " width").toBeGreaterThanOrEqual(44);
       expect(box.height, "dot " + i + " height").toBeGreaterThanOrEqual(44);
@@ -117,9 +117,10 @@ test.describe("phone", () => {
     await page.touchscreen.tap(cafe.x, cafe.y);
     const popup = page.locator(".pin-reveal");
     await expect(popup).toBeVisible();
-    await expect(popup).toContainText("2 walks near here");
+    await expect(popup).toContainText("3 walks near here");
     await expect(popup.getByRole("link", { name: "Open walk: Café counter, 1st Street", exact: true })).toBeVisible();
     await expect(popup.getByRole("link", { name: "Open walk: The Grove, trolley street", exact: true })).toBeVisible();
+    await expect(popup.getByRole("link", { name: "Open walk: The Grove, trolley street — wider view (AI preview)", exact: true })).toBeVisible();
     await shot(page, "feat-explore-phone-close-pins.png");
 
     // The popup stays clear of the page header.
@@ -133,7 +134,7 @@ test.describe("phone", () => {
 
     // Choose the café from the list.
     await page.touchscreen.tap(trolley.x, trolley.y);
-    await expect(page.locator(".pin-reveal")).toContainText("2 walks near here");
+    await expect(page.locator(".pin-reveal")).toContainText("3 walks near here");
     await page.getByRole("link", { name: "Open walk: Café counter, 1st Street", exact: true }).click();
     await page.waitForURL(/walk\.html\?id=cafe-first-street-walk/);
     await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
@@ -160,8 +161,8 @@ test("globe zoom on explore: circles stack, one tap lists every walk", async ({ 
   await page.mouse.click(c.x, c.y);
   const popup = page.locator(".pin-reveal");
   await expect(popup).toBeVisible();
-  await expect(popup).toContainText("6 walks near here");
-  await expect(popup.getByRole("link", { name: /^Open walk:/ })).toHaveCount(6);
+  await expect(popup).toContainText("7 walks near here");
+  await expect(popup.getByRole("link", { name: /^Open walk:/ })).toHaveCount(7);
   await shot(page, "feat-explore-desktop-globe.png");
   await popup.getByRole("link", { name: "Open walk: Tom Bradley International Terminal, LAX", exact: true }).click();
   await page.waitForURL(/walk\.html\?id=lax-bradley-walk/);
@@ -171,7 +172,7 @@ test("home globe uses the same tap-to-reveal circles", async ({ page }) => {
   await page.goto("/index.html");
   await page.waitForFunction(() => window.__tgHomeMapReady === true, null, { timeout: 60000 });
   const dots = page.locator("#hero-map .map-dot");
-  await expect(dots).toHaveCount(6);
+  await expect(dots).toHaveCount(7);
   expect((await dots.first().innerText()).trim()).toBe("");
   await page.locator("#hero-map").scrollIntoViewIfNeeded();
   await page.waitForTimeout(500);
