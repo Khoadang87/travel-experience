@@ -12,7 +12,8 @@ The site is marked `noindex` (`robots.txt` Disallow: / and a robots meta tag on 
 - Explore (`explore.html`): map, filters, and a list / bottom sheet.
 - Walk detail (`walk.html`): player, placeholder creator handle, location, length, and explore spots.
 - Sign up / Log in: front-end validation only; Google and Apple buttons are disabled and labeled coming soon.
-- Share your walk (`upload.html`): multi-step preview flow; the file is never uploaded.
+- Share your walk (`upload.html`): multi-step preview flow; the file is never uploaded. When a video is picked, the browser reads its location on this device only (`src/video-gps.js`: QuickTime `com.apple.quicktime.location.ISO6709` and the MP4 `©xyz` atom; the 3GPP `loci` atom is not read). The pin on step 2 is placed there with a “Location detected from your video” note, and it can be dragged, moved by typing coordinates, or reset. With no location in the file (some phones remove it when a video is picked from Photos), the creator pins manually. “Look up place name” is optional and sends only the pin's coordinates to OpenStreetMap Nominatim (no key); it is never called automatically.
+- Map pins (home globe, explore globe and street zoom; `src/pin-reveal.js`): each walk is a small circle with no visible name. Tap or click shows a card with the title and an Open walk link; tap elsewhere or press Escape hides it. Circles are keyboard focusable buttons with the walk name as `aria-label`, and the hit area is 44 px (36 px on desktop with a mouse). Circles closer than one hit area share one card that lists every walk there.
 - My walks (`me.html`): empty and demo-session states.
 - About, Guidelines, Privacy, and Terms: draft placeholders.
 - The older creator submission and business sales pages redirect to Share your walk and About. `admin.html` remains an unlinked internal mock.

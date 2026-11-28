@@ -67,7 +67,7 @@ test("explore map fits the walks and pins open the Grove video walk", async ({ p
   await expect(canvas).toBeVisible();
   await page.waitForTimeout(1500);
   await expect(page.locator("body")).toHaveAttribute("data-mode", "street");
-  await expect(page.locator(".map-pin")).toHaveCount(5);
+  await expect(page.locator(".map-dot")).toHaveCount(5);
   await expect(page.getByRole("button", { name: "The Grove", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Farmers Market" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Café counter" })).toBeVisible();
@@ -75,6 +75,8 @@ test("explore map fits the walks and pins open the Grove video walk", async ({ p
   await shot(page, "02-street-pins.png");
 
   await page.getByRole("button", { name: "The Grove", exact: true }).click();
+  await expect(page.locator(".pin-reveal")).toContainText("The Grove");
+  await page.getByRole("link", { name: "Open walk: The Grove", exact: true }).click();
   await page.waitForURL(/walk\.html\?id=/);
   await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
   await expect(page.locator("#player-root .player-shell")).toBeHidden();
@@ -146,7 +148,7 @@ test("phone street view leaves primary pins tappable and dismisses the pin card"
     await page.setViewportSize(size);
     await goToWalk(page);
     await page.waitForTimeout(500);
-    await expect(page.locator(".map-pin")).toHaveCount(5);
+    await expect(page.locator(".map-dot")).toHaveCount(5);
     const hud = await page.locator("#explore-panel").boundingBox();
     const header = await page.locator("header.top").boundingBox();
     for (const name of PRIMARY_PIN_NAMES) {
@@ -165,6 +167,7 @@ test("phone street view leaves primary pins tappable and dismisses the pin card"
   }
 
   await page.getByRole("button", { name: "The Grove", exact: true }).click();
+  await page.getByRole("link", { name: "Open walk: The Grove", exact: true }).click();
   await page.waitForURL(/walk\.html\?id=/);
   await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
   await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
