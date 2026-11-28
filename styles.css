@@ -162,7 +162,8 @@ button.primary:hover, a.primary:hover { background: var(--accent-hover); border-
   padding: 8px 4px;
 }
 
-#map { position: fixed; inset: 0; }
+body[data-page="map"] #map,
+body[data-page="explore"] #map { position: fixed; inset: 0; }
 #map .maplibregl-ctrl-bottom-left,
 #map .maplibregl-ctrl-bottom-right {
   bottom: calc(64px + env(safe-area-inset-bottom, 0px));

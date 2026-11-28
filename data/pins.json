@@ -21,7 +21,12 @@
       "blurb": "A video walk through The Grove, Los Angeles, from private test footage. Hold Move up to walk. Flat video, not 360. Audio is off because bystanders can be heard.",
       "label": "The Grove",
       "videoWalk": "data/grove-videowalk.json",
-      "thumb": "media/thumbs/grove.jpg"
+      "thumb": "media/thumbs/grove.jpg",
+      "city": "Los Angeles",
+      "type": "Video walk",
+      "creatorHandle": "la.walker",
+      "durationLabel": "0:35",
+      "durationSec": 35
     },
     {
       "id": "farmers-kane-scan-splat",
@@ -34,7 +39,12 @@
       "blurb": "A video walk through the Original Farmers Market, Los Angeles, from private test footage (the whole 52-second clip). Hold Move up to walk. Flat video, not 360. Audio is off because bystanders can be heard.",
       "label": "Farmers Market",
       "videoWalk": "data/farmers-videowalk.json",
-      "thumb": "media/thumbs/farmers.jpg"
+      "thumb": "media/thumbs/farmers.jpg",
+      "city": "Los Angeles",
+      "type": "Video walk",
+      "creatorHandle": "market.days",
+      "durationLabel": "0:52",
+      "durationSec": 52
     }
   ]
 }

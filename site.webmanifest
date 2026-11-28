@@ -1,6 +1,6 @@
 {
-  "name": "Walk of Fame Globe",
-  "short_name": "Walk of Fame Globe",
+  "name": "{{SITE_NAME}}",
+  "short_name": "{{SITE_NAME}}",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
