@@ -1,6 +1,6 @@
 {
-  "name": "{{SITE_NAME}}",
-  "short_name": "{{SITE_NAME}}",
+  "name": "LA Walks Preview",
+  "short_name": "LA Walks Preview",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

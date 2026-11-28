@@ -1,4 +1,4 @@
-# {{SITE_NAME}}
+# LA Walks Preview
 
 A preview of an official travel site where people explore real streets filmed by travelers, then share walks they filmed themselves. The visible name is an interim placeholder until the official brand is decided (see `src/site-config.js`).
 

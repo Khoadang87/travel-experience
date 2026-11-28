@@ -1,6 +1,7 @@
 // Interim brand placeholder. Naming is undecided — change this one
-// constant (and the matching HTML/manifest tokens at build time) to
-// swap the visible name. Do not put a personal name here.
+// constant, then run scripts/apply-brand.py so committed HTML and the
+// manifest match (the preview host serves the repo files). Do not put
+// a personal name here.
 export const SITE_NAME = "LA Walks Preview";
 export const SITE_TAGLINE = "Walk real streets, filmed by real travelers";
 export const SITE_PREVIEW_NOTE =
