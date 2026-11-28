@@ -14,11 +14,34 @@ async function shot(page, name) {
 const PRIMARY_PIN_NAMES = ["The Grove", "Farmers Market"];
 
 async function goToWalk(page) {
-  await page.getByRole("button", { name: "Start at The Grove" }).click();
-  await page.waitForFunction(() => {
-    const map = window.__tgMap;
-    return map && map.getZoom() >= 15 && document.body.dataset.mode === "street" && window.__tgStreetFitted === true;
-  }, null, { timeout: 25000 });
+  if (!page.url().includes("explore.html")) {
+    await page.goto("/explore.html");
+  }
+  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
+  await page.waitForFunction(() => window.__tgStreetFitted === true, null, { timeout: 25000 });
+}
+
+async function openWalk(page, id = "grove-kane-scan-splat") {
+  await page.goto("/walk.html?id=" + id);
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+}
+
+async function visibleKane(page) {
+  return page.evaluate(() => {
+    const hits = [];
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const text = walker.currentNode.textContent || "";
+      if (/kane/i.test(text)) {
+        const parent = walker.currentNode.parentElement;
+        const style = parent ? getComputedStyle(parent) : null;
+        const hidden = !parent || style.display === "none" || style.visibility === "hidden" || parent.hidden || parent.closest("[hidden]");
+        if (!hidden) hits.push(text.trim().slice(0, 160));
+      }
+    }
+    return hits;
+  });
 }
 
 function boxesOverlap(a, b) {
@@ -38,15 +61,10 @@ async function jumpToPin(page, id) {
 
 test.describe.configure({ mode: "serial" });
 
-test("globe renders, street zoom and pins open the Grove video walk", async ({ page }) => {
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
+test("explore map fits the walks and pins open the Grove video walk", async ({ page }) => {
+  await goToWalk(page);
   const canvas = page.locator("#map .maplibregl-canvas, #map canvas").first();
   await expect(canvas).toBeVisible();
-  await page.waitForTimeout(2000);
-  await shot(page, "01-globe.png");
-
-  await goToWalk(page);
   await page.waitForTimeout(1500);
   await expect(page.locator("body")).toHaveAttribute("data-mode", "street");
   await expect(page.locator(".map-pin")).toHaveCount(2);
@@ -55,6 +73,7 @@ test("globe renders, street zoom and pins open the Grove video walk", async ({ p
   await shot(page, "02-street-pins.png");
 
   await page.getByRole("button", { name: "The Grove", exact: true }).click();
+  await page.waitForURL(/walk\.html\?id=/);
   await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
   await expect(page.locator("#player-root .player-shell")).toBeHidden();
   await expect(page.locator("#splat-root .player-shell")).toBeHidden();
@@ -82,72 +101,24 @@ test("globe renders, street zoom and pins open the Grove video walk", async ({ p
   await expect(page.locator("#pin-card")).toBeHidden();
 });
 
-test("trial watermark and cap, one trial per creator, submission window open/closed", async ({ page }) => {
-  await page.goto("/creator.html?trialCap=3");
-  await page.evaluate(() => {
-    localStorage.removeItem("tg:trials");
-    localStorage.removeItem("tg:submissions");
-    // Keep the window open in this test even after the default end date.
-    localStorage.setItem(
-      "tg:settings",
-      JSON.stringify({
-        submissionWindowStart: "2026-11-19T00:00:00-08:00",
-        submissionWindowEnd: "2026-12-31T23:59:59-08:00",
-      })
-    );
-  });
-  await page.reload();
-  await expect(page.locator("#window-status")).toHaveText(/OPEN/i, { timeout: 15000 });
-  await shot(page, "05-creator-window-open.png");
-  await expect(page.locator("#fee-360")).toContainText("$25");
-  await expect(page.locator("#fee-spatial")).toContainText("$39");
-  await expect(page.getByText("figure to review").first()).toBeVisible();
-
-  await page.getByLabel("Name").fill("Test Creator");
-  await page.getByLabel(/Email/).fill("creator@example.com");
-  await page.getByLabel("Clip title").fill("Sidewalk test");
-  await page.locator('input[name="license"]').check();
-  await page.getByRole("button", { name: /Submit and start free trial/ }).click();
-  await expect(page.locator("#player-root .player-shell")).toBeVisible();
-  await expect(page.locator("[data-watermark]")).toBeVisible();
-  await expect(page.locator("[data-watermark]")).toContainText("TRIAL PREVIEW");
-  await expect(page.locator("[data-watermark]")).toContainText("not creator footage");
-  await page.waitForFunction(() => window.__tgPlayer && window.__tgPlayer.trial === true && window.__tgPlayer.trialCap === 3);
-  await shot(page, "06-trial-watermark.png");
-
-  await page.evaluate(() => {
-    const p = window.__tgPlayer;
-    p.setCurrentTime(2.95);
-    p.video.play();
-  });
-  await page.waitForFunction(() => window.__tgPlayer && window.__tgPlayer.capped === true, null, { timeout: 10000 });
-  await expect(page.locator("[data-trial-end]")).toBeVisible();
-  const t = await page.evaluate(() => window.__tgPlayer.currentTime);
-  expect(t).toBeGreaterThanOrEqual(2.8);
-  expect(t).toBeLessThanOrEqual(3.2);
-  await shot(page, "07-trial-cap.png");
-  await page.getByRole("button", { name: "Close" }).click();
-
-  // Second submit with same email must not grant another trial.
-  await page.getByLabel("Clip title").fill("Second clip");
-  await page.getByRole("button", { name: /Submit and start free trial/ }).click();
-  await expect(page.locator("#form-notice")).toContainText(/already used the one free trial/i);
-  await expect(page.locator("#player-root .player-shell")).toBeHidden();
-
-  // Close the window via localStorage override and verify the form locks.
-  await page.evaluate(() => {
-    localStorage.setItem(
-      "tg:settings",
-      JSON.stringify({
-        submissionWindowStart: "2026-11-01T00:00:00-08:00",
-        submissionWindowEnd: "2026-11-07T23:59:59-08:00",
-      })
-    );
-  });
-  await page.reload();
-  await expect(page.locator("#window-status")).toHaveText(/CLOSED/i, { timeout: 15000 });
-  await expect(page.getByRole("button", { name: /Submit and start free trial/ })).toBeDisabled();
-  await shot(page, "08-creator-window-closed.png");
+test("home page uses the interim brand, featured walks, and how-it-works", async ({ page }) => {
+  await page.goto("/index.html");
+  await expect(page.locator("header .brand")).toContainText("LA Walks Preview");
+  await expect(page.locator("h1")).toHaveText("Walk real streets, filmed by real travelers");
+  await expect(page.getByRole("link", { name: "Explore the map" }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: "Share your walk" }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Featured walks" })).toBeVisible();
+  await expect(page.locator("#featured-row")).toContainText("The Grove");
+  await expect(page.locator("#featured-row")).toContainText("Farmers Market");
+  await expect(page.getByRole("heading", { name: "How it works" })).toBeVisible();
+  await expect(page.locator("footer")).toContainText("About");
+  await expect(page.locator("footer")).toContainText("Guidelines");
+  await expect(page.locator("footer")).toContainText("Privacy");
+  await expect(page.locator("footer")).toContainText("Terms");
+  await expect(page.locator("body")).not.toContainText("Walk of Fame Globe");
+  expect(await visibleKane(page)).toEqual([]);
+  await page.waitForFunction(() => window.__tgHomeMapReady === true, null, { timeout: 40000 });
+  await shot(page, "01-home.png");
 });
 
 test("admin monetization panel shows free period, ads toggle, and revenue share placeholder", async ({ page }) => {
@@ -159,16 +130,7 @@ test("admin monetization panel shows free period, ads toggle, and revenue share 
   await expect(page.locator("#live-ads")).toContainText(/Ads would be ON/i);
   await shot(page, "09-admin-ads-preview.png");
 
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
-  await expect(page.locator("#adbar")).toBeVisible();
-  await expect(page.locator("#adbar")).toContainText(/Ad placeholder/i);
-  await shot(page, "10-map-ad-placeholder.png");
-
-  // phone-sized viewport (screenshot only; tappable-pin checks live in the test below)
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
   await goToWalk(page);
   await page.waitForTimeout(800);
   await shot(page, "11-phone-street.png");
@@ -180,12 +142,10 @@ test("phone street view leaves primary pins tappable and dismisses the pin card"
     { width: 390, height: 664, shotName: "18-phone-664-street.png" },
   ]) {
     await page.setViewportSize(size);
-    await page.goto("/index.html");
-    await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
     await goToWalk(page);
     await page.waitForTimeout(500);
     await expect(page.locator(".map-pin")).toHaveCount(2);
-    const hud = await page.locator(".hud").boundingBox();
+    const hud = await page.locator("#explore-panel").boundingBox();
     const header = await page.locator("header.top").boundingBox();
     for (const name of PRIMARY_PIN_NAMES) {
       const pin = page.getByRole("button", { name, exact: true });
@@ -203,46 +163,38 @@ test("phone street view leaves primary pins tappable and dismisses the pin card"
   }
 
   await page.getByRole("button", { name: "The Grove", exact: true }).click();
+  await page.waitForURL(/walk\.html\?id=/);
   await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
-  await expect(page.locator("#pin-card")).toBeHidden();
   await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
   await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("The Grove");
   await page.waitForTimeout(400);
   await shot(page, "19-phone-664-player.png");
   await page.getByRole("button", { name: "Close" }).click();
   await expect(page.locator("#videowalk-root .player-shell")).toBeHidden();
-  await expect(page.locator("#pin-card")).toBeHidden();
+  await expect(page.getByRole("heading", { name: "The Grove" })).toBeVisible();
   await shot(page, "20-phone-664-after-close.png");
 });
 
-test("See all places opens a list with The Grove and Farmers Market on a phone", async ({ page }) => {
+test("explore list on a phone shows The Grove and Farmers Market and filters", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
-  await expect(page.getByRole("button", { name: "See all places" })).toBeHidden();
-  await page.getByRole("button", { name: "Open menu" }).click();
-  await expect(page.locator("#site-nav")).toBeVisible();
-  await page.locator("#site-nav").getByRole("link", { name: "Places" }).click();
-  await expect(page.locator("#places-panel")).toBeVisible();
-  await page.waitForFunction(() => window.__tgAllPinsFitted === true, null, { timeout: 25000 });
-  await expect(page.locator("#place-grid .place-card")).toHaveCount(2);
+  await goToWalk(page);
+  await expect(page.locator("#explore-list .walk-card")).toHaveCount(2);
   for (const name of [/The Grove/, /Farmers Market/]) {
-    const card = page.locator("#place-grid .place-card", { hasText: name });
+    const card = page.locator("#explore-list .walk-card", { hasText: name });
     await expect(card).toBeVisible();
   }
-  await expect(page.locator("#place-grid")).not.toContainText("Walk of Fame");
-  await expect(page.locator("#place-grid")).not.toContainText("Ludlow");
-  await expect(page.locator("#place-grid")).not.toContainText("Example business");
+  await expect(page.locator("#explore-list")).not.toContainText("Walk of Fame");
+  await expect(page.locator("#explore-list")).not.toContainText("Ludlow");
+  await expect(page.locator("#explore-list")).not.toContainText("Example business");
+  await expect(page.locator("#filter-city")).toContainText("Los Angeles");
+  await expect(page.locator("#filter-type")).toContainText("Video walk");
+  await page.locator("#filter-city").selectOption("Los Angeles");
+  await expect(page.locator("#explore-list .walk-card")).toHaveCount(2);
   await shot(page, "21-phone-844-all-pins.png");
 });
 
 test("desktop fullscreen button uses the Fullscreen API or a CSS fallback", async ({ page }) => {
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
-  await goToWalk(page);
-  await page.getByRole("button", { name: "The Grove", exact: true }).click();
-  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
-  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+  await openWalk(page);
   await page.locator("#videowalk-root [data-fs]").click();
   await page.waitForTimeout(500);
   const on = await page.evaluate(() => {
@@ -274,13 +226,9 @@ test("phone walk has no Full screen button and Close leaves the player", async (
     { width: 390, height: 844 },
     { width: 844, height: 390 },
   ];
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
   for (const size of sizes) {
     await page.setViewportSize(size);
-    await page.evaluate(() => window.__tgOpenPin("grove-kane-scan-splat"));
-    await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
-    await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+    await openWalk(page);
     await expect(page.locator("#videowalk-root [data-fs]")).toBeHidden();
     await expect(page.locator("#videowalk-root [data-fs-exit]")).toBeHidden();
     await expect(page.locator("#videowalk-root").getByRole("button", { name: /Full screen/i })).toHaveCount(0);
@@ -313,12 +261,7 @@ test("desktop CSS fallback covers the viewport when the Fullscreen API is missin
     hide(Element.prototype, "webkitRequestFullScreen");
   });
   await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto("/index.html");
-  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
-  await goToWalk(page);
-  await page.getByRole("button", { name: "The Grove", exact: true }).click();
-  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
-  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+  await openWalk(page);
 
   const fsBtn = page.locator("#videowalk-root [data-fs]");
   const exitBtn = page.locator("#videowalk-root [data-fs-exit]");
@@ -371,8 +314,7 @@ async function waitForMap(page) {
 }
 
 test("remaining pins keep their ids, coordinates, and video-walk behaviour", async ({ page }) => {
-  await page.goto("/index.html");
-  await waitForMap(page);
+  await goToWalk(page);
   const pins = await page.evaluate(() =>
     (window.__tgPins || []).map((p) => ({
       id: p.id,
@@ -393,12 +335,11 @@ test("remaining pins keep their ids, coordinates, and video-walk behaviour", asy
     expect(got.splat).toBeUndefined();
   }
 
-  await page.evaluate(() => window.__tgOpenPin("grove-kane-scan-splat"));
-  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await openWalk(page, "grove-kane-scan-splat");
   await expect(page.locator("#player-root .player-shell")).toBeHidden();
   await expect(page.locator("#splat-root .player-shell")).toBeHidden();
-  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
   await expect(page.locator("#videowalk-root [data-sample-banner]")).toContainText("The Grove");
+  await expect(page.locator("#walk-handle")).toContainText("@la.walker");
   await page.getByRole("button", { name: "Close" }).click();
   await expect(page.locator("#videowalk-root .player-shell")).toBeHidden();
 });
@@ -406,9 +347,7 @@ test("remaining pins keep their ids, coordinates, and video-walk behaviour", asy
 
 test("Grove video walk opens by default, hold-up walks, release stops, no black edges", async ({ page }) => {
   test.setTimeout(180000);
-  await page.goto("/index.html");
-  await waitForMap(page);
-  await page.evaluate(() => window.__tgOpenPin("grove-kane-scan-splat"));
+  await openWalk(page, "grove-kane-scan-splat");
   await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
   await expect(page.locator("#splat-root .player-shell")).toBeHidden();
   await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
@@ -449,9 +388,7 @@ test("Grove video walk opens by default, hold-up walks, release stops, no black 
 
 test("Farmers Market video walk opens by default, hold-up walks, release stops, no black edges", async ({ page }) => {
   test.setTimeout(180000);
-  await page.goto("/index.html");
-  await waitForMap(page);
-  await page.evaluate(() => window.__tgOpenPin("farmers-kane-scan-splat"));
+  await openWalk(page, "farmers-kane-scan-splat");
   await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
   await expect(page.locator("#splat-root .player-shell")).toBeHidden();
   await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
@@ -477,12 +414,8 @@ test.describe("video walk phone viewport", () => {
 
   test("Grove and Farmers video walks have no black edges on a phone-sized viewport", async ({ page }) => {
     test.setTimeout(240000);
-    await page.goto("/index.html");
-    await waitForMap(page);
     for (const id of ["grove-kane-scan-splat", "farmers-kane-scan-splat"]) {
-      await page.evaluate((pinId) => window.__tgOpenPin(pinId), id);
-      await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
-      await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, null, { timeout: 120000 });
+      await openWalk(page, id);
       expect(await page.evaluate(() => window.__tgVideoWalk.coversStage()), id + " covers").toBe(true);
       const t0 = await page.evaluate(() => window.__tgVideoWalk.currentTime);
       await page.evaluate(() => window.__tgVideoWalk.setMoveAxis(0, -1));
@@ -500,10 +433,6 @@ test.describe("video walk phone viewport", () => {
     }
   });
 });
-
-// Pre-existing failures, left unfixed: these locators expect href="/sales.html"
-// but the pages use href="sales.html". Moved to the end only so serial mode
-// still runs the tests after them. Assertions are unchanged.
 
 
 test("phone player sticks stay inside a full-bleed stage at common iPhone sizes", async ({ page }) => {
@@ -570,15 +499,13 @@ test("phone player sticks stay inside a full-bleed stage at common iPhone sizes"
     }, selector);
   }
 
-  await page.goto("/index.html");
-  await waitForMap(page);
+  await page.setViewportSize(sizes[0]);
+  await openWalk(page, "grove-kane-scan-splat");
   await page.evaluate(() => sessionStorage.removeItem("tg:look-hint-used"));
 
   for (const size of sizes) {
     await page.setViewportSize(size);
-    await page.evaluate(() => window.__tgOpenPin("grove-kane-scan-splat"));
-    await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
-    await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+    if (size != sizes[0]) await openWalk(page, "grove-kane-scan-splat");
     await expect(page.locator("#videowalk-root [data-stick='look']")).toBeHidden();
     await expect(page.locator("#videowalk-root [data-stick='move']")).toBeVisible();
     await expect(page.locator("#videowalk-root [data-look-hint] .hint-phone")).toHaveText("Drag to look, hold stick to walk");
@@ -587,9 +514,7 @@ test("phone player sticks stay inside a full-bleed stage at common iPhone sizes"
   }
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.evaluate(() => window.__tgOpenPin("grove-kane-scan-splat"));
-  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
-  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+  await openWalk(page, "grove-kane-scan-splat");
   const vwPan0 = await page.evaluate(() => window.__tgVideoWalk.pan);
   const stageC = await centerOf(page, "#videowalk-root [data-stage]");
   await dispatchPointer(page, "#videowalk-root [data-stage]", "pointerdown", { pointerId: 21, x: stageC.x, y: stageC.y });
@@ -614,32 +539,81 @@ test("phone player sticks stay inside a full-bleed stage at common iPhone sizes"
   await dispatchPointer(page, "#videowalk-root [data-stage]", "pointerup", { pointerId: 32, x: stageC2.x - 40, y: stageC2.y - 28 });
   await page.evaluate(() => window.__tgVideoWalk.close({ silent: true }));
 
-  await page.evaluate(() => window.__tgOpenPin("farmers-kane-scan-splat"));
-  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
-  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+  await openWalk(page, "farmers-kane-scan-splat");
   await expect(page.locator("#videowalk-root [data-stick='look']")).toBeHidden();
   assertInside(await measure(page, "#videowalk-root", { w: 390, h: 844 }), "Farmers 390x844");
   await page.evaluate(() => window.__tgVideoWalk.close({ silent: true }));
 });
 
+test("sign up validates fields and shows a preview-not-saved success", async ({ page }) => {
+  await page.goto("/signup.html");
+  await expect(page.getByRole("button", { name: /Continue with Google/i })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Continue with Apple/i })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Continue with Google/i })).toContainText(/Coming soon/i);
+  await page.getByRole("button", { name: "Create preview session" }).click();
+  await expect(page.locator("#signup-email-error")).toContainText("Enter your email");
+  await page.locator("#signup-email").fill("not-an-email");
+  await page.locator("#signup-password").fill("short");
+  await page.getByRole("button", { name: "Create preview session" }).click();
+  await expect(page.locator("#signup-email-error")).toContainText("valid email");
+  await expect(page.locator("#signup-password-error")).toContainText("8 characters");
+  await page.locator("#signup-email").fill("preview@example.com");
+  await page.locator("#signup-password").fill("password1");
+  await page.getByRole("button", { name: "Create preview session" }).click();
+  await expect(page.locator("#signup-success")).toBeVisible();
+  await expect(page.locator("#signup-success")).toContainText("Preview: not saved");
+  expect(await visibleKane(page)).toEqual([]);
+  await shot(page, "30-signup-success.png");
+});
 
+test("upload flow previews a local file and ends as preview not saved", async ({ page }) => {
+  test.setTimeout(120000);
+  await page.goto("/upload.html");
+  const video = require("path").join(__dirname, "..", "media", "sample-360.mp4");
+  await page.locator("#upload-file").setInputFiles(video);
+  await expect(page.locator("#upload-preview")).toBeVisible();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Use the Los Angeles walk area" }).click();
+  await expect(page.locator("#upload-pin-label")).toContainText("Los Angeles");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.locator("#upload-title").fill("Morning market walk");
+  await page.locator("#upload-desc").fill("A preview clip that stays on this device.");
+  await page.locator("#upload-tags").fill("Los Angeles, market");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.locator("#consent-filmed").check();
+  await page.locator("#consent-people").check();
+  await page.locator("#consent-music").check();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.locator("#upload-review")).toContainText("Morning market walk");
+  await expect(page.locator("#upload-review")).toContainText("not uploaded");
+  await page.getByRole("button", { name: "Submit for review" }).click();
+  await expect(page.locator("#upload-success")).toContainText("Submitted for review (preview, not saved)");
+  await shot(page, "31-upload-success.png");
+});
 
-test("sales page loads with both prices, free preview, and honest demo note", async ({ page }) => {
-  await page.goto("/sales.html");
-  await expect(page.locator("h1")).toContainText("Put your business on the Walk of Fame Globe");
-  await expect(page.locator("#price-standard")).toHaveText("$250");
-  await expect(page.locator("#price-featured")).toHaveText("$500");
-  await expect(page.getByText("figure to review").first()).toBeVisible();
-  await expect(page.locator('header nav a[href="sales.html"]')).toHaveText("For businesses");
-  await expect(page.getByText("Free 45-second preview")).toBeVisible();
-  await expect(page.getByText("you only pay if you want the full pin")).toBeVisible();
-  await expect(page.getByText("No business has bought a pin yet")).toBeVisible();
-  await expect(page.locator('a[href="creator.html"]', { hasText: "Request a free preview" })).toBeVisible();
-  await expect(page.locator('a[href="index.html"]', { hasText: "Back to the map" })).toBeVisible();
-  // Linked from the header, not a second map-HUD button.
-  await page.goto("/index.html");
-  await expect(page.locator('header nav a[href="sales.html"]')).toHaveText("For businesses");
-  await shot(page, "16-sales-page.png");
+test("my walks shows empty and demo states", async ({ page }) => {
+  await page.goto("/me.html");
+  await page.evaluate(() => {
+    localStorage.removeItem("tg:demo-session");
+    localStorage.removeItem("tg:demo-walks");
+  });
+  await page.reload();
+  await expect(page.getByText("No preview session in this browser yet.")).toBeVisible();
+  await page.getByRole("button", { name: "Show a demo profile" }).click();
+  await expect(page.locator("#profile-hello")).toContainText("preview session");
+  await expect(page.locator("#profile-walks")).toContainText("Preview: not saved");
+  await page.getByRole("button", { name: "Clear demo state in this browser" }).click();
+  await expect(page.getByText("No preview session in this browser yet.")).toBeVisible();
+});
+
+test("retired creator and sales pages point to the new official flows", async ({ page }) => {
+  await page.goto("/creator.html", { waitUntil: "domcontentloaded" });
+  await page.waitForURL(/upload\.html/);
+  await expect(page.locator("h1")).toContainText("Share your walk");
+  await page.goto("/sales.html", { waitUntil: "domcontentloaded" });
+  await page.waitForURL(/about\.html/);
+  await expect(page.locator("h1")).toHaveText("About");
+  await expect(page.locator(".draft-flag")).toHaveText("Draft");
 });
 
 test("robots.txt and pages are marked noindex", async ({ page, request }) => {
@@ -648,9 +622,26 @@ test("robots.txt and pages are marked noindex", async ({ page, request }) => {
   const body = await robots.text();
   expect(body).toMatch(/User-agent:\s*\*/i);
   expect(body).toMatch(/Disallow:\s*\//);
-  for (const pathName of ["/index.html", "/creator.html", "/admin.html", "/sales.html"]) {
+  const pages = [
+    "/index.html",
+    "/explore.html",
+    "/walk.html?id=grove-kane-scan-splat",
+    "/signup.html",
+    "/login.html",
+    "/upload.html",
+    "/me.html",
+    "/about.html",
+    "/guidelines.html",
+    "/privacy.html",
+    "/terms.html",
+    "/creator.html",
+    "/sales.html",
+    "/admin.html",
+  ];
+  for (const pathName of pages) {
     await page.goto(pathName);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex");
-    await expect(page.locator('header nav a[href="sales.html"]')).toHaveText("For businesses");
+    const text = await page.locator("body").innerText();
+    expect(text, pathName + " should not use the old site name").not.toContain("Walk of Fame Globe");
   }
 });
