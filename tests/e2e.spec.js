@@ -243,7 +243,7 @@ test("fullscreen button uses the Fullscreen API or an iOS CSS fallback", async (
   await page.getByRole("button", { name: "The Grove", exact: true }).click();
   await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
   await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
-  await page.getByRole("button", { name: "Full screen" }).click();
+  await page.locator("#videowalk-root [data-fs]").click();
   await page.waitForTimeout(500);
   const on = await page.evaluate(() => {
     const panel = document.querySelector("#videowalk-root .player-panel");
@@ -255,7 +255,7 @@ test("fullscreen button uses the Fullscreen API or an iOS CSS fallback", async (
   });
   expect(on).toBeTruthy();
   await shot(page, "22-desktop-fullscreen.png");
-  await page.getByRole("button", { name: /Exit full/i }).click();
+  await page.locator("#videowalk-root [data-fs]").click();
   await page.waitForTimeout(300);
   const off = await page.evaluate(() => {
     const panel = document.querySelector("#videowalk-root .player-panel");
@@ -266,6 +266,75 @@ test("fullscreen button uses the Fullscreen API or an iOS CSS fallback", async (
     );
   });
   expect(off).toBeFalsy();
+});
+
+test("pseudo-fullscreen fallback covers the viewport when the Fullscreen API is missing", async ({ page }) => {
+  test.setTimeout(180000);
+  await page.addInitScript(() => {
+    const hide = (obj, key) => {
+      try {
+        Object.defineProperty(obj, key, { configurable: true, writable: true, value: undefined });
+      } catch (_) {
+        try { obj[key] = undefined; } catch (_) {}
+      }
+    };
+    hide(Document.prototype, "fullscreenEnabled");
+    hide(Document.prototype, "webkitFullscreenEnabled");
+    hide(Document.prototype, "fullscreenElement");
+    hide(Document.prototype, "webkitFullscreenElement");
+    hide(Document.prototype, "exitFullscreen");
+    hide(Document.prototype, "webkitExitFullscreen");
+    hide(Element.prototype, "requestFullscreen");
+    hide(Element.prototype, "webkitRequestFullscreen");
+    hide(Element.prototype, "webkitRequestFullScreen");
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/index.html");
+  await page.waitForFunction(() => window.__tgMapReady === true, null, { timeout: 40000 });
+  await goToWalk(page);
+  await page.getByRole("button", { name: "The Grove", exact: true }).click();
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
+  await page.waitForFunction(() => window.__tgVideoWalk && window.__tgVideoWalk.ready === true, { timeout: 120000 });
+
+  const fsBtn = page.locator("#videowalk-root [data-fs]");
+  const exitBtn = page.locator("#videowalk-root [data-fs-exit]");
+  await expect(fsBtn).toHaveText("Full screen");
+  await expect(fsBtn).toHaveAttribute("aria-pressed", "false");
+  await expect(exitBtn).toBeHidden();
+
+  await fsBtn.click();
+  await expect(page.locator("#videowalk-root .player-panel")).toHaveClass(/is-fullscreen/);
+  await expect.poll(async () => page.evaluate(() => document.body.classList.contains("player-css-fs"))).toBeTruthy();
+  await expect(fsBtn).toHaveText("Exit full screen");
+  await expect(fsBtn).toHaveAttribute("aria-pressed", "true");
+  await expect(exitBtn).toBeVisible();
+
+  const covered = await page.evaluate(() => {
+    const vp = { w: window.innerWidth, h: window.innerHeight };
+    const shell = document.querySelector("#videowalk-root .player-shell").getBoundingClientRect();
+    const stick = document.querySelector("#videowalk-root [data-stick='move']").getBoundingClientRect();
+    return {
+      vp,
+      shell: { x: Math.round(shell.x), y: Math.round(shell.y), w: Math.round(shell.width), h: Math.round(shell.height) },
+      covers: Math.abs(shell.width - vp.w) < 2 && Math.abs(shell.height - vp.h) < 4 && shell.top < 2 && shell.left < 2,
+      stickInside: stick.width >= 44 && stick.left >= -0.5 && stick.top >= -0.5 && stick.right <= vp.w + 0.5 && stick.bottom <= vp.h + 0.5,
+    };
+  });
+  expect(covered.covers, "player should cover the viewport " + JSON.stringify(covered)).toBeTruthy();
+  expect(covered.stickInside, "Move stick should stay inside the viewport " + JSON.stringify(covered)).toBeTruthy();
+
+  await exitBtn.click();
+  await expect(page.locator("#videowalk-root .player-panel")).not.toHaveClass(/is-fullscreen/);
+  await expect.poll(async () => page.evaluate(() => document.body.classList.contains("player-css-fs"))).toBeFalsy();
+  await expect(fsBtn).toHaveText("Full screen");
+  await expect(fsBtn).toHaveAttribute("aria-pressed", "false");
+  await expect(exitBtn).toBeHidden();
+
+  await fsBtn.click();
+  await expect(page.locator("#videowalk-root .player-panel")).toHaveClass(/is-fullscreen/);
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#videowalk-root .player-panel")).not.toHaveClass(/is-fullscreen/);
+  await expect(page.locator("#videowalk-root .player-shell")).toBeVisible();
 });
 
 const REMAINING_PINS = [
