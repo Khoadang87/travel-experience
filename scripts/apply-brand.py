@@ -13,7 +13,7 @@ root = Path(__file__).resolve().parents[1]
 cfg = (root / "src" / "site-config.js").read_text()
 
 def const(name, default=""):
-    m = re.search(r'export const %s = "((?:\\.|[^"\\])*)"' % name, cfg)
+    m = re.search(r'export const %s\s*=\s*"((?:\\.|[^"\\])*)"' % name, cfg)
     return m.group(1) if m else default
 
 TOKENS = {
