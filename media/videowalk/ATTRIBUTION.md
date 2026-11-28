@@ -50,3 +50,19 @@ separate sound toggle follow the recovered Hội An w27 player
 this repository's git history. Look-around is not a 360° sphere:
 these are flat portrait clips, so the player slightly overscales the
 frame (1.2×) and pans inside it so black edges are never shown.
+
+## Café counter, 1st Street (added 27 November 2026)
+
+- **Footage:** the site owner's own iPhone 15 clip, about 23 seconds
+  (the whole clip), filmed 26 November 2026 inside a café near 1st
+  Street at The Grove / Farmers Market, Los Angeles. Place comes from
+  the clip's own GPS tag: about 34.0725 N, 118.3598 W, horizontal
+  accuracy about 12 m. The café is not named on the site. No
+  endorsement by the business or anyone in the footage is implied.
+- **What it is:** a smooth indoor pass along a counter, not a street
+  walk. It has no route map, so the mini-map is hidden. Staff and
+  customers appear in the frame and have not been asked about public
+  display; check consent before any public launch.
+- **Encoding:** same recipe as above (640×1136 H.264, CRF 28, 0.5 s
+  keyframes, faststart, no audio, GPS/metadata stripped). File:
+  `cafe-counter-walk.mp4`, 4,399,730 bytes (about 4.2 MB).

@@ -33,7 +33,7 @@ full-resolution file. Same author and license (360TR, CC BY 3.0).
 Video walks
 ===========
 
-The Grove and Farmers Market walks and their attribution live under
+The Grove, Farmers Market, and café counter walks and their attribution live under
 media/videowalk/. See media/videowalk/ATTRIBUTION.md.
 
 Files no longer in this tree
