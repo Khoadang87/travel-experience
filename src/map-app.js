@@ -1,9 +1,10 @@
-import { Map, Marker, setWorkerUrl, AttributionControl } from "maplibre-gl";
+import { Map, setWorkerUrl, AttributionControl } from "maplibre-gl";
 import { adsState, loadBaseConfig, getConfig, formatPT, SAMPLE_360 } from "./shared.js";
 
 import { mountPlayer } from "./player.js";
 import { mountSplatPlayer } from "./splat-player.js";
 import { mountVideoWalkPlayer } from "./videowalk-player.js";
+import { createPinReveal } from "./pin-reveal.js";
 
 setWorkerUrl("vendor/maplibre-gl-worker.mjs");
 
@@ -48,6 +49,7 @@ map.addControl(
 let mode = "globe";
 let pins = [];
 const markers = [];
+let reveal = null;
 
 function setPinVisibility() {
   const showAllZooms = document.body.dataset.page === "explore";
@@ -81,40 +83,13 @@ function syncMode() {
 }
 
 function addPins() {
-  for (const marker of markers) marker.remove();
+  if (!reveal) reveal = createPinReveal(map);
+  reveal.clear();
   markers.length = 0;
   for (const pin of pins) {
-    const el = document.createElement("button");
-    el.type = "button";
-    el.className = "map-pin kind-" + pin.kind;
-    el.dataset.pinId = pin.id;
-    el.setAttribute("aria-label", pin.name);
-    el.innerHTML =
-      (pin.kind === "star-segment" ? starSvg() : pin.kind === "business" ? businessSvg() : pinSvg()) +
-      "<span>" + escapeHtml(pin.label || pin.name) + "</span>";
-    el.addEventListener("click", (e) => {
-      e.stopPropagation();
-      openPin(pin);
-    });
-    const marker = new Marker({ element: el, anchor: "bottom" })
-      .setLngLat([pin.lng, pin.lat])
-      .addTo(map);
-    markers.push(marker);
+    markers.push(reveal.addPin(pin));
   }
   setPinVisibility();
-}
-
-function starSvg() {
-  return `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2.2l2.6 6.3 6.9.6-5.3 4.5 1.7 6.7L12 16.8 5.9 20.3l1.7-6.7L2.3 9.1l6.9-.6z"/></svg>`;
-}
-function pinSvg() {
-  return `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2c3.9 0 7 3 7 7 0 5.3-7 13-7 13S5 14.3 5 9c0-4 3.1-7 7-7zm0 4.5A2.5 2.5 0 1 0 12 11a2.5 2.5 0 0 0 0-4.5z"/></svg>`;
-}
-// Gold marker for the example business pin: it shows what a featured
-// (gold) pin looks like, and its label says Example, never a real
-// business name.
-function businessSvg() {
-  return `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2c3.9 0 7 3 7 7 0 5.3-7 13-7 13S5 14.3 5 9c0-4 3.1-7 7-7zm0 4.5A2.5 2.5 0 1 0 12 11a2.5 2.5 0 0 0 0-4.5z"/></svg>`;
 }
 
 function escapeHtml(s) {
@@ -494,6 +469,7 @@ function setupExploreList() {
       list.appendChild(a);
     }
     if (empty) empty.hidden = shown.length > 0;
+    if (reveal) reveal.close();
     for (const marker of markers) {
       const id = marker.getElement().dataset.pinId;
       marker.getElement().dataset.filtered = shownIds.has(id) ? "0" : "1";
